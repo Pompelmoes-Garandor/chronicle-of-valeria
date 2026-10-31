@@ -393,7 +393,9 @@ body.sealed header.top,body.sealed nav.dock,body.sealed .eggs,body.sealed #pins{
 #seal.surge #sl-plate{box-shadow:0 0 0 2px #ff4a3a,0 0 72px #ff4a3a99}
 #seal.surge #sl-plate b{color:#ff7a6a}
 .sl-cmd{margin:0;font:italic 18px/1.4 var(--body);color:var(--parch);min-height:2.8em;text-wrap:balance}
-@media (max-height:520px){.sl-face .hans-face{--hf-size:76px}.sl-h{font-size:26px}.sl-say{font-size:17px}#sl-plate{width:min(150px,40vh)}.sl-in{gap:7px}}
+@media (max-height:520px){#seal{padding-top:calc(var(--top) + 10px);padding-bottom:calc(var(--bot) + 10px)}
+  .sl-face .hans-face{--hf-size:60px}.sl-h{display:none}.sl-say{font-size:16px}.sl-in{gap:6px}
+  #sl-plate{width:min(150px,38vh)}#sl-plate b{font-size:14px}.sl-cmd{font-size:16px;min-height:1.4em}}
 </style>
 <style>html,body{margin:0}</style>
 </head>
@@ -468,7 +470,7 @@ addEventListener("error",function(e){if(e.target&&e.target.tagName==="LINK")retu
   </div>
 </div>
 <script>/* the seal: hidden at once where the crew has already opened the box, so it never flashes; ?seal shuts it again (for testing) */
-(function(){var open=false;try{if(/[?&]seal(=|&|$)/.test(location.search))localStorage.removeItem("chron-open");open=localStorage.getItem("chron-open")==="1";}catch(e){}
+(function(){var open=false;try{if(/[?&]seal(=|&|$)/.test(location.search))localStorage.removeItem("chron-open");open=localStorage.getItem("chron-open")==="2";}catch(e){}
 var s=document.getElementById("seal");if(open)s.hidden=true;else document.body.classList.add("sealed");})();</script>
 
 <script type="module">
@@ -562,7 +564,7 @@ const store = { get(k){try{return localStorage.getItem(k)}catch(e){return null}}
 // The seal: until the crew opens the black box together at the start of session 10, the chart stays shut.
 const SEAL_ON = AS_OF===9;                 // remove with the session 10 update
 const sealEl=document.getElementById("seal");
-let sealed=SEAL_ON&&store.get("chron-open")!=="1";
+let sealed=SEAL_ON&&store.get("chron-open")!=="2";   // "2": reset once after Sam tested it (2026-10-31)
 sealEl.hidden=!sealed; document.body.classList.toggle("sealed",sealed);
 
 /* =================== THREE SETUP =================== */
@@ -1737,7 +1739,7 @@ function startPlate(remote){
   })(performance.now());
 }
 function finishSeal(plate,lbl,cmd){
-  sealed=false; store.set("chron-open","1");
+  sealed=false; store.set("chron-open","2");
   try{if(/[?&]seal(=|&|$)/.test(location.search))history.replaceState(null,"",location.pathname);}catch(e){}
   plate.classList.remove("held"); dropBeat(); buzz([40,80,40,80,40,80,120]);
   lbl.textContent="OPEN"; slEye.textContent="BLACK BOX · OPEN"; cmd.textContent="";
@@ -1746,7 +1748,7 @@ function finishSeal(plate,lbl,cmd){
 }
 function liftSeal(){
   if(sealEl.classList.contains("gone"))return;
-  sealed=false; store.set("chron-open","1");
+  sealed=false; store.set("chron-open","2");
   {
     sealEl.classList.add("gone"); document.body.classList.remove("sealed"); setTimeout(()=>{sealEl.hidden=true;},1500);
     const fresh=store.get("chron-seen")!==SKEY;
