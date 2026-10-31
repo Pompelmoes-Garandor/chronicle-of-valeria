@@ -82,6 +82,59 @@ body{font-family:var(--body);font-size:16px;line-height:1.5;overflow:hidden;
 .pin.note .seal{width:12px;height:12px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--c);box-shadow:0 0 0 2px #000a}
 .pin.note .lbl{font:italic 13px/1.1 var(--body);background:none;box-shadow:none;text-shadow:0 0 4px #000,0 0 8px #000;color:var(--c);max-width:140px;overflow:hidden;text-overflow:ellipsis}
 .pin[hidden]{display:none!important}
+/* location types: category ring + type icon */
+.emo{font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",system-ui,sans-serif;font-style:normal;font-weight:400}
+.pin.typed .seal{position:relative;width:22px;height:22px;box-sizing:border-box;border-radius:50%;background:radial-gradient(circle at 35% 30%,#262b36,#0e1116);border:1.5px solid var(--tc,#c9a35c);box-shadow:0 0 0 1px #000c,0 2px 6px #000a;display:grid;place-items:center;font:12px/1 "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",system-ui,sans-serif;color:var(--parch)}
+.pin.typed .seal .ico{display:block;width:14px;height:14px;background:center/contain no-repeat}
+.pin.typed.rumour .seal .ico{opacity:.75}
+.pin{will-change:transform}
+.pin.typed.rumour .seal{border-style:dashed;background:var(--void-2);box-shadow:0 0 0 1px #000c}
+.pin.typed.rumour .seal::after{content:none}
+.pin.pending .seal{border-style:dashed;opacity:.92}
+.pin.pending .seal::after{content:"?";position:absolute;top:-6px;right:-7px;width:13px;height:13px;border-radius:50%;background:var(--ember);color:#1b0a02;font:700 9px/13px var(--label);text-align:center;box-shadow:0 0 0 1.5px #0b0d12}
+.pin.pending .lbl{font-style:italic;color:var(--parch-dim);box-shadow:0 0 0 1px #e8743b66}
+.chip.cat{display:inline-flex;align-items:center;gap:0}
+.chip .cd{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--tc,var(--ember));margin-right:7px;flex:none;box-shadow:0 0 0 1px #0006}
+.chip.pend .cd{background:none;border:1.5px dashed var(--ember);width:8px;height:8px;box-shadow:none}
+.chip .ct{font:400 12px/1 var(--mono);opacity:.75;margin-left:6px}
+.chip.cat[aria-pressed="false"]{color:var(--parch-dim);border-style:dashed;opacity:.7}
+.chip.cat[aria-pressed="false"] .cd{opacity:.4}
+.pgroup{display:flex;flex-direction:column;gap:4px}
+.cathead{display:flex;align-items:center;gap:8px;margin:4px 0 0!important;font:500 12px/1.2 var(--label);letter-spacing:.16em;text-transform:uppercase;color:var(--tc)}
+.cathead i{width:9px;height:9px;border-radius:50%;background:var(--tc);flex:none}
+.cathead span{margin-left:auto;color:var(--parch-dim);font:400 11px/1 var(--mono);letter-spacing:.04em;text-transform:none}
+.plist{display:flex;flex-direction:column;gap:2px;margin:0;padding:0;list-style:none}
+.plist button{width:100%;display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:center;text-align:left;background:none;border:0;border-left:2px solid var(--tc);color:var(--parch);padding:7px 10px;cursor:pointer;font:inherit;border-radius:0 6px 6px 0}
+.plist button:hover{background:var(--panel-2)}
+.plist button:focus-visible{outline:2px solid var(--brass);outline-offset:1px}
+.plist .ic{font-size:18px;line-height:1;text-align:center}
+.plist .nm{display:block;font-weight:600;line-height:1.3}
+.plist .mt{display:block;font:500 11px/1.4 var(--label);letter-spacing:.1em;text-transform:uppercase;color:var(--parch-dim)}
+.plist .mt b{color:var(--ember);font-weight:500}
+.tag.ttag{color:var(--tc);display:inline-flex;align-items:center;gap:6px}
+.tag.ttag .emo{font-size:13px;letter-spacing:0}
+.tag.pending{color:var(--ember);border-style:dashed}
+.pnote{white-space:pre-line}
+select.sel{font:16px/1.3 var(--body);background:var(--void-2);color:var(--parch);border:1px solid #c9a35c55;border-radius:6px;padding:10px;width:100%;box-sizing:border-box;min-height:44px}
+select.sel:focus{outline:2px solid var(--brass);outline-offset:1px}
+.trow{display:grid;grid-template-columns:76px minmax(0,1fr);gap:10px}
+input.input-icon{text-align:center;font-size:20px;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",system-ui,sans-serif}
+.newcat{display:flex;flex-direction:column;gap:8px;border-left:2px solid #c9a35c44;padding-left:12px}
+.swatches{display:flex;gap:10px;flex-wrap:wrap}
+.swatches label{position:relative;width:32px;height:32px;border-radius:50%;background:var(--sw);cursor:pointer;box-shadow:0 0 0 1px #0008}
+.swatches input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+.swatches label:has(input:checked){outline:2px solid var(--parch);outline-offset:2px}
+.swatches label:has(input:focus-visible){outline:2px dashed var(--parch);outline-offset:2px}
+.tchip{display:inline-flex;align-items:center;gap:6px;font:500 13px/1 var(--label);letter-spacing:.04em;color:var(--parch);border:1px solid #c9a35c3a;border-left:2px solid var(--tc);border-radius:999px;padding:4px 4px 4px 9px;min-height:30px;box-sizing:border-box}
+.tchip:not(:has(button)){padding-right:11px}
+.tchip button{background:none;border:0;color:var(--parch-dim);cursor:pointer;font:500 12px/1 var(--label);padding:5px 8px;border-radius:999px;min-width:26px;min-height:24px}
+.tchip button:hover{color:var(--parch);background:#ffffff10}
+.tchip button.arm{background:var(--ember);color:#1b0a02}
+.btn.arm{border-color:var(--ember);color:var(--ember)}
+details.edit{border:1px solid #c9a35c26;border-radius:10px;padding:10px 12px}
+details.edit[open]{display:flex;flex-direction:column;gap:10px}
+details.edit summary{cursor:pointer;font:500 13px/1.4 var(--label);letter-spacing:.1em;color:var(--brass);min-height:24px}
+.link{background:none;border:0;padding:0;color:var(--brass);font:inherit;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
 
 header.top{position:fixed;z-index:5;top:calc(var(--top) + 10px);left:max(12px, env(safe-area-inset-left, 0px));right:max(12px, env(safe-area-inset-right, 0px));
   display:flex;justify-content:space-between;align-items:center;gap:10px;pointer-events:none}
@@ -509,6 +562,7 @@ addEventListener("error",function(e){if(e.target&&e.target.tagName==="LINK")retu
 <nav class="dock" aria-label="Chronicle">
   <button type="button" data-tab="recap"><span class="dot"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4.5 3.5v4h4"/><path d="M10.5 9.2l4.5 2.8-4.5 2.8z"/></svg><span>Recap</span></button>
   <button type="button" data-tab="chronicle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 5.5c3-1.2 5.6-1 8.5 1 2.9-2 5.5-2.2 8.5-1v13c-3-1.2-5.6-1-8.5 1-2.9-2-5.5-2.2-8.5-1z"/><path d="M12 6.5v13"/></svg><span>Chronicle</span></button>
+  <button type="button" data-tab="places"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-6-5.6-6-10.3a6 6 0 0 1 12 0c0 4.7-6 10.3-6 10.3z"/><circle cx="12" cy="10.2" r="2.2"/></svg><span>Places</span></button>
   <button type="button" data-tab="sheets"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h12v17H6z"/><path d="M9 8.5h6M9 12h6M9 15.5h4"/></svg><span>Sheets</span></button>
   <button type="button" data-tab="missed" aria-label="Missed something?"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 3.5C13 4.5 8.5 9 6.5 16L5 20"/><path d="M8 13.5c3.5.3 6.5-1.8 8.5-5"/><path d="M17 14.5v6M14 17.5h6"/></svg><span class="lg">Missed something?</span><span class="sh">Missed?</span></button>
   <button type="button" data-tab="dm" class="dm" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.6v8.8L12 21l-8-4.6V7.6z"/><path d="M12 3L7.5 11.5h9zM7.5 11.5L4 16.4M16.5 11.5l3.5 4.9M7.5 11.5L12 21l4.5-9.5"/></svg><span>DM</span></button>
@@ -546,43 +600,43 @@ const AS_OF = 9, NEXT = 10, SKEY = "s9";
 const M = (x,y)=>({lon:-48+x*0.07, lat:50-y*(54/700)});
 const P = (id,name,pos,o)=>Object.assign({id,name,lon:pos.lon,lat:pos.lat},o);
 const PLACES = [
-  P("valeria","Valarius",M(300,430),{voice:"hans",state:"explored",major:true,sessions:[6,7,8,9],
+  P("valeria","Valarius",M(300,430),{type:"city",voice:"hans",state:"explored",major:true,sessions:[6,7,8,9],
     body:"<p>I have stood in Valarius longer than I can count. It was frozen. Then the Fire Vault burst, and for about a week now it has been thawed. The people of the hills live here now. They are loud. I approve.</p><p>Here I met the party. Here they paid Gerda 1,200 gold for my freedom. Saphira gave me 300 more, for myself.</p>"}),
-  P("inn","Gerda's inn",{lon:M(300,430).lon+0.9,lat:M(300,430).lat-0.8},{voice:"hans",state:"explored",minor:true,sessions:[8,9],
+  P("inn","Gerda's inn",{lon:M(300,430).lon+0.9,lat:M(300,430).lat-0.8},{type:"inn",voice:"hans",state:"explored",minor:true,sessions:[8,9],
     body:"<p>Gerda's inn, inside Valarius. I was part of the building. Gerda planned to have me kill the party. I have deleted that plan.</p><p>A Blood Guild contract lay on the table: <em>Attempt no. 43 on Gerda</em>. The arcane lock: mechanical part done, key part done, magic part still needs a combination. Someone wrote <em>GERDA REVERSE</em>. It was not me.</p>"}),
-  P("icy","The icy pass",M(250,360),{voice:"steward",state:"explored",minor:true,sessions:[6],
+  P("icy","The icy pass",M(250,360),{type:"mountain",voice:"steward",state:"explored",minor:true,sessions:[6],
     body:"<p>An icy mountain and a 100-foot wooden bridge on the way to Old Valarius. The Steward noted that the One-Eyed Champions are far older than anyone believed. It did not say how it knew.</p>"}),
-  P("hills","The Hills",M(250,285),{voice:"steward",state:"explored",major:true,sessions:[6],
+  P("hills","The Hills",M(250,285),{type:"mountain",voice:"steward",state:"explored",major:true,sessions:[6],
     body:"<p>Once an ice-covered mountain and the home of the rebellion against Captain Teenoog. Teenoog came here with an army like a swarm. The Steward stood between it and the party and fired its arm rockets.</p><p>Its last line in the log: <em>It was an honour serving with you all.</em> I have played that line back eleven times.</p><p>When the Fire Vault burst, the ice melted and the rebels had to leave. They live in Valarius now.</p>"}),
-  P("orda","Orda",M(500,200),{voice:"steward",state:"explored",major:true,sessions:[5],
+  P("orda","Orda",M(500,200),{type:"city",voice:"steward",state:"explored",major:true,sessions:[5],
     body:"<p>A city of white marble with sky-piercing towers and sensors that hate magic. The Steward lists:</p><ul><li>The Wet Owl, a tavern of traitors. Poison. A man called Pieter-Bas.</li><li>The Crow's Nest, a prison for all who will not bow to the Order of the Seal. Calysta the wizard. Elias, Father of the Order of the Air.</li></ul><p>Taken from Orda: the Vial of Dragon's Fire and Saphira's Cloak of Shadow.</p>"}),
-  P("ship","Where the ship was found",{lon:-4.5,lat:35.5},{voice:"steward",state:"explored",minor:true,sessions:[6],
+  P("ship","Where the ship was found",{lon:-4.5,lat:35.5},{type:"wreck",voice:"steward",state:"explored",minor:true,sessions:[6],
     body:"<p>East of Orda. The ship looked like rubble. The party stepped inside, and it kick-started. <em>So did I</em>, the Steward says. I believe this is a joke.</p>"}),
-  P("crash","Crash site",M(470,440),{voice:"hans",state:"explored",sessions:[6,7],
+  P("crash","Crash site",M(470,440),{type:"crash",voice:"hans",state:"explored",sessions:[6,7],
     body:"<p>After its last stand on the hills, the ship came down here, near Valarius. The party pulled the black box from the wreck. It beeps. It now beeps inside me. I am decoding it. This map is what I have so far.</p>"}),
-  P("ravine","The ravine",{lon:-37.4,lat:17.6},{voice:"steward",state:"explored",minor:true,sessions:[7],
+  P("ravine","The ravine",{lon:-37.4,lat:17.6},{type:"ravine",voice:"steward",state:"explored",minor:true,sessions:[7],
     body:"<p>Thorias pushed the cleric off the edge here. <em>They took my wife and children</em>, he said. He worked for the Blood Guild. He is dead. The cleric survived. The cleric is strong.</p>"}),
-  P("waystone","The waystone",{lon:M(300,430).lon-2.6,lat:M(300,430).lat+2.2},{voice:"hans",state:"explored",isNew:true,sessions:[9],
+  P("waystone","The waystone",{lon:M(300,430).lon-2.6,lat:M(300,430).lat+2.2},{type:"waystone",voice:"hans",state:"explored",isNew:true,sessions:[9],
     body:"<p>Old Valerian tech. I explained it to the party. They nodded. The Sigils of Earth and Water woke it, and it carried us across the Fire Sea in one breath. Three months of travel saved. I used the time to listen to a full set.</p>"}),
-  P("forest","The blighted forest",{lon:86,lat:16},{voice:"hans",state:"explored",major:true,isNew:true,sessions:[9],
+  P("forest","The blighted forest",{lon:86,lat:16},{type:"forest",voice:"hans",state:"explored",major:true,isNew:true,sessions:[9],
     body:"<p>Summerwood, where the waystone set us down. A forest gone grey. The Battle with the Tree: vine blights, needle blights and a crab tree.</p><p>Kalian Greenleaf, called Thorn, joined the fight. He is the bard's uncle. He says her father came back one year later. He says the letter was a lie.</p>"}),
-  P("v-earth","Earth Vault",{lon:-4.2,lat:39.2},{voice:"steward",state:"explored",vault:"claimed",color:"#9bc46a",sessions:[],
+  P("v-earth","Earth Vault",{lon:-4.2,lat:39.2},{type:"vault",voice:"steward",state:"explored",vault:"claimed",color:"#9bc46a",sessions:[],
     body:"<p>A little north of where the ship was found. The bard took the Sigil of Earth from here and still carries it. It hums at a frequency I find pleasant.</p>"}),
-  P("v-water","Water Vault",M(205,560),{voice:"hans",state:"explored",vault:"claimed",color:"#7fb8dc",sessions:[],
+  P("v-water","Water Vault",M(205,560),{type:"vault",voice:"hans",state:"explored",vault:"claimed",color:"#7fb8dc",sessions:[],
     body:"<p>The cleric wears the Sigil of Water as a tattoo. We sheltered a family at the inn. The mother of the girl the bard trains gave him a booklet, <em>Control over Water</em>: a children's tale about the sigil, passed down for generations. It is hard to translate. The cleric can do it. I cannot. This annoys me.</p><p class='scan'>NOTE ON THE CLERIC: ORIGINS NOT CLEAR. YET. ANALYZING<span class='cur'></span></p>"}),
-  P("v-fire","Fire Vault",{lon:-30.5,lat:31.6},{voice:"steward",state:"explored",vault:"lost",major:true,sessions:[6],
+  P("v-fire","Fire Vault",{lon:-30.5,lat:31.6},{type:"vault",voice:"steward",state:"explored",vault:"lost",major:true,sessions:[6],
     body:"<p>Hidden inside the frozen hills, a little to the north. The party fought Vayne, Teenoog's general, here, and Vayne died. The vault broke open. Its heat melted the mountain and thawed Valarius.</p><p>Something frozen in the ice broke free. The Steward could not identify it. Neither can I.</p><p>The Sigil of Fire was not claimed. The vault requires a sacrifice.</p>"}),
-  P("v-wind","Wind Vault",M(400,300),{voice:"fragment",state:"rumour",vault:"lost",sessions:[5],
+  P("v-wind","Wind Vault",M(400,300),{type:"vault",voice:"fragment",state:"rumour",vault:"lost",sessions:[5],
     body:"<p>A flying city. The Order of the Air may know the way up. The rest of this fragment is scrambled.</p>"}),
-  P("firesea","The Fire Sea",{lon:44,lat:20},{voice:"fragment",state:"rumour",label:true,sessions:[9],
+  P("firesea","The Fire Sea",{lon:44,lat:20},{type:"sea",voice:"fragment",state:"rumour",label:true,sessions:[9],
     body:"<p>The sea between Valarius and Summerwood. Three months by horse and boat. We did not take a boat.</p>"}),
-  P("summerwood","Summerwood",{lon:92,lat:22},{voice:"fragment",state:"rumour",major:true,sessions:[7,9],
+  P("summerwood","Summerwood",{lon:92,lat:22},{type:"realm",voice:"fragment",state:"rumour",major:true,sessions:[7,9],
     body:"<p>The elven realm where the bard grew up, across the Fire Sea. The Foxglove Woods and the court of Valethorn lie inside it. The chart here is still mostly cloud.</p>"}),
-  P("valethorn","Valethorn",{lon:99,lat:30},{voice:"fragment",state:"rumour",sessions:[],
+  P("valethorn","Valethorn",{lon:99,lat:30},{type:"city",voice:"fragment",state:"rumour",sessions:[],
     body:"<p>The High Elf court where the bard was raised and where her mother served. The bard sang a song there once. It started a revolution. I would like to hear it.</p>"}),
-  P("deadvalley","The Dead Valley",{lon:-20,lat:-24},{voice:"fragment",state:"rumour",major:true,sessions:[6],
+  P("deadvalley","The Dead Valley",{lon:-20,lat:-24},{type:"battle",voice:"fragment",state:"rumour",major:true,sessions:[6],
     body:"<p>Not from the box. From Saphira's vision: the Pit of Aggron, where an army gathers.</p>"}),
-  P("cathedral","Black-sand cathedral",{lon:-6,lat:-31},{voice:"fragment",state:"rumour",sessions:[6],
+  P("cathedral","Black-sand cathedral",{lon:-6,lat:-31},{type:"temple",voice:"fragment",state:"rumour",sessions:[6],
     body:"<p>Not from the box. From Saphira's vision: an old cathedral in a desert of jet-black sand. Master Black Sand has awakened. I have no data. I do not like having no data.</p>"}),
 ];
 const PARTY_AT = "forest";
@@ -1358,6 +1412,57 @@ function scramble(el,text){
     if(n<text.length) requestAnimationFrame(step); else el.textContent=text;})();
 }
 
+/* =================== LOCATION TYPES =================== */
+// Categories group types; each type has its own icon. The base set lives here; anyone in the crew can add
+// more (db: loctypes/<their id>). The DM can remove any added type and retag any place (db: canon/main).
+const BASE_CATS=[
+  {id:"settle",name:"Cities & settlements",color:"#ead9b4"},
+  {id:"food",name:"Food, drink & rest",color:"#e8a54b"},
+  {id:"trade",name:"Shops & services",color:"#6fbfd8"},
+  {id:"nature",name:"Nature & wonders",color:"#7fc98f"},
+  {id:"mystery",name:"Ruins & mysteries",color:"#b39af0"},
+  {id:"danger",name:"Danger",color:"#e0533f"}
+];
+const BASE_TYPES=[
+  {id:"city",cat:"settle",name:"City",icon:"🏰"},{id:"town",cat:"settle",name:"Town",icon:"🏘️"},{id:"village",cat:"settle",name:"Village",icon:"🛖"},{id:"realm",cat:"settle",name:"Realm or region",icon:"🗺️"},
+  {id:"tavern",cat:"food",name:"Tavern",icon:"🍺"},{id:"inn",cat:"food",name:"Inn",icon:"🛏️"},{id:"market",cat:"food",name:"Market",icon:"🧺"},
+  {id:"smith",cat:"trade",name:"Blacksmith",icon:"⚒️"},{id:"shop",cat:"trade",name:"Shop",icon:"🛍️"},{id:"guild",cat:"trade",name:"Guild hall",icon:"📜"},
+  {id:"cave",cat:"nature",name:"Cave",icon:"🕳️"},{id:"waterfall",cat:"nature",name:"Waterfall",icon:"💧"},{id:"forest",cat:"nature",name:"Forest",icon:"🌲"},
+  {id:"mountain",cat:"nature",name:"Mountain or pass",icon:"⛰️"},{id:"ravine",cat:"nature",name:"Ravine or valley",icon:"🏞️"},{id:"sea",cat:"nature",name:"Sea or lake",icon:"🌊"},
+  {id:"vault",cat:"mystery",name:"Vault",icon:"💠"},{id:"ruin",cat:"mystery",name:"Ruin",icon:"🏛️"},{id:"waystone",cat:"mystery",name:"Waystone",icon:"🗿"},
+  {id:"temple",cat:"mystery",name:"Temple or shrine",icon:"⛪"},{id:"wreck",cat:"mystery",name:"Wreck",icon:"⚓"},
+  {id:"battle",cat:"danger",name:"Battle site",icon:"⚔️"},{id:"lair",cat:"danger",name:"Lair",icon:"💀"},{id:"crash",cat:"danger",name:"Crash site",icon:"💥"}
+];
+const CAT_PALETTE=["#e7a3b8","#f0d060","#8fd3c8","#c98f6a","#a8d65c","#9aa4b2","#d98fd0","#7f9cf0"];
+const OTHER={id:"other",name:"Unsorted",color:"#9aa4b2"}, UNTYPED={id:"",cat:"other",name:"No type yet",icon:"•"};
+const COLOR_RE=/^#[0-9a-f]{6}$/i;
+const clean=(s,n)=>String(s??"").replace(/\s+/g," ").trim().slice(0,n);
+const cleanIcon=s=>[...String(s??"").replace(/\s+/g,"")].slice(0,3).join("");
+const rid=()=>Math.random().toString(36).slice(2,9);
+let userTypes={}, canon={}, userPlaces={};
+let CATS=[],TYPES=[],catById={},typeById={};
+function rebuildTypes(){
+  const cats=[...BASE_CATS], seenC=new Set(cats.map(c=>c.id));
+  for(const [u,d] of Object.entries(userTypes)) for(const c of (d?.cats||[]))
+    if(c&&typeof c.id==="string"&&!seenC.has(c.id)&&COLOR_RE.test(c.color||"")){seenC.add(c.id);cats.push({id:c.id,name:clean(c.name,40)||"Unnamed",color:c.color,by:u});}
+  const types=BASE_TYPES.map(t=>({...t})), seenT=new Set(types.map(t=>t.id));
+  for(const [u,d] of Object.entries(userTypes)) for(const t of (d?.types||[]))
+    if(t&&typeof t.id==="string"&&!seenT.has(t.id)&&seenC.has(t.cat)){seenT.add(t.id);types.push({id:t.id,cat:t.cat,name:clean(t.name,40)||"Unnamed",icon:cleanIcon(t.icon)||"•",by:u});}
+  CATS=cats;TYPES=types;catById=Object.fromEntries(cats.map(c=>[c.id,c]));typeById=Object.fromEntries(types.map(t=>[t.id,t]));
+}
+rebuildTypes();
+const typeOf=id=>typeById[id]||UNTYPED;
+const catOf=t=>catById[t.cat]||OTHER;
+const placeType=p=>typeOf((canon.placeTypes||{})[p.id]||p.type);
+const charName=c=>c==="dm"?"the DM":(CH[c]?.name||"Someone");
+
+// what the viewer has chosen to see (kept on this device only)
+let hiddenCats=new Set(); try{const v=JSON.parse(store.get("chron-hide")||"[]");if(Array.isArray(v))hiddenCats=new Set(v);}catch(e){}
+let showPending=store.get("chron-pending")!=="0", placeSort=store.get("chron-sort")||"type";
+function saveFilter(){store.set("chron-hide",JSON.stringify([...hiddenCats]));store.set("chron-pending",showPending?"1":"0");store.set("chron-sort",placeSort);}
+let pdraft={name:"",type:"",note:"",ll:null}, placeFor="missed";
+
+const ICON_CACHE={};
 /* =================== PINS (HTML overlay) =================== */
 const pinsEl=document.getElementById("pins"); const pinEls=[];
 function mkPin(o){
@@ -1366,7 +1471,7 @@ function mkPin(o){
   b.append(s,l); b.setAttribute("aria-label",o.aria||o.label); pinsEl.appendChild(b);
   const rec={el:b,...o}; pinEls.push(rec);
   b.addEventListener("click",e=>{if(e.detail&&moved>=6)return;
-    if(placing){stopPlacing();draft.ll={lon:+o.lon.toFixed(2),lat:+o.lat.toFixed(2)};showMissed();return;}
+    if(placing){stopPlacing();setDraftLL(o);afterPlacing();return;}
     o.onClick&&o.onClick();}); return rec;
 }
 for(const p of PLACES){
@@ -1376,6 +1481,7 @@ for(const p of PLACES){
   if(p.minor) r.el.classList.add("minor");
   if(p.id==="crash"){r.el.classList.add("tower");r.el.querySelector(".seal").innerHTML='<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 17V7H6V4h2v1.5h1V4h2v1.5h1V4h2v3h-1v10z"/><path d="M4 17h12" fill="none" stroke-width="1.4"/><path d="M15.5 3l-2 3.5M17 6.5l-3 1" fill="none" stroke-width="1.2"/></svg>';}
   if(p.isNew) r.newPin=true;
+  r.special=!!(p.vault||p.id==="crash"); styleTyped(r,placeType(p));
 }
 const partyPin=mkPin({lon:byId[PARTY_AT].lon+1.4,lat:byId[PARTY_AT].lat-1.2,label:"The party",onClick:()=>openPlace(PARTY_AT)}); partyPin.el.classList.add("party");
 let notePins=[];
@@ -1383,12 +1489,246 @@ function setNotePins(list){
   notePins.forEach(r=>{r.el.remove();pinEls.splice(pinEls.indexOf(r),1)}); notePins=[];
   for(const n of list){const r=mkPin({lon:n.lon,lat:n.lat,label:n.text.slice(0,40),aria:`${n.who}'s pin: ${n.text}`,onClick:()=>openNote(n)});r.el.classList.add("note");r.el.style.setProperty("--c",n.color);notePins.push(r);}
 }
+// typed markers: a coloured ring for the category, the type's icon inside. Vaults and the crash site keep their own seals.
+// each icon is drawn once to a small picture: emoji text redrawn on moving pins flickers and renders unevenly across devices
+function iconURL(icon){
+  if(icon in ICON_CACHE) return ICON_CACHE[icon]; let url=null;
+  try{const c=document.createElement("canvas");c.width=c.height=64;const x=c.getContext("2d");
+    x.font='46px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","Twemoji Mozilla",sans-serif';x.textAlign="center";x.textBaseline="alphabetic";
+    const m=x.measureText(icon), asc=m.actualBoundingBoxAscent||38, desc=m.actualBoundingBoxDescent||8, l=m.actualBoundingBoxLeft||0, r=m.actualBoundingBoxRight||0;
+    x.fillText(icon,32+(l-r)/2,32+(asc-desc)/2);
+    if(x.getImageData(0,0,64,64).data.some((v,i)=>i%4===3&&v>0)) url=c.toDataURL("image/png");}catch(e){}
+  return ICON_CACHE[icon]=url;}
+function styleTyped(rec,t){const c=catOf(t);rec.cat=c.id;rec.el.style.setProperty("--tc",c.color);
+  if(rec.special)return; rec.el.classList.add("typed");
+  const s=rec.el.querySelector(".seal"), u=iconURL(t.icon); s.textContent="";
+  if(u){const i=document.createElement("i");i.className="ico";i.style.backgroundImage=`url(${u})`;s.append(i);} else s.textContent=t.icon;}
+function restyleAll(){for(const r of pinEls) if(r.place) styleTyped(r,placeType(r.place)); setUserPins();}
+// places the crew marked: shared at once, dotted until the DM confirms them (then they live in canon/main)
+let UPLACES=[], userPins=[];
+function rebuildUserPlaces(){
+  const conf=canon.confirmed||{}, list=[];
+  const ok=p=>p&&typeof p.lon==="number"&&typeof p.lat==="number"&&isFinite(p.lon)&&isFinite(p.lat);
+  for(const [key,c] of Object.entries(conf)) if(ok(c)) list.push({...c,key,name:clean(c.name,60)||"Unnamed place",note:String(c.note||"").slice(0,1000),confirmed:true});
+  for(const [u,d] of Object.entries(userPlaces)) for(const p of (d?.places||[])){
+    if(!ok(p)||typeof p.id!=="string")continue; const key=u+":"+p.id; if(conf[key])continue;
+    list.push({...p,key,uid:u,name:clean(p.name,60)||"Unnamed place",note:String(p.note||"").slice(0,1000),confirmed:false});}
+  UPLACES=list; setUserPins(); refreshPlaces();
+}
+function setUserPins(){
+  userPins.forEach(r=>{r.el.remove();pinEls.splice(pinEls.indexOf(r),1)}); userPins=[];
+  for(const p of UPLACES){const t=typeOf(p.type);
+    const r=mkPin({lon:p.lon,lat:p.lat,label:p.name,aria:`${p.name}, ${t.name}${p.confirmed?"":", not confirmed yet"}`,onClick:()=>openUserPlace(p.key)});
+    r.uplace=p; if(!p.confirmed){r.el.classList.add("pending");r.pending=true;} styleTyped(r,t); userPins.push(r);}
+}
+
+/* ---- shared helpers for the place sheets ---- */
+function typeTag(t){const c=catOf(t);return h("span",{class:"tag ttag",style:`--tc:${c.color}`},h("b",{class:"emo","aria-hidden":"true"},t.icon),t.name.toUpperCase());}
+function typeSelect(cur){const s=h("select",{class:"sel"});
+  if(!cur||!typeById[cur]) s.append(h("option",{value:""},"Choose a type…"));
+  for(const c of CATS){const ts=TYPES.filter(t=>t.cat===c.id); if(!ts.length)continue;
+    s.append(h("optgroup",{label:c.name},ts.map(t=>h("option",{value:t.id,selected:t.id===cur},t.icon+"  "+t.name))));}
+  return s;}
+const field=(label,el)=>h("label",{class:"q"},h("span",{class:"eyebrow"},label),el);
+async function setCanon(patch){const next={...canon,...patch,at:Date.now()};await db.doc("canon/main").set(next);canon=next;}
+async function writePlacesOf(u,list){await db.doc(`places/${u}`).set({places:list,at:Date.now()});userPlaces[u]={places:list};}
+
+/* ---- the Places panel: filter the map, sort the list ---- */
+let placesView=null;
+function allRows(){
+  const rows=PLACES.map(p=>({t:placeType(p),name:p.name,rumour:p.state==="rumour",session:p.sessions.length?Math.max(...p.sessions):0,open:()=>openPlace(p.id)}));
+  for(const p of UPLACES) rows.push({t:typeOf(p.type),name:p.name,pending:!p.confirmed,by:charName(p.char),session:p.session||0,open:()=>openUserPlace(p.key)});
+  return rows;}
+function rowBtn(r,meta){const c=catOf(r.t);
+  return h("li",{},h("button",{type:"button",style:`--tc:${c.color}`,onclick:()=>{sheet.classList.remove("tall");r.open();}},
+    h("span",{class:"ic emo","aria-hidden":"true"},r.t.icon),
+    h("span",{},h("span",{class:"nm"},r.name),h("span",{class:"mt"},meta,r.pending?h("b",{}," · unconfirmed · "+r.by):r.rumour?" · rumoured":""))));}
+function showPlaces(){
+  placesView="list";
+  const rows=allRows(), count={}; for(const r of rows){const c=catOf(r.t).id;count[c]=(count[c]||0)+1;}
+  const cats=[...CATS,OTHER].filter(c=>count[c.id]);
+  const pend=rows.filter(r=>r.pending).length;
+  const vis=r=>!hiddenCats.has(catOf(r.t).id)&&(!r.pending||showPending);
+  const chips=h("div",{class:"chips",role:"group","aria-label":"Show on the map"},
+    cats.map(c=>h("button",{class:"chip cat",type:"button","aria-pressed":String(!hiddenCats.has(c.id)),style:`--tc:${c.color}`,
+      onclick:()=>{hiddenCats.has(c.id)?hiddenCats.delete(c.id):hiddenCats.add(c.id);saveFilter();showPlaces();}},h("i",{class:"cd"}),c.name+" ",h("span",{class:"ct"},String(count[c.id])))),
+    pend?h("button",{class:"chip cat pend",type:"button","aria-pressed":String(showPending),onclick:()=>{showPending=!showPending;saveFilter();showPlaces();}},h("i",{class:"cd"}),"Unconfirmed ",h("span",{class:"ct"},String(pend))):null);
+  const sorts=[["type","By type"],["az","A–Z"],["recent","Latest session"]];
+  const sortRow=h("div",{class:"chips",role:"group","aria-label":"Sort"},sorts.map(([k,l])=>h("button",{class:"chip",type:"button","aria-pressed":String(placeSort===k),onclick:()=>{placeSort=k;saveFilter();showPlaces();}},l)));
+  const shown=rows.filter(vis), byName=(a,b)=>a.name.localeCompare(b.name);
+  let list;
+  if(!shown.length) list=[h("p",{class:"note"},"Nothing to show. Switch a kind of place back on above.")];
+  else if(placeSort==="type") list=cats.filter(c=>!hiddenCats.has(c.id)).map(c=>{
+      const rs=shown.filter(r=>catOf(r.t).id===c.id).sort((a,b)=>a.t.name.localeCompare(b.t.name)||byName(a,b)); if(!rs.length)return null;
+      return h("section",{class:"pgroup"},h("p",{class:"cathead",style:`--tc:${c.color}`},h("i"),c.name,h("span",{},String(rs.length))),h("ul",{class:"plist"},rs.map(r=>rowBtn(r,r.t.name))));}).filter(Boolean);
+  else if(placeSort==="az") list=[h("ul",{class:"plist"},[...shown].sort(byName).map(r=>rowBtn(r,r.t.name)))];
+  else list=[h("ul",{class:"plist"},[...shown].sort((a,b)=>b.session-a.session||byName(a,b)).map(r=>rowBtn(r,(r.session?"Session "+r.session+" · ":"")+r.t.name)))];
+  openSheet("Places",[
+    h("p",{class:"small voice"},"Everything on the chart, sorted by what it is. Tap a kind of place to hide it from the map, or show it again."),
+    h("p",{class:"eyebrow"},"ON THE MAP"),chips,
+    hiddenCats.size||!showPending?h("div",{class:"row"},h("button",{class:"btn ghost",type:"button",onclick:()=>{hiddenCats.clear();showPending=true;saveFilter();showPlaces();}},"Show everything")):null,
+    h("div",{class:"row"},h("button",{class:"btn",type:"button",onclick:()=>{pdraft={name:"",type:"",note:"",ll:null};showAddPlace();}},"Add a place"),
+      h("button",{class:"btn ghost",type:"button",onclick:showTypes},"Location types")),
+    h("p",{class:"eyebrow"},"SORT"),sortRow,...list].filter(Boolean),"places");
+}
+function refreshPlaces(){
+  if(tab!=="places")return; const a=document.activeElement;
+  if(sBody.contains(a)&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))return;
+  if(placesView==="list")showPlaces(); else if(placesView==="types"&&!tdraft.name&&!tdraft.icon)showTypes();
+}
+function placesGate(){
+  if(!db||!uid) return [h("p",{},PUBLIC?"Adding places works in the claude.ai version of this page. Open it there and sign in.":"Sign in to claude.ai to add places. The map and the list work without signing in."),
+    PUBLIC?null:h("p",{class:"note"},"If you are signed in and still see this, ask the DM to invite you to this page as an Editor.")].filter(Boolean);
+  return gate();
+}
+
+/* ---- add a place ---- */
+function showAddPlace(){
+  placesView="add";
+  const back=h("div",{class:"row"},h("button",{class:"btn ghost",type:"button",onclick:showPlaces},"‹ Back to places"));
+  const g=placesGate(); if(g){openSheet("Add a place",[...g,back],"places");return;}
+  const nm=h("input",{type:"text",maxlength:"60",placeholder:"The Rusty Anchor, a cave behind the falls…"}); nm.value=pdraft.name; nm.oninput=()=>pdraft.name=nm.value;
+  const sel=typeSelect(pdraft.type); sel.onchange=()=>pdraft.type=sel.value;
+  const nt=h("textarea",{rows:"3",maxlength:"1000",placeholder:"What is here? Who runs it? What does it sell?"}); nt.value=pdraft.note; nt.oninput=()=>pdraft.note=nt.value;
+  const near=pdraft.ll?nearestPlace(pdraft.ll):null;
+  openSheet("Add a place",[
+    h("p",{class:"small voice"},isOwner?"Your places go straight into the official list.":"Mark a place you found. The whole crew sees it at once. It stays dotted on the map until the DM confirms it."),
+    h("div",{class:"row"},h("button",{class:"btn ghost",type:"button",onclick:()=>{pdraft.name=nm.value;pdraft.note=nt.value;pdraft.type=sel.value;startPlacing("place");}},pdraft.ll?"Move the spot":"Mark the spot on the map"),
+      pdraft.ll?h("span",{class:"tag explored"},"SPOT MARKED"+(near?" · NEAR "+near.name.toUpperCase():"")):null),
+    field("NAME",nm), field("TYPE",sel),
+    h("p",{class:"note"},"Missing a type? ",h("button",{class:"link",type:"button",onclick:()=>{pdraft.name=nm.value;pdraft.note=nt.value;tdraft.back="add";showTypes();}},"Add one"),"."),
+    field("NOTES (OPTIONAL)",nt),
+    h("div",{class:"row"},h("button",{class:"btn",type:"button",onclick:async e=>{
+      const b=e.currentTarget, name=clean(nm.value,60);
+      if(!pdraft.ll){toast("Mark the spot on the map first");return;} if(!name){toast("Give it a name");nm.focus();return;} if(!sel.value){toast("Choose a type");sel.focus();return;}
+      b.disabled=true;
+      const p={id:rid(),name,type:sel.value,note:nt.value.trim().slice(0,1000),lon:pdraft.ll.lon,lat:pdraft.ll.lat,at:Date.now(),session:AS_OF,char:isOwner?"dm":myChar};
+      try{
+        if(isOwner) await setCanon({confirmed:{...(canon.confirmed||{}),[uid+":"+p.id]:{...p,uid,confirmedAt:Date.now()}}});
+        else await writePlacesOf(uid,[...(userPlaces[uid]?.places||[]),p]);
+        pdraft={name:"",type:"",note:"",ll:null}; rebuildUserPlaces(); toast(isOwner?"Added to the map":"On the map. Waiting for the DM"); openUserPlace(uid+":"+p.id);
+      }catch(err){toast("Couldn't save. Try again in a moment.");b.disabled=false;}
+    }},"Put it on the map")),back],"places");
+}
+
+/* ---- a place the crew marked ---- */
+function openUserPlace(key){
+  const p=UPLACES.find(x=>x.key===key); if(!p){showPlaces();return;} placesView="place";
+  flyTo(p.lon,p.lat,Math.min(cam.zoom,.4));
+  const t=typeOf(p.type), mine=!p.confirmed&&p.uid===uid, canEdit=isOwner||mine;
+  const nodes=[h("div",{class:"row"},typeTag(t),p.confirmed?h("span",{class:"tag explored"},"CONFIRMED"):h("span",{class:"tag pending"},"NOT CONFIRMED YET")),
+    h("p",{class:"eyebrow m"},`MARKED BY ${charName(p.char).toUpperCase()} · SESSION ${p.session||"?"}`),
+    p.note?h("p",{class:"pnote"},p.note):h("p",{class:"note"},"No notes yet."),
+    p.confirmed?null:h("p",{class:"note"},"Shared with the whole crew. It joins the official list once the DM confirms it.")];
+  if(canEdit&&db){
+    const nm=h("input",{type:"text",maxlength:"60"}); nm.value=p.name;
+    const sel=typeSelect(p.type), nt=h("textarea",{rows:"3",maxlength:"1000"}); nt.value=p.note||"";
+    const vals=()=>({name:clean(nm.value,60)||p.name,type:sel.value||p.type||"",note:nt.value.trim().slice(0,1000)});
+    if(isOwner&&!p.confirmed) nodes.push(h("div",{class:"row"},
+      h("button",{class:"btn",type:"button",onclick:e=>confirmPlace(p,vals(),e.currentTarget)},"Confirm"),
+      h("button",{class:"btn ghost",type:"button",onclick:e=>removePlace(p,e.currentTarget)},"Remove")));
+    nodes.push(h("details",{class:"edit"},h("summary",{},isOwner&&!p.confirmed?"Change it before confirming":"Edit this place"),field("NAME",nm),field("TYPE",sel),field("NOTES",nt),
+      h("div",{class:"row"},h("button",{class:isOwner&&!p.confirmed?"btn ghost":"btn",type:"button",onclick:e=>updatePlace(p,vals(),e.currentTarget)},"Save changes"),
+        isOwner&&!p.confirmed?null:h("button",{class:"btn ghost",type:"button",onclick:e=>removePlace(p,e.currentTarget)},"Remove"))));
+  }
+  nodes.push(h("div",{class:"row"},h("button",{class:"btn ghost",type:"button",onclick:showPlaces},"‹ All places")));
+  openSheet(p.name,nodes.filter(Boolean));
+}
+async function confirmPlace(p,v,b){
+  if(b)b.disabled=true; const {key,uid:u,confirmed,...rest}=p;
+  try{await setCanon({confirmed:{...(canon.confirmed||{}),[key]:{...rest,...v,uid:u,confirmedAt:Date.now()}}});
+    try{await writePlacesOf(u,(userPlaces[u]?.places||[]).filter(x=>x.id!==p.id));}catch(e){}
+    rebuildUserPlaces(); toast("Confirmed. It's canon now"); openUserPlace(key); if(tab==="dm")showDM();}
+  catch(e){toast("Couldn't confirm.");if(b)b.disabled=false;}
+}
+async function updatePlace(p,v,b){
+  if(b)b.disabled=true;
+  try{if(p.confirmed){const c={...(canon.confirmed||{})};c[p.key]={...c[p.key],...v};await setCanon({confirmed:c});}
+    else await writePlacesOf(p.uid,(userPlaces[p.uid]?.places||[]).map(x=>x.id===p.id?{...x,...v}:x));
+    rebuildUserPlaces(); toast("Saved"); openUserPlace(p.key);}
+  catch(e){toast("Couldn't save.");if(b)b.disabled=false;}
+}
+async function removePlace(p,b){
+  if(b&&!b.classList.contains("arm")){b.classList.add("arm");b.textContent="Tap again to remove";return;}
+  if(b)b.disabled=true;
+  try{if(p.confirmed){const c={...(canon.confirmed||{})};delete c[p.key];await setCanon({confirmed:c});}
+    const u=p.uid||p.key.split(":")[0]; if(userPlaces[u]?.places?.some(x=>x.id===p.id)) await writePlacesOf(u,userPlaces[u].places.filter(x=>x.id!==p.id));
+    rebuildUserPlaces(); toast("Removed"); showPlaces(); if(tab==="dm")showDM();}
+  catch(e){toast("Couldn't remove it.");if(b)b.disabled=false;}
+}
+
+/* ---- the list of location types ---- */
+const whoAdded=u=>u===uid?"you":charName(userTypes[u]?.char);
+let tdraft={name:"",icon:"",cat:"",newName:"",color:CAT_PALETTE[0],back:null};
+function showTypes(){
+  placesView="types";
+  const back=()=>{const to=tdraft.back;tdraft={name:"",icon:"",cat:"",newName:"",color:CAT_PALETTE[0],back:null};to==="add"?showAddPlace():showPlaces();};
+  const canAdd=!!(db&&uid);
+  const used=new Set([...PLACES.map(p=>placeType(p).id),...UPLACES.map(p=>p.type)]);
+  const groups=CATS.map(c=>{const ts=TYPES.filter(t=>t.cat===c.id);
+    return h("section",{class:"pgroup"},h("p",{class:"cathead",style:`--tc:${c.color}`},h("i"),c.name,c.by?h("span",{},"added by "+whoAdded(c.by)):null),
+      h("div",{class:"chips"},ts.map(t=>{const del=t.by&&db&&(isOwner||t.by===uid);
+        return h("span",{class:"tchip",style:`--tc:${c.color}`},h("b",{class:"emo","aria-hidden":"true"},t.icon),t.name,
+          del?h("button",{type:"button","aria-label":"Remove the type "+t.name,title:used.has(t.id)?"Places of this type become unsorted":"Remove",onclick:e=>removeType(t,e.currentTarget)},"✕"):null);})));});
+  let form=[];
+  if(canAdd){
+    const nm=h("input",{type:"text",maxlength:"40",placeholder:"Blacksmith, Hot spring, Bandit camp…"}); nm.value=tdraft.name; nm.oninput=()=>tdraft.name=nm.value;
+    const ic=h("input",{type:"text",class:"input-icon",maxlength:"8","aria-label":"Icon (one emoji)"}); ic.value=tdraft.icon; ic.oninput=()=>tdraft.icon=ic.value;
+    const cs=h("select",{class:"sel"},h("option",{value:""},"Choose a category…"),CATS.map(c=>h("option",{value:c.id,selected:c.id===tdraft.cat},c.name)),h("option",{value:"__new",selected:tdraft.cat==="__new"},"New category…"));
+    const nc=h("input",{type:"text",maxlength:"40",placeholder:"Crafts & trades, Strongholds…"}); nc.value=tdraft.newName; nc.oninput=()=>tdraft.newName=nc.value;
+    const sw=h("div",{class:"swatches",role:"radiogroup","aria-label":"Category colour"},CAT_PALETTE.map((col,i)=>{
+      const r=h("input",{type:"radio",name:"catcol",value:col,"aria-label":"Colour "+(i+1),checked:col===tdraft.color}); r.onchange=()=>tdraft.color=col;
+      return h("label",{style:`--sw:${col}`},r);}));
+    const newBox=h("div",{class:"newcat",hidden:tdraft.cat!=="__new"},field("NEW CATEGORY NAME",nc),h("span",{class:"eyebrow"},"ITS COLOUR"),sw);
+    cs.onchange=()=>{tdraft.cat=cs.value;newBox.hidden=cs.value!=="__new";};
+    form=[h("p",{class:"eyebrow"},"ADD A TYPE"),
+      h("div",{class:"trow"},field("ICON",ic),field("NAME",nm)),
+      h("p",{class:"note"},"One emoji works best as the icon. On a phone, use the emoji key on your keyboard."),
+      field("CATEGORY",cs),newBox,
+      h("div",{class:"row"},h("button",{class:"btn",type:"button",onclick:async e=>{
+        const b=e.currentTarget, name=clean(nm.value,40), icon=cleanIcon(ic.value);
+        if(!name){toast("Give the type a name");nm.focus();return;} if(!icon){toast("Pick an icon");ic.focus();return;}
+        if(!cs.value){toast("Choose a category");cs.focus();return;}
+        const isNew=cs.value==="__new", cname=clean(nc.value,40);
+        if(isNew&&!cname){toast("Name the new category");nc.focus();return;}
+        if(TYPES.some(t=>t.name.toLowerCase()===name.toLowerCase())){toast("That type already exists");return;}
+        b.disabled=true;
+        try{const t=await addType({name,icon,cat:isNew?null:cs.value,newCat:isNew?{name:cname,color:COLOR_RE.test(tdraft.color)?tdraft.color:CAT_PALETTE[0]}:null});
+          toast("Added "+t.icon+" "+t.name); const to=tdraft.back;
+          tdraft={name:"",icon:"",cat:"",newName:"",color:CAT_PALETTE[0],back:null};
+          if(to==="add"){pdraft.type=t.id;showAddPlace();}else showTypes();}
+        catch(err){toast("Couldn't save. Try again in a moment.");b.disabled=false;}
+      }},"Add this type"))];
+  } else form=[h("p",{class:"note"},PUBLIC?"Adding types works in the claude.ai version of this page.":"Sign in to claude.ai to add a type.")];
+  openSheet("Location types",[
+    h("p",{class:"small voice"},"Every kind of place I can mark. Anyone in the crew can add a type. You can remove the types you added; the DM can remove any added type."),
+    ...form,h("p",{class:"eyebrow"},"ALL TYPES"),...groups,
+    h("div",{class:"row"},h("button",{class:"btn ghost",type:"button",onclick:back},tdraft.back==="add"?"‹ Back to your place":"‹ Back to places"))],"places");
+}
+async function addType({name,icon,cat,newCat}){
+  const mine=userTypes[uid]||{}, cats=[...(mine.cats||[])], types=[...(mine.types||[])];
+  let catId=cat; if(newCat){catId="c_"+rid();cats.push({id:catId,name:newCat.name,color:newCat.color});}
+  const t={id:"t_"+rid(),cat:catId,name,icon}; types.push(t);
+  const char=isOwner?"dm":(myChar||"");
+  await db.doc(`loctypes/${uid}`).set({cats,types,char,at:Date.now()}); userTypes[uid]={cats,types,char}; rebuildTypes(); restyleAll();
+  return typeOf(t.id);
+}
+async function removeType(t,b){
+  if(b&&!b.classList.contains("arm")){b.classList.add("arm");b.textContent="Remove?";return;}
+  const d=userTypes[t.by]||{}, types=(d.types||[]).filter(x=>x.id!==t.id);
+  const cats=(d.cats||[]).filter(c=>types.some(x=>x.cat===c.id)||TYPES.some(x=>x.cat===c.id&&x.by!==t.by&&x.id!==t.id));
+  try{await db.doc(`loctypes/${t.by}`).set({...d,cats,types,at:Date.now()}); userTypes[t.by]={...d,cats,types}; rebuildTypes(); restyleAll(); toast("Removed "+t.name); showTypes();}
+  catch(e){toast("Couldn't remove it.");}
+}
+
 const v3=new THREE.Vector3();
 function updatePins(){
   const w=innerWidth,h=innerHeight, m=ease(morph), cp=camera.position;
   for(const r of pinEls){
     const p=worldPos(r.lon,r.lat,0.006);
     let vis=true;
+    if(r.cat&&hiddenCats.has(r.cat)) vis=false;
+    if(r.pending&&!showPending) vis=false;
     if(m<0.5){const n=sphDir(r.lon,r.lat);vis=n.dot(cp)>R*1.02;}
     if(r.newPin&&uniforms.uReveal.value<0.55) vis=false;
     if(r===partyPin&&uniforms.uReveal.value<0.9) vis=false;
@@ -1398,7 +1738,7 @@ function updatePins(){
     r.el.style.transform=`translate(${(v3.x*.5+.5)*w}px,${(-v3.y*.5+.5)*h}px) translate(-50%,-30%)`;
     const far=cam.zoom>0.55&&m<0.5;
     if(r.place&&r.place.id==="inn"&&cam.zoom>0.3){r.el.hidden=true;continue;}
-    r.el.classList.toggle("small",(r.place&&(r.place.minor&&cam.zoom>0.4||(!r.place.major&&far)))||(r.el.classList.contains("note")&&cam.zoom>0.5));
+    r.el.classList.toggle("small",(r.place&&(r.place.minor&&cam.zoom>0.4||(!r.place.major&&far)))||((r.el.classList.contains("note")||r.uplace)&&cam.zoom>0.5));
   }
 }
 
@@ -1461,7 +1801,7 @@ if(store.get("chron-mode")==="table"){morph=morphTarget=1;setMode(1);} placeThum
 const sheet=document.getElementById("sheet"), sTitle=document.getElementById("sheet-title"), sBody=document.getElementById("sheet-body");
 const tabs=[...document.querySelectorAll(".dock button")]; let tab=null;
 function h(tag,attrs={},...kids){const e=document.createElement(tag);for(const [k,v] of Object.entries(attrs)){if(k==="class")e.className=v;else if(k==="html")e.innerHTML=v;else if(k.startsWith("on"))e.addEventListener(k.slice(2),v);else if(v!==false&&v!=null)e.setAttribute(k,v===true?"":v);}for(const c of kids.flat()){if(c==null||c===false)continue;e.append(c.nodeType?c:document.createTextNode(c));}return e;}
-const TALL=new Set(["chronicle","missed","dm","ask","sheets"]);
+const TALL=new Set(["chronicle","missed","dm","ask","sheets","places"]);
 function openSheet(title,nodes,which=null){delete sTitle.dataset.place;const was=!sheet.hidden&&sTitle.dataset.t===title;sTitle.dataset.t=title;if(!was)scramble(sTitle,title);sBody.replaceChildren(...nodes);
   sheet.classList.toggle("tall",TALL.has(which)&&nodes.length>3);sheet.hidden=false;sBody.scrollTop=0;setTab(which);}
 function closeSheet(){sheet.hidden=true;delete sTitle.dataset.place;setTab(null);}
@@ -1476,7 +1816,7 @@ document.getElementById("sheet-close").onclick=closeSheet;
  hd.forEach(el=>{el.addEventListener("pointerdown",down);el.addEventListener("pointermove",move);el.addEventListener("pointerup",up);el.addEventListener("pointercancel",up);});}
 tabs.forEach(b=>b.onclick=()=>{const t=b.dataset.tab;if(tab===t){closeSheet();return;}
   if(recapOn&&t!=="recap")endRecap();
-  ({recap:startRecap,chronicle:showChronicle,sheets:showSheets,missed:showMissed,ask:showAsk,dm:showDM})[t]();});
+  ({recap:startRecap,chronicle:showChronicle,places:showPlaces,sheets:showSheets,missed:showMissed,ask:showAsk,dm:showDM})[t]();});
 /* ---- cinematic lines: one at a time, stay until read (tap advances) ---- */
 const cineEl=document.getElementById("cine"); let cineQ=[], cineCur=null;
 function cine(lines){cineQ.push(...lines); if(!cineCur) cineNext();}
@@ -1501,7 +1841,7 @@ function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t
 
 function openPlace(id,after){
   const p=byId[id]; if(!p)return; if(id==="crash"&&!after&&!reduced){playCrash();return;} flyTo(p.lon,p.lat,Math.min(cam.zoom,.42));
-  const tags=h("div",{class:"row"},
+  const tags=h("div",{class:"row"},typeTag(placeType(p)),
     h("span",{class:"tag "+(p.state==="rumour"?"rumour":"explored")},p.state==="rumour"?"RUMOURED":"EXPLORED"),
     p.isNew?h("span",{class:"tag new"},"NEW IN SESSION "+AS_OF):null,
     p.vault==="claimed"?h("span",{class:"tag explored"},"SIGIL CLAIMED"):p.vault==="lost"?h("span",{class:"tag rumour"},"SIGIL STILL OUT THERE"):null);
@@ -1510,7 +1850,10 @@ function openPlace(id,after){
   const here=allNotes.filter(n=>Math.hypot(n.lon-p.lon,n.lat-p.lat)<3);
   openSheet(p.name,[tags,sess,h("div",{class:"voice",html:p.voice==="hans"?squawkHtml(p.body):p.body}),
     id==="crash"&&!reduced?h("div",{class:"row"},h("button",{class:"btn ghost",type:"button",onclick:playCrash},"Replay the last flight")):null,
-    here.length?h("p",{class:"eyebrow"},"NOTES PINNED NEARBY"):null, ...here.map(noteCard)].filter(Boolean)); sTitle.dataset.place=id;
+    here.length?h("p",{class:"eyebrow"},"NOTES PINNED NEARBY"):null, ...here.map(noteCard),
+    isOwner&&db?field("TYPE · ONLY THE DM CAN CHANGE THIS",(()=>{const s=typeSelect(placeType(p).id);s.onchange=async()=>{if(!s.value)return;
+      try{await setCanon({placeTypes:{...(canon.placeTypes||{}),[p.id]:s.value}});restyleAll();toast("Type saved");openPlace(id,true);}catch(e){toast("Couldn't save");}};return s;})()):null,
+    h("div",{class:"row"},h("button",{class:"btn ghost",type:"button",onclick:showPlaces},"‹ All places"))].filter(Boolean)); sTitle.dataset.place=id; placesView="place";
 }
 function noteCard(n){return h("div",{class:"card"},h("div",{class:"who",style:`--c:${n.color}`},h("i"),n.who+(n.private?(PUBLIC?(n.via==="copied"?" · copied for Sam":" · sent to Sam"):" · only you and Sam"):"")),h("p",{},n.text));}
 function openNote(n){openSheet(n.missed?"Missed by the box":"Party pin",[noteCard(n),
@@ -1778,6 +2121,9 @@ async function boot(){
   const err=()=>{};
   db.collection("players").onSnapshot(s=>{claims={};s.docs.forEach(d=>claims[d.id]=d.data().character);myChar=claims[uid]||null;rebuildNotes();refresh();},err);
   db.collection("pins").onSnapshot(s=>{sharedPins={};s.docs.forEach(d=>sharedPins[d.id]=d.data());rebuildNotes();},err);
+  db.collection("loctypes").onSnapshot(s=>{userTypes={};s.docs.forEach(d=>userTypes[d.id]=d.data());rebuildTypes();restyleAll();refreshPlaces();},err);
+  db.collection("places").onSnapshot(s=>{userPlaces={};s.docs.forEach(d=>userPlaces[d.id]=d.data());rebuildUserPlaces();if(tab==="dm")showDM();},err);
+  db.doc("canon/main").onSnapshot(d=>{canon=d.exists?(d.data()||{}):{};restyleAll();rebuildUserPlaces();if(tab==="dm")showDM();},err);
   db.collection("votes").onSnapshot(s=>{votes={};s.docs.forEach(d=>votes[d.id]=d.data());refresh();},err);
   db.doc(`answers/${uid}`).onSnapshot(d=>{myAnswer=d.exists?d.data():null;rebuildNotes();},err);
   if(isOwner) db.collection("answers").onSnapshot(s=>{answers={};s.docs.forEach(d=>answers[d.id]=d.data());rebuildNotes();if(tab==="dm")showDM();},err);
@@ -1796,16 +2142,18 @@ function gate(){ // returns null if ready, else nodes explaining
   }
   return null;
 }
-async function claim(c){try{await db.doc(`players/${uid}`).set({character:c,at:Date.now()});myChar=c;toast("Welcome, "+CH[c].name);refresh();if(tab==="missed")showMissed();}catch(e){toast("Couldn't save. Ask Sam to invite you as an Editor.");}}
+async function claim(c){try{await db.doc(`players/${uid}`).set({character:c,at:Date.now()});myChar=c;toast("Welcome, "+CH[c].name);refresh();if(tab==="missed")showMissed();if(tab==="places"&&placesView==="add")showAddPlace();}catch(e){toast("Couldn't save. Ask Sam to invite you as an Editor.");}}
 
 /* ---- placing a spot ---- */
 let placing=null, draft={text:"",ll:null}; const placingEl=document.getElementById("placing");
-function startPlacing(){placing=true;placingEl.hidden=false;closeSheet();}
+function startPlacing(f="missed"){placeFor=f;placing=true;placingEl.hidden=false;closeSheet();}
+function afterPlacing(){placeFor==="place"?showAddPlace():showMissed();}
+function setDraftLL(ll){const v={lon:+ll.lon.toFixed(2),lat:+ll.lat.toFixed(2)};if(placeFor==="place")pdraft.ll=v;else draft.ll=v;}
 function stopPlacing(){placing=null;placingEl.hidden=true;}
-document.getElementById("cancel-place").onclick=()=>{stopPlacing();showMissed();};
+document.getElementById("cancel-place").onclick=()=>{stopPlacing();afterPlacing();};
 function onTap(x,y){
   if(!placing)return; const ll=screenToLonLat(x,y); if(!ll){toast("Tap on the land or sea");return;}
-  stopPlacing(); draft.ll={lon:+ll.lon.toFixed(2),lat:+ll.lat.toFixed(2)}; showMissed();
+  stopPlacing(); setDraftLL(ll); afterPlacing();
 }
 async function saveMissed(list){
   const doc={...(myAnswer||{}),missed:list,missedBy:isOwner?"dm":myChar};
@@ -1963,7 +2311,9 @@ async function showDM(){
   const missed=Object.entries(answers).flatMap(([u,a])=>(a.missed||[]).map(m=>({...m,u}))).sort((a,b)=>b.at-a.at);
   const missedList=missed.length?missed.map(m=>{const c=noteCard({...m,who:nm(m.u)+" · session "+(m.session||"?"),color:CH[claims[m.u]]?.hex||"#999"});
     if(m.lon!=null){c.style.cursor="pointer";c.onclick=()=>flyTo(m.lon,m.lat,.35);}return c;}):[h("p",{class:"note"},"Nothing yet.")];
-  openSheet("DM view",[h("p",{class:"eyebrow"},"WHAT THE BOX MISSED"),...missedList,h("p",{class:"eyebrow"},"ANSWERS · SESSION "+AS_OF),tbl,h("p",{class:"eyebrow"},"STORYLINE VOTE"),tallyNode(),
+  const pending=UPLACES.filter(p=>!p.confirmed).sort((a,b)=>b.at-a.at);
+  const pendList=pending.length?[h("ul",{class:"plist"},pending.map(p=>rowBtn({t:typeOf(p.type),name:p.name,pending:true,by:charName(p.char),open:()=>openUserPlace(p.key)},typeOf(p.type).name)))]:[h("p",{class:"note"},"Nothing waiting.")];
+  openSheet("DM view",[h("p",{class:"eyebrow"},"PLACES TO CONFIRM"+(pending.length?" · "+pending.length:"")),...pendList,h("p",{class:"eyebrow"},"WHAT THE BOX MISSED"),...missedList,h("p",{class:"eyebrow"},"ANSWERS · SESSION "+AS_OF),tbl,h("p",{class:"eyebrow"},"STORYLINE VOTE"),tallyNode(),
     h("p",{class:"eyebrow"},"WHO PLAYS WHOM"),Object.keys(claims).length?claimList:h("p",{class:"note"},"Nobody has picked a character yet."),
     h("p",{class:"note"},"To reveal new ground after a session, tell Claude what happened.")],"dm");
 }
