@@ -190,6 +190,29 @@ aside#sheet{position:fixed;z-index:6;color:var(--parch);background:var(--brk),li
 .q{display:flex;flex-direction:column;gap:6px;font-weight:600}
 textarea,input[type=text]{font:16px/1.45 var(--body);background:var(--void-2);color:var(--parch);border:1px solid #c9a35c55;border-radius:6px;padding:10px;width:100%;box-sizing:border-box;resize:vertical}
 textarea:focus,input:focus{outline:2px solid var(--brass);outline-offset:1px}
+/* places tab (gazetteer) */
+.gz-search{position:relative}
+.gz-search input{padding-right:44px}
+.gz-clear{position:absolute;right:2px;top:50%;transform:translateY(-50%)}
+.gz-kinds,.gz-tags{flex:none;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:2px 1px 4px;margin:0 -1px}
+.gz-kinds::-webkit-scrollbar,.gz-tags::-webkit-scrollbar{display:none}
+.gz-kinds .chip,.gz-tags .chip{flex:none;white-space:nowrap}
+.gz-search{flex:none}
+.chip.sm{font-size:12px;padding:6px 10px}
+.chip small{margin-left:6px;font:400 11px/1 var(--mono);opacity:.75}
+.chip.tg{font:400 12px/1 var(--mono);letter-spacing:.02em;color:var(--steward);border-color:#8fd3c844}
+.chip.tg[aria-pressed="true"]{background:var(--steward);color:#06201c;border-color:var(--steward)}
+.gz-list{display:flex;flex-direction:column;gap:6px}
+.gz{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;background:#0e1116;border:1px solid #c9a35c26;border-radius:10px;padding:10px 12px;color:var(--parch);font:inherit;cursor:pointer;transition:border-color .14s}
+.gz:hover{border-color:#c9a35c77} .gz:focus-visible,.gz-back:focus-visible{outline:2px solid var(--parch);outline-offset:2px}
+.gz svg{flex:none;width:22px;height:22px;margin-top:1px;stroke:var(--brass);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.gz-b{display:flex;flex-direction:column;gap:3px;min-width:0}
+.gz .nm{font:400 18px/1.15 var(--display);letter-spacing:.02em}
+.gz.rumour .nm{color:var(--mist)} .gz.rumour svg{stroke:var(--mist)}
+.gz .mt{font:400 11px/1.35 var(--mono);letter-spacing:.06em;color:var(--steward)}
+.gz .tg{font:400 12px/1.4 var(--mono);color:var(--parch-dim);word-spacing:.15em}
+.gz-back{align-self:flex-start;background:none;border:0;color:var(--brass);font:500 13px/1 var(--label);letter-spacing:.1em;padding:10px 0;cursor:pointer}
+.tag.kind{color:var(--brass)}
 .card{border:1px solid #c9a35c26;border-radius:10px;padding:12px 14px;background:#0e1116;display:flex;flex-direction:column;gap:8px}
 .who{display:flex;align-items:center;gap:8px;font:600 15px/1.2 var(--body)}
 .who i{width:10px;height:10px;border-radius:50%;background:var(--c);flex:none}
@@ -510,6 +533,7 @@ addEventListener("error",function(e){if(e.target&&e.target.tagName==="LINK")retu
   <button type="button" data-tab="recap"><span class="dot"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4.5 3.5v4h4"/><path d="M10.5 9.2l4.5 2.8-4.5 2.8z"/></svg><span>Recap</span></button>
   <button type="button" data-tab="chronicle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 5.5c3-1.2 5.6-1 8.5 1 2.9-2 5.5-2.2 8.5-1v13c-3-1.2-5.6-1-8.5 1-2.9-2-5.5-2.2-8.5-1z"/><path d="M12 6.5v13"/></svg><span>Chronicle</span></button>
   <button type="button" data-tab="sheets"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h12v17H6z"/><path d="M9 8.5h6M9 12h6M9 15.5h4"/></svg><span>Sheets</span></button>
+  <button type="button" data-tab="places"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><path d="M12 7.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"/></svg><span>Places</span></button>
   <button type="button" data-tab="missed" aria-label="Missed something?"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 3.5C13 4.5 8.5 9 6.5 16L5 20"/><path d="M8 13.5c3.5.3 6.5-1.8 8.5-5"/><path d="M17 14.5v6M14 17.5h6"/></svg><span class="lg">Missed something?</span><span class="sh">Missed?</span></button>
   <button type="button" data-tab="dm" class="dm" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.6v8.8L12 21l-8-4.6V7.6z"/><path d="M12 3L7.5 11.5h9zM7.5 11.5L4 16.4M16.5 11.5l3.5 4.9M7.5 11.5L12 21l4.5-9.5"/></svg><span>DM</span></button>
 </nav>
@@ -689,6 +713,65 @@ const SHEETS = {
 const SHEET_HEX={katy:"#e7a3b8",stig:"#7fb8dc",saphira:"#b39af0",hans:"#c9a35c"};
 const MORE = ["Combat","Roleplay","Exploration","Puzzles","Lore & mystery","Humour","Danger"];
 const byId = Object.fromEntries(PLACES.map(p=>[p.id,p]));
+/* =================== PLACES DATABASE (the Places tab) ===================
+   Kept apart from PLACES: PLACES says where a pin sits, this says what kind of place it is.
+   KINDS: every place gets exactly one. `tags` on a kind are added to every place of that kind,
+   so a search for "food" finds every tavern and market without tagging each one by hand.
+   PLACE_DB: one row per PLACES id. `kind` + extra `tags`. A pin missing here shows as "Point of interest".
+   SPOTS: places inside a pinned place (a tavern in a city). They have no pin; `in` is the pin they sit in.
+   Only what the table has seen. Tags are lowercase; a space is fine ("blood guild"). */
+const KINDS = {
+  settlement:{label:"Towns & cities",    one:"Town or city",       icon:"M4 20V10l5-4 5 4v10M14 20v-7h6v7M3 20h18M8 14h2"},
+  inn:       {label:"Taverns & inns",    one:"Tavern or inn",      icon:"M6 4h9v11a4 4 0 0 1-4 4h-1a4 4 0 0 1-4-4zM15 7h2a2 2 0 0 1 0 6h-2M6 9h9", tags:["food","drink","lodging"]},
+  market:    {label:"Markets & shops",   one:"Market or shop",     icon:"M4 9h16l-1.5-4h-13zM5 9v11h14V9M9 20v-6h6v6",  tags:["food","trade"]},
+  castle:    {label:"Castles & strongholds",one:"Castle or stronghold",icon:"M4 20V8h3v3h3V8h4v3h3V8h3v12zM10 20v-5h4v5"},
+  temple:    {label:"Temples & shrines", one:"Temple or shrine",   icon:"M12 3l7 5H5zM6 8v12M18 8v12M10 8v12M14 8v12M4 20h16", tags:["faith"]},
+  vault:     {label:"Sigil vaults",      one:"Sigil vault",        icon:"M12 3l8 4.6v8.8L12 21l-8-4.6V7.6zM12 9v6M9 12h6", tags:["sigil","valerian"]},
+  ancient:   {label:"Ancient tech",      one:"Ancient tech",       icon:"M12 3v3M12 18v3M3 12h3M18 12h3M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z", tags:["valerian"]},
+  ruin:      {label:"Ruins & wrecks",    one:"Ruin or wreck",      icon:"M4 20h16M6 20v-8l3-2v10M11 20V8l3 3v9M16 20v-5l2-1v6"},
+  cave:      {label:"Caves, pits & dungeons",one:"Cave, pit or dungeon",icon:"M3 20c1-7 4-12 9-12s8 5 9 12M9 20c0-3 1.3-5 3-5s3 2 3 5", tags:["danger"]},
+  nature:    {label:"Natural wonders",   one:"Natural wonder",     icon:"M5 20c2-5 2-11 7-16 5 5 5 11 7 16M12 4v16M9 14h6"},
+  mountain:  {label:"Mountains & passes",one:"Mountain or pass",   icon:"M3 20l6-11 4 6 2-3 6 8zM9 9l1.5 3"},
+  forest:    {label:"Forests & woods",   one:"Forest or wood",     icon:"M8 20v-4M16 20v-5M8 16l-4 0 4-7 4 7zM16 15h-4l4-9 4 9z"},
+  water:     {label:"Seas, lakes & rivers",one:"Sea, lake or river",icon:"M3 9c3-2 6 2 9 0s6-2 9 0M3 14c3-2 6 2 9 0s6-2 9 0M3 19c3-2 6 2 9 0s6-2 9 0"},
+  region:    {label:"Realms & regions",  one:"Realm or region",    icon:"M4 6l5-2 6 2 5-2v14l-5 2-6-2-5 2zM9 4v14M15 6v14"},
+  poi:       {label:"Points of interest",one:"Point of interest",  icon:"M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11zM12 7.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"},
+};
+const PLACE_DB = {
+  valeria:   {kind:"settlement", tags:["hans","gerda","rebels","thawed"]},
+  inn:       {kind:"inn",        tags:["gerda","blood guild","arcane lock"]},
+  icy:       {kind:"mountain",   tags:["ice","bridge","travel","one-eyed champions"]},
+  hills:     {kind:"mountain",   tags:["rebels","battle","teenoog","steward","ice"]},
+  orda:      {kind:"settlement", tags:["order of the seal","magic","marble"]},
+  ship:      {kind:"ruin",       tags:["ship","steward"]},
+  crash:     {kind:"ruin",       tags:["ship","black box","steward"]},
+  ravine:    {kind:"nature",     tags:["blood guild","thorias","danger"]},
+  waystone:  {kind:"ancient",    tags:["travel","teleport","sigil"]},
+  forest:    {kind:"forest",     tags:["battle","blight","thorn","elves","danger"]},
+  "v-earth": {kind:"vault",      tags:["earth","claimed"]},
+  "v-water": {kind:"vault",      tags:["water","claimed"]},
+  "v-fire":  {kind:"vault",      tags:["fire","vayne","battle","sacrifice"]},
+  "v-wind":  {kind:"vault",      tags:["wind","flying city","order of the air"]},
+  firesea:   {kind:"water",      tags:["travel","sea"]},
+  summerwood:{kind:"region",     tags:["elves","foxglove woods","valethorn"]},
+  valethorn: {kind:"castle",     tags:["elves","court","high elves"]},
+  deadvalley:{kind:"region",     tags:["vision","army","aggron","danger"]},
+  cathedral: {kind:"temple",     tags:["vision","desert","black sand"]},
+};
+const SPOTS = [
+  {id:"wetowl",  name:"The Wet Owl",     in:"orda",       kind:"inn",    voice:"steward", state:"explored", sessions:[5],
+   tags:["traitors","poison","pieter-bas"],
+   body:"<p>A tavern of traitors in Orda. Poison. A man called Pieter-Bas. That is all the Steward logged.</p>"},
+  {id:"crowsnest",name:"The Crow's Nest", in:"orda",       kind:"castle", voice:"steward", state:"explored", sessions:[5],
+   tags:["prison","order of the seal","calysta","elias","order of the air"],
+   body:"<p>A prison in Orda for all who will not bow to the Order of the Seal. Calysta the wizard was held here, and Elias, Father of the Order of the Air.</p>"},
+  {id:"foxglove",name:"The Foxglove Woods",in:"summerwood", kind:"forest", voice:"fragment",state:"rumour",   sessions:[],
+   tags:["elves"],
+   body:"<p>Inside Summerwood. A name on the chart, nothing more yet.</p>"},
+  {id:"aggron",  name:"The Pit of Aggron",in:"deadvalley", kind:"cave",   voice:"fragment",state:"rumour",   sessions:[6],
+   tags:["vision","army"],
+   body:"<p>Not from the box. From Saphira's vision: a pit in the Dead Valley where an army gathers.</p>"},
+];
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const store = { get(k){try{return localStorage.getItem(k)}catch(e){return null}}, set(k,v){try{localStorage.setItem(k,v)}catch(e){}} };
 // The seal: until the crew opens the black box together at the start of session 10, the chart stays shut.
@@ -1461,7 +1544,7 @@ if(store.get("chron-mode")==="table"){morph=morphTarget=1;setMode(1);} placeThum
 const sheet=document.getElementById("sheet"), sTitle=document.getElementById("sheet-title"), sBody=document.getElementById("sheet-body");
 const tabs=[...document.querySelectorAll(".dock button")]; let tab=null;
 function h(tag,attrs={},...kids){const e=document.createElement(tag);for(const [k,v] of Object.entries(attrs)){if(k==="class")e.className=v;else if(k==="html")e.innerHTML=v;else if(k.startsWith("on"))e.addEventListener(k.slice(2),v);else if(v!==false&&v!=null)e.setAttribute(k,v===true?"":v);}for(const c of kids.flat()){if(c==null||c===false)continue;e.append(c.nodeType?c:document.createTextNode(c));}return e;}
-const TALL=new Set(["chronicle","missed","dm","ask","sheets"]);
+const TALL=new Set(["chronicle","missed","dm","ask","sheets","places"]);
 function openSheet(title,nodes,which=null){delete sTitle.dataset.place;const was=!sheet.hidden&&sTitle.dataset.t===title;sTitle.dataset.t=title;if(!was)scramble(sTitle,title);sBody.replaceChildren(...nodes);
   sheet.classList.toggle("tall",TALL.has(which)&&nodes.length>3);sheet.hidden=false;sBody.scrollTop=0;setTab(which);}
 function closeSheet(){sheet.hidden=true;delete sTitle.dataset.place;setTab(null);}
@@ -1476,7 +1559,7 @@ document.getElementById("sheet-close").onclick=closeSheet;
  hd.forEach(el=>{el.addEventListener("pointerdown",down);el.addEventListener("pointermove",move);el.addEventListener("pointerup",up);el.addEventListener("pointercancel",up);});}
 tabs.forEach(b=>b.onclick=()=>{const t=b.dataset.tab;if(tab===t){closeSheet();return;}
   if(recapOn&&t!=="recap")endRecap();
-  ({recap:startRecap,chronicle:showChronicle,sheets:showSheets,missed:showMissed,ask:showAsk,dm:showDM})[t]();});
+  ({recap:startRecap,chronicle:showChronicle,sheets:showSheets,places:()=>showPlaces(),missed:showMissed,ask:showAsk,dm:showDM})[t]();});
 /* ---- cinematic lines: one at a time, stay until read (tap advances) ---- */
 const cineEl=document.getElementById("cine"); let cineQ=[], cineCur=null;
 function cine(lines){cineQ.push(...lines); if(!cineCur) cineNext();}
@@ -1500,17 +1583,98 @@ function cineClear(){cineQ=[];cineCur=null;clearInterval(cineEl.__iv);clearTimeo
 function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>t.hidden=true,2200);}
 
 function openPlace(id,after){
-  const p=byId[id]; if(!p)return; if(id==="crash"&&!after&&!reduced){playCrash();return;} flyTo(p.lon,p.lat,Math.min(cam.zoom,.42));
+  const p=byId[id]; if(!p)return; if(id==="crash"&&!after&&!reduced){playCrash();return;} const meta=placeMeta(id); flyTo(p.lon,p.lat,Math.min(cam.zoom,.42));
   const tags=h("div",{class:"row"},
-    h("span",{class:"tag "+(p.state==="rumour"?"rumour":"explored")},p.state==="rumour"?"RUMOURED":"EXPLORED"),
+    h("span",{class:"tag "+(p.state==="rumour"?"rumour":"explored")},p.state==="rumour"?"RUMOURED":"EXPLORED"),meta.kind,
     p.isNew?h("span",{class:"tag new"},"NEW IN SESSION "+AS_OF):null,
     p.vault==="claimed"?h("span",{class:"tag explored"},"SIGIL CLAIMED"):p.vault==="lost"?h("span",{class:"tag rumour"},"SIGIL STILL OUT THERE"):null);
   const VO={hans:bird?"HANS (A BIRD NOW)":"HANS",steward:"THE STEWARD, AS TOLD TO HANS",fragment:"A SCRAMBLED FRAGMENT"};
   const sess=h("p",{class:"eyebrow m"},[VO[p.voice]||"HANS",...(p.sessions.length?["SESSIONS "+p.sessions.join(" · ")]:[])].join(" · "));
   const here=allNotes.filter(n=>Math.hypot(n.lon-p.lon,n.lat-p.lat)<3);
-  openSheet(p.name,[tags,sess,h("div",{class:"voice",html:p.voice==="hans"?squawkHtml(p.body):p.body}),
+  openSheet(p.name,[meta.back,tags,sess,h("div",{class:"voice",html:p.voice==="hans"?squawkHtml(p.body):p.body}),
     id==="crash"&&!reduced?h("div",{class:"row"},h("button",{class:"btn ghost",type:"button",onclick:playCrash},"Replay the last flight")):null,
-    here.length?h("p",{class:"eyebrow"},"NOTES PINNED NEARBY"):null, ...here.map(noteCard)].filter(Boolean)); sTitle.dataset.place=id;
+    ...meta.foot, here.length?h("p",{class:"eyebrow"},"NOTES PINNED NEARBY"):null, ...here.map(noteCard)].filter(Boolean)); sTitle.dataset.place=id;
+}
+/* =================== PLACES TAB: the gazetteer =================== */
+const KORD=Object.fromEntries(Object.keys(KINDS).map((k,i)=>[k,i]));
+const spotById=Object.fromEntries(SPOTS.map(s=>[s.id,s]));
+const strip=s=>(s||"").replace(/<[^>]+>/g," ").replace(/\s+/g," ");
+function gazEntry(p,spot){
+  const d=spot?p:(PLACE_DB[p.id]||{}), kind=KINDS[d.kind]?d.kind:"poi", parent=spot?byId[p.in]:null;
+  const tags=[...new Set([...(KINDS[kind].tags||[]),...(d.tags||[])].map(t=>t.toLowerCase()))];
+  return {id:p.id,name:p.name,kind,tags,parent,spot,state:p.state,isNew:!!p.isNew,
+    key:[p.name,KINDS[kind].label,KINDS[kind].one,...tags,parent?parent.name:""].join(" ").toLowerCase(),
+    text:strip(p.body).toLowerCase()};
+}
+const GAZ=[...PLACES.map(p=>gazEntry(p,false)),...SPOTS.filter(s=>byId[s.in]).map(s=>gazEntry(s,true))];
+const gazById=Object.fromEntries(GAZ.map(e=>[e.id,e]));
+let gq=store.get("chron-places-q")||"", gk=store.get("chron-places-k")||"all", gzBack=false;
+if(gk!=="all"&&!KINDS[gk]) gk="all";
+function gzMatch(e,toks){let s=0;for(const t of toks){
+  if(e.name.toLowerCase().startsWith(t))s+=4; else if(e.tags.includes(t))s+=3; else if(e.key.includes(t))s+=2; else if(e.text.includes(t))s+=1; else return -1;}
+  return s;}
+const kindIcon=k=>{const s=document.createElementNS("http://www.w3.org/2000/svg","svg");s.setAttribute("viewBox","0 0 24 24");s.setAttribute("aria-hidden","true");
+  const p=document.createElementNS("http://www.w3.org/2000/svg","path");p.setAttribute("d",KINDS[k].icon);s.append(p);return s;};
+function openEntry(e){gzBack=true; if(e.spot)openSpot(e.id); else openPlace(e.id);}
+function findTag(t){gq=t;gk="all";store.set("chron-places-q",gq);store.set("chron-places-k",gk);showPlaces();}
+function showPlaces(keep){
+  const top=keep?sBody.scrollTop:0;
+  const kinds=h("div",{class:"chips gz-kinds",role:"group","aria-label":"Kind of place"});
+  const tagsEl=h("div",{class:"chips gz-tags",role:"group","aria-label":"Tags"});
+  const list=h("div",{class:"gz-list","aria-live":"polite"});
+  const clear=h("button",{class:"x gz-clear",type:"button","aria-label":"Clear search",hidden:!gq,onclick:()=>{input.value="";gq="";upd();input.focus();}},"✕");
+  const input=h("input",{type:"text",class:"gz-q",value:gq,placeholder:"Search: tavern, food, sigil, elves…","aria-label":"Search places and tags",enterkeyhint:"search",autocomplete:"off",spellcheck:"false",
+    oninput:ev=>{gq=ev.target.value;upd();},onkeydown:ev=>{if(ev.key==="Enter")ev.target.blur();}});
+  const tally={}; GAZ.forEach(e=>e.tags.forEach(t=>tally[t]=(tally[t]||0)+1));
+  const topTags=Object.keys(tally).filter(t=>tally[t]>1||t==="food").sort((a,b)=>(b==="food")-(a==="food")||tally[b]-tally[a]||a.localeCompare(b)).slice(0,12);
+  function upd(){
+    store.set("chron-places-q",gq); store.set("chron-places-k",gk); clear.hidden=!gq;
+    const toks=gq.toLowerCase().trim().split(/\s+/).filter(Boolean);
+    const hits=GAZ.map(e=>({e,s:gzMatch(e,toks)})).filter(x=>x.s>=0);
+    const count={}; hits.forEach(x=>count[x.e.kind]=(count[x.e.kind]||0)+1);
+    const used=Object.keys(KINDS).filter(k=>GAZ.some(e=>e.kind===k));
+    kinds.replaceChildren(
+      h("button",{type:"button",class:"chip sm","aria-pressed":String(gk==="all"),onclick:()=>{gk="all";upd();}},"All",h("small",{},String(hits.length))),
+      ...used.map(k=>h("button",{type:"button",class:"chip sm","aria-pressed":String(gk===k),disabled:!count[k]&&gk!==k,onclick:()=>{gk=gk===k?"all":k;upd();}},KINDS[k].label,h("small",{},String(count[k]||0)))));
+    const q=gq.toLowerCase().trim();
+    tagsEl.replaceChildren(...topTags.map(t=>h("button",{type:"button",class:"chip sm tg","aria-pressed":String(q===t),onclick:()=>{gq=q===t?"":t;input.value=gq;upd();}},"#"+t)));
+    const rows=hits.filter(x=>gk==="all"||x.e.kind===gk).sort((a,b)=>b.s-a.s||KORD[a.e.kind]-KORD[b.e.kind]||a.e.name.localeCompare(b.e.name)).map(x=>x.e);
+    list.replaceChildren(...(rows.length?rows.map(e=>h("button",{type:"button",class:"gz"+(e.state==="rumour"?" rumour":""),onclick:()=>openEntry(e)},
+        kindIcon(e.kind),
+        h("span",{class:"gz-b"},
+          h("span",{class:"nm"},e.name),
+          h("span",{class:"mt"},[KINDS[e.kind].one.toUpperCase(),e.parent?"IN "+e.parent.name.toUpperCase():null,e.state==="rumour"?"RUMOURED":null,e.isNew?"NEW":null].filter(Boolean).join(" · ")),
+          e.tags.length?h("span",{class:"tg"},e.tags.map(t=>"#"+t).join("  ")):null)))
+      :[h("p",{class:"note"},"Nothing on my chart matches that. Yet."),
+        h("div",{class:"row"},h("button",{class:"btn ghost",type:"button",onclick:()=>{gq="";gk="all";input.value="";upd();}},"Show every place"))]));
+  }
+  upd();
+  openSheet("Places",[
+    h("p",{class:"eyebrow m"},"HANS'S GAZETTEER · "+GAZ.length+" PLACES · AS OF SESSION "+AS_OF),
+    h("p",{class:"small voice"},"Every place on my chart, sorted. Search a name or a tag. Food finds the taverns."),
+    h("div",{class:"gz-search"},input,clear),
+    kinds, tagsEl, list],"places");
+  if(keep) sBody.scrollTop=top;
+}
+function placeMeta(id){
+  const e=gazById[id]; if(!e)return {back:null,kind:null,foot:[]};
+  const back=gzBack?h("button",{class:"gz-back",type:"button",onclick:()=>showPlaces(true)},"← All places"):null; gzBack=false;
+  const inside=GAZ.filter(x=>x.parent&&x.parent.id===id);
+  return {back, kind:h("span",{class:"tag kind"},KINDS[e.kind].one.toUpperCase()),
+    foot:[inside.length?h("p",{class:"eyebrow"},"INSIDE "+e.name.toUpperCase()):null,
+      inside.length?h("div",{class:"chips"},inside.map(x=>h("button",{class:"chip",type:"button",onclick:()=>openSpot(x.id)},x.name))):null,
+      h("div",{class:"chips gz-meta",role:"group","aria-label":"Tags"},
+        e.parent?h("button",{class:"chip sm",type:"button",onclick:()=>openPlace(e.parent.id)},"in "+e.parent.name):null,
+        ...e.tags.map(t=>h("button",{class:"chip sm tg",type:"button","aria-label":"All places tagged "+t,onclick:()=>findTag(t)},"#"+t)))].filter(Boolean)};
+}
+function openSpot(id){
+  const s=spotById[id], par=s&&byId[s.in]; if(!par)return; flyTo(par.lon,par.lat,Math.min(cam.zoom,.42));
+  const VO={hans:"HANS",steward:"THE STEWARD, AS TOLD TO HANS",fragment:"A SCRAMBLED FRAGMENT"};
+  const meta=placeMeta(id);
+  openSheet(s.name,[meta.back,
+    h("div",{class:"row"},h("span",{class:"tag "+(s.state==="rumour"?"rumour":"explored")},s.state==="rumour"?"RUMOURED":"EXPLORED"),meta.kind),
+    h("p",{class:"eyebrow m"},[VO[s.voice]||"HANS",...(s.sessions.length?["SESSIONS "+s.sessions.join(" · ")]:[])].join(" · ")),
+    h("div",{class:"voice",html:s.voice==="hans"?squawkHtml(s.body):s.body}),...meta.foot].filter(Boolean));
 }
 function noteCard(n){return h("div",{class:"card"},h("div",{class:"who",style:`--c:${n.color}`},h("i"),n.who+(n.private?(PUBLIC?(n.via==="copied"?" · copied for Sam":" · sent to Sam"):" · only you and Sam"):"")),h("p",{},n.text));}
 function openNote(n){openSheet(n.missed?"Missed by the box":"Party pin",[noteCard(n),
