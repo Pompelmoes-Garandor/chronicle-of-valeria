@@ -6,6 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **New** Places tab: every place on the map has a type with its own icon and colour (taverns, caves, vaults…). Hide kinds of places, sort the list, add your own types, and mark places you found; they stay dotted until the DM confirms them. Adding works in the claude.ai version of the page. (Niels)
 - **Changed** The site moved to https://pompelmoes-garandor.github.io/chronicle-of-valeria/ now that Sam and Niels run it together. Save the new link; the old one stops working. (Sam)
 - **New** Site source in `source/`, co-working rules in `CLAUDE.md`, a PR checklist and these patch notes. (Sam)
 
