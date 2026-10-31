@@ -172,6 +172,14 @@ textarea:focus,input:focus{outline:2px solid var(--brass);outline-offset:1px}
 .chip.tg{font:400 12px/1 var(--mono);letter-spacing:.02em;color:var(--steward);border-color:#8fd3c844}
 .chip.tg[aria-pressed="true"]{background:var(--steward);color:#06201c;border-color:var(--steward)}
 .gz-list{display:flex;flex-direction:column;gap:6px}
+.gz-row{position:relative;display:flex;flex-direction:column}
+.gz-row .gz{padding-right:64px}
+.gz-row.editing .gz{border-color:var(--brass);border-bottom-left-radius:0;border-bottom-right-radius:0}
+.gz-edit{position:absolute;top:10px;right:10px}
+.gz-editor{display:flex;flex-direction:column;gap:10px;border:1px solid var(--brass);border-top:0;border-radius:0 0 10px 10px;padding:10px 12px 12px;background:#0b0e12}
+.gz-addrow{display:flex;gap:8px}
+.gz-addrow input{flex:1;min-width:0;padding:8px 10px}
+.gz-rm{gap:2px}
 .gz{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;background:#0e1116;border:1px solid #c9a35c26;border-radius:10px;padding:10px 12px;color:var(--parch);font:inherit;cursor:pointer;transition:border-color .14s}
 .gz:hover{border-color:#c9a35c77} .gz:focus-visible,.gz-back:focus-visible{outline:2px solid var(--parch);outline-offset:2px}
 .gz svg{flex:none;width:22px;height:22px;margin-top:1px;stroke:var(--brass);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
@@ -1569,13 +1577,19 @@ const strip=s=>(s||"").replace(/<[^>]+>/g," ").replace(/\s+/g," ");
 function gazEntry(p,spot){
   const d=spot?p:(PLACE_DB[p.id]||{}), kind=KINDS[d.kind]?d.kind:"poi", parent=spot?byId[p.in]:null;
   const tags=[...new Set([...(KINDS[kind].tags||[]),...(d.tags||[])].map(t=>t.toLowerCase()))];
-  return {id:p.id,name:p.name,kind,tags,parent,spot,state:p.state,isNew:!!p.isNew,
-    key:[p.name,KINDS[kind].label,KINDS[kind].one,...tags,parent?parent.name:""].join(" ").toLowerCase(),
-    text:strip(p.body).toLowerCase()};
+  return gzRetag({id:p.id,name:p.name,kind,base:tags,parent,spot,state:p.state,isNew:!!p.isNew,text:strip(p.body).toLowerCase()});
 }
+// tag edits from the Places list: kept on this device only, like sheet amendments
+let tagEdits={}; try{tagEdits=JSON.parse(store.get("chron-place-tags")||"{}")||{};}catch(e){tagEdits={};}
+function gzRetag(e){const own=tagEdits[e.id];e.tags=Array.isArray(own)?own:e.base;e.amended=Array.isArray(own);
+  e.key=[e.name,KINDS[e.kind].label,KINDS[e.kind].one,...e.tags,e.parent?e.parent.name:""].join(" ").toLowerCase();return e;}
+const cleanTag=t=>String(t||"").toLowerCase().replace(/^#+/,"").replace(/[^\p{L}\p{N}' -]/gu,"").replace(/\s+/g," ").trim().slice(0,24);
+function setTags(id,tags){const e=gazById[id];if(!e)return;tags=[...new Set(tags.map(cleanTag).filter(Boolean))].slice(0,14);
+  if(tags.join("|")===e.base.join("|"))delete tagEdits[id];else tagEdits[id]=tags;
+  store.set("chron-place-tags",JSON.stringify(tagEdits));gzRetag(e);}
 const GAZ=[...PLACES.map(p=>gazEntry(p,false)),...SPOTS.filter(s=>byId[s.in]).map(s=>gazEntry(s,true))];
 const gazById=Object.fromEntries(GAZ.map(e=>[e.id,e]));
-let gq=store.get("chron-places-q")||"", gk=store.get("chron-places-k")||"all", gzBack=false;
+let gq=store.get("chron-places-q")||"", gk=store.get("chron-places-k")||"all", gzBack=false, gzEdit=null;
 if(gk!=="all"&&!KINDS[gk]) gk="all";
 function gzMatch(e,toks){let s=0;for(const t of toks){
   if(e.name.toLowerCase().startsWith(t))s+=4; else if(e.tags.includes(t))s+=3; else if(e.key.includes(t))s+=2; else if(e.text.includes(t))s+=1; else return -1;}
@@ -1585,15 +1599,26 @@ const kindIcon=k=>{const s=document.createElementNS("http://www.w3.org/2000/svg"
 function openEntry(e){gzBack=true; if(e.spot)openSpot(e.id); else openPlace(e.id);}
 function findTag(t){gq=t;gk="all";store.set("chron-places-q",gq);store.set("chron-places-k",gk);showPlaces();}
 function showPlaces(keep){
-  const top=keep?sBody.scrollTop:0;
+  const top=keep?sBody.scrollTop:0; if(!keep)gzEdit=null;
   const kinds=h("div",{class:"chips gz-kinds",role:"group","aria-label":"Kind of place"});
   const tagsEl=h("div",{class:"chips gz-tags",role:"group","aria-label":"Tags"});
   const list=h("div",{class:"gz-list","aria-live":"polite"});
   const clear=h("button",{class:"x gz-clear",type:"button","aria-label":"Clear search",hidden:!gq,onclick:()=>{input.value="";gq="";upd();input.focus();}},"✕");
   const input=h("input",{type:"text",class:"gz-q",value:gq,placeholder:"Search: tavern, food, sigil, elves…","aria-label":"Search places and tags",enterkeyhint:"search",autocomplete:"off",spellcheck:"false",
     oninput:ev=>{gq=ev.target.value;upd();},onkeydown:ev=>{if(ev.key==="Enter")ev.target.blur();}});
-  const tally={}; GAZ.forEach(e=>e.tags.forEach(t=>tally[t]=(tally[t]||0)+1));
-  const topTags=Object.keys(tally).filter(t=>tally[t]>1||t==="food").sort((a,b)=>(b==="food")-(a==="food")||tally[b]-tally[a]||a.localeCompare(b)).slice(0,12);
+  function tagEditor(e){
+    const add=()=>{const v=inp.value.split(",").map(cleanTag).filter(Boolean);if(!v.length)return;setTags(e.id,[...e.tags,...v]);upd();list.querySelector(".gz-tagin")?.focus();};
+    const inp=h("input",{type:"text",class:"gz-tagin",placeholder:"Add a tag",maxlength:"24","aria-label":"New tag for "+e.name,enterkeyhint:"done",autocomplete:"off",spellcheck:"false",
+      onkeydown:ev=>{if(ev.key==="Enter"){ev.preventDefault();add();}else if(ev.key==="Escape"){gzEdit=null;upd();}}});
+    return h("div",{class:"gz-editor"},
+      h("div",{class:"chips"},e.tags.length?e.tags.map(t=>h("button",{type:"button",class:"chip sm tg gz-rm","aria-label":"Remove tag "+t,onclick:()=>{setTags(e.id,e.tags.filter(x=>x!==t));upd();}},"#"+t," ✕"))
+        :[h("span",{class:"note"},"No tags. Add one below.")]),
+      h("div",{class:"gz-addrow"},inp,h("button",{type:"button",class:"btn ghost",onclick:add},"Add")),
+      h("div",{class:"row"},
+        h("button",{type:"button",class:"btn",onclick:()=>{if(inp.value.trim())add();gzEdit=null;upd();}},"Done"),
+        e.amended?h("button",{type:"button",class:"btn ghost",onclick:()=>{setTags(e.id,e.base);upd();}},"Back to Hans's tags"):null),
+      h("p",{class:"note"},"Your tags stay on this device. Tell Sam or Niels if Hans should keep them for everyone."));
+  }
   function upd(){
     store.set("chron-places-q",gq); store.set("chron-places-k",gk); clear.hidden=!gq;
     const toks=gq.toLowerCase().trim().split(/\s+/).filter(Boolean);
@@ -1604,14 +1629,20 @@ function showPlaces(keep){
       h("button",{type:"button",class:"chip sm","aria-pressed":String(gk==="all"),onclick:()=>{gk="all";upd();}},"All",h("small",{},String(hits.length))),
       ...used.map(k=>h("button",{type:"button",class:"chip sm","aria-pressed":String(gk===k),disabled:!count[k]&&gk!==k,onclick:()=>{gk=gk===k?"all":k;upd();}},KINDS[k].label,h("small",{},String(count[k]||0)))));
     const q=gq.toLowerCase().trim();
+    const tally={}; GAZ.forEach(e=>e.tags.forEach(t=>tally[t]=(tally[t]||0)+1));
+    const topTags=Object.keys(tally).filter(t=>tally[t]>1||t==="food").sort((a,b)=>(b==="food")-(a==="food")||tally[b]-tally[a]||a.localeCompare(b)).slice(0,12);
     tagsEl.replaceChildren(...topTags.map(t=>h("button",{type:"button",class:"chip sm tg","aria-pressed":String(q===t),onclick:()=>{gq=q===t?"":t;input.value=gq;upd();}},"#"+t)));
     const rows=hits.filter(x=>gk==="all"||x.e.kind===gk).sort((a,b)=>b.s-a.s||KORD[a.e.kind]-KORD[b.e.kind]||a.e.name.localeCompare(b.e.name)).map(x=>x.e);
-    list.replaceChildren(...(rows.length?rows.map(e=>h("button",{type:"button",class:"gz"+(e.state==="rumour"?" rumour":""),onclick:()=>openEntry(e)},
+    list.replaceChildren(...(rows.length?rows.map(e=>h("div",{class:"gz-row"+(gzEdit===e.id?" editing":"")},
+      h("button",{type:"button",class:"gz"+(e.state==="rumour"?" rumour":""),onclick:()=>openEntry(e)},
         kindIcon(e.kind),
         h("span",{class:"gz-b"},
           h("span",{class:"nm"},e.name),
-          h("span",{class:"mt"},[KINDS[e.kind].one.toUpperCase(),e.parent?"IN "+e.parent.name.toUpperCase():null,e.state==="rumour"?"RUMOURED":null,e.isNew?"NEW":null].filter(Boolean).join(" · ")),
-          e.tags.length?h("span",{class:"tg"},e.tags.map(t=>"#"+t).join("  ")):null)))
+          h("span",{class:"mt"},[KINDS[e.kind].one.toUpperCase(),e.parent?"IN "+e.parent.name.toUpperCase():null,e.state==="rumour"?"RUMOURED":null,e.isNew?"NEW":null].filter(Boolean).join(" · "),
+            e.amended?h("span",{class:"cs-amend"},"\u00a0· amended"):null),
+          e.tags.length?h("span",{class:"tg"},e.tags.map(t=>"#"+t).join("  ")):h("span",{class:"tg"},"no tags"))),
+      gzEdit===e.id?null:h("button",{type:"button",class:"cs-edit gz-edit","aria-label":"Edit the tags of "+e.name,onclick:()=>{gzEdit=e.id;upd();list.querySelector(".gz-tagin")?.focus();}},"edit"),
+      gzEdit===e.id?tagEditor(e):null))
       :[h("p",{class:"note"},"Nothing on my chart matches that. Yet."),
         h("div",{class:"row"},h("button",{class:"btn ghost",type:"button",onclick:()=>{gq="";gk="all";input.value="";upd();}},"Show every place"))]));
   }
