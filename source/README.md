@@ -14,7 +14,7 @@ Outside dependencies at runtime: Three.js 0.160.0 from jsDelivr and Google Fonts
 From the repo root, with Python 3 and Pillow:
 
 ```
-python3 source/build-site.py source/chronicle.html . --sealed --base https://garandor-cyber.github.io/chronicle-of-valeria/ --assets source/assets
+python3 source/build-site.py source/chronicle.html . --sealed --base https://pompelmoes-garandor.github.io/chronicle-of-valeria/ --assets source/assets
 ```
 
 `--sealed` is what the live site uses today. Drop it once the crew has opened the black box at the table. `--open` sets the remote unlock in `version.json`.
