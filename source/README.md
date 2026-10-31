@@ -23,4 +23,4 @@ The session number comes from `const AS_OF` in `chronicle.html`. Change it there
 
 ## Working together
 
-Make changes on a branch and open a pull request, so Sam sees them before they go live. Pages publishes whatever is on `main`. The full rules are in `CLAUDE.md` in the repo root.
+Make changes on a branch and open a pull request, so the other sees them before they go live. Pages publishes whatever is on `main`. The full rules are in `CLAUDE.md` in the repo root.

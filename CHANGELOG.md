@@ -1,6 +1,6 @@
 # Patch notes
 
-Newest first. Every pull request adds a line under **Unreleased**. When Sam publishes a session update, Unreleased becomes that session's heading.
+Newest first. Every pull request adds a line under **Unreleased**. When Sam or Niels publishes a session update, Unreleased becomes that session's heading.
 
 Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in brackets.
 

@@ -8,4 +8,4 @@
 - [ ] Looked at it on phone and desktop width, no console errors
 - [ ] No new libraries, no secrets, no unrevealed lore
 
-## Questions for Sam
+## Questions
