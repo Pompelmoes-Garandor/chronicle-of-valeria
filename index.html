@@ -403,7 +403,7 @@ const M = (x,y)=>({lon:-48+x*0.07, lat:50-y*(54/700)});
 const P = (id,name,pos,o)=>Object.assign({id,name,lon:pos.lon,lat:pos.lat},o);
 const PLACES = [
   P("valeria","Valarius",M(300,430),{voice:"hans",state:"explored",major:true,sessions:[6,7,8,9],
-    body:"<p>I have stood in Valarius longer than I can count. It was frozen. Then the Fire Vault burst, and for about a week now it has been thawed. The people of the hills live here now. They are loud. I approve.</p><p>Here I met the party. Here they bought my freedom for 1,200 gold.</p>"}),
+    body:"<p>I have stood in Valarius longer than I can count. It was frozen. Then the Fire Vault burst, and for about a week now it has been thawed. The people of the hills live here now. They are loud. I approve.</p><p>Here I met the party. Here they paid Gerda 1,200 gold for my freedom. Saphira gave me 300 more, for myself.</p>"}),
   P("inn","Gerda's inn",{lon:M(300,430).lon+0.9,lat:M(300,430).lat-0.8},{voice:"hans",state:"explored",minor:true,sessions:[8,9],
     body:"<p>Gerda's inn, inside Valarius. I was part of the building. Gerda planned to have me kill the party. I have deleted that plan.</p><p>A Blood Guild contract lay on the table: <em>Attempt no. 43 on Gerda</em>. The arcane lock: mechanical part done, key part done, magic part still needs a combination. Someone wrote <em>GERDA REVERSE</em>. It was not me.</p>"}),
   P("icy","The icy pass",M(250,360),{voice:"steward",state:"explored",minor:true,sessions:[6],
@@ -1124,7 +1124,7 @@ let hackT=[];
 function hack(){
   const el=document.getElementById("hack"), log=document.getElementById("hk-log"); hackT.forEach(clearTimeout); hackT=[];
   const p=byId[PARTY_AT], hex=n=>Math.abs(n).toFixed(3).padStart(7,"0");
-  const lines=["> BLOOD GUILD UPLINK ........ OPEN","> TARGET: BLACK BOX // HOST: HANS","> BYPASSING VALERIAN ICE ..... ██████████ 100%","> INJECTING CONTRACT #43 ..... OK",
+  const lines=["> BLOOD GUILD UPLINK ........ OPEN","> TARGET: BLACK BOX // HOST: HANS","> BYPASSING VALERIAN ICE ..... ██████████ 100%","> INJECTING CONTRACT #44 ..... OK",
     `> TRIANGULATING PARTY ........ LAT ${hex(p.lat)} LON ${hex(p.lon)}`,"> MARKS: BARD · CLERIC · ASSASSIN (TRAITOR) · CONSTRUCT"];
   log.textContent=""; el.classList.remove("go"); el.hidden=false; siren();
   lines.forEach((l,i)=>hackT.push(setTimeout(()=>{log.textContent+=l+"\n";},reduced?0:i*260)));
