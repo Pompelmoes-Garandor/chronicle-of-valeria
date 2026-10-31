@@ -339,6 +339,34 @@ body:not(.cinema) #cine{bottom:calc(var(--bot) + 96px)}
   #caption{left:auto;right:max(12px, env(safe-area-inset-right, 0px));width:min(400px,50vw);bottom:calc(var(--bot) + 80px);padding:12px 14px 8px;gap:6px}
   #caption .txt{max-height:calc(17px*1.5*3)}
 }
+
+/* ---- character sheets (Hans's copies of the crew's papers) ---- */
+.chip.cs[aria-pressed="true"]{background:var(--c);border-color:var(--c);color:#1a1307}
+.cs-name{margin:0;font:400 27px/1.1 var(--display)}
+.cs-line{margin:3px 0 0;font:500 11px/1.5 var(--label);letter-spacing:.1em;text-transform:uppercase;color:var(--parch-dim)}
+.cs-sec{display:flex;flex-direction:column;gap:6px}
+.cs-lvl{padding:10px 12px;border:1px dashed #8fd3c866;border-radius:10px;background:#8fd3c80d}
+.vitals{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;text-align:center}
+.vitals div{padding:8px 2px 6px;border:1px solid var(--hairline);border-radius:9px;background:#0b0d1266}
+.vitals b{display:block;font:500 18px/1.1 var(--mono);color:var(--parch)}
+.vitals span{font:500 10px/1.5 var(--label);letter-spacing:.12em;color:var(--brass)}
+.abil{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;text-align:center}
+@media (max-width:400px){.abil{grid-template-columns:repeat(3,1fr)}}
+.abil div{padding:7px 2px 6px;border-radius:9px;background:var(--panel-2)}
+.abil .k{display:block;font:500 10px/1.4 var(--label);letter-spacing:.14em;color:var(--brass)}
+.abil b{display:block;font:500 20px/1.1 var(--mono)}
+.abil i{font:400 11px/1.4 var(--mono);color:var(--parch-dim);font-style:normal}
+.skl{display:grid;grid-template-columns:1fr 1fr;gap:2px 14px;font-size:14px}
+.skl span{display:flex;justify-content:space-between;gap:6px;border-bottom:1px dotted #c9a35c22;padding:2px 0}
+.skl b{font:500 13px/1.5 var(--mono);color:var(--parch)}
+.atk div{display:grid;grid-template-columns:1fr auto;gap:0 10px;padding:6px 0;border-bottom:1px solid #c9a35c22;font-size:14px}
+.atk b{font:500 14px/1.5 var(--mono);color:var(--steward)}
+.atk .d{grid-column:1/-1;color:var(--parch-dim);font-size:13px}
+.spl{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.spl .lv{font:500 11px/1 var(--label);letter-spacing:.12em;color:var(--brass);margin-right:2px}
+.spl i{font-style:normal;font-size:13px;line-height:1.3;padding:3px 8px;border-radius:999px;border:1px solid #c9a35c44;color:var(--parch)}
+.cs-sec ul{margin:0;padding-left:18px;font-size:14px;display:flex;flex-direction:column;gap:4px}
+.cs-sec .mono{font:400 13px/1.6 var(--mono);color:var(--parch)}
 /* ---- the seal: the black box stays shut until the crew opens it together at the table (start of session 10) ---- */
 #seal{position:fixed;inset:0;z-index:30;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;align-items:center;box-sizing:border-box;text-align:center;
   padding:calc(var(--top) + 24px) max(16px, env(safe-area-inset-right, 0px)) calc(var(--bot) + 24px) max(16px, env(safe-area-inset-left, 0px));
@@ -446,6 +474,7 @@ addEventListener("error",function(e){if(e.target&&e.target.tagName==="LINK")retu
 <nav class="dock" aria-label="Chronicle">
   <button type="button" data-tab="recap"><span class="dot"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4.5 3.5v4h4"/><path d="M10.5 9.2l4.5 2.8-4.5 2.8z"/></svg><span>Recap</span></button>
   <button type="button" data-tab="chronicle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 5.5c3-1.2 5.6-1 8.5 1 2.9-2 5.5-2.2 8.5-1v13c-3-1.2-5.6-1-8.5 1-2.9-2-5.5-2.2-8.5-1z"/><path d="M12 6.5v13"/></svg><span>Chronicle</span></button>
+  <button type="button" data-tab="sheets"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h12v17H6z"/><path d="M9 8.5h6M9 12h6M9 15.5h4"/></svg><span>Sheets</span></button>
   <button type="button" data-tab="missed" aria-label="Missed something?"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 3.5C13 4.5 8.5 9 6.5 16L5 20"/><path d="M8 13.5c3.5.3 6.5-1.8 8.5-5"/><path d="M17 14.5v6M14 17.5h6"/></svg><span class="lg">Missed something?</span><span class="sh">Missed?</span></button>
   <button type="button" data-tab="dm" class="dm" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.6v8.8L12 21l-8-4.6V7.6z"/><path d="M12 3L7.5 11.5h9zM7.5 11.5L4 16.4M16.5 11.5l3.5 4.9M7.5 11.5L12 21l4.5-9.5"/></svg><span>DM</span></button>
 </nav>
@@ -557,6 +586,42 @@ const STORYLINES = [
   ["thorn","Thorn and the grey forest"],["matthew","Finding Matthew Berry"],["blood","The Blood Guild and Saphira's past"],
   ["fire","The Fire Vault and the Sigil of Fire"],["teenoog","Captain Teenoog and the One-Eyed Champions"],["deadvalley","The army in the Dead Valley"],["hodle","What happened to Hodle"]
 ];
+
+/* ---- the crew's papers, as Hans copied them (level 5, end of session 9) ---- */
+const SHEETS = {
+  katy:{id:"katy",name:"Katy Berry",line:"Bard 5 · half-elf, wood elf lineage · Charlatan",alias:"Also answers to Tessa Haltorn.",
+    lvl6:"The new page has not come through yet. Hit points, the new spell and what the college taught her: still decoding.",
+    vit:[["AC","14"],["HP","34"],["SPEED","35 ft"],["INIT","+2"],["PROF","+3"]],
+    ab:[["STR",8,-1],["DEX",14,2],["CON",10,0],["INT",12,1],["WIS",14,2],["CHA",18,4]],
+    saves:"Str −1 · Dex +5 · Con +0 · Int +1 · Wis +2 · Cha +7",
+    skillNote:"The pages I was given carry no skills list. Deception and Sleight of Hand come with the Charlatan's trade.",
+    attacks:[["Elodie's shortbow","+5","1d6 + 2 piercing · range 80/320 ft"],["Dagger (she carries two)","+5","1d4 + 2 piercing · thrown 20/60 ft"],["Either one with True Strike","+7","Charisma guides the blow · +1d6 radiant"]],
+    magic:{line:"Charisma · spell save DC 15 · spell attack +7",slots:"Spell slots 4 · 3 · 2",extra:"Bardic Inspiration d8, four per long rest, and back after a short rest",
+      cantrips:["Druidcraft","Prestidigitation","Message","Vicious Mockery or True Strike (the paper names both)"],
+      lv:[["1st",["Longstrider*","Thunderwave","Cure Wounds","Disguise Self","Animal Friendship","Dissonant Whispers","Silvery Barbs†"]],["2nd",["Detect Thoughts","Shatter","Misty Step†","Pass Without Trace*"]],["3rd",["Mass Healing Word","Slow"]]],
+      foot:"* wood elf lineage: once per long rest without a slot · † Fey Touched: once per long rest without a slot"},
+    feats:["Fey Touched (level 4): +1 Charisma; Misty Step and Silvery Barbs always prepared.","Skilled: woodcarver's tools, and more.","Forgery kit: proficiency and advantage. Mimic ten words of someone's hand (DC 15) or copy a wax seal (DC 20).","A costume gives advantage on checks to impersonate the person it represents."],
+    items:[["Matthew's bronze ukulele","Instrument of Illusions, and her arcane focus. While she plays, harmless illusions dance within 15 feet: luminous notes, a spectral dancer, falling snow."],["Lúmeneth","A small moonstone on a leather cord, a gift from the High Elf court. It glows when someone means her harm. Protective Pulse, once a day: advantage on the first save against that threat. Court legend says the same glow lights in the court mages' tower."],["Elodie's shortbow","Her mother's bow."],["A vial of her mother's perfume",""],["The Sigil of Earth","Found by Katy. In her pack."]],
+    gear:["studded leather","two daggers","entertainer's pack (bedroll, bell, bullseye lantern, three costumes, mirror, oil, rations, tinderbox, waterskin)","the smallest violin in the world","woodcarver's tools","forgery kit","fine clothes and traveller's clothes","rope, shovel, iron pot, tent","11 gp of her own"],
+    loot:null,langs:null},
+  saphira:{id:"saphira",name:"Saphira Vale",line:"Rogue 3 (Assassin) / Warlock 2 (Hexblade) · Criminal · chaotic good",alias:"",
+    lvl6:"Hexblade 3. Pact of the Tome, and Shadow Blade joins her spells. Her pact slots become 2nd level. New hit points: still decoding.",
+    vit:[["AC","16"],["HP","21"],["SPEED","30 ft"],["INIT","+4"],["PROF","+3"]],
+    ab:[["STR",13,1],["DEX",18,4],["CON",13,1],["INT",15,2],["WIS",13,1],["CHA",16,3]],
+    saves:"Str +1 · Dex +7 · Con +1 · Int +5 · Wis +4 · Cha +6",
+    skills:[["Acrobatics","+7"],["Animal Handling","+1"],["Arcana","+5"],["Athletics","+1"],["Deception","+6"],["History","+2"],["Insight","+1"],["Intimidation","+6"],["Investigation","+4"],["Medicine","+1"],["Nature","+2"],["Perception","+4"],["Performance","+3"],["Persuasion","+6"],["Religion","+2"],["Sleight of Hand","+10"],["Stealth","+11"],["Survival","+1"]],
+    passive:"Passive Perception 15 · darkvision 60 ft",
+    attacks:[["Magical dagger","+8","1d4 + 4 + 1 piercing"],["Ash blade +1","+8","1d4 + 4 + 1, and 1d4 necrotic or cold"],["Eldritch Blast","+6","1d10 + 3 force, two beams"]],
+    magic:{line:"Charisma · spell save DC 14 · spell attack +6",slots:"Two pact slots (1st level), back after a short rest",extra:"",
+      cantrips:["Eldritch Blast (Agonizing: +3 a beam)","Fire Bolt","Thunderclap"],
+      lv:[["1st",["Shield","Hex","Witch Bolt","False Life at will (1d4 + 4 temp HP)"]],["no slot",["Shatter (+1d4)","Detect Magic","Misty Step"]]],
+      foot:"Shatter and the +1d4 on thunder and force spells come from the Petrified Echo. Misty Step comes from the cloak."},
+    feats:["Sneak Attack 2d6.","Cunning Action: Dash, Disengage or Hide as a bonus action.","Assassinate: advantage on attack rolls against anyone who has not acted yet. A hit on a surprised creature is a critical.","Hexblade's Curse.","Cannot be charmed.","Detect Undead."],
+    items:[["Cloak of Shadows","+1 Stealth, and Misty Step."],["Boots of Spider Climb",""],["Petrified Echo","The branch from the tree in the Fire Vault. Shatter without a slot, and +1d4 damage on thunder and force spells."],["Potions","Two healing potions and one greater healing potion."]],
+    gear:["studded leather","burglar's pack","thieves' tools","disguise kit","poisoner's kit","gaming set","scholar's pack","monster harvesting tools","2,600 gp, the party's shared purse, as last written"],
+    loot:["three diamonds and three raw diamonds","fossilised amber","a still-beating undead heart","a colossus hide","fine wine","a purple-blue birdman kidney stone","the ash of a shadow demon","six needle blight spikes","two vine blight vines (very strong rope)","still to identify: a book (Fire Vault), two rings (Fire Vault, Blood Marked), a bracelet (Blood Marked)"],
+    langs:"Common, Elvish, Draconic, Thieves' Cant"}
+};
 const MORE = ["Combat","Roleplay","Exploration","Puzzles","Lore & mystery","Humour","Danger"];
 const byId = Object.fromEntries(PLACES.map(p=>[p.id,p]));
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -1331,7 +1396,7 @@ if(store.get("chron-mode")==="table"){morph=morphTarget=1;setMode(1);} placeThum
 const sheet=document.getElementById("sheet"), sTitle=document.getElementById("sheet-title"), sBody=document.getElementById("sheet-body");
 const tabs=[...document.querySelectorAll(".dock button")]; let tab=null;
 function h(tag,attrs={},...kids){const e=document.createElement(tag);for(const [k,v] of Object.entries(attrs)){if(k==="class")e.className=v;else if(k==="html")e.innerHTML=v;else if(k.startsWith("on"))e.addEventListener(k.slice(2),v);else if(v!==false&&v!=null)e.setAttribute(k,v===true?"":v);}for(const c of kids.flat()){if(c==null||c===false)continue;e.append(c.nodeType?c:document.createTextNode(c));}return e;}
-const TALL=new Set(["chronicle","missed","dm","ask"]);
+const TALL=new Set(["chronicle","missed","dm","ask","sheets"]);
 function openSheet(title,nodes,which=null){delete sTitle.dataset.place;const was=!sheet.hidden&&sTitle.dataset.t===title;sTitle.dataset.t=title;if(!was)scramble(sTitle,title);sBody.replaceChildren(...nodes);
   sheet.classList.toggle("tall",TALL.has(which)&&nodes.length>3);sheet.hidden=false;sBody.scrollTop=0;setTab(which);}
 function closeSheet(){sheet.hidden=true;delete sTitle.dataset.place;setTab(null);}
@@ -1346,7 +1411,7 @@ document.getElementById("sheet-close").onclick=closeSheet;
  hd.forEach(el=>{el.addEventListener("pointerdown",down);el.addEventListener("pointermove",move);el.addEventListener("pointerup",up);el.addEventListener("pointercancel",up);});}
 tabs.forEach(b=>b.onclick=()=>{const t=b.dataset.tab;if(tab===t){closeSheet();return;}
   if(recapOn&&t!=="recap")endRecap();
-  ({recap:startRecap,chronicle:showChronicle,missed:showMissed,ask:showAsk,dm:showDM})[t]();});
+  ({recap:startRecap,chronicle:showChronicle,sheets:showSheets,missed:showMissed,ask:showAsk,dm:showDM})[t]();});
 /* ---- cinematic lines: one at a time, stay until read (tap advances) ---- */
 const cineEl=document.getElementById("cine"); let cineQ=[], cineCur=null;
 function cine(lines){cineQ.push(...lines); if(!cineCur) cineNext();}
@@ -1438,6 +1503,38 @@ function showChronicle(){
     h("div",{class:"scan",html:"STIG, THE CLERIC<br>ORIGINS: NOT CLEAR. YET.<br>ANALYZING<span class='cur'></span>"}),
     h("p",{class:"eyebrow"},"SIGILS · 2 OF 4"),
     h("p",{class:"small voice"},"Water: on the cleric's skin. Earth: in the bard's pack. Fire and Wind: still out there.")],"chronicle");
+}
+
+/* =================== CHARACTER SHEETS =================== */
+function showSheets(){
+  let cur=store.get("chron-sheet"); if(!SHEETS[cur]) cur=SHEETS[myPick]?myPick:"katy";
+  const sec=(title,...kids)=>h("div",{class:"cs-sec"},h("p",{class:"eyebrow"},title),...kids);
+  const mod=m=>(m<0?"−":"+")+Math.abs(m);
+  const picks=h("div",{class:"chips",role:"group","aria-label":"Whose sheet"},Object.values(SHEETS).map(c=>h("button",{type:"button",class:"chip cs",style:`--c:${CH[c.id].hex}`,"aria-pressed":String(c.id===cur),onclick:()=>{store.set("chron-sheet",c.id);showSheets();}},c.name)));
+  const s=SHEETS[cur], m=s.magic;
+  const spells=h("div",{class:"cs-sec"},h("p",{class:"eyebrow"},"SPELLCASTING"),h("p",{class:"mono"},m.line),h("p",{class:"small muted"},[m.slots,m.extra].filter(Boolean).join(". ")+"."),
+    h("div",{class:"spl"},h("span",{class:"lv"},"CANTRIPS"),m.cantrips.map(x=>h("i",{},x))),
+    m.lv.map(([lv,list])=>h("div",{class:"spl"},h("span",{class:"lv"},lv.toUpperCase()),list.map(x=>h("i",{},x)))),
+    m.foot?h("p",{class:"note"},m.foot):null);
+  openSheet("Character sheets",[
+    h("p",{class:"eyebrow m"},"HANS'S FILES · THE CREW · AS OF SESSION "+AS_OF),
+    h("p",{class:"small voice"},"I copied these from the crew's own papers while they slept. Where the paper was blank, so am I. Where the paper was wrong, it was wrong first."),
+    picks,
+    h("div",{},h("h3",{class:"cs-name",style:`color:${CH[s.id].hex}`},s.name),h("p",{class:"cs-line"},s.line),s.alias?h("p",{class:"note"},s.alias):null),
+    h("div",{class:"cs-lvl"},h("p",{class:"eyebrow m"},"SESSION "+NEXT+" · LEVEL 6"),h("p",{class:"small"},s.lvl6)),
+    h("div",{class:"vitals"},s.vit.map(([k,v])=>h("div",{},h("b",{},v),h("span",{},k)))),
+    h("div",{class:"abil"},s.ab.map(([k,sc,mo])=>h("div",{},h("span",{class:"k"},k),h("b",{},mod(mo)),h("i",{},String(sc))))),
+    sec("SAVING THROWS",h("p",{class:"mono"},s.saves)),
+    s.skills?sec("SKILLS",h("div",{class:"skl"},s.skills.map(([k,v])=>h("span",{},k,h("b",{},v)))),s.passive?h("p",{class:"note"},s.passive):null):sec("SKILLS",h("p",{class:"small voice"},s.skillNote)),
+    sec("ATTACKS",h("div",{class:"atk"},s.attacks.map(([n,hit,d])=>h("div",{},h("span",{},n),h("b",{},hit),h("span",{class:"d"},d))))),
+    spells,
+    sec("FEATURES",h("ul",{},s.feats.map(x=>h("li",{},x)))),
+    sec("ITEMS OF NOTE",h("ul",{},s.items.map(([n,d])=>h("li",{},h("b",{},n),d?" · "+d:"")))),
+    sec("ALSO CARRIES",h("p",{class:"small"},s.gear.join(" · ")+".")),
+    s.loot?sec("LOOT AND LEADS",h("p",{class:"small"},s.loot.join(" · ")+".")):null,
+    s.langs?sec("LANGUAGES",h("p",{class:"small"},s.langs)):null,
+    h("p",{class:"note"},"Stig's page has not reached me. Analyzing.")
+  ],"sheets");
 }
 
 /* =================== PLAYER DATA (db) =================== */
