@@ -12,6 +12,7 @@ Read this first. It is how Sam and Niels (and each of their Claudes) work on thi
 
 - All app code and lore live in `source/chronicle.html`. That is the only file you edit to change the app.
 - `index.html`, `manifest.webmanifest`, `version.json`, `README.md` and the icon PNGs in the root are **generated** by `source/build-site.py`. Never hand-edit them. A hand edit is lost on the next build.
+- `CHANGELOG.md` holds the patch notes. It is hand-written, not generated.
 - After editing the source, rebuild so the root matches (see "Build" below) and commit the source and the rebuilt files together.
 
 ## Workflow
@@ -19,8 +20,9 @@ Read this first. It is how Sam and Niels (and each of their Claudes) work on thi
 1. Start from the latest `main`: `git fetch origin main && git checkout -b <name>/<short-topic> origin/main` (for example `niels/hp-tracker-fix`).
 2. Make one focused change. Unrelated changes go in separate branches.
 3. Rebuild, then check the page (see "Check").
-4. Open a pull request to `main`. Fill in the template. Never push to `main` directly, never force-push `main`, never merge your own PR: Sam reviews and merges.
-5. If `main` moved while your PR was open, rebase on it and rebuild. If you conflict in a generated file, take `main`'s version and rebuild, never merge by hand.
+4. Add a line to `CHANGELOG.md` under **Unreleased** (tag **New**, **Changed**, **Fixed** or **Lore**, plus your name). Write it for the players, not in code terms.
+5. Open a pull request to `main`. Fill in the template. Never push to `main` directly, never force-push `main`, never merge your own PR: Sam reviews and merges.
+6. If `main` moved while your PR was open, rebase on it and rebuild. If you conflict in a generated file, take `main`'s version and rebuild, never merge by hand.
 
 Before starting something larger than a small fix, open a GitHub issue first (or check open issues and PRs) so two people don't build the same thing.
 
