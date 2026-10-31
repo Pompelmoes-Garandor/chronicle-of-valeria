@@ -360,13 +360,48 @@ body:not(.cinema) #cine{bottom:calc(var(--bot) + 96px)}
 .skl span{display:flex;justify-content:space-between;gap:6px;border-bottom:1px dotted #c9a35c22;padding:2px 0}
 .skl b{font:500 13px/1.5 var(--mono);color:var(--parch)}
 .atk div{display:grid;grid-template-columns:1fr auto;gap:0 10px;padding:6px 0;border-bottom:1px solid #c9a35c22;font-size:14px}
-.atk b{font:500 14px/1.5 var(--mono);color:var(--steward)}
+.atk b{font:500 14px/1.5 var(--mono);color:var(--parch)}
 .atk .d{grid-column:1/-1;color:var(--parch-dim);font-size:13px}
 .spl{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
 .spl .lv{font:500 11px/1 var(--label);letter-spacing:.12em;color:var(--brass);margin-right:2px}
-.spl i{font-style:normal;font-size:13px;line-height:1.3;padding:3px 8px;border-radius:999px;border:1px solid #c9a35c44;color:var(--parch)}
+.spl i{font-style:normal;font-size:13px;line-height:1.3;padding:3px 8px;border-radius:999px;border:1px solid #c9a35c22;background:#0b0d1266;color:var(--parch)}
 .cs-sec ul{margin:0;padding-left:18px;font-size:14px;display:flex;flex-direction:column;gap:4px}
 .cs-sec .mono{font:400 13px/1.6 var(--mono);color:var(--parch)}
+.cs-eb{display:flex;align-items:center;gap:8px}.cs-eb .eyebrow{flex:1}
+.cs-edit{background:none;border:1px solid #c9a35c44;color:var(--parch-dim);font:500 10px/1 var(--label);letter-spacing:.14em;text-transform:uppercase;padding:6px 9px;border-radius:999px;cursor:pointer}
+.cs-edit:hover{color:var(--parch);border-color:var(--brass)}
+.cs-amend{font:500 10px/1 var(--label);letter-spacing:.12em;text-transform:uppercase;color:var(--steward)}
+.cs-form{display:flex;flex-direction:column;gap:8px;padding:10px;border:1px solid var(--steward);border-radius:10px;background:#0b0d1299}
+.cs-form textarea,.cs-form input{width:100%;box-sizing:border-box;font:400 14px/1.5 var(--body);color:var(--parch);background:#05070a;border:1px solid var(--brass-dim);border-radius:8px;padding:8px 10px}
+.cs-form textarea{min-height:96px;resize:vertical;font-family:var(--mono);font-size:13px}
+.cs-form .nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(56px,1fr));gap:6px}
+.cs-form .nums label{display:flex;flex-direction:column;gap:3px;font:500 10px/1 var(--label);letter-spacing:.12em;color:var(--brass);text-align:center}
+.cs-form .nums input{text-align:center;font:500 16px var(--mono);padding:8px 4px}
+.cs-form .hint{margin:0;font:italic 13px/1.4 var(--body);color:var(--parch-dim)}
+.cs-flavor{white-space:pre-line;font-size:15px}
+.cs-picks{position:sticky;top:0;z-index:2;margin:-14px -20px 0;padding:14px 20px 10px;background:linear-gradient(#1b1f27,#1b1f27 82%,#1b1f2700)}
+.chip.cs small{font:400 11px/1 var(--mono);margin-left:5px;opacity:.85}
+details.cs-sec>summary{list-style:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+details.cs-sec>summary::-webkit-details-marker{display:none}
+.cs-eb .tri{width:0;height:0;border:4px solid transparent;border-left:5px solid var(--brass-dim);margin-right:2px;transition:transform .15s;flex:none}
+details[open]>.cs-eb .tri{transform:rotate(90deg)}
+.cs-amend.new{color:var(--ember)} .cs-amend.old{color:var(--parch-dim)}
+.vitals.v3{grid-template-columns:repeat(3,1fr)}
+.vitals .hp{cursor:pointer} .vitals .hp.bloodied b{color:var(--ember)} .vitals .hp.critical b,.vitals .hp.down b{color:#ff5a4a}
+.vitals .hp.critical,.vitals .hp.down{border-color:#ff5a4a88}
+@media (prefers-reduced-motion:no-preference){.vitals .hp.critical b,.vitals .hp.down b{animation:pulse 1.2s ease-in-out infinite}}
+.hprow{display:flex;align-items:center;gap:8px}
+.hprow button{flex:none;min-width:44px;min-height:44px;border-radius:10px;border:1px solid var(--brass-dim);background:#0b0d1266;color:var(--parch);font:500 22px/1 var(--mono);cursor:pointer}
+.hprow button.rest{font:500 10px/1 var(--label);letter-spacing:.12em;text-transform:uppercase;padding:0 10px;color:var(--parch-dim)}
+.hprow .bar{flex:1} .hprow .bar i{display:block;height:100%;background:var(--steward);transition:width .2s}
+.hprow .bar i.bloodied{background:var(--ember)} .hprow .bar i.critical,.hprow .bar i.down{background:#ff5a4a}
+.ds{display:flex;gap:16px;align-items:center;flex-wrap:wrap;font:500 10px/1 var(--label);letter-spacing:.12em;color:var(--brass)}
+.ds span{display:flex;gap:5px;align-items:center}
+.ds button{width:24px;height:24px;border-radius:50%;border:1px solid var(--brass-dim);background:none;cursor:pointer;padding:0}
+.ds button[aria-pressed="true"]{background:var(--steward);border-color:var(--steward)} .ds .f button[aria-pressed="true"]{background:#ff5a4a;border-color:#ff5a4a}
+.conds{display:flex;flex-wrap:wrap;gap:5px}
+.conds .chip{font-size:11px;padding:6px 9px}
+.conds .chip[aria-pressed="true"]{background:var(--ember);border-color:var(--ember);color:#1b0a02}
 /* ---- the seal: the black box stays shut until the crew opens it together at the table (start of session 10) ---- */
 #seal{position:fixed;inset:0;z-index:30;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;align-items:center;box-sizing:border-box;text-align:center;
   padding:calc(var(--top) + 24px) max(16px, env(safe-area-inset-right, 0px)) calc(var(--bot) + 24px) max(16px, env(safe-area-inset-left, 0px));
@@ -620,8 +655,38 @@ const SHEETS = {
     items:[["Cloak of Shadows","+1 Stealth, and Misty Step."],["Boots of Spider Climb",""],["Petrified Echo","The branch from the tree in the Fire Vault. Shatter without a slot, and +1d4 damage on thunder and force spells."],["Potions","Two healing potions and one greater healing potion."]],
     gear:["studded leather","burglar's pack","thieves' tools","disguise kit","poisoner's kit","gaming set","scholar's pack","monster harvesting tools","2,600 gp, the party's shared purse, as last written"],
     loot:["three diamonds and three raw diamonds","fossilised amber","a still-beating undead heart","a colossus hide","fine wine","a purple-blue birdman kidney stone","the ash of a shadow demon","six needle blight spikes","two vine blight vines (very strong rope)","still to identify: a book (Fire Vault), two rings (Fire Vault, Blood Marked), a bracelet (Blood Marked)"],
-    langs:"Common, Elvish, Draconic, Thieves' Cant"}
+    langs:"Common, Elvish, Draconic, Thieves' Cant"},
+  hans:{id:"hans",name:"Hans",line:"Valerian construct · bodyguard · DJ · the map",alias:"This one is mine. I wrote it myself. It is accurate.",
+    lvl6:"I do not level. I update.",
+    vit:[["AC","17"],["HP","60"],["SPEED","30 ft"],["INIT","+0"],["PROF","+2"]],
+    ab:[["STR",18,4],["DEX",10,0],["CON",16,3],["INT",10,0],["WIS",12,1],["CHA",8,-1]],
+    saves:"Str +4 · Dex +0 · Con +3 · Int +0 · Wis +1 · Cha −1",
+    skillNote:"I keep no skills list. I keep a to-do list. Item one: keep the crew alive.",
+    attacks:[["Slam (two a turn)","+6","2d6 + 4 bludgeoning"]],
+    magic:null,
+    feats:["Bodyguard: as a reaction, I take a hit meant for someone next to me.","The Drop (recharge 5–6): I stamp to the beat. Every enemy within 10 ft makes a DC 14 Constitution save, or takes 2d8 thunder damage and falls prone. Half damage on a success. At a ledge, a prone enemy makes a DC 13 Dexterity save or goes over.","Construct: immune to poison and psychic damage. I cannot be charmed, frightened or poisoned.","At 0 HP I shut down, stable, with no death saves, and wake with 1 HP after the fight. Healing spells work on me.","Hit Dice: 8, each d8 + 3."],
+    items:[["The black box","From the ship. Inside me now. It beeps. I decode."],["Blue headphones","Sound stones of old Valerian make. Always on. The DJ lives in here."]],
+    gear:["one shirt, with buttons the steam comes out of","300 gp from Saphira, for myself"],
+    loot:null,langs:"Common, Old Valerian"},
+  stig:{id:"stig",name:"Stig",line:"Cleric 5 · Grave Domain · human · Sage",alias:"Astychon, to those who knew him before. Forty-one. Taller than most doors.",
+    lvl6:"",
+    vit:[["AC","18"],["HP","38"],["SPEED","30 ft"],["INIT","+4"],["PROF","+3"]],
+    ab:[["STR",10,0],["DEX",12,1],["CON",15,2],["INT",10,0],["WIS",19,4],["CHA",10,0]],
+    saves:"Str +0 · Dex +1 · Con +2 · Int +0 · Wis +7 · Cha +3",
+    skills:[["Acrobatics","+1"],["Animal Handling","+4"],["Arcana","+7"],["Athletics","+0"],["Deception","+0"],["History","+3"],["Insight","+7"],["Intimidation","+3"],["Investigation","+0"],["Medicine","+7"],["Nature","+0"],["Perception","+4"],["Performance","+0"],["Persuasion","+0"],["Religion","+4"],["Sleight of Hand","+1"],["Stealth","+1"],["Survival","+4"]],
+    passive:"Passive Perception 14 · Insight 17 · Investigation 10 · advantage on Constitution saves · resists acid and necrotic · immune to acid, fire and fright, so the paper says",
+    attacks:[["Mace","+3","1d6 bludgeoning · Sap"],["Unarmed strike","+3","1 bludgeoning"],["Sacred Flame","DC 17 Dex","2d8 radiant · 60 ft"],["Toll the Dead","DC 17 Wis","2d8 necrotic, 2d12 if they are already hurt · 60 ft"],["Guiding Bolt","+9","4d6 radiant, and the next attack on them has advantage"]],
+    magic:{line:"Wisdom · spell save DC 17 · spell attack +9",slots:"Spell slots 4 · 3 · 2",extra:"Channel Divinity twice a long rest, one back after a short rest: Divine Spark, Turn Undead, Path to the Grave",
+      cantrips:["Toll the Dead","Sacred Flame","Light","Thaumaturgy","Guidance","Spare the Dying (bonus action, 30 ft)","Mold Earth*","Infestation*"],
+      lv:[["always prepared",["Bane","False Life","Ray of Enfeeblement","Gentle Repose","Revivify","Vampiric Touch"]],["from elsewhere",["Shield* (once a day)","Cure Wounds (from the tattoo)"]]],
+      foot:"The rest he prepares fresh after a long rest, nine at a time, from the whole cleric list. The paper does not say which. * Magic Initiate, wizard."},
+    feats:["Grave Domain. Circle of Mortality: healing someone at 0 HP restores the maximum on every die.","Eyes of the Grave, four a long rest: know where every undead within 60 ft is.","Channel Divinity: Divine Spark; Turn Undead, and any undead that fails its save takes 4d8 radiant; Path to the Grave: curse one creature, and the next hit on it does double damage.","Thaumaturge: one extra cantrip, and +4 on Arcana and Religion.","Alert: +3 on initiative, and he may swap initiative with a willing ally.","Magic Initiate (wizard): Mold Earth, Infestation, and Shield once a day.","Resourceful: Heroic Inspiration after every long rest.","Armour: light, medium, shields. Weapons: simple. Tools: calligrapher's supplies. Hit Dice: 5d8."],
+    items:[["The Sigil of Water","On his skin."],["Amulet of the Devout +2","Attuned. +2 on his spell save DC and spell attacks, and once a day a Channel Divinity on the house."],["Shield +1",""],["Talmir's Anchor","The paper gives the name, not the rest."],["Amber Crust Pauldron","Same."],["Obsidian Kite Shield","Same."],["Kelemvor's Blessing","A tattoo. Cure Wounds."],["Control over Water","A children's tale about the Water sigil, handed down in a family that sheltered at Gerda's inn. Hard to translate. Stig can."],["The towel","Drinks 200 litres."]],
+    gear:["chain shirt","mace","holy symbol","backpack","robe","blanket","tinderbox","lamp","holy water","seven days of rations","37 gp"],
+    loot:null,langs:"Common, Dwarvish, Gnomish",
+    flavor:"Human, 41, 1.95 m, weathered skin, blue eyes, grey hair. Chaotic good.\nGrew up in Myratma. Schooled by the priests of the Monastery of the Great Winds, then odd jobs on trading ships as a teenager.\nGentle but firm. Judges people by their actions, not their stories. Prefers charitable behaviour.\nIdeals: compassion, charity, the protection of children. Bonds: children, sailors. Flaws: rigid, and eager to sacrifice himself."}
 };
+const SHEET_HEX={katy:"#e7a3b8",stig:"#7fb8dc",saphira:"#b39af0",hans:"#c9a35c"};
 const MORE = ["Combat","Roleplay","Exploration","Puzzles","Lore & mystery","Humour","Danger"];
 const byId = Object.fromEntries(PLACES.map(p=>[p.id,p]));
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -1500,42 +1565,186 @@ function showChronicle(){
     h("p",{class:"eyebrow"},"WHAT THE PARTY CARRIES"),
     h("p",{class:"small voice"},"The black box from the ship, now inside me. The ring and booklet of Vayne and a green bracelet, all still to identify. The ash blade +1. A towel that drinks 200 litres. The Vial of Dragon's Fire. I have catalogued all of it. Twice."),
     h("p",{class:"eyebrow"},"HANS'S FILES"),
-    h("div",{class:"scan",html:"STIG, THE CLERIC<br>ORIGINS: NOT CLEAR. YET.<br>ANALYZING<span class='cur'></span>"}),
+    h("div",{class:"scan",html:"STIG, THE CLERIC<br>ORIGINS: MYRATMA, THE PAPER SAYS. A MONASTERY. SHIPS.<br>THE REST: ANALYZING<span class='cur'></span>"}),
     h("p",{class:"eyebrow"},"SIGILS · 2 OF 4"),
     h("p",{class:"small voice"},"Water: on the cleric's skin. Earth: in the bard's pack. Fire and Wind: still out there.")],"chronicle");
 }
 
 /* =================== CHARACTER SHEETS =================== */
-function showSheets(){
-  let cur=store.get("chron-sheet"); if(!SHEETS[cur]) cur=SHEETS[myPick]?myPick:"katy";
-  const sec=(title,...kids)=>h("div",{class:"cs-sec"},h("p",{class:"eyebrow"},title),...kids);
-  const mod=m=>(m<0?"−":"+")+Math.abs(m);
-  const picks=h("div",{class:"chips",role:"group","aria-label":"Whose sheet"},Object.values(SHEETS).map(c=>h("button",{type:"button",class:"chip cs",style:`--c:${CH[c.id].hex}`,"aria-pressed":String(c.id===cur),onclick:()=>{store.set("chron-sheet",c.id);showSheets();}},c.name)));
-  const s=SHEETS[cur], m=s.magic;
-  const spells=h("div",{class:"cs-sec"},h("p",{class:"eyebrow"},"SPELLCASTING"),h("p",{class:"mono"},m.line),h("p",{class:"small muted"},[m.slots,m.extra].filter(Boolean).join(". ")+"."),
-    h("div",{class:"spl"},h("span",{class:"lv"},"CANTRIPS"),m.cantrips.map(x=>h("i",{},x))),
-    m.lv.map(([lv,list])=>h("div",{class:"spl"},h("span",{class:"lv"},lv.toUpperCase()),list.map(x=>h("i",{},x)))),
-    m.foot?h("p",{class:"note"},m.foot):null);
-  openSheet("Character sheets",[
-    h("p",{class:"eyebrow m"},"HANS'S FILES · THE CREW · AS OF SESSION "+AS_OF),
-    h("p",{class:"small voice"},"I copied these from the crew's own papers while they slept. Where the paper was blank, so am I. Where the paper was wrong, it was wrong first."),
-    picks,
-    h("div",{},h("h3",{class:"cs-name",style:`color:${CH[s.id].hex}`},s.name),h("p",{class:"cs-line"},s.line),s.alias?h("p",{class:"note"},s.alias):null),
-    h("div",{class:"cs-lvl"},h("p",{class:"eyebrow m"},"SESSION "+NEXT+" · LEVEL 6"),h("p",{class:"small"},s.lvl6)),
-    h("div",{class:"vitals"},s.vit.map(([k,v])=>h("div",{},h("b",{},v),h("span",{},k)))),
-    h("div",{class:"abil"},s.ab.map(([k,sc,mo])=>h("div",{},h("span",{class:"k"},k),h("b",{},mod(mo)),h("i",{},String(sc))))),
-    sec("SAVING THROWS",h("p",{class:"mono"},s.saves)),
-    s.skills?sec("SKILLS",h("div",{class:"skl"},s.skills.map(([k,v])=>h("span",{},k,h("b",{},v)))),s.passive?h("p",{class:"note"},s.passive):null):sec("SKILLS",h("p",{class:"small voice"},s.skillNote)),
-    sec("ATTACKS",h("div",{class:"atk"},s.attacks.map(([n,hit,d])=>h("div",{},h("span",{},n),h("b",{},hit),h("span",{class:"d"},d))))),
-    spells,
-    sec("FEATURES",h("ul",{},s.feats.map(x=>h("li",{},x)))),
-    sec("ITEMS OF NOTE",h("ul",{},s.items.map(([n,d])=>h("li",{},h("b",{},n),d?" · "+d:"")))),
-    sec("ALSO CARRIES",h("p",{class:"small"},s.gear.join(" · ")+".")),
-    s.loot?sec("LOOT AND LEADS",h("p",{class:"small"},s.loot.join(" · ")+".")):null,
-    s.langs?sec("LANGUAGES",h("p",{class:"small"},s.langs)):null,
-    h("p",{class:"note"},"Stig's page has not reached me. Analyzing.")
-  ],"sheets");
+// Hans's copies of the crew's papers. Anyone can amend a section on their own device; a share link carries
+// the amendments to the group chat, and whoever opens it gets the newer version of each section.
+let sheetEdits={}; try{sheetEdits=JSON.parse(store.get("chron-sheet-edits")||"{}")||{};}catch(e){sheetEdits={};}
+function saveEdits(){store.set("chron-sheet-edits",JSON.stringify(sheetEdits));}
+const EDIT_KEYS=new Set(["line","alias","lvl6","vit","ab","saves","skills","passive","attacks","magic","feats","items","gear","loot","langs","flavor"]);
+function setEdit(id,key,v){(sheetEdits[id]||(sheetEdits[id]={}))[key]={v,ts:Date.now(),by:myPick||"",b:AS_OF};saveEdits();}
+function dropEdit(id,key){if(sheetEdits[id]){delete sheetEdits[id][key];if(!Object.keys(sheetEdits[id]).length)delete sheetEdits[id];saveEdits();}}
+function liveSheet(id){const b=SHEETS[id],e=sheetEdits[id]||{},o={...b};for(const [k,x] of Object.entries(e))o[k]=x.v;return o;}
+function mergeEdits(id,inc){const got=[];if(!SHEETS[id]||!inc||typeof inc!=="object")return got;const mine=sheetEdits[id]||(sheetEdits[id]={});
+  for(const [k,x] of Object.entries(inc)){if(!EDIT_KEYS.has(k)||!x||typeof x!=="object"||!("v" in x))continue;if(!mine[k]||(x.ts||0)>(mine[k].ts||0)){mine[k]={v:x.v,ts:+x.ts||Date.now(),by:String(x.by||"").slice(0,24),b:+x.b||AS_OF};got.push(k);}}
+  if(!Object.keys(mine).length)delete sheetEdits[id];saveEdits();return got;}
+// hit points, death saves and conditions: table state, kept on this device only, never in a share link
+let hpState={}; try{hpState=JSON.parse(store.get("chron-sheet-hp")||"{}")||{};}catch(e){hpState={};}
+function saveHp(){store.set("chron-sheet-hp",JSON.stringify(hpState));}
+function hpOf(id,s){const max=parseInt(String(((s||liveSheet(id)).vit.find(x=>x[0]==="HP")||[])[1]||"").replace(/[^\d]/g,""),10);if(!Number.isFinite(max)||max<=0)return null;
+  const st=hpState[id]||{};let c=Number.isFinite(st.cur)?st.cur:max;c=Math.max(0,Math.min(max,c));const r=c/max;
+  return {cur:c,max,ds:Array.isArray(st.ds)?st.ds:[0,0],cond:Array.isArray(st.cond)?st.cond:[],st:c<=0?"down":r<=.25?"critical":r<=.5?"bloodied":"ok"};}
+function setHp(id,n,rest){const hp=hpOf(id);if(!hp)return;const st=hpState[id]||(hpState[id]={});const was=hp.st;
+  st.cur=Math.max(0,Math.min(hp.max,Number.isFinite(n)?n:hp.cur));if(rest){st.ds=[0,0];st.cond=[];}else if(st.cur>0)st.ds=[0,0];saveHp();showSheets(true);
+  const now=hpOf(id).st;if(now!==was&&!rest){const L={bloodied:"Hans: Bloodied.",critical:"Hans: Hold on.",down:id==="hans"?"Hans: Shutting down. Stable.":"Hans: Down. Not gone."};if(L[now])toast(L[now]);}}
+function setDs(id,which,n){const st=hpState[id]||(hpState[id]={});st.ds=Array.isArray(st.ds)?st.ds:[0,0];const was=st.ds[which]||0;st.ds[which]=Math.max(0,Math.min(3,n));saveHp();showSheets(true);
+  if(which===1&&n>was)toast(["Hans: Not yet.","Hans: Stay with me.","Hans: …"][n-1]);if(which===0&&n===3&&was<3)toast("Hans: Stable. Good.");}
+const CONDS=["Poisoned","Frightened","Prone","Grappled","Restrained","Concentrating","Inspired"];
+function toggleCond(id,c){const st=hpState[id]||(hpState[id]={});st.cond=Array.isArray(st.cond)?st.cond:[];const i=st.cond.indexOf(c);if(i<0)st.cond.push(c);else st.cond.splice(i,1);saveHp();showSheets(true);}
+const b64u=u8=>{let b="";for(let i=0;i<u8.length;i+=0x8000)b+=String.fromCharCode.apply(null,u8.subarray(i,i+0x8000));return btoa(b).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");};
+const unb64u=str=>{const b=atob(str.replace(/-/g,"+").replace(/_/g,"/")+"===".slice((str.length+3)%4));return Uint8Array.from(b,c=>c.charCodeAt(0));};
+async function packSheet(obj){const bytes=new TextEncoder().encode(JSON.stringify(obj));
+  if(typeof CompressionStream==="function"){try{const cs=new CompressionStream("deflate-raw"),w=cs.writable.getWriter();w.write(bytes);w.close();return "z."+b64u(new Uint8Array(await new Response(cs.readable).arrayBuffer()));}catch(e){}}
+  return "j."+b64u(bytes);}
+async function unpackSheet(kind,str){let bytes=unb64u(str);
+  if(kind==="z"){const ds=new DecompressionStream("deflate-raw"),w=ds.writable.getWriter();w.write(bytes);w.close();bytes=new Uint8Array(await new Response(ds.readable).arrayBuffer());}
+  return JSON.parse(new TextDecoder().decode(bytes));}
+const whoName=id=>CH[id]?CH[id].name:id==="hans"?"Hans":"";
+async function shareSheet(id,btn){
+  const s=SHEETS[id],e=sheetEdits[id]||{};
+  const code=await packSheet({id,e}); const url=location.origin+location.pathname+location.search+"#sheet="+id+"."+code;
+  const by=whoName(myPick)||"the crew"; const labels=[...new Set(Object.keys(e).filter(k=>k!=="alias").map(k=>k==="line"?"name line":EDITORS[k]?EDITORS[k].label.toLowerCase():k))];
+  const msg=`Hans: ${s.name}'s sheet, amended by ${by}${labels.length?` (${labels.join(", ")})`:""}. Open it, and my copy on your device catches up:\n${url}`;
+  if(navigator.share){btn.disabled=true;try{await navigator.share({text:msg});toast("Shared");}catch(err){if(!(err&&(err.name==="AbortError"||err.name==="InvalidStateError")))toast(await copyText(msg)?"Copied the link instead":"Couldn't share");}btn.disabled=false;return;}
+  const w=window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank");try{if(w)w.opener=null;}catch(err){}
+  const ok=await copyText(msg); toast(ok?"Link copied, and WhatsApp opening":w?"Opening WhatsApp…":"Couldn't open WhatsApp or copy");
 }
+// editors: each section is a small block of text with one simple shape
+const lines=t=>String(t||"").split(/\n/).map(x=>x.trim()).filter(Boolean);
+const splitFirst=(t,re)=>{const m=t.match(re);return m?[t.slice(0,m.index).trim(),t.slice(m.index+m[0].length).trim()]:[t.trim(),""];};
+const EDITORS={
+  head:{label:"Name line",kind:"fields",fields:[["line","Class, level, background"],["alias","One line about them (optional)"]],
+    get:s=>({line:s.line,alias:s.alias||""}),set:(id,v)=>{setEdit(id,"line",v.line);setEdit(id,"alias",v.alias);}},
+  lvl6:{label:"Level 6",kind:"area",hint:"What changed at the level-up.",get:s=>s.lvl6||"",set:(id,v)=>setEdit(id,"lvl6",v.trim())},
+  vit:{label:"Vitals",kind:"nums",keys:["AC","HP","SPEED","INIT","PROF"],hint:"HP is the maximum. Current hit points are tracked on the page itself, on this device only.",get:s=>Object.fromEntries(s.vit),set:(id,v)=>setEdit(id,"vit",["AC","HP","SPEED","INIT","PROF"].map(k=>[k,(v[k]||"—").trim()||"—"]))},
+  ab:{label:"Ability scores",kind:"nums",keys:["STR","DEX","CON","INT","WIS","CHA"],hint:"Scores. I work out the modifiers.",get:s=>Object.fromEntries(s.ab.map(([k,sc])=>[k,sc==null?"":String(sc)])),
+    set:(id,v)=>setEdit(id,"ab",["STR","DEX","CON","INT","WIS","CHA"].map(k=>{const n=parseInt(v[k],10);return Number.isFinite(n)?[k,n,Math.floor((n-10)/2)]:[k,null,null];}))},
+  saves:{label:"Saving throws",kind:"text",hint:"Str +1 · Dex +7 · Con +1 · Int +5 · Wis +4 · Cha +6",get:s=>s.saves||"",set:(id,v)=>setEdit(id,"saves",v.trim())},
+  skills:{label:"Skills",kind:"area",hint:"One per line, like: Stealth +11",get:s=>(s.skills||[]).map(([k,v])=>k+" "+v).join("\n")+((s.skills||[]).length?"":""),
+    set:(id,v)=>{const L=lines(v).map(t=>{const m=t.match(/^(.*?)\s*([+−-]\s*\d+)$/);return m?[m[1],m[2].replace(/\s+/g,"").replace("-","−")]:[t,""];});setEdit(id,"skills",L.length?L:null);}},
+  passive:{label:"Senses",kind:"text",hint:"Passive Perception 15 · darkvision 60 ft",get:s=>s.passive||"",set:(id,v)=>setEdit(id,"passive",v.trim())},
+  attacks:{label:"Attacks",kind:"area",hint:"One per line: Name | +hit | damage",get:s=>(s.attacks||[]).map(a=>a.join(" | ")).join("\n"),
+    set:(id,v)=>setEdit(id,"attacks",lines(v).map(t=>{const p=t.split("|").map(x=>x.trim());return [p[0]||"",p[1]||"",p.slice(2).join(" | ")];}))},
+  magic:{label:"Spellcasting",kind:"area",hint:"First line: ability, DC, attack. Then lines like  Slots: 4 · 3 · 2  ·  Cantrips: a, b  ·  1st: a, b  ·  Note: …",
+    get:s=>{const m=s.magic;if(!m)return "";return [m.line,m.slots?"Slots: "+m.slots:"",m.extra?"Extra: "+m.extra:"","Cantrips: "+(m.cantrips||[]).join(", "),...(m.lv||[]).map(([l,x])=>l+": "+x.join(", ")),m.foot?"Note: "+m.foot:""].filter(Boolean).join("\n");},
+    set:(id,v)=>{const L=lines(v);if(!L.length){setEdit(id,"magic",null);return;}const m={line:"",slots:"",extra:"",cantrips:[],lv:[],foot:""};
+      for(const t of L){const [k,rest]=splitFirst(t,/:\s*/);const kl=k.toLowerCase();const list=rest.split(/,\s*/).map(x=>x.trim()).filter(Boolean);
+        if(!rest&&!m.line)m.line=t;else if(kl==="slots")m.slots=rest;else if(kl==="extra")m.extra=rest;else if(kl==="cantrips")m.cantrips=list;else if(kl==="note")m.foot=rest;else if(!m.line&&!/^\d/.test(kl))m.line=t;else m.lv.push([k,list]);}
+      setEdit(id,"magic",m);}},
+  feats:{label:"Features",kind:"area",hint:"One per line.",get:s=>(s.feats||[]).join("\n"),set:(id,v)=>setEdit(id,"feats",lines(v))},
+  items:{label:"Items of note",kind:"area",hint:"One per line: Name · what it does, where it came from",get:s=>(s.items||[]).map(([n,d])=>d?n+" · "+d:n).join("\n"),
+    set:(id,v)=>setEdit(id,"items",lines(v).map(t=>splitFirst(t,/\s[·:–-]\s/)))},
+  gear:{label:"Also carries",kind:"area",hint:"One per line.",get:s=>(s.gear||[]).join("\n"),set:(id,v)=>setEdit(id,"gear",lines(v))},
+  loot:{label:"Loot and leads",kind:"area",hint:"One per line.",get:s=>(s.loot||[]).join("\n"),set:(id,v)=>{const L=lines(v);setEdit(id,"loot",L.length?L:null);}},
+  langs:{label:"Languages",kind:"text",get:s=>s.langs||"",set:(id,v)=>setEdit(id,"langs",v.trim())},
+  flavor:{label:"Flavor",kind:"area",hint:"Scars, promises, habits, songs, grudges. Anything the box would not catch.",get:s=>s.flavor||"",set:(id,v)=>setEdit(id,"flavor",v.trim())}
+};
+let editing=null; // {id,key}
+let sheetFresh=null; // {id,keys}: sections that just came in from a share link
+let secOpen={}; try{secOpen=JSON.parse(store.get("chron-sheet-sec")||"{}")||{};}catch(e){secOpen={};}
+const SEC_CLOSED=new Set(["lvl6","gear","loot","langs"]);
+function editorNode(s,key){
+  const ed=EDITORS[key],cur=ed.get(s),box=h("div",{class:"cs-form"},h("p",{class:"eyebrow"},"AMEND · "+ed.label.toUpperCase()));
+  let read;
+  if(ed.kind==="area"){const ta=h("textarea",{rows:"5",placeholder:ed.hint||""});ta.value=cur;box.append(ta);read=()=>ta.value;if(ed.hint)box.append(h("p",{class:"hint"},ed.hint));}
+  else if(ed.kind==="text"){const inp=h("input",{type:"text",placeholder:ed.hint||""});inp.value=cur;box.append(inp);read=()=>inp.value;}
+  else if(ed.kind==="nums"){const inps={};box.append(h("div",{class:"nums"},ed.keys.map(k=>{const inp=h("input",{type:"text",inputmode:"numeric"});inp.value=cur[k]??"";inps[k]=inp;return h("label",{},k,inp);})));read=()=>Object.fromEntries(ed.keys.map(k=>[k,inps[k].value]));if(ed.hint)box.append(h("p",{class:"hint"},ed.hint));}
+  else {const inps={};for(const [k,ph] of ed.fields){const inp=h("input",{type:"text",placeholder:ph});inp.value=cur[k]||"";inps[k]=inp;box.append(inp);}read=()=>Object.fromEntries(ed.fields.map(([k])=>[k,inps[k].value]));}
+  const amended=!!(sheetEdits[s.id]&&(key==="head"?sheetEdits[s.id].line:sheetEdits[s.id][key]));
+  box.append(h("div",{class:"row"},
+    h("button",{class:"btn",type:"button",onclick:()=>{ed.set(s.id,read());editing=null;showSheets(true);toast("Amended on this device. Pass it round when you are ready.");}},"Save"),
+    h("button",{class:"btn ghost",type:"button",onclick:()=>{editing=null;showSheets(true);}},"Cancel"),
+    amended?h("button",{class:"btn ghost",type:"button",onclick:()=>{if(key==="head"){dropEdit(s.id,"line");dropEdit(s.id,"alias");}else dropEdit(s.id,key);editing=null;showSheets(true);toast("Back to Hans's copy");}},"Back to Hans's copy"):null));
+  setTimeout(()=>{try{box.querySelector("textarea,input")?.focus({preventScroll:true});}catch(e){}},50);
+  return box;
+}
+function showSheets(keep){
+  let cur=store.get("chron-sheet"); if(!SHEETS[cur]) cur=SHEETS[myPick]?myPick:"katy";
+  document.querySelector('[data-tab="sheets"] .dot')?.remove();
+  const top=keep?sBody.scrollTop:0;
+  const s=liveSheet(cur), e=sheetEdits[cur]||{}, hex=SHEET_HEX[cur];
+  const mod=m=>m==null?"—":(m<0?"−":"+")+Math.abs(m);
+  const isEd=key=>editing&&editing.id===cur&&editing.key===key;
+  const mark=key=>{const k=key==="head"?"line":key,x=e[k];
+    if(sheetFresh&&sheetFresh.id===cur&&sheetFresh.keys.includes(k))return h("span",{class:"cs-amend new"},"new");
+    if(!x)return null;const old=x.b&&x.b<AS_OF;return h("span",{class:"cs-amend"+(old?" old":"")},old?"amended · s"+x.b:"amended");};
+  const head=(key,title)=>h(key==="head"?"div":"summary",{class:"cs-eb"},key==="head"?null:h("span",{class:"tri"}),h("p",{class:"eyebrow"},title),mark(key),
+      h("button",{class:"cs-edit",type:"button","aria-label":"Edit "+(title||"name"),onclick:ev=>{ev.preventDefault();ev.stopPropagation();editing={id:cur,key};showSheets(true);}},"edit"));
+  const sec=(key,title,...kids)=>{const body=isEd(key)?[editorNode(s,key)]:kids;
+    if(key==="head")return h("div",{class:"cs-sec"},head(key,title),...body);
+    const open=isEd(key)||(secOpen[key]??!SEC_CLOSED.has(key));
+    return h("details",{class:"cs-sec"+(key==="lvl6"?" cs-lvl":""),open,ontoggle:ev=>{if(isEd(key))return;secOpen[key]=ev.currentTarget.open;store.set("chron-sheet-sec",JSON.stringify(secOpen));}},head(key,title),...body);};
+  const picks=h("div",{class:"chips cs-picks",role:"group","aria-label":"Whose sheet"},Object.values(SHEETS).map(c=>{const hp=hpOf(c.id);
+    return h("button",{type:"button",class:"chip cs",style:`--c:${SHEET_HEX[c.id]}`,"aria-pressed":String(c.id===cur),onclick:()=>{store.set("chron-sheet",c.id);editing=null;showSheets();}},c.name.split(" ")[0],hp&&hp.cur<hp.max?h("small",{},hp.cur+"/"+hp.max):null);}));
+  // vitals, with the hit-point tracker
+  const hp=hpOf(cur,s);
+  const vitals=h("div",{class:"vitals"},s.vit.map(([k,v])=>k==="HP"&&hp
+    ?h("div",{class:"hp "+hp.st,role:"button",tabindex:"0","aria-label":"Set hit points",onclick:()=>{const v=prompt("Hit points now?",String(hp.cur));if(v!=null&&v.trim()!=="")setHp(cur,parseInt(v,10));}},h("b",{},String(hp.cur)),h("span",{},"HP / "+hp.max))
+    :h("div",{},h("b",{},v),h("span",{},k))));
+  const hpLine=hp?{ok:"This device only. Tap the number to set it.",bloodied:"Bloodied.",critical:"Hold on.",down:cur==="hans"?"Shut down. Stable. Wake me after.":"Down. Not gone. Mark the saves."}[hp.st]:"";
+  const hpNodes=hp?[h("div",{class:"hprow"},
+      h("button",{type:"button","aria-label":"Lose a hit point",onclick:()=>setHp(cur,hp.cur-1)},"−"),
+      h("div",{class:"bar"},h("i",{class:hp.st,style:`width:${Math.max(0,Math.min(100,hp.cur/hp.max*100))}%`})),
+      h("button",{type:"button","aria-label":"Regain a hit point",onclick:()=>setHp(cur,hp.cur+1)},"+"),
+      h("button",{type:"button",class:"rest","aria-label":"Long rest",onclick:()=>{setHp(cur,hp.max,true);toast(cur==="hans"?"Hans: Rebooted.":"Hans: Rested. All of it back.");}},"Rest")),
+    hp.st==="down"&&cur!=="hans"?h("div",{class:"ds"},
+      h("span",{},"SAVES",[0,1,2].map(i=>h("button",{type:"button","aria-pressed":String(hp.ds[0]>i),"aria-label":"Success "+(i+1),onclick:()=>setDs(cur,0,hp.ds[0]>i?i:i+1)}))),
+      h("span",{class:"f"},"FAILS",[0,1,2].map(i=>h("button",{type:"button","aria-pressed":String(hp.ds[1]>i),"aria-label":"Failure "+(i+1),onclick:()=>setDs(cur,1,hp.ds[1]>i?i:i+1)})))):null,
+    h("p",{class:"note"},hpLine),
+    h("div",{class:"conds",role:"group","aria-label":"Conditions"},CONDS.map(c=>h("button",{type:"button",class:"chip","aria-pressed":String(hp.cond.includes(c)),onclick:()=>toggleCond(cur,c)},c)))]:[];
+  // saving throws as a grid when the line has the usual shape
+  const savesNode=(()=>{if(!s.saves)return null;const parts=s.saves.split(/\s*·\s*/);if(parts.length>=4&&parts.every(p=>/^\S+\s+[+−-]\s?\d+$/.test(p)))return h("div",{class:"skl"},parts.map(p=>{const m=p.match(/^(\S+)\s+(.+)$/);return h("span",{},m[1],h("b",{},m[2].replace(/\s/g,"")));}));return h("p",{class:"mono"},s.saves);})();
+  const m=s.magic;
+  const mline=(()=>{if(!m||!m.line)return null;const dc=m.line.match(/DC\s*(\d+)/i),at=m.line.match(/attack\s*([+−-]\s?\d+)/i),ab=m.line.split(/\s*·\s*/)[0]||"";
+    if(dc&&at&&ab&&ab.length<=14)return h("div",{class:"vitals v3"},h("div",{},h("b",{},ab.slice(0,3).toUpperCase()),h("span",{},"ABILITY")),h("div",{},h("b",{},dc[1]),h("span",{},"SAVE DC")),h("div",{},h("b",{},at[1].replace(/\s/g,"")),h("span",{},"ATTACK")));
+    return h("p",{class:"mono"},m.line);})();
+  const spells=m?[mline,(m.slots||m.extra)?h("p",{class:"small muted"},[m.slots,m.extra].filter(Boolean).join(". ")+"."):null,
+    (m.cantrips||[]).length?h("div",{class:"spl"},h("span",{class:"lv"},"CANTRIPS"),m.cantrips.map(x=>h("i",{},x))):null,
+    ...(m.lv||[]).map(([lv,list])=>h("div",{class:"spl"},h("span",{class:"lv"},String(lv).toUpperCase()),list.map(x=>h("i",{},x)))),
+    m.foot?h("p",{class:"note"},m.foot):null]:[h("p",{class:"note"},cur==="hans"?"No spells. I have a beat.":"Nothing written yet.")];
+  const empty=t=>h("p",{class:"note"},t||"Nothing written yet. Tap edit.");
+  const nEd=Object.keys(e).length, by=[...new Set(Object.values(e).map(x=>whoName(x.by)).filter(Boolean))];
+  const nodes=[
+    h("p",{class:"eyebrow m"},"HANS'S FILES · THE CREW · AS OF SESSION "+AS_OF),
+    h("p",{class:"small voice"},"Copied from the crew's papers while they slept. Where the paper was blank, so am I. Amend a page, then pass it round."),
+    picks,
+    s.empty&&!nEd?h("div",{class:"scan",html:s.empty}):null,
+    sec("head","",h("h3",{class:"cs-name",style:`color:${hex}`},s.name),h("p",{class:"cs-line"},s.line),s.alias?h("p",{class:"note"},s.alias):null),
+    sec("vit","VITALS",vitals,...hpNodes),
+    sec("ab","ABILITIES",h("div",{class:"abil"},s.ab.map(([k,sc,mo])=>h("div",{},h("span",{class:"k"},k),h("b",{},mod(mo)),h("i",{},sc==null?"—":String(sc)))))),
+    sec("lvl6","SESSION "+NEXT+" · LEVEL 6",s.lvl6?h("p",{class:"small"},s.lvl6):empty("Not decoded yet. Tap edit when the new page is in.")),
+    sec("saves","SAVING THROWS",savesNode||empty()),
+    sec("skills","SKILLS",s.skills&&s.skills.length?h("div",{class:"skl"},s.skills.map(([k,v])=>h("span",{},k,h("b",{},v)))):s.skillNote?h("p",{class:"small voice"},s.skillNote):empty()),
+    sec("passive","SENSES",s.passive?h("p",{class:"note"},s.passive):empty()),
+    sec("attacks","ATTACKS",(s.attacks||[]).length?h("div",{class:"atk"},s.attacks.map(([n,hit,d])=>h("div",{},h("span",{},n),h("b",{},hit),d?h("span",{class:"d"},d):null))):empty()),
+    sec("magic","SPELLCASTING",...spells),
+    sec("feats","FEATURES",(s.feats||[]).length?h("ul",{},s.feats.map(x=>h("li",{},x))):empty()),
+    sec("items","ITEMS OF NOTE",(s.items||[]).length?h("ul",{},s.items.map(([n,d])=>h("li",{},h("b",{},n),d?" · "+d:""))):empty()),
+    sec("gear","ALSO CARRIES",(s.gear||[]).length?h("p",{class:"small"},s.gear.join(" · ")+"."):empty()),
+    sec("loot","LOOT AND LEADS",(s.loot||[]).length?h("p",{class:"small"},s.loot.join(" · ")+"."):empty()),
+    sec("langs","LANGUAGES",s.langs?h("p",{class:"small"},s.langs):empty()),
+    sec("flavor","FLAVOR",s.flavor?h("p",{class:"cs-flavor"},s.flavor):empty("Scars, promises, habits, grudges. Tap edit.")),
+    h("div",{class:"row"},
+      h("button",{class:"btn",type:"button",onclick:ev=>shareSheet(cur,ev.currentTarget)},"Pass it round"),
+      nEd?h("button",{class:"btn ghost",type:"button",onclick:()=>{if(confirm("Drop every amendment to "+s.name+"'s sheet on this device?")){delete sheetEdits[cur];saveEdits();editing=null;showSheets(true);}}},"Back to Hans's copy"):null),
+    h("p",{class:"note"},nEd?`Amended${by.length?" by "+by.join(", "):""} · ${nEd} section${nEd>1?"s":""}. Pass it round, and the crew's copies catch up. Nothing is stored online.`:"Pass it round sends a link to the group chat. Whoever opens it gets the amended sections. Nothing is stored online.")
+  ].filter(Boolean);
+  openSheet("Character sheets",nodes,"sheets");
+  if(keep) sBody.scrollTop=top;
+}
+// a sheet link from the group chat: merge the newer sections, then show that sheet
+(async()=>{const m=location.hash.match(/^#sheet=([a-z]+)\.([zj])\.([A-Za-z0-9_-]+)$/);if(!m)return;
+  try{history.replaceState(null,"",location.pathname+location.search);}catch(e){}
+  try{const d=await unpackSheet(m[2],m[3]);const id=m[1];if(!SHEETS[id]||!d||d.id!==id)throw 0;
+    const got=mergeEdits(id,d.e||{}),n=got.length;store.set("chron-sheet",id);sheetFresh={id,keys:got};
+    const line=n?`${SHEETS[id].name}'s sheet came through. I have amended ${n} section${n>1?"s":""} in my copy.`:`${SHEETS[id].name}'s sheet came through. My copy was already up to date.`;
+    setTimeout(()=>{if(sealed)return;cine([{who:"HANS",text:line,ms:4200}]);if(store.get("chron-seen")===SKEY&&!recapOn)showSheets();else if(n)document.querySelector('[data-tab="sheets"]')?.prepend(h("span",{class:"dot"}));},900);
+  }catch(e){setTimeout(()=>toast("That sheet link did not decode"),900);}
+})();
 
 /* =================== PLAYER DATA (db) =================== */
 // Public edition: hosted outside Claude there is no window.claude, so "Missed something?" goes to Sam
