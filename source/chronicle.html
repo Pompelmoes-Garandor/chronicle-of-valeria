@@ -96,6 +96,8 @@ nav.dock{position:fixed;z-index:5;left:50%;transform:translateX(-50%);bottom:cal
 .dock .sh{display:none}
 @media (max-width:700px){nav.dock{left:max(12px, env(safe-area-inset-left, 0px));right:max(12px, env(safe-area-inset-right, 0px));transform:none}.dock button{min-width:0}}
 @media (max-width:430px){.dock .lg{display:none}.dock .sh{display:inline}.hud .the{display:none}}
+@media (max-width:430px){.dock button{letter-spacing:.04em;padding:6px 2px}}
+@media (max-width:360px){.dock button{font-size:10px;letter-spacing:.02em}}
 
 aside#sheet{position:fixed;z-index:6;color:var(--parch);background:var(--brk),linear-gradient(#1b1f27,#13161c);border:1px solid var(--hairline);
   right:max(20px, env(safe-area-inset-right, 0px));top:calc(var(--top) + 112px);width:min(400px,calc(100vw - 40px));max-height:calc(100vh - 112px - 104px);max-height:calc(100dvh - 112px - 104px);
@@ -507,7 +509,7 @@ addEventListener("error",function(e){if(e.target&&e.target.tagName==="LINK")retu
 <nav class="dock" aria-label="Chronicle">
   <button type="button" data-tab="recap"><span class="dot"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4.5 3.5v4h4"/><path d="M10.5 9.2l4.5 2.8-4.5 2.8z"/></svg><span>Recap</span></button>
   <button type="button" data-tab="chronicle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 5.5c3-1.2 5.6-1 8.5 1 2.9-2 5.5-2.2 8.5-1v13c-3-1.2-5.6-1-8.5 1-2.9-2-5.5-2.2-8.5-1z"/><path d="M12 6.5v13"/></svg><span>Chronicle</span></button>
-  <button type="button" data-tab="sheets"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h12v17H6z"/><path d="M9 8.5h6M9 12h6M9 15.5h4"/></svg><span>Sheets</span></button>
+  <button type="button" data-tab="sheets"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h12v17H6z"/><path d="M9 8.5h6M9 12h6M9 15.5h4"/></svg><span>Characters</span></button>
   <button type="button" data-tab="places"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><path d="M12 7.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"/></svg><span>Places</span></button>
   <button type="button" data-tab="missed" aria-label="Missed something?"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 3.5C13 4.5 8.5 9 6.5 16L5 20"/><path d="M8 13.5c3.5.3 6.5-1.8 8.5-5"/><path d="M17 14.5v6M14 17.5h6"/></svg><span class="lg">Missed something?</span><span class="sh">Missed?</span></button>
   <button type="button" data-tab="dm" class="dm" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.6v8.8L12 21l-8-4.6V7.6z"/><path d="M12 3L7.5 11.5h9zM7.5 11.5L4 16.4M16.5 11.5l3.5 4.9M7.5 11.5L12 21l4.5-9.5"/></svg><span>DM</span></button>

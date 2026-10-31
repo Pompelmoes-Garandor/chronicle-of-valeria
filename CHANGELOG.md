@@ -6,6 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **Changed** The Sheets button in the dock is now called Characters. On small phones the dock labels sit a little tighter so every name fits. (Niels)
 - **New** Places: a small edit button on every place lets you add or remove its tags. Your tags stay on your own device, marked "amended", and "Back to Hans's tags" undoes them. (Niels)
 - **New** Places tab in the dock, next to Sheets: every place on the map in one searchable list. Each place has a type (town, tavern, castle, vault, cave, natural wonder and more) and tags, so searching "food" finds the taverns. Filter by type, tap a tag to see everything with it, and taverns and prisons inside cities (the Wet Owl, the Crow's Nest) now have their own entries. (Niels)
 - **Changed** The site moved to https://pompelmoes-garandor.github.io/chronicle-of-valeria/ now that Sam and Niels run it together. Save the new link; the old one stops working. (Sam)
