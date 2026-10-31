@@ -31,7 +31,7 @@ Before starting something larger than a small fix, open a GitHub issue first (or
 From the repo root, with Python 3 and Pillow (`pip install pillow`):
 
 ```
-python3 source/build-site.py source/chronicle.html . --sealed --base https://garandor-cyber.github.io/chronicle-of-valeria/ --assets source/assets
+python3 source/build-site.py source/chronicle.html . --sealed --base https://pompelmoes-garandor.github.io/chronicle-of-valeria/ --assets source/assets
 ```
 
 - `--sealed`: the link preview says the black box is sealed. The live site uses it today. Sam or Niels decides when to drop it.

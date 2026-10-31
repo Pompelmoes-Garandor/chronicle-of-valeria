@@ -6,6 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **Changed** The site moved to https://pompelmoes-garandor.github.io/chronicle-of-valeria/ now that Sam and Niels run it together. Save the new link; the old one stops working. (Sam)
 - **New** Site source in `source/`, co-working rules in `CLAUDE.md`, a PR checklist and these patch notes. (Sam)
 
 ## Session 9 (2026-10-31)
