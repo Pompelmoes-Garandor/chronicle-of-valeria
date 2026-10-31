@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Chronicle of Valeria</title>
-<meta name="description" content="Hans has decoded more of the black box. The map of Valeria and the story so far, up to session 9.">
+<meta name="description" content="The black box is sealed. Hans cannot open it alone. Bring your crew.">
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="theme-color" content="#0b0d12">
 <meta name="color-scheme" content="dark">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Chronicle of Valeria">
-<meta property="og:title" content="The Chronicle of Valeria · Session 9">
-<meta property="og:description" content="Hans has decoded more of the black box. The map of Valeria and the story so far, up to session 9.">
+<meta property="og:title" content="The Chronicle of Valeria · Sealed">
+<meta property="og:description" content="The black box is sealed. Hans cannot open it alone. Bring your crew.">
 <meta property="og:url" content="https://garandor-cyber.github.io/chronicle-of-valeria/">
 <meta property="og:image" content="https://garandor-cyber.github.io/chronicle-of-valeria/og.jpg?v=s9">
 <meta property="og:image:secure_url" content="https://garandor-cyber.github.io/chronicle-of-valeria/og.jpg?v=s9">
@@ -20,8 +20,8 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Hans, the android with blue headphones, beside the fog-covered globe of Valeria">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="The Chronicle of Valeria · Session 9">
-<meta name="twitter:description" content="Hans has decoded more of the black box. The map of Valeria and the story so far, up to session 9.">
+<meta name="twitter:title" content="The Chronicle of Valeria · Sealed">
+<meta name="twitter:description" content="The black box is sealed. Hans cannot open it alone. Bring your crew.">
 <meta name="twitter:image" content="https://garandor-cyber.github.io/chronicle-of-valeria/og.jpg?v=s9">
 <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -339,6 +339,61 @@ body:not(.cinema) #cine{bottom:calc(var(--bot) + 96px)}
   #caption{left:auto;right:max(12px, env(safe-area-inset-right, 0px));width:min(400px,50vw);bottom:calc(var(--bot) + 80px);padding:12px 14px 8px;gap:6px}
   #caption .txt{max-height:calc(17px*1.5*3)}
 }
+/* ---- the seal: the black box stays shut until the crew opens it together at the table (start of session 10) ---- */
+#seal{position:fixed;inset:0;z-index:30;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;align-items:center;box-sizing:border-box;text-align:center;
+  padding:calc(var(--top) + 24px) max(16px, env(safe-area-inset-right, 0px)) calc(var(--bot) + 24px) max(16px, env(safe-area-inset-left, 0px));
+  background:radial-gradient(ellipse 85% 60% at 50% 38%,#0b0d1266 0%,#0b0d12d6 58%,#0b0d12f5 100%);transition:opacity 1.4s ease,visibility 0s linear 1.4s}
+#seal.gone{opacity:0;visibility:hidden;pointer-events:none}
+#seal.surge{background:radial-gradient(ellipse 85% 60% at 50% 38%,#4a0d0866 0%,#1c0706e0 58%,#0b0d12f5 100%)}
+body.sealed header.top,body.sealed nav.dock,body.sealed .eggs,body.sealed #pins{opacity:0;pointer-events:none}
+.sl-in{width:min(420px,100%);display:flex;flex-direction:column;align-items:center;gap:10px;margin:auto 0}
+.sl-face{position:relative;line-height:0;margin-bottom:2px;--p:0}
+.sl-face .hans-face{--hf-size:clamp(104px,29vw,140px);filter:drop-shadow(0 0 22px #e8743b70)}
+.sl-face::after{content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none;opacity:.55;mix-blend-mode:screen;
+  background:linear-gradient(0deg,#8fd3c8 0%,#8fd3c8 calc(var(--p)*100%),#8fd3c800 calc(var(--p)*100% + 16%))}
+#seal .hf-led{fill:#ff5a3a}
+#seal.surge .sl-face .hans-face{filter:drop-shadow(0 0 30px #ff3a2ae0)}
+.sl-steam{position:absolute;inset:0;pointer-events:none;z-index:1}
+.sl-steam i{position:absolute;bottom:4%;width:30%;aspect-ratio:1;border-radius:50%;background:radial-gradient(#ece6dc70,#ece6dc00 70%);opacity:0}
+.sl-steam i:nth-child(1){left:18%}.sl-steam i:nth-child(2){left:52%}.sl-steam i:nth-child(3){left:35%}
+@media (prefers-reduced-motion:no-preference){
+  .sl-steam i{animation:sl-steam 2.6s ease-out infinite}.sl-steam i:nth-child(2){animation-delay:.9s}.sl-steam i:nth-child(3){animation-delay:1.7s}
+  #seal .hf-led{animation:hf-beep .5s steps(1) infinite}
+  .sl-stat .blink{animation:sl-blink 1.1s steps(1) infinite}
+  #seal.surge .sl-steam i{animation-duration:.9s}
+}
+@keyframes sl-steam{0%{opacity:0;transform:translateY(0) scale(.6)}20%{opacity:.9}100%{opacity:0;transform:translateY(-130%) scale(1.9)}}
+@keyframes sl-blink{50%{opacity:.25}}
+.sl-eye{margin:0;font:500 12px/1.3 var(--mono);letter-spacing:.24em;color:var(--ember)}
+.sl-h{margin:0;font:400 clamp(28px,7.4vw,40px)/1.05 var(--display);color:var(--parch)}
+.sl-say{margin:2px 0 0;font:italic 400 clamp(18px,4.6vw,21px)/1.45 var(--body);color:var(--parch);text-wrap:balance}
+.sl-by{margin:-6px 0 0;font:500 12px/1 var(--label);letter-spacing:.16em;color:var(--brass);text-transform:uppercase}
+.sl-stat{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;margin:2px 0 0;font:400 11px/1.4 var(--mono);letter-spacing:.16em;color:var(--steward)}
+.sl-stat b{font-weight:500;color:var(--ember)}
+#sl-form{width:100%;display:flex;flex-direction:column;gap:9px;margin-top:8px;padding:16px;border-radius:12px;background:#0b0d12d8;border:1px solid var(--hairline);box-sizing:border-box;text-align:left}
+#sl-form label{font:500 12px/1 var(--label);letter-spacing:.16em;text-transform:uppercase;color:var(--brass)}
+.sl-row{display:flex;gap:8px}
+#sl-key{flex:1;min-width:0;font:500 18px/1.2 var(--mono);letter-spacing:.18em;text-transform:uppercase;text-align:center;color:var(--parch);background:#05070a;border:1px solid var(--brass-dim);border-radius:8px;padding:12px 10px}
+#sl-key:focus{outline:2px solid var(--steward);outline-offset:1px}
+#sl-key::placeholder{color:#b9a98580;letter-spacing:.02em;text-transform:none;font:italic 16px var(--body)}
+#sl-form button{flex:none;font:600 14px/1 var(--label);letter-spacing:.14em;text-transform:uppercase;color:#0b0d12;background:var(--brass);border:0;border-radius:8px;padding:0 18px;cursor:pointer}
+#sl-form button:focus-visible,#sl-plate:focus-visible{outline:2px solid var(--steward);outline-offset:3px}
+.sl-hint{margin:0;font:italic 15px/1.4 var(--body);color:var(--parch-dim)}
+#sl-form.bad{animation:sl-shake .4s}
+@keyframes sl-shake{20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+#sl-game{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:6px}
+#sl-plate{position:relative;width:min(220px,58vw);aspect-ratio:1;border-radius:50%;border:0;padding:0;cursor:pointer;color:var(--parch);
+  background:radial-gradient(circle at 50% 42%,#2c261a 0%,#15120c 62%,#0b0d12 100%);box-shadow:0 0 0 1px var(--brass-dim),0 0 40px #8fd3c822;
+  touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;transition:box-shadow .2s,transform .2s}
+#sl-plate svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#sl-plate .rn path{fill:none;stroke:#8a7140;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round;transition:stroke .25s}
+#sl-plate .rn.on path{stroke:#8fd3c8}
+#sl-plate b{position:absolute;inset:0;display:grid;place-items:center;font:500 clamp(17px,4.8vw,21px)/1 var(--mono);letter-spacing:.2em;pointer-events:none}
+#sl-plate.held{box-shadow:0 0 0 1px var(--steward),0 0 64px #8fd3c870;transform:scale(.97)}
+#seal.surge #sl-plate{box-shadow:0 0 0 2px #ff4a3a,0 0 72px #ff4a3a99}
+#seal.surge #sl-plate b{color:#ff7a6a}
+.sl-cmd{margin:0;font:italic 18px/1.4 var(--body);color:var(--parch);min-height:2.8em;text-wrap:balance}
+@media (max-height:520px){.sl-face .hans-face{--hf-size:76px}.sl-h{font-size:26px}.sl-say{font-size:17px}#sl-plate{width:min(150px,40vh)}.sl-in{gap:7px}}
 </style>
 <style>html,body{margin:0}</style>
 </head>
@@ -346,7 +401,7 @@ body:not(.cinema) #cine{bottom:calc(var(--bot) + 96px)}
 <div id="stage" aria-label="3D map of the world of Valeria. Drag to turn, pinch or scroll to zoom." role="img"></div>
 <div id="loading">Hans is decoding the beeping…</div>
 <script>/* If the map cannot start (no WebGL, or the 3D library cannot download), say so instead of decoding forever. */
-(function(){function say(m){var l=document.getElementById("loading");if(!l)return;l.textContent=m;l.style.cssText="pointer-events:auto;cursor:pointer;padding:0 24px;text-align:center;line-height:1.6";l.onclick=function(){location.reload()};}
+(function(){function say(m){var l=document.getElementById("loading");if(!l)return;var sl=document.getElementById("seal");if(sl)sl.hidden=true;l.textContent=m;l.style.cssText="pointer-events:auto;cursor:pointer;padding:0 24px;text-align:center;line-height:1.6";l.onclick=function(){location.reload()};}
 var t=setTimeout(function(){say("The signal is weak. Hans is still decoding… Tap to try again.")},20000);
 addEventListener("error",function(e){if(e.target&&e.target.tagName==="LINK")return;clearTimeout(t);say("Hans cannot draw the map on this device. Tap to try again, or open the link in Safari or Chrome.")},true);})();</script>
 <div id="pins"></div>
@@ -392,6 +447,29 @@ addEventListener("error",function(e){if(e.target&&e.target.tagName==="LINK")retu
   <button type="button" data-tab="missed" aria-label="Missed something?"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 3.5C13 4.5 8.5 9 6.5 16L5 20"/><path d="M8 13.5c3.5.3 6.5-1.8 8.5-5"/><path d="M17 14.5v6M14 17.5h6"/></svg><span class="lg">Missed something?</span><span class="sh">Missed?</span></button>
   <button type="button" data-tab="dm" class="dm" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.6v8.8L12 21l-8-4.6V7.6z"/><path d="M12 3L7.5 11.5h9zM7.5 11.5L4 16.4M16.5 11.5l3.5 4.9M7.5 11.5L12 21l4.5-9.5"/></svg><span>DM</span></button>
 </nav>
+
+<div id="seal" role="dialog" aria-modal="true" aria-labelledby="sl-h" aria-describedby="sl-say">
+  <div class="sl-in">
+    <div class="sl-face" id="sl-face" aria-hidden="true"><span class="sl-steam"><i></i><i></i><i></i></span></div>
+    <p class="sl-eye" id="sl-eye">BLACK BOX · SEALED</p>
+    <h2 class="sl-h" id="sl-h">The Chronicle of Valeria</h2>
+    <p class="sl-say" id="sl-say">“Something big woke up in the box. I cannot open it alone. When we are all together, I will need every one of you. Do not worry. I am only a little bit on fire.”</p>
+    <p class="sl-by">Hans</p>
+    <p class="sl-stat" id="sl-stat" aria-hidden="true"><span>CORE TEMP</span><b id="sl-temp">96.4%</b><span class="blink">AWAITING CREW</span></p>
+    <form id="sl-form" autocomplete="off" onsubmit="return false">
+      <label for="sl-key">Hans's key</label>
+      <div class="sl-row"><input id="sl-key" type="text" autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="go" maxlength="40" placeholder="Hans will give it to you"><button type="submit">Open</button></div>
+      <p class="sl-hint" id="sl-hint" aria-live="polite">“The key will burn on my chest plate. One of you will have to read it.”</p>
+    </form>
+    <div id="sl-game" hidden>
+      <button type="button" id="sl-plate" aria-label="Hold to receive the map"></button>
+      <p class="sl-cmd" id="sl-cmd" aria-live="polite">Keep your thumb on the plate.</p>
+    </div>
+  </div>
+</div>
+<script>/* the seal: hidden at once where the crew has already opened the box, so it never flashes; ?seal shuts it again (for testing) */
+(function(){var open=false;try{if(/[?&]seal(=|&|$)/.test(location.search))localStorage.removeItem("chron-open");open=localStorage.getItem("chron-open")==="1";}catch(e){}
+var s=document.getElementById("seal");if(open)s.hidden=true;else document.body.classList.add("sealed");})();</script>
 
 <script type="module">
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js";
@@ -481,6 +559,11 @@ const MORE = ["Combat","Roleplay","Exploration","Puzzles","Lore & mystery","Humo
 const byId = Object.fromEntries(PLACES.map(p=>[p.id,p]));
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const store = { get(k){try{return localStorage.getItem(k)}catch(e){return null}}, set(k,v){try{localStorage.setItem(k,v)}catch(e){}} };
+// The seal: until the crew opens the black box together at the start of session 10, the chart stays shut.
+const SEAL_ON = AS_OF===9;                 // remove with the session 10 update
+const sealEl=document.getElementById("seal");
+let sealed=SEAL_ON&&store.get("chron-open")!=="1";
+sealEl.hidden=!sealed; document.body.classList.toggle("sealed",sealed);
 
 /* =================== THREE SETUP =================== */
 const R = 1, D2R = Math.PI/180;
@@ -1511,6 +1594,7 @@ function showMissedPublic(){
 if(PUBLIC) rebuildNotes();
 if(PUBLIC){
   const chk=()=>fetch("version.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(v=>{
+    if(v&&v.open&&sealed){if(v.open==="now")liftSeal();else startPlate(true);}   // the remote unlock: "now" skips the plate game
     if(!v||!(v.session>AS_OF)||new URLSearchParams(location.search).get("s")===String(v.session))return;
     location.replace(location.pathname+"?s="+v.session);}).catch(()=>{});
   document.addEventListener("visibilitychange",()=>{if(!document.hidden)chk();});
@@ -1576,9 +1660,107 @@ async function showDM(){
     h("p",{class:"note"},"To reveal new ground after a session, tell Claude what happened.")],"dm");
 }
 
+/* =================== THE SEAL: opening the black box together =================== */
+// At the table Hans gives the key. Only a hash of it is stored here, so the page source does not give it away.
+function keyHash(s){s="valeria|"+String(s).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]/g,"");
+  let h1=0xdeadbeef^s.length,h2=0x41c6ce57^s.length;
+  for(let i=0;i<s.length;i++){const c=s.charCodeAt(i);h1=Math.imul(h1^c,2654435761);h2=Math.imul(h2^c,1597334677);}
+  h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);
+  h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);
+  return (4294967296*(2097151&h2)+(h1>>>0)).toString(36);}
+const SEAL_KEYS=new Set(["10gnncoa0gi","1ml6nb6k4zt","1o56iv79erz","hpk6hpglf6","wq9za094io","3ie5iwgbzz","1n2lkvq8cr1","j5kc8o0sii","1nembjvol8s","h1aul53x3r","28a5o5carul"]);
+const slFace=document.getElementById("sl-face"), slSay=document.getElementById("sl-say"), slEye=document.getElementById("sl-eye");
+let plateOn=false, slHum=null;
+function buzz(p){try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}}
+function hum(on){const a=ac();if(!a)return;
+  if(!slHum){const o=a.createOscillator(),f=a.createBiquadFilter(),g=a.createGain();o.type="sawtooth";o.frequency.value=70;f.type="lowpass";f.frequency.value=500;g.gain.value=0;o.connect(f).connect(g).connect(a.destination);o.start();slHum={o,f,g};}
+  slHum.g.gain.setTargetAtTime(on?.05:0,a.currentTime,.08);}
+function humPitch(p){if(slHum&&audio){const t=audio.currentTime;slHum.o.frequency.setTargetAtTime(70+240*p,t,.12);slHum.f.frequency.setTargetAtTime(500+2400*p,t,.12);}}
+function hiss(){const a=ac();if(!a)return;const n=a.sampleRate*.7|0,b=a.createBuffer(1,n,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);
+  const src=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();src.buffer=b;f.type="highpass";f.frequency.value=2400;g.gain.value=.14;src.connect(f).connect(g).connect(a.destination);src.start();}
+function dropBeat(){const a=ac();if(!a)return;const t0=a.currentTime+.05;
+  for(let i=0;i<8;i++){const t=t0+i*60/128,o=a.createOscillator(),g=a.createGain();o.type="sine";o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(42,t+.18);
+    g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.4,t+.005);g.gain.exponentialRampToValueAtTime(.0001,t+.3);o.connect(g).connect(a.destination);o.start(t);o.stop(t+.32);}
+  if(slHum){const h=slHum;slHum=null;h.g.gain.setTargetAtTime(0,a.currentTime,.03);setTimeout(()=>{try{h.o.stop()}catch(e){}},700);}}
+// eight Old Valerian runes around the chest plate; they light up as the download lands
+const RUNES=["M-2-5v10M-2-2l4-3M-2 1l4-3","M-3 5V-5l6 4v6","M-2-5v10M-2-2l4 2-4 2","M-2-5v10M-2-3l4 2M-2 0l4 2","M-3 5V-5h4l2 2.5-6 2.5 6 5","M3-5L-3 0l6 5","M-3-5l6 10M3-5l-6 10","M-3 5V-5l5 3-5 3"];
+const PLATE_SVG='<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="45" fill="none" stroke="#ffffff14" stroke-width="4"/>'+
+  '<circle class="rg" cx="50" cy="50" r="45" fill="none" stroke="#8fd3c8" stroke-width="4" stroke-linecap="round" stroke-dasharray="0 283" transform="rotate(-90 50 50)"/>'+
+  '<circle cx="50" cy="50" r="38.5" fill="none" stroke="#c9a35c55" stroke-width=".6"/><circle cx="50" cy="50" r="15" fill="#8fd3c8" opacity=".1"/>'+
+  RUNES.map((d,i)=>{const a=(-90+i*45)*Math.PI/180;return `<g class="rn" transform="translate(${(50+30*Math.cos(a)).toFixed(1)} ${(50+30*Math.sin(a)).toFixed(1)})"><path d="${d}"/></g>`;}).join("")+'</svg>';
+if(sealed){
+  slFace.insertAdjacentHTML("afterbegin",hansFace({state:"is-decoding",decoded:.05,label:"Hans"}));
+  const temp=document.getElementById("sl-temp"); let tv=96.4;
+  const tIv=setInterval(()=>{if(!sealed||plateOn){clearInterval(tIv);return;}tv=Math.min(99.9,tv+Math.random()*.08);temp.textContent=tv.toFixed(1)+"%";},1500);
+  const form=document.getElementById("sl-form"), key=document.getElementById("sl-key"), hint=document.getElementById("sl-hint");
+  const NOPE=["That is not it. The box did not even blink.","No. Read the runes again, slowly.","The box does not know that word.","Close. No. It was not close.","I would love to say yes. I cannot."];
+  let tries=0;
+  form.addEventListener("submit",e=>{e.preventDefault();const v=key.value;if(!v.trim()){key.focus();return;}
+    if(SEAL_KEYS.has(keyHash(v))){key.blur();startPlate(false);return;}
+    hint.textContent="“"+NOPE[tries++%NOPE.length]+"”";form.classList.remove("bad");void form.offsetWidth;form.classList.add("bad");try{key.select()}catch(err){}});
+}
+function startPlate(remote){
+  if(plateOn||!sealed)return; plateOn=true;
+  document.getElementById("sl-form").hidden=true; document.getElementById("sl-stat").hidden=true;
+  slEye.textContent="BLACK BOX · OPENING";
+  slSay.textContent="“"+(remote?"The key came through on its own. ":"That is the key. ")+"Now hold on. Keep your thumb on my chest plate, and let go when it surges.”";
+  const game=document.getElementById("sl-game"), plate=document.getElementById("sl-plate"), cmd=document.getElementById("sl-cmd");
+  plate.innerHTML=PLATE_SVG+"<b>HOLD</b>"; game.hidden=false;
+  const lbl=plate.querySelector("b"), rg=plate.querySelector(".rg"), runes=[...plate.querySelectorAll(".rn")], face=slFace.querySelector(".hans-face");
+  let p=0, held=false, surge=null, last=performance.now(), done=false; const surges=[.3,.62,.86];
+  const down=e=>{if(done)return;e.preventDefault();held=true;plate.classList.add("held");try{plate.setPointerCapture(e.pointerId)}catch(err){}hum(true);};
+  const up=()=>{held=false;plate.classList.remove("held");hum(false);};
+  plate.addEventListener("pointerdown",down); for(const t of ["pointerup","pointercancel","lostpointercapture"]) plate.addEventListener(t,up);
+  plate.addEventListener("contextmenu",e=>e.preventDefault());
+  plate.addEventListener("keydown",e=>{if((e.key===" "||e.key==="Enter")&&!e.repeat&&!done){e.preventDefault();held=true;plate.classList.add("held");hum(true);}});
+  plate.addEventListener("keyup",e=>{if(e.key===" "||e.key==="Enter"){e.preventDefault();up();}});
+  try{plate.focus({preventScroll:true})}catch(e){}
+  let said="";
+  const say=t=>{if(t!==said){said=t;cmd.textContent=t;}};
+  (function tick(now){
+    if(done) return;
+    const dt=Math.min(1,Math.max(0,(now-last)/1000)); last=now;   // real time, so slow phones are not slower to open
+    if(!surge&&surges.length&&p>=surges[0]){surges.shift();surge={t:now,ok:false};sealEl.classList.add("surge");hiss();buzz([90,50,90]);}
+    if(surge){
+      if(!held) surge.ok=true;
+      if(held&&!surge.ok) p=Math.max(0,p-dt*.35);           // holding through a surge burns the download
+      if(now-surge.t>1100){surge=null;sealEl.classList.remove("surge");}
+    } else if(held) p=Math.min(1,p+dt*.2);
+    else p=Math.max(0,p-dt*.05);
+    rg.setAttribute("stroke-dasharray",(p*283).toFixed(1)+" 283");
+    runes.forEach((r,i)=>r.classList.toggle("on",p>=(i+1)/9));
+    face&&face.style.setProperty("--decoded",Math.max(.05,p)); slFace.style.setProperty("--p",p.toFixed(3)); humPitch(p);
+    lbl.textContent=surge?(held&&!surge.ok?"LET GO":"WAIT"):"HOLD";
+    say(surge?(held&&!surge.ok?"It surges! Let go!":"Wait for it…"):held?"Hold it… the world is coming through.":p>0?"Keep your thumb on the plate. It is slipping.":"Keep your thumb on the plate.");
+    if(p>=1){done=true;finishSeal(plate,lbl,cmd);return;}
+    requestAnimationFrame(tick);
+  })(performance.now());
+}
+function finishSeal(plate,lbl,cmd){
+  sealed=false; store.set("chron-open","1");
+  try{if(/[?&]seal(=|&|$)/.test(location.search))history.replaceState(null,"",location.pathname);}catch(e){}
+  plate.classList.remove("held"); dropBeat(); buzz([40,80,40,80,40,80,120]);
+  lbl.textContent="OPEN"; slEye.textContent="BLACK BOX · OPEN"; cmd.textContent="";
+  slSay.textContent="“Okay. I think I just downloaded the world.”";
+  setTimeout(liftSeal,reduced?300:2200);
+}
+function liftSeal(){
+  if(sealEl.classList.contains("gone"))return;
+  sealed=false; store.set("chron-open","1");
+  {
+    sealEl.classList.add("gone"); document.body.classList.remove("sealed"); setTimeout(()=>{sealEl.hidden=true;},1500);
+    const fresh=store.get("chron-seen")!==SKEY;
+    if(!fresh){reveal.v=0;reveal.goal=1;}                      // the fog lifts as the download lands
+    cine([{who:"HANS",text:"It landed. All of it. Where it is still cloud, we have not been. Yet.",ms:5200},
+          {who:"HANS",text:fresh?"Let me play you what the box recorded.":"Tap a place, and I will tell you what we know.",ms:3600,
+           done:()=>{if(fresh)setTimeout(()=>{if(!recapOn&&tab===null)startRecap()},400);else document.querySelector('[data-tab="recap"] .dot')?.remove();}}]);
+  }
+}
+
 /* =================== FIRST VISIT =================== */
 if(bird) setBird(true,false);
-if(store.get("chron-seen")!==SKEY){ reveal.v=0; reveal.goal=0; setTimeout(()=>{if(!recapOn&&tab===null)startRecap()},1600); }
+if(sealed){ reveal.v=0; reveal.goal=0; }
+else if(store.get("chron-seen")!==SKEY){ reveal.v=0; reveal.goal=0; setTimeout(()=>{if(!recapOn&&tab===null)startRecap()},1600); }
 else document.querySelector('[data-tab="recap"] .dot')?.remove();
 </script>
 </body>
