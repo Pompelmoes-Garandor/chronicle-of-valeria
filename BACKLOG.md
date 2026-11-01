@@ -59,10 +59,10 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
-- [x] **Calmer map: one tools button bottom left, Hans only animates while he talks or decodes** · Changed · Sam · PR #PRNUM
-- [x] **Section headings no longer show through behind the character picker** · Fixed · Sam · PR #PRNUM
-- [x] **Map labels make room for each other and stay clear of the header, dock and cards** · Fixed · Sam · PR #PRNUM
-- [x] **"Missed something?" has room in the dock on desktop** · Fixed · Sam · PR #PRNUM
+- [x] **Calmer map: one tools button bottom left, Hans only animates while he talks or decodes** · Changed · Sam · PR #29
+- [x] **Section headings no longer show through behind the character picker** · Fixed · Sam · PR #29
+- [x] **Map labels make room for each other and stay clear of the header, dock and cards** · Fixed · Sam · PR #29
+- [x] **"Missed something?" has room in the dock on desktop** · Fixed · Sam · PR #29
 - [x] **Sign in on the Netlify edition and share the table data (GitHub Pages unchanged)** · New · Niels · PR #14
 - [x] **Netlify builds the site too, with deploy previews** · Changed · Niels · PR #13
 - [x] **The Wind Vault's flying city casts a shadow that moves with the sun** · New · Sam · PR #26
