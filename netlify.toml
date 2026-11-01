@@ -4,11 +4,11 @@
 
 [build]
   publish = "dist"
-  command = "python3 source/build-site.py source/chronicle.html dist --sealed --base \"$URL/\" --assets source/assets"
+  command = "python3 source/build-site.py source/chronicle.html dist --sealed --netlify --base \"$URL/\" --assets source/assets"
 
 # Previews point their link-preview tags at their own address, not at production.
 [context.deploy-preview]
-  command = "python3 source/build-site.py source/chronicle.html dist --sealed --base \"$DEPLOY_PRIME_URL/\" --assets source/assets"
+  command = "python3 source/build-site.py source/chronicle.html dist --sealed --netlify --base \"$DEPLOY_PRIME_URL/\" --assets source/assets"
 
 [[headers]]
   for = "/*"

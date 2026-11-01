@@ -31,6 +31,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="Valeria">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=IM+Fell+English:ital@0;1&family=Alegreya:ital,wght@0,400;0,600;1,400&family=Alegreya+Sans+SC:wght@500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -2225,7 +2226,7 @@ function showSheets(keep){
 /* =================== PLAYER DATA (db) =================== */
 // Public edition: hosted outside Claude there is no window.claude, so "Missed something?" goes to Sam
 // through the player's own messaging app, and what they sent is remembered only on their device.
-const PUBLIC=!(window.claude&&window.claude.use);
+let PUBLIC=!(window.claude&&window.claude.use); // on Netlify this turns false once a player signs in (see NETLIFY below)
 let localMissed=[]; try{const v=JSON.parse(store.get("chron-missed")||"[]");localMissed=Array.isArray(v)?v.filter(m=>m&&typeof m.text==="string"):[];}catch(e){localMissed=[];}
 let myPick=store.get("chron-char")||"";
 function saveLocal(){store.set("chron-missed",JSON.stringify(localMissed.slice(-50)));}
@@ -2261,7 +2262,97 @@ async function boot(){
 function refresh(){if(tab==="ask"&&!sBody.contains(document.activeElement))showAsk();if(tab==="dm")showDM();}
 boot();
 
+/* =================== NETLIFY: sign-in and the table data =================== */
+// The Netlify build sets window.CHRON_NETLIFY. There, a player who signs in (Netlify Identity, invite-only)
+// gets the same online mode as the Claude edition above: the db and user objects below talk to
+// /api/db, /api/me and /api/profiles (netlify/functions/). Signed out, the page stays the public edition.
+const NETLIFY=!!window.CHRON_NETLIFY&&PUBLIC;
+let ID=null, account=null;
+async function identity(){if(!ID)ID=await import("https://cdn.jsdelivr.net/npm/@netlify/identity/+esm");return ID;}
+function netDb(){ // the subset of the Claude db API this page uses, polled every 15 s while the tab is visible
+  const subs=new Set(); let etag=null, data=null, timer=null;
+  async function poll(){
+    if(document.hidden)return;
+    try{const r=await fetch("/api/db",{cache:"no-store",headers:etag?{"If-None-Match":etag}:{}});
+      if(r.status===304)return; if(!r.ok)throw new Error("HTTP "+r.status);
+      etag=r.headers.get("ETag"); data=await r.json(); subs.forEach(f=>f());}
+    catch(e){subs.forEach(f=>f.err&&f.err(e));}
+  }
+  function start(){if(timer)return;poll();timer=setInterval(poll,15000);document.addEventListener("visibilitychange",()=>{if(!document.hidden)poll();});}
+  function watch(f,err){f.err=err;subs.add(f);if(data)f();start();return()=>subs.delete(f);}
+  async function send(path,init){
+    const r=await fetch("/api/db/"+path,{...init,cache:"no-store",headers:{"Content-Type":"application/json"}});
+    if(!r.ok){let m="";try{m=(await r.json()).error||"";}catch(e){} throw new Error(m||"HTTP "+r.status);}
+    etag=null; await poll();
+  }
+  return {
+    collection:name=>({onSnapshot:(cb,err)=>watch(()=>{if(data)cb({docs:Object.entries(data[name]||{}).map(([id,d])=>({id,data:()=>d}))});},err)}),
+    doc:path=>{const [col,id]=path.split("/");return {
+      onSnapshot:(cb,err)=>watch(()=>{if(!data)return;const d=data[col]?.[id];cb({exists:d!=null,data:()=>d});},err),
+      set:doc=>send(path,{method:"PUT",body:JSON.stringify(doc)}),
+      delete:()=>send(path,{method:"DELETE"})};}
+  };
+}
+async function goOnline(){
+  const db=netDb();
+  const user={isOwner:async()=>!!account.isDm,id:async()=>account.id,
+    profiles:async ids=>{try{const r=await fetch("/api/profiles?ids="+encodeURIComponent(ids.join(",")),{cache:"no-store"});return r.ok?await r.json():{};}catch(e){return {};}}};
+  window.claude={use:async n=>n==="db"?db:n==="user"?user:null};
+  PUBLIC=false; await boot(); rebuildNotes(); if(tab==="missed")showMissed();
+}
+async function loadAccount(){
+  const r=await fetch("/api/me",{cache:"no-store"}); if(!r.ok)return false;
+  account=await r.json(); await goOnline(); return true;
+}
+async function bootNetlify(){
+  if(!NETLIFY)return;
+  let I; try{I=await identity();}catch(e){return;} // sign-in unavailable: the public edition keeps working
+  const invite=(location.hash.match(/invite_token=([^&]+)/)||[])[1];
+  if(invite){history.replaceState(null,"",location.pathname+location.search);showWelcome(decodeURIComponent(invite));return;}
+  try{await I.handleAuthCallback();}catch(e){toast("Couldn't finish signing in. Try again.");}
+  try{if(await I.getUser())await loadAccount();}catch(e){}
+}
+function accountLine(){
+  if(!NETLIFY||!account)return null;
+  return h("p",{class:"note"},"Signed in as "+(account.name||account.email)+(account.isDm?" (DM)":"")+" · ",
+    h("button",{class:"btn ghost",type:"button",onclick:async()=>{try{await (await identity()).logout();}catch(e){} location.reload();}},"Sign out"));
+}
+function signInNote(){
+  if(!NETLIFY||account)return null;
+  return h("div",{class:"row"},h("p",{class:"note"},"At Sam's table? Sign in and your notes go straight to Sam, and the party sees your pins."),
+    h("button",{class:"btn ghost",type:"button",onclick:showSignIn},"Sign in"));
+}
+function showSignIn(){
+  const email=h("input",{type:"email",autocomplete:"username",required:true,placeholder:"you@example.com"});
+  const pw=h("input",{type:"password",autocomplete:"current-password",required:true,placeholder:"Password"});
+  const go=h("button",{class:"btn",type:"submit"},"Sign in");
+  const form=h("form",{class:"q",onsubmit:async e=>{e.preventDefault();go.disabled=true;
+    try{await (await identity()).login(email.value.trim(),pw.value);if(await loadAccount()){toast("Welcome back");showMissed();}else toast("Signed in, but the table data didn't answer. Try again.");}
+    catch(err){toast("That didn't work. Check your email and password.");}
+    go.disabled=false;}},
+    h("label",{class:"q"},h("span",{class:"eyebrow"},"EMAIL"),email),h("label",{class:"q"},h("span",{class:"eyebrow"},"PASSWORD"),pw),h("div",{class:"row"},go));
+  openSheet("Sign in",[
+    h("p",{class:"small voice"},"Only Sam's table can sign in. Sam sends you an invite by email first."),
+    form,
+    h("div",{class:"row"},h("button",{class:"btn ghost",type:"button",onclick:async()=>{try{(await identity()).oauthLogin("google");}catch(e){toast("Google sign-in isn't available right now.");}}},"Sign in with Google")),
+    h("p",{class:"note"},"No invite yet? Ask Sam. Without signing in, the map and the recap work as before.")],"missed");
+}
+function showWelcome(token){ // the link in Sam's invite email lands here
+  const pw=h("input",{type:"password",autocomplete:"new-password",required:true,minlength:"8",placeholder:"At least 8 characters"});
+  const go=h("button",{class:"btn",type:"submit"},"Join the table");
+  openSheet("Welcome to the table",[
+    h("p",{class:"small voice"},"Sam invited you. Choose a password, and the box will know you on every device."),
+    h("form",{class:"q",onsubmit:async e=>{e.preventDefault();go.disabled=true;
+      try{await (await identity()).acceptInvite(token,pw.value);await loadAccount();toast("You're in");showMissed();}
+      catch(err){toast("That didn't work. The invite may have expired; ask Sam for a new one.");go.disabled=false;}}},
+      h("label",{class:"q"},h("span",{class:"eyebrow"},"PASSWORD"),pw),h("div",{class:"row"},go)),
+    h("p",{class:"note"},"Or skip the password and use your Google account with the same email address."),
+    h("div",{class:"row"},h("button",{class:"btn ghost",type:"button",onclick:async()=>{try{(await identity()).oauthLogin("google");}catch(e){toast("Google sign-in isn't available right now.");}}},"Sign in with Google"))],"missed");
+}
+bootNetlify();
+
 function gate(){ // returns null if ready, else nodes explaining
+  if(NETLIFY&&(!db||!uid)) return [h("p",{},"Sign in to tell Hans what he missed. The map and the recap work without signing in."),signInNote()].filter(Boolean);
   if(!db||!uid) return [h("p",{},"Sign in to claude.ai to tell Hans what he missed. The map and the recap work without signing in."),
     h("p",{class:"note"},"If you are signed in and still see this, ask Sam to invite you to this page as an Editor.")];
   if(isOwner) return null;
@@ -2272,7 +2363,7 @@ function gate(){ // returns null if ready, else nodes explaining
   }
   return null;
 }
-async function claim(c){try{await db.doc(`players/${uid}`).set({character:c,at:Date.now()});myChar=c;toast("Welcome, "+CH[c].name);refresh();if(tab==="missed")showMissed();}catch(e){toast("Couldn't save. Ask Sam to invite you as an Editor.");}}
+async function claim(c){try{await db.doc(`players/${uid}`).set({character:c,at:Date.now()});myChar=c;toast("Welcome, "+CH[c].name);refresh();if(tab==="missed")showMissed();}catch(e){toast(NETLIFY?"Couldn't save: "+(e.message||"try again"):"Couldn't save. Ask Sam to invite you as an Editor.");}}
 
 /* ---- placing a spot ---- */
 let placing=null, draft={text:"",ll:null}; const placingEl=document.getElementById("placing");
@@ -2317,7 +2408,8 @@ function showMissed(){
     mine.length?h("p",{class:"eyebrow"},"WHAT YOU TOLD HANS"):null,
     ...mine.map(m=>{const c=noteCard({...m,who:"Session "+(m.session||AS_OF),color:(CH[myChar]||CH.dm).hex});
       c.append(h("div",{class:"row"},m.lon!=null?h("button",{class:"btn ghost",type:"button",onclick:()=>{sheet.classList.remove("tall");flyTo(m.lon,m.lat,.35);}},"Show on map"):null,
-        h("button",{class:"btn ghost",type:"button",onclick:()=>deleteNote(m)},"Remove")));return c;})
+        h("button",{class:"btn ghost",type:"button",onclick:()=>deleteNote(m)},"Remove")));return c;}),
+    accountLine()
   ].filter(Boolean),"missed");
 }
 
@@ -2369,10 +2461,12 @@ function showMissedPublic(){
       h("button",{class:"btn ghost",type:"button",onclick:async()=>{const t=need(); if(!t)return;
         if(await copyText(missedMessage(t))){rememberSent(t,"copied");showMissedPublic();toast("Copied. Paste it to Sam or in the group chat");} else toast("Couldn't copy. Select the text and copy it yourself");}},"Copy text")),
     h("p",{class:"note"},"Send to Sam opens your phone's share menu (WhatsApp, Messages…). Nothing is stored online."),
+    signInNote(),
     mine.length?h("p",{class:"eyebrow"},"WHAT YOU SENT FROM THIS DEVICE"):null,
     ...mine.map(m=>{const c=noteCard({...m,who:"Session "+(m.session||AS_OF),color:(CH[m.char||myPick]||CH.dm).hex});
       c.append(h("div",{class:"row"},m.lon!=null?h("button",{class:"btn ghost",type:"button",onclick:()=>{sheet.classList.remove("tall");flyTo(m.lon,m.lat,.35);}},"Show on map"):null,
-        h("button",{class:"btn ghost",type:"button",onclick:()=>deleteNote(m)},"Remove")));return c;})
+        h("button",{class:"btn ghost",type:"button",onclick:()=>deleteNote(m)},"Remove")));return c;}),
+    accountLine()
   ].filter(Boolean),"missed");
 }
 if(PUBLIC) rebuildNotes();
@@ -2441,7 +2535,7 @@ async function showDM(){
     if(m.lon!=null){c.style.cursor="pointer";c.onclick=()=>flyTo(m.lon,m.lat,.35);}return c;}):[h("p",{class:"note"},"Nothing yet.")];
   openSheet("DM view",[h("p",{class:"eyebrow"},"WHAT THE BOX MISSED"),...missedList,h("p",{class:"eyebrow"},"ANSWERS · SESSION "+AS_OF),tbl,h("p",{class:"eyebrow"},"STORYLINE VOTE"),tallyNode(),
     h("p",{class:"eyebrow"},"WHO PLAYS WHOM"),Object.keys(claims).length?claimList:h("p",{class:"note"},"Nobody has picked a character yet."),
-    h("p",{class:"note"},"To reveal new ground after a session, tell Claude what happened.")],"dm");
+    h("p",{class:"note"},"To reveal new ground after a session, tell Claude what happened."),accountLine()].filter(Boolean),"dm");
 }
 
 /* =================== THE SEAL: opening the black box together =================== */

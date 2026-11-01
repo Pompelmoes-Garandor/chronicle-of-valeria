@@ -6,6 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **New** On the new Netlify address, players Sam invites can sign in (email and password, or Google). Signed in, you pick your character once, and "Missed something?" goes straight to Sam instead of through WhatsApp; the storyline vote and shared pins work for the whole table, on every device. Sam gets the DM view. Without signing in, nothing changes. (Niels)
 - **New** Replay the journey: open the Chronicle and tap a session, or "Replay the whole journey", and Hans rewinds the chart to how it stood after that session. The cloud closes back in, later places disappear, and then the session plays forward: new ground clears, the route draws itself in ink and the party walks it. Step back and forth with the arrows, or tap "Back to now". (Sam)
 - **Changed** In the recap, the session's route now draws itself as the fog lifts, with the party walking along it, instead of popping in at once. (Sam)
 - **Changed** The assassin behind the spider button is a woman now: blonde hair under the hood, a long braid that flies as she leaps. (Niels)

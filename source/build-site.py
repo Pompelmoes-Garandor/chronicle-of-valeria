@@ -17,6 +17,7 @@ ap.add_argument("--base", required=True, help="public URL of the site, ending in
 ap.add_argument("--assets", help="folder with og.jpg and the icon PNGs")
 ap.add_argument("--sealed", action="store_true", help="link preview says the black box is sealed (before the crew opens it at the table)")
 ap.add_argument("--open", nargs="?", const=True, default=None, help="version.json tells every open copy to open the seal (the remote unlock); --open now skips the plate game")
+ap.add_argument("--netlify", action="store_true", help="the Netlify edition: players can sign in, and the online mode runs on /api (netlify/functions)")
 a = ap.parse_args()
 
 base = a.base.rstrip("/") + "/"
@@ -69,6 +70,7 @@ doc = f"""<!doctype html>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="Valeria">
+{"<script>window.CHRON_NETLIFY=1</script>" if a.netlify else ""}
 {head.strip()}
 <style>html,body{{margin:0}}</style>
 </head>
