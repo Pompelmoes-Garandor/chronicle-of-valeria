@@ -1083,6 +1083,10 @@ void main(){
   vWorld=(modelMatrix*vec4(p,1.0)).xyz;
   gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);
 }`;
+// the cloud layer: the same, plus the weather cells and the same cells a step towards the sun (for the lit side), per vertex
+const CVERT = VERT.replace("varying vec3 vWorld;","varying vec3 vWorld; varying float vWx; varying float vWs; uniform vec3 uSun; uniform float uTime;\n"+NOISE+
+  "float fbm3(vec3 p){float a=0.0,w=0.5;for(int i=0;i<3;i++){a+=w*gn(p);p=p*2.03+vec3(1.7,9.2,3.1);w*=0.5;}return a;}\n"+WEATHER)
+  .replace("vSph=s;","vSph=s; vWx=weather(s,uTime); vWs=weather(normalize(s+(uSun-s*dot(s,uSun))*0.03),uTime);");
 // relief: how far the ground stands up from the sea, in globe radii per unit of uRelief. Lowlands stay low, mountains rise steeply
 const RELIEF = `
 float rH(vec4 b){return (b.r*255.0+b.g)/255.0*2.0;}
@@ -1094,11 +1098,16 @@ float rH(vec4 b){return (b.r*255.0+b.g)/255.0*2.0;}
 // the world's own vertex shader: lifts the land by its baked height where the chart has been decoded (fogged land stays flat, so nothing shows through)
 const WVERT = `
 uniform float uMorph; uniform vec2 uCenter; uniform float uLift; uniform sampler2D uRel; uniform sampler2D uMask; uniform float uReveal; uniform float uRelief; uniform float uRelLod;
-varying vec2 vUv; varying vec3 vSph; varying vec3 vWorld;
+uniform vec3 uSun; uniform float uTime;
+varying vec2 vUv; varying vec3 vSph; varying vec3 vWorld; varying float vWx;
 ${RELIEF}
+${NOISE}
+float fbm3(vec3 p){float a=0.0,w=0.5;for(int i=0;i<3;i++){a+=w*gn(p);p=p*2.03+vec3(1.7,9.2,3.1);w*=0.5;}return a;}
+${WEATHER}
 void main(){
   vUv=uv; float lon=(uv.x-0.5)*6.2831853; float lat=(uv.y-0.5)*3.1415927;
   vec3 s=vec3(cos(lat)*sin(lon),sin(lat),cos(lat)*cos(lon)); vSph=s;
+  vWx=weather(normalize(s+(uSun-s*dot(s,uSun))*0.035),uTime);   // where the clouds above throw their shadow, a little away from the sun
   vec4 mk=texture2D(uMask,uv);
   float e=uRelief*rH(RELLOD(uRel,uv,uRelLod))*smoothstep(0.05,0.6,max(mk.r,mk.g*uReveal));
   vec3 f=vec3(lon-uCenter.x,lat-uCenter.y,uLift+e);
@@ -1133,6 +1142,17 @@ void main(){
   float v=min(clamp((height(p)+0.7)/1.7,0.0,1.0)*255.0,254.99), hi=floor(v);
   gl_FragColor=vec4(hi/255.0,v-hi,clamp(fbm(p*14.0+3.0)*0.8+0.5,0.0,1.0),clamp(gn(p*5.3-4.0)*0.6+0.5,0.0,1.0));
 }`;
+// the noise the world shader would otherwise work out for every pixel of every frame, although it never changes: R = paper
+// grain, G = where trees stand (read at each tree), B = where lakes lie, A = the warm and cold patches. Baked once at load
+const NOISE_BAKE = `
+precision highp float; varying vec2 vUv;
+${NOISE}
+float fbm3(vec3 p){float a=0.0,w=0.5;for(int i=0;i<3;i++){a+=w*gn(p);p=p*2.03+vec3(1.7,9.2,3.1);w*=0.5;}return a;}
+void main(){
+  float lon=(vUv.x-0.5)*6.2831853, lat=(vUv.y-0.5)*3.1415927;
+  vec3 p=vec3(cos(lat)*sin(lon),sin(lat),cos(lat)*cos(lon));
+  gl_FragColor=vec4(fbm3(p*40.0),fbm3(p*14.0+3.0),gn(p*26.0+11.0),gn(p*3.1+7.0));
+}`;
 // the relief: how high the land stands. Lowlands lie almost flat, the hills fold into ridges and the mountains rise steeply.
 // Baked once beside the land, so the colours, coasts and hachures of the chart stay exactly as they were. R+G = height
 const RELIEF_BAKE = `
@@ -1152,7 +1172,8 @@ void main(){
 const WORLD_FRAG = `
 precision highp float;
 uniform sampler2D uMask; uniform sampler2D uBake; uniform vec2 uBakeTx; uniform float uTime; uniform float uReveal; uniform float uMorph; uniform vec3 uSun; uniform vec4 uLights[8]; uniform vec4 uShade; uniform vec4 uShadeAx; uniform float uGlow; uniform float uRelief; uniform sampler2D uRel; uniform vec2 uRelTx; uniform float uWorld;
-varying vec2 vUv; varying vec3 vSph; varying vec3 vWorld;
+uniform sampler2D uNz; uniform float uNzOn;
+varying vec2 vUv; varying vec3 vSph; varying vec3 vWorld; varying float vWx;
 ${NOISE}
 ${RELIEF}
 float fbm3(vec3 p){float a=0.0,w=0.5;for(int i=0;i<3;i++){a+=w*gn(p);p=p*2.03+vec3(1.7,9.2,3.1);w*=0.5;}return a;}
@@ -1187,7 +1208,8 @@ float hachure(vec2 ll,vec2 g,float h,float sp,float px,float steep){
 vec2 treeGlyph(vec2 ll,float cell,float aa,float thr,float conif,float t,float sw){
   vec2 g=ll/cell, id=floor(g), q=fract(g); vec3 r=hash3(id);
   vec2 cc=(id+0.5)*cell; float cl=cos(radians(cc.y));
-  float on=step(thr+0.03+0.1*r.z,fbm3(dir(cc.x/max(cl,0.05),cc.y)*14.0+3.0))*step(0.05,cl);
+  float lonC=cc.x/max(cl,0.05), den=uNzOn>0.5?texture2D(uNz,vec2(lonC/360.0+0.5,cc.y/180.0+0.5)).g:fbm3(dir(lonC,cc.y)*14.0+3.0);
+  float on=step(thr+0.03+0.1*r.z,den)*step(0.05,cl);
   vec2 d=q-(0.5+(r.xy-0.5)*0.36);
   float sway=sw*0.05*sin(t*1.4+r.x*6.283)*(0.5+0.5*clamp(d.y*3.0+0.4,0.0,1.0));
   vec2 dc=vec2(abs(d.x-sway),d.y-0.30);
@@ -1235,7 +1257,8 @@ void main(){
   vec3 nrm=normalize(vec3(-Gs*9.0,1.0)), Lm=normalize(vec3(-0.55,0.62,0.6));
   float hs=dot(nrm,Lm)/Lm.z;                                // 1 on flat ground, more on slopes facing the light
   // ---- climate: cold poles / warm equator, bent by the story ----
-  float nT=gn(p*3.1+7.0);
+  vec4 NZ=uNzOn>0.5?texture2D(uNz,vUv):vec4(0.0);         // the noise that never changes, baked once at load (see NOISE_BAKE)
+  float nT=uNzOn>0.5?NZ.a:gn(p*3.1+7.0);
   float fireN=smoothstep(0.2,1.0,blob(p,dir(-30.5,31.6),6.0));
   float scar=smoothstep(0.0,0.9,blob(p,dir(-30.5,31.6),3.6));
   float thaw=smoothstep(0.0,0.75,blob(p,dir(-29.0,24.5),10.0));
@@ -1248,7 +1271,7 @@ void main(){
   temp=clamp(temp+0.32*thaw+0.8*fireN+0.45*fsea+0.3*summer,0.0,1.0);
   float moist=clamp(0.5+1.25*(B.a-0.5)+0.35*thaw-0.6*dead,0.0,1.0);
   float cold=1.0-smoothstep(0.2,0.6,temp);
-  float grain=0.0; if(vis>0.01) grain=fbm3(p*40.0)*dv;
+  float grain=0.0; if(vis>0.01) grain=(uNzOn>0.5?NZ.r:fbm3(p*40.0))*dv;
   float wv=0.0; if(vis>0.01&&h<2.0*fw) wv=gn(p*42.0+vec3(t*0.05,-t*0.035,t*0.04));   // the swell and the foam: only on the water and at the shore
   // ---- sea: pale shelves by the shore, deeper bands further out; icy north, ember-red Fire Sea ----
   float dpt=-h;
@@ -1308,7 +1331,7 @@ void main(){
   if(detail>0.0){
     // lakes: frozen in the north, meltwater around the thawing hills
     if(max(cold,thaw)>0.0&&h>0.04){                         // (the noise is only worked out where lakes can be)
-    float ln=gn(p*26.0+11.0);
+    float ln=uNzOn>0.5?NZ.b:gn(p*26.0+11.0);
     float lake=smoothstep(0.30,0.33,ln)*smoothstep(0.04,0.09,h)*(1.0-mtn)*max(cold,thaw)*detail;
     float lfw=fwidth(ln)*1.5+1e-4;
     vec3 lakeC=mix(vec3(0.76,0.87,0.93)+0.08*smoothstep(0.36,0.42,ln),vec3(0.48,0.68,0.70),thaw);
@@ -1443,7 +1466,7 @@ void main(){
   }
   land+=vec3(0.9,0.30,0.06)*scar*scar*(0.18+0.10*sin(t*1.7));
   // the weather cells cast their shadows on the land, a little away from the sun
-  float cs=0.0; if(vis>0.01&&h>-fw){vec3 q=normalize(p+(uSun-p*dot(p,uSun))*0.035); cs=smoothstep(0.62,0.82,weather(q,t))*max(mk0.r,mk0.g*uReveal);}
+  float cs=0.0; if(vis>0.01&&h>-fw) cs=smoothstep(0.62,0.82,vWx)*max(mk0.r,mk0.g*uReveal);
   land*=1.0-0.16*dv*cs*smoothstep(-0.1,0.2,dot(p,uSun));
   col=mix(col,land,smoothstep(-fw*0.5,fw*0.5,h));
   // one clean ink coastline
@@ -1485,7 +1508,7 @@ void main(){
 const CLOUD_FRAG = `
 precision highp float;
 uniform sampler2D uMask; uniform float uTime; uniform float uReveal; uniform float uOpacity; uniform vec3 uSun; uniform vec4 uFlash;
-varying vec2 vUv; varying vec3 vSph;
+varying vec2 vUv; varying vec3 vSph; varying float vWx; varying float vWs;
 ${NOISE}
 float fbm3(vec3 p){float a=0.0,w=0.5;for(int i=0;i<3;i++){a+=w*gn(p);p=p*2.03+vec3(1.7,9.2,3.1);w*=0.5;}return a;}
 ${WEATHER}
@@ -1496,10 +1519,10 @@ void main(){
   float c=0.5; if(seen<1.0) c=fbm(p*5.0+vec3(uTime*0.035,-uTime*0.02,uTime*0.01))*0.5+0.5;   // the fog clouds only over unseen ground
   float a=smoothstep(0.52,0.78,c)*(1.0-seen)*0.55;
   // weather: a few large, soft cells over the ground the crew has seen, lit on the sun side like a watercolour cloud
-  float wx=weather(p,uTime);
+  float wx=vWx;
   float wa=smoothstep(0.62,0.82,wx)*seen*0.42;
   float day=smoothstep(-0.42,0.02,dot(p,uSun));
-  float lit=0.5; if(wa>0.003) lit=clamp(0.5+(wx-weather(normalize(p+(uSun-p*dot(p,uSun))*0.03),uTime))*9.0,0.0,1.0);
+  float lit=clamp(0.5+(wx-vWs)*9.0,0.0,1.0);
   vec3 cc=mix(mix(vec3(0.62,0.65,0.71),vec3(0.9,0.9,0.92),c),mix(vec3(0.70,0.72,0.80),vec3(0.99,0.97,0.93),lit),wa/(wa+a+1e-4));
   cc*=mix(0.45,1.0,day);
   // lightning lights up the cloud around the strike from inside
@@ -1507,7 +1530,7 @@ void main(){
   cc+=vec3(0.75,0.85,1.0)*fl*1.6;
   gl_FragColor=vec4(cc,(max(a,wa)+fl*0.5*smoothstep(0.5,0.7,wx))*uOpacity);
 }`;
-const uniforms = {uRelief:{value:0.036},uMask:{value:maskTex},uTime:{value:0},uReveal:{value:1},uSun:{value:new THREE.Vector3(0,0,1)},uLights:{value:Array.from({length:8},()=>new THREE.Vector4())},uShade:{value:new THREE.Vector4(0,0,1,0.03)},uShadeAx:{value:new THREE.Vector4(1,0,0,0)},uFlash:{value:new THREE.Vector4(0,0,1,0)},uBake:{value:null},uBakeTx:{value:new THREE.Vector2(1/2048,1/1024)},uMorph:{value:0},uGlow:{value:1},uRel:{value:null},uRelTx:{value:new THREE.Vector2(1/2048,1/1024)},uRelLod:{value:0},uWorld:{value:0},uCenter:{value:new THREE.Vector2(CENTER.lon,CENTER.lat)},uLift:{value:0}};
+const uniforms = {uRelief:{value:0.036},uMask:{value:maskTex},uTime:{value:0},uReveal:{value:1},uSun:{value:new THREE.Vector3(0,0,1)},uLights:{value:Array.from({length:8},()=>new THREE.Vector4())},uShade:{value:new THREE.Vector4(0,0,1,0.03)},uShadeAx:{value:new THREE.Vector4(1,0,0,0)},uFlash:{value:new THREE.Vector4(0,0,1,0)},uBake:{value:null},uBakeTx:{value:new THREE.Vector2(1/2048,1/1024)},uMorph:{value:0},uGlow:{value:1},uRel:{value:null},uRelTx:{value:new THREE.Vector2(1/2048,1/1024)},uRelLod:{value:0},uWorld:{value:0},uNz:{value:null},uNzOn:{value:0},uCenter:{value:new THREE.Vector2(CENTER.lon,CENTER.lat)},uLift:{value:0}};
 const geo = new THREE.PlaneGeometry(1,1,256,128);
 const SMALL = innerWidth<=700||matchMedia("(pointer:coarse)").matches;
 const wgeo = SMALL?new THREE.PlaneGeometry(1,1,512,256):new THREE.PlaneGeometry(1,1,1024,512);   // dense enough for the hills to stand up
@@ -1521,9 +1544,16 @@ const BAKE=(()=>{const big=renderer.capabilities.maxTextureSize>=4096, w=big?204
   const q=new THREE.Mesh(new THREE.PlaneGeometry(2,2),new THREE.ShaderMaterial({depthTest:false,depthWrite:false,vertexShader:VQ,fragmentShader:BAKE_FRAG}));
   const rq=new THREE.ShaderMaterial({depthTest:false,depthWrite:false,vertexShader:VQ,fragmentShader:RELIEF_BAKE});
   const rel=new THREE.WebGLRenderTarget(w,h,{depthBuffer:false,minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,wrapS:THREE.RepeatWrapping,wrapT:THREE.ClampToEdgeWrapping});
+  // the static noise needs float precision (lake shores are drawn from it): computers get 4096 wide, phones 2048
+  const nzOk=renderer.capabilities.isWebGL2&&renderer.extensions.has("EXT_color_buffer_float")&&!/[?&]nonoise/.test(location.search);
+  const nw=renderer.capabilities.maxTextureSize>=8192&&!SMALL?4096:2048;
+  const nz=nzOk?new THREE.WebGLRenderTarget(nw,nw/2,{type:THREE.HalfFloatType,depthBuffer:false,generateMipmaps:false,minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,wrapS:THREE.RepeatWrapping,wrapT:THREE.ClampToEdgeWrapping}):null;
+  const nq=new THREE.ShaderMaterial({depthTest:false,depthWrite:false,vertexShader:VQ,fragmentShader:NOISE_BAKE});
   q.frustumCulled=false; sc.add(q);
   function run(){const was=renderer.getRenderTarget(), m=q.material; renderer.setRenderTarget(rt); renderer.render(sc,cm);
-    q.material=rq; renderer.setRenderTarget(rel); renderer.render(sc,cm); q.material=m; renderer.setRenderTarget(was);}
+    q.material=rq; renderer.setRenderTarget(rel); renderer.render(sc,cm);
+    if(nz){q.material=nq; renderer.setRenderTarget(nz); renderer.render(sc,cm); uniforms.uNz.value=nz.texture; uniforms.uNzOn.value=1;}
+    q.material=m; renderer.setRenderTarget(was);}
   run(); uniforms.uBake.value=rt.texture; uniforms.uRel.value=rel.texture; uniforms.uBakeTx.value.set(1/w,1/h); uniforms.uRelTx.value.set(1/w,1/h);
   renderer.domElement.addEventListener("webglcontextrestored",()=>setTimeout(run,0));
   return {run,rt:rel,w,h,sc,cm,q,VQ};})();
@@ -1561,7 +1591,7 @@ void main(){vec4 b=texture2D(tMap,vUv); float v=min(b.r*255.0+b.g,254.99), hi=fl
   },undefined,()=>{}),1200);
   return W;})();
 const cloudU = {...uniforms,uLift:{value:0.024},uOpacity:{value:1}};
-const clouds = new THREE.Mesh(geo,new THREE.ShaderMaterial({uniforms:cloudU,vertexShader:VERT,fragmentShader:CLOUD_FRAG,transparent:true,depthWrite:false,side:THREE.DoubleSide}));
+const clouds = new THREE.Mesh(new THREE.PlaneGeometry(1,1,512,256),new THREE.ShaderMaterial({uniforms:cloudU,vertexShader:CVERT,fragmentShader:CLOUD_FRAG,transparent:true,depthWrite:false,side:THREE.DoubleSide}));
 clouds.frustumCulled=false; scene.add(clouds);
 // the air: a thin shell of scattered sunlight round the world. Blue on the day side, amber along the terminator, a bright ring
 // when the sun stands behind the globe, and a faint haze over the ground. Worked out per pixel along the view ray (single scattering)
