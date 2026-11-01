@@ -4259,7 +4259,7 @@ function t3tree(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,S=seeded(4242),rr=(a,b)=>a+(b-a
       for(let i=0;i<qn(10);i++){const a=rr(.15,.85)*PI,o=onW(a,.06),o2=onW(a+rr(-.15,.15),.06),y1=Y+rr(.05,.7);vine([V3(o.x,Y+hw+.08,o.z),V3((o.x+o2.x)/2+rr(-.08,.08),(Y+hw+y1)/2,(o.z+o2.z)/2),V3(o2.x,y1,o2.z)],1.6);}
       for(let i=0;i<qn(8);i++){const a=rr(.1,.9)*PI,k=rr(.1,.7),[r,yy]=[R*(1-k),hr*Math.pow(k,1.5)],g=t3t_tint(t3rock(rr(.12,.22),i*7,0),pk(["#2b3d22","#33482a"]),.2);t3at(g,Math.cos(a)*r,yy+.05,Math.sin(a)*r,{sx:1.5,sy:.4,sz:1.5});g.applyMatrix4(M);leaf.push(g);}
       leaf.push(blob(.45,"#22301f",X-rx*.7,Y+hw+.3,cz+.3,1.3,.7,1,hi?1:0));}
-    const s=t3label(lab+" turret","#c9a35c",30);s.position.set(X0,Y+hw+.3,.05);Vb.root.add(s);}
+    const s=t3label(lab+" turret","#c9a35c",30);s.position.set(X,Y+hw+Math.min(hr*.5,.85),-.3);Vb.root.add(s);}
 
   Vb.root.add(t3mesh(t3merge(wood),t3surf("wood",Vb),{cast:true,recv:true}),t3mesh(t3merge(bark),t3surf("bark",Vb),{cast:true,recv:true}),t3mesh(t3merge(leaf),t3surf("leaf",Vb),{cast:hi,recv:true}),
     t3mesh(t3merge(earth),t3surf("earth",Vb),{recv:true}),t3mesh(t3merge(glow),t3surf("glowTree",Vb)));
