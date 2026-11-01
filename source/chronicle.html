@@ -1172,7 +1172,7 @@ void main(){
 const WORLD_FRAG = `
 precision highp float;
 uniform sampler2D uMask; uniform sampler2D uBake; uniform vec2 uBakeTx; uniform float uTime; uniform float uReveal; uniform float uMorph; uniform vec3 uSun; uniform vec4 uLights[8]; uniform vec4 uShade; uniform vec4 uShadeAx; uniform float uGlow; uniform float uRelief; uniform sampler2D uRel; uniform vec2 uRelTx; uniform float uWorld;
-uniform sampler2D uNz; uniform float uNzOn;
+uniform sampler2D uNz; uniform float uNzOn; uniform float uLod;
 varying vec2 vUv; varying vec3 vSph; varying vec3 vWorld; varying float vWx;
 ${NOISE}
 ${RELIEF}
@@ -1230,6 +1230,7 @@ void main(){
   float cl=max(cos(radians(lat)),0.05);
   vec2 ll=vec2((vUv.x-0.5)*360.0*cl,(vUv.y-0.5)*180.0);   // ground degrees, east and north
   float px=fwidth(ll.y)+1e-5;                              // degrees of ground under one pixel
+  float pl=px*uLod;                                        // the same at full sharpness: what fades in or out with zoom does not change when auto draws the map softer
   vec3 ink=vec3(0.23,0.17,0.10);
   vec4 mk0=texture2D(uMask,vUv);
   float vis=max(mk0.r,mk0.g), dv=smoothstep(0.01,0.12,vis);
@@ -1242,7 +1243,7 @@ void main(){
   vec2 G=vec2((bHat(vUv+vec2(tx.x,0.0))-bHat(vUv-vec2(tx.x,0.0)))/(2.0*tx.x*360.0*cl),
               (bHat(vUv+vec2(0.0,tx.y))-bHat(vUv-vec2(0.0,tx.y)))/(2.0*tx.y*180.0));
   float mtn0=smoothstep(0.26,0.42,h);
-  float o1=smoothstep(4.0,10.0,0.6/px)*dv, o2=smoothstep(4.0,10.0,0.26/px)*dv, o3=smoothstep(4.0,10.0,0.11/px)*dv;   // an octave joins only once it is several pixels wide, so the shading never turns to grit
+  float o1=smoothstep(4.0,10.0,0.6/pl)*dv, o2=smoothstep(4.0,10.0,0.26/pl)*dv, o3=smoothstep(4.0,10.0,0.11/pl)*dv;   // an octave joins only once it is several pixels wide, so the shading never turns to grit
   float hd=0.0; vec2 Gd=vec2(0.0);
   if(o1>0.0){
     float rug=0.55+1.3*mtn0;
@@ -1298,7 +1299,7 @@ void main(){
     col=mix(col,vec3(0.52,0.64,0.74),0.5*smoothstep(0.0,0.15,iceZ)*(1.0-smoothstep(0.0,ffw*1.5,abs(fn-th))));}
   // one slow ripple line travelling out from the shore, and the foam line
   float ph=fract(t*0.04);
-  {float th=-0.012-0.05*ph; float a=0.22*smoothstep(0.0,0.2,ph)*(1.0-ph)*dv*smoothstep(2.0,5.0,0.4/px);
+  {float th=-0.012-0.05*ph; float a=0.22*smoothstep(0.0,0.2,ph)*(1.0-ph)*dv*smoothstep(2.0,5.0,0.4/pl);
    col=mix(col,ink,a*(1.0-smoothstep(0.0,fw,abs(h-th))));}
   float foam=1.0-smoothstep(0.0,fw*2.0,abs(h+0.009+0.003*sin(t*1.1+wv*5.0)));
   col=mix(col,vec3(0.98,0.97,0.93),0.6*foam*(1.0-fsea*0.6));
@@ -1308,7 +1309,7 @@ void main(){
   if(vis>0.01&&h<0.0){
     vec3 N=normalize(mix(p,vec3(0.0,0.0,1.0),mm)), V=normalize(cameraPosition-vWorld), Ls=normalize(mix(uSun,vec3(-0.35,0.45,0.82),mm));
     float nh=max(dot(N,normalize(Ls+V)),0.0);
-    float spk=smoothstep(0.35,0.6,gn(p*320.0+vec3(t*0.4,-t*0.3,t*0.2)))*smoothstep(1.0,3.0,0.05/px);
+    float spk=smoothstep(0.35,0.6,gn(p*320.0+vec3(t*0.4,-t*0.3,t*0.2)))*smoothstep(1.0,3.0,0.05/pl);
     float spec=0.10*pow(nh,14.0)+0.35*pow(nh,260.0)+0.6*pow(nh,50.0)*spk;
     col+=vec3(1.0,0.95,0.82)*spec*day*dv*(1.0-fsea*0.5)*smoothstep(0.0,0.02,dpt);
   }
@@ -1346,7 +1347,7 @@ void main(){
     // wide near the sea, thinning to a hairline upstream; small tributaries join when you are close
     float rw=mix(0.006,0.0008,smoothstep(0.03,0.26,h)), rfw=fwidth(rv)+1e-5;
     riv=(1.0-smoothstep(rw,rw+rfw*1.2,abs(rv)))*smoothstep(0.015,0.05,h)*(1.0-smoothstep(0.24,0.32,h));
-    float trib=smoothstep(3.0,6.0,0.12/px);
+    float trib=smoothstep(3.0,6.0,0.12/pl);
     if(trib>0.0){float tv=gn(p*48.0+vec3(9.0,2.0,4.0))+0.25*rv; float tfw=fwidth(tv)+1e-5;
       riv=max(riv,trib*0.6*(1.0-smoothstep(0.0,tfw*1.1,abs(tv)))*smoothstep(0.05,0.12,h)*(1.0-smoothstep(0.22,0.3,h))*(1.0-smoothstep(0.03,0.1,abs(rv))));}   // streams only close to a main river, so they read as feeding it
     riv*=smoothstep(0.62,0.85,moist+0.3*thaw)*(1.0-cold*0.7)*detail;
@@ -1368,13 +1369,13 @@ void main(){
   float onLand=smoothstep(0.02,0.1,h)*(1.0-smoothstep(0.32,0.4,h))*(1.0-scar);
   vec2 wf=wash(fr,fth,0.1);
   float forest=wf.x*onLand*dv;
-  float stip=0.5; if(vis>0.01&&h>-fw) stip=mix(0.5,smoothstep(0.3,0.9,gn(p*900.0)),smoothstep(1.0,3.0,0.04/px));
+  float stip=0.5; if(vis>0.01&&h>-fw) stip=mix(0.5,smoothstep(0.3,0.9,gn(p*900.0)),smoothstep(1.0,3.0,0.04/pl));
   float g30=0.0; if(summer>0.0&&vis>0.01) g30=gn(p*30.0);
   vec3 green=mix(vec3(0.40,0.49,0.26),vec3(0.27,0.40,0.34),cold);
   green=mix(green,mix(vec3(0.33,0.50,0.22),vec3(0.84,0.55,0.18),smoothstep(-0.1,0.2,nT+0.35*g30)),summer);
   green=mix(green,vec3(0.50,0.44,0.52),blight);
   float conif=smoothstep(0.35,0.6,cold+0.2*(1.0-summer)*step(0.0,nT));
-  float vB=smoothstep(14.0,24.0,0.5/px)*detail, vA=smoothstep(14.0,24.0,1.4/px)*detail*(1.0-vB);
+  float vB=smoothstep(14.0,24.0,0.5/pl)*detail, vA=smoothstep(14.0,24.0,1.4/pl)*detail*(1.0-vB);
   vec2 gA=vec2(0.0), gB=vec2(0.0);
   if(vA*onLand>0.001) gA=treeGlyph(ll,1.4,px/1.4*1.2,fth,conif,t,0.0)*vA*onLand;
   if(vB*onLand>0.001) gB=treeGlyph(ll,0.5,px/0.5*1.2,fth,conif,t,vB)*vB*onLand;
@@ -1382,7 +1383,7 @@ void main(){
   land=mix(land,green,forest*(0.42+0.3*stip)*(1.0-0.45*glyph));
   land=mix(land,green*0.72,0.35*wf.y*onLand*dv*(1.0-glyph));
   // canopy: darker crowns clump together under the trees when you are close
-  float cz=smoothstep(2.0,5.0,0.08/px)*forest*detail;
+  float cz=smoothstep(2.0,5.0,0.08/pl)*forest*detail;
   if(cz>0.0){float cn=gn(p*380.0)+0.5*gn(p*820.0); land=mix(land,green*0.66,cz*0.45*smoothstep(0.05,0.4,cn)); land=mix(land,green*1.12+0.03,cz*0.25*smoothstep(0.1,0.45,-cn));}
   vec2 gt=max(gA,gB);
   land=mix(land,green*0.85,0.75*gt.x);
@@ -1431,7 +1432,7 @@ void main(){
   }
   // farmland round the towns the crew knows: a patchwork of fields with ink hedgerows, only up close and on gentle open ground
   float town=0.0; for(int i=0;i<8;i++){vec4 L=uLights[i]; float cd=dot(p,L.xyz); if(L.w>0.9&&cd>0.9967){float a=acos(min(cd,1.0))*57.2958; town=max(town,1.0-smoothstep(0.8,2.8+gn(p*30.0+float(i))*1.0,a));}}
-  float fz=smoothstep(10.0,22.0,0.34/px)*town*detail*(1.0-smoothstep(0.02,0.05,slope))*smoothstep(0.02,0.05,h)*(1.0-mtn)*(1.0-forest)*(1.0-snow*0.8);
+  float fz=smoothstep(10.0,22.0,0.34/pl)*town*detail*(1.0-smoothstep(0.02,0.05,slope))*smoothstep(0.02,0.05,h)*(1.0-mtn)*(1.0-forest)*(1.0-snow*0.8);
   if(fz>0.01){
     vec2 fq=ll/0.34+vec2(gn(p*40.0),gn(p*40.0+4.0))*0.5, fi=floor(fq), ff=fract(fq); float d1=8.0,d2=8.0; vec3 fc=vec3(0.0);
     for(int j=-1;j<=1;j++)for(int i=-1;i<=1;i++){vec2 o=vec2(float(i),float(j)); vec3 r=hash3(fi+o); vec2 dd=o+0.15+0.7*r.xy-ff; float d=dot(dd,dd);
@@ -1443,13 +1444,13 @@ void main(){
     land=mix(land,vec3(0.36,0.42,0.24),fz*0.45*(1.0-smoothstep(0.0,efw*1.3,edge-0.015)));
   }
   // scree: loose stones fanned out at the foot of the steepest slopes, up close
-  float sz=smoothstep(6.0,10.0,0.07/px)*detail*mtn0*smoothstep(0.03,0.09,slope)*(1.0-cap);
+  float sz=smoothstep(6.0,10.0,0.07/pl)*detail*mtn0*smoothstep(0.03,0.09,slope)*(1.0-cap);
   if(sz>0.01){vec2 sq=ll/0.07, si=floor(sq); vec3 sr=hash3(si); float sdd=length(fract(sq)-0.5-(sr.xy-0.5)*0.5);
     land=mix(land,vec3(0.38,0.32,0.26),sz*step(0.7,sr.z)*(1.0-smoothstep(0.08+0.1*sr.x,0.16+0.1*sr.x,sdd))*0.7);}
   // hachures on steep ground, darker on the shadow side; one coarse set far out, a fine set up close
   if(detail>0.0&&slope>0.025&&h>0.01){
     vec2 g=G/slope; float steep=smoothstep(0.02,0.12,slope);
-    float v1=smoothstep(3.0,6.0,1.1/px)*(1.0-smoothstep(5.0,9.0,0.3/px)), v2=smoothstep(5.0,9.0,0.3/px);
+    float v1=smoothstep(3.0,6.0,1.1/pl)*(1.0-smoothstep(5.0,9.0,0.3/pl)), v2=smoothstep(5.0,9.0,0.3/pl);
     float hh=0.0;
     if(v1>0.0) hh+=v1*hachure(ll,g,h,1.1,px,steep);
     if(v2>0.0) hh+=v2*hachure(ll,g,h,0.3,px,steep);
@@ -1532,7 +1533,7 @@ void main(){
   cc+=vec3(0.75,0.85,1.0)*fl*1.6;
   gl_FragColor=vec4(cc,(max(a,wa)+fl*0.5*smoothstep(0.5,0.7,wx))*uOpacity);
 }`;
-const uniforms = {uRelief:{value:0.036},uMask:{value:maskTex},uTime:{value:0},uReveal:{value:1},uSun:{value:new THREE.Vector3(0,0,1)},uLights:{value:Array.from({length:8},()=>new THREE.Vector4())},uShade:{value:new THREE.Vector4(0,0,1,0.03)},uShadeAx:{value:new THREE.Vector4(1,0,0,0)},uFlash:{value:new THREE.Vector4(0,0,1,0)},uBake:{value:null},uBakeTx:{value:new THREE.Vector2(1/2048,1/1024)},uMorph:{value:0},uGlow:{value:1},uRel:{value:null},uRelTx:{value:new THREE.Vector2(1/2048,1/1024)},uRelLod:{value:0},uWorld:{value:0},uNz:{value:null},uNzOn:{value:0},uCenter:{value:new THREE.Vector2(CENTER.lon,CENTER.lat)},uLift:{value:0}};
+const uniforms = {uRelief:{value:0.036},uMask:{value:maskTex},uTime:{value:0},uReveal:{value:1},uSun:{value:new THREE.Vector3(0,0,1)},uLights:{value:Array.from({length:8},()=>new THREE.Vector4())},uShade:{value:new THREE.Vector4(0,0,1,0.03)},uShadeAx:{value:new THREE.Vector4(1,0,0,0)},uFlash:{value:new THREE.Vector4(0,0,1,0)},uBake:{value:null},uBakeTx:{value:new THREE.Vector2(1/2048,1/1024)},uMorph:{value:0},uGlow:{value:1},uRel:{value:null},uRelTx:{value:new THREE.Vector2(1/2048,1/1024)},uRelLod:{value:0},uWorld:{value:0},uNz:{value:null},uNzOn:{value:0},uLod:{value:1},uCenter:{value:new THREE.Vector2(CENTER.lon,CENTER.lat)},uLift:{value:0}};
 const geo = new THREE.PlaneGeometry(1,1,256,128);
 const SMALL = innerWidth<=700||matchMedia("(pointer:coarse)").matches;
 const wgeo = SMALL?new THREE.PlaneGeometry(1,1,512,256):new THREE.PlaneGeometry(1,1,1024,512);   // dense enough for the hills to stand up
@@ -2467,7 +2468,7 @@ let last=performance.now();
 // Phones keep their full sharpness down to 30 frames a second, as before
 const res={n:0,sum:0,skip:15,pr:renderer.getPixelRatio(),max:renderer.getPixelRatio(),wait:4000,next:0};
 res.soft=Math.min(res.max,Math.max(1.25,res.max*0.7));
-function setPR(v){res.pr=v; renderer.setPixelRatio(v); resize(); res.skip=10;}
+function setPR(v){res.pr=v; renderer.setPixelRatio(v); resize(); res.skip=10; uniforms.uLod.value=Math.max(0.7,Math.min(1,v/res.max));}
 function adaptRes(raw){
   if(document.hidden||raw>2000||res.lock) return;  // a real pause (tab switch), not a slow frame; a test can hold the quality still
   raw=Math.min(raw,250); if(res.skip>0){res.skip--;return;}
@@ -2518,7 +2519,7 @@ if(BENCH) window.__chron={
   quality(q){                                     // {lens:"full"|"lite"|"off", paint, pr, lock}; leave a key out to keep it
     if(q.lens) {POST.on=POST.ok&&q.lens!=="off"; POST.lite=q.lens==="lite";}
     if(q.paint!=null||q.lens) setPaint(q.paint??PAINT.on,false);
-    if(q.pr) {res.pr=q.pr; renderer.setPixelRatio(q.pr); resize();}
+    if(q.pr) setPR(q.pr);
     if(q.lock!=null) res.lock=!!q.lock;
     return this.info();},
   measure:ms=>new Promise(done=>{const f=[]; meter.rec=f; setTimeout(()=>{meter.rec=null; done(frameStats(f));},ms);}),
