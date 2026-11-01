@@ -6,6 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **Lore** The small southern continent has a name: Fraas-Den, a land of free city-states, small baronies, kingdoms and merchant-republics, and the place Stig was born and calls home. Grisshaven is a small harbour on its coast, in Myratma, the Patrechon Province ruled by a Prince-elect, where Stig grew up. (Niels)
 - **Lore** A small continent has appeared in the southern sea, still almost all cloud. Only a rumour has come through: the town of Grisshaven, and in it a tavern called the Lighthouse. (Niels)
 - **New** A known-bugs list at the top of `BACKLOG.md`. Spot something broken? Tell Sam or Niels and it goes on the list. (Niels)
 - **New** A shared backlog in `BACKLOG.md`: the list of what Sam and Niels plan to build next. Every working session now starts from it. (Niels)

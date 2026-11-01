@@ -640,8 +640,12 @@ const PLACES = [
     body:"<p>The elven realm where the bard grew up, across the Fire Sea. The Foxglove Woods and the court of Valethorn lie inside it. The chart here is still mostly cloud.</p>"}),
   P("valethorn","Valethorn",{lon:99,lat:30},{voice:"fragment",state:"rumour",sessions:[],
     body:"<p>The High Elf court where the bard was raised and where her mother served. The bard sang a song there once. It started a revolution. I would like to hear it.</p>"}),
-  P("grisshaven","Grisshaven",{lon:53,lat:-29},{voice:"fragment",state:"rumour",sessions:[],
-    body:"<p>A town on a small continent the chart has barely touched. Rumoured, not seen. The rest of that land is still cloud.</p>"}),
+  P("fraasden","Fraas-Den",{lon:58,lat:-37},{voice:"fragment",state:"rumour",sessions:[],
+    body:"<p>A small continent of many free city-states, small baronies, kingdoms and merchant-republics. Stig, once Astychon, was born here and calls it home. The chart shows almost none of it yet.</p>"}),
+  P("myratma","Myratma",{lon:51,lat:-33},{voice:"fragment",state:"rumour",minor:true,sessions:[],
+    body:"<p>The Patrechon Province on Fraas-Den that Grisshaven belongs to, ruled by a Prince-elect. Stig grew up here.</p>"}),
+  P("grisshaven","Grisshaven",{lon:46,lat:-29},{voice:"fragment",state:"rumour",sessions:[],
+    body:"<p>A harbour on the coast of Myratma, on Fraas-Den. Too small to attract much attention. Rumoured, not seen; the rest of that land is still cloud.</p>"}),
   P("deadvalley","The Dead Valley",{lon:-20,lat:-24},{voice:"fragment",state:"rumour",major:true,sessions:[6],
     body:"<p>Not from the box. From Saphira's vision: the Pit of Aggron, where an army gathers.</p>"}),
   P("cathedral","Black-sand cathedral",{lon:-6,lat:-31},{voice:"fragment",state:"rumour",sessions:[6],
@@ -653,7 +657,7 @@ const TELEPORT = "waystone>forest";
 const ROUTE_NEW_FROM = 8;
 const FOG = { // [lon,lat,radiusDeg,value 0..1]
   old:[ ["valeria",5,1],["icy",3.5,1],["hills",5,1],["v-fire",4,1],["ship",3.5,1],["orda",5,1],["crash",3.5,1],["ravine",3,1],["v-earth",3.5,1],["v-water",3.5,1] ],
-  rumour:[ [-14,24,26,.5],[-20,27,6,.55],[44,20,16,.42],[92,24,17,.45],[-14,-27,13,.42],[53,-29,5,.42] ],
+  rumour:[ [-14,24,26,.5],[-20,27,6,.55],[44,20,16,.42],[92,24,17,.45],[-14,-27,13,.42],[47,-30,5,.42] ],
   fresh:[ ["waystone",2.2,1],["forest",6,1] ]
 };
 const RECAP = [
@@ -757,6 +761,7 @@ const byId = Object.fromEntries(PLACES.map(p=>[p.id,p]));
    so a search for "food" finds every tavern and market without tagging each one by hand.
    PLACE_DB: one row per PLACES id. `kind` + extra `tags`. A pin missing here shows as "Point of interest".
    SPOTS: places inside a pinned place (a tavern in a city). They have no pin; `in` is the pin they sit in.
+   A PLACE_DB row may also say `in` (a town on a continent): the pin keeps its own pin and shows inside that place.
    Only what the table has seen. Tags are lowercase; a space is fine ("blood guild"). */
 const KINDS = {
   settlement:{label:"Towns & cities",    one:"Town or city",       icon:"M4 20V10l5-4 5 4v10M14 20v-7h6v7M3 20h18M8 14h2"},
@@ -793,7 +798,9 @@ const PLACE_DB = {
   firesea:   {kind:"water",      tags:["travel","sea"]},
   summerwood:{kind:"region",     tags:["elves","foxglove woods","valethorn"]},
   valethorn: {kind:"castle",     tags:["elves","court","high elves"]},
-  grisshaven:{kind:"settlement", tags:[]},
+  fraasden:  {kind:"region",     tags:["city-states","baronies","kingdoms","merchant-republics","stig"]},
+  myratma:   {kind:"region",     in:"fraasden", tags:["province","prince-elect","stig"]},
+  grisshaven:{kind:"settlement", in:"myratma",  tags:["harbour","coast"]},
   deadvalley:{kind:"region",     tags:["vision","army","aggron","danger"]},
   cathedral: {kind:"temple",     tags:["vision","desert","black sand"]},
 };
@@ -905,7 +912,7 @@ float height(vec3 p){
   h+=0.45*smoothstep(0.0,0.6,blob(p,dir(-14.0,-27.0),20.0));
   h+=0.35*smoothstep(0.0,0.6,blob(p,dir(-120.0,-10.0),30.0));
   h+=0.30*smoothstep(0.0,0.6,blob(p,dir(150.0,40.0),24.0));
-  h+=0.50*smoothstep(0.0,0.6,blob(p,dir(55.0,-32.0),13.0)); // the small continent of Grisshaven, still mostly cloud
+  h+=0.50*smoothstep(0.0,0.6,blob(p,dir(55.0,-32.0),13.0)); // Fraas-Den, the small continent of Grisshaven, still mostly cloud
   h-=0.55*smoothstep(0.0,0.5,blob(p,dir(44.0,20.0),17.0));
   h-=0.30*smoothstep(0.2,1.0,blob(p,dir(-33.6,6.8),3.0));
   return h;
@@ -1643,7 +1650,7 @@ const KORD=Object.fromEntries(Object.keys(KINDS).map((k,i)=>[k,i]));
 const spotById=Object.fromEntries(SPOTS.map(s=>[s.id,s]));
 const strip=s=>(s||"").replace(/<[^>]+>/g," ").replace(/\s+/g," ");
 function gazEntry(p,spot){
-  const d=spot?p:(PLACE_DB[p.id]||{}), kind=KINDS[d.kind]?d.kind:"poi", parent=spot?byId[p.in]:null;
+  const d=spot?p:(PLACE_DB[p.id]||{}), kind=KINDS[d.kind]?d.kind:"poi", parent=spot?byId[p.in]:(d.in&&byId[d.in]&&d.in!==p.id?byId[d.in]:null);
   const tags=[...new Set([...(KINDS[kind].tags||[]),...(d.tags||[])].map(t=>t.toLowerCase()))];
   return gzRetag({id:p.id,name:p.name,kind,base:tags,parent,spot,state:p.state,isNew:!!p.isNew,text:strip(p.body).toLowerCase()});
 }
@@ -1728,7 +1735,7 @@ function placeMeta(id){
   const inside=GAZ.filter(x=>x.parent&&x.parent.id===id);
   return {back, kind:h("span",{class:"tag kind"},KINDS[e.kind].one.toUpperCase()),
     foot:[inside.length?h("p",{class:"eyebrow"},"INSIDE "+e.name.toUpperCase()):null,
-      inside.length?h("div",{class:"chips"},inside.map(x=>h("button",{class:"chip",type:"button",onclick:()=>openSpot(x.id)},x.name))):null,
+      inside.length?h("div",{class:"chips"},inside.map(x=>h("button",{class:"chip",type:"button",onclick:()=>x.spot?openSpot(x.id):openPlace(x.id)},x.name))):null,
       h("div",{class:"chips gz-meta",role:"group","aria-label":"Tags"},
         e.parent?h("button",{class:"chip sm",type:"button",onclick:()=>openPlace(e.parent.id)},"in "+e.parent.name):null,
         ...e.tags.map(t=>h("button",{class:"chip sm tg",type:"button","aria-label":"All places tagged "+t,onclick:()=>findTag(t)},"#"+t)))].filter(Boolean)};
