@@ -60,7 +60,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
-- [x] **Hand-painted globe on computers** · Changed · Sam · PR #NEXT
+- [x] **Hand-painted globe on computers** · Changed · Sam · PR #25
 - [x] **Recap as chapters, and place cards that unfold** · Changed · Sam · PR #24
 - [x] **Fly the route: camera follows a session's road** · New · Sam · PR #23
 - [x] **Tap to roll from the sheet: 3D dice for skills, abilities, saves and attacks** · New · Sam · PR #22
