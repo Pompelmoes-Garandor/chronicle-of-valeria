@@ -70,6 +70,8 @@ Without `--assets`, the icons are not regenerated. That is fine for code-only ch
 
 - Open the built `index.html` through a local server (`python3 -m http.server` in the root, then http://localhost:8000/) on a phone-sized and a desktop viewport.
 - No console errors. The map renders, the dock works, the sheets open.
+- For graphics changes, run `node tests/visual/check.js` (how to set it up is at the top of the file). It opens the map in Chromium and WebKit at desktop and phone size, takes screenshots from fixed views, times the frames and lists console errors. Point it at the live site, a deploy preview (`--url`) or the local build (`--site .`). On a computer with a real graphics card use `--headed`; in a sandbox without one use `--software` (screenshots only). It never unseals the map by itself: pass `--storage` with the localStorage of an opened device, and keep that file out of the repo.
+- `?fps` on the map's address shows frames per second, frame time, the lens and paint state and the graphics card, on any device. `?bench` adds `window.__chron` for the test script. Neither changes anything for players.
 - Follow `source/design-spec.md` for anything visual (colours, type roles, layout).
 - Dependencies: Three.js 0.160.0 from jsDelivr and Google Fonts only, plus `@netlify/identity` from jsDelivr in the Netlify edition. Don't add libraries, a bundler or npm to the page without Sam and Niels agreeing first. Keep it one self-contained HTML file, plus the baked `world/` textures (Sam agreed on 2026-11-01). `package.json` is only for the server side in `netlify/functions/`.
 
