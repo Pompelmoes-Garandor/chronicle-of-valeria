@@ -642,8 +642,10 @@ const PLACES = [
     body:"<p>The High Elf court where the bard was raised and where her mother served. The bard sang a song there once. It started a revolution. I would like to hear it.</p>"}),
   P("fraasden","Fraas-Den",{lon:58,lat:-37},{voice:"fragment",state:"rumour",sessions:[],
     body:"<p>A small continent of many free city-states, small baronies, kingdoms and merchant-republics. Stig, once Astychon, was born here and calls it home. The chart shows almost none of it yet.</p>"}),
-  P("grisshaven","Grisshaven",{lon:53,lat:-29},{voice:"fragment",state:"rumour",sessions:[],
-    body:"<p>A town on Fraas-Den. Rumoured, not seen. The rest of that land is still cloud.</p>"}),
+  P("myratma","Myratma",{lon:51,lat:-33},{voice:"fragment",state:"rumour",minor:true,sessions:[],
+    body:"<p>The Patrechon Province on Fraas-Den that Grisshaven belongs to, ruled by a Prince-elect. Stig grew up here.</p>"}),
+  P("grisshaven","Grisshaven",{lon:46,lat:-29},{voice:"fragment",state:"rumour",sessions:[],
+    body:"<p>A harbour on the coast of Myratma, on Fraas-Den. Too small to attract much attention. Rumoured, not seen; the rest of that land is still cloud.</p>"}),
   P("deadvalley","The Dead Valley",{lon:-20,lat:-24},{voice:"fragment",state:"rumour",major:true,sessions:[6],
     body:"<p>Not from the box. From Saphira's vision: the Pit of Aggron, where an army gathers.</p>"}),
   P("cathedral","Black-sand cathedral",{lon:-6,lat:-31},{voice:"fragment",state:"rumour",sessions:[6],
@@ -655,7 +657,7 @@ const TELEPORT = "waystone>forest";
 const ROUTE_NEW_FROM = 8;
 const FOG = { // [lon,lat,radiusDeg,value 0..1]
   old:[ ["valeria",5,1],["icy",3.5,1],["hills",5,1],["v-fire",4,1],["ship",3.5,1],["orda",5,1],["crash",3.5,1],["ravine",3,1],["v-earth",3.5,1],["v-water",3.5,1] ],
-  rumour:[ [-14,24,26,.5],[-20,27,6,.55],[44,20,16,.42],[92,24,17,.45],[-14,-27,13,.42],[53,-29,5,.42] ],
+  rumour:[ [-14,24,26,.5],[-20,27,6,.55],[44,20,16,.42],[92,24,17,.45],[-14,-27,13,.42],[47,-30,5,.42] ],
   fresh:[ ["waystone",2.2,1],["forest",6,1] ]
 };
 const RECAP = [
@@ -797,7 +799,8 @@ const PLACE_DB = {
   summerwood:{kind:"region",     tags:["elves","foxglove woods","valethorn"]},
   valethorn: {kind:"castle",     tags:["elves","court","high elves"]},
   fraasden:  {kind:"region",     tags:["city-states","baronies","kingdoms","merchant-republics","stig"]},
-  grisshaven:{kind:"settlement", in:"fraasden", tags:[]},
+  myratma:   {kind:"region",     in:"fraasden", tags:["province","prince-elect","stig"]},
+  grisshaven:{kind:"settlement", in:"myratma",  tags:["harbour","coast"]},
   deadvalley:{kind:"region",     tags:["vision","army","aggron","danger"]},
   cathedral: {kind:"temple",     tags:["vision","desert","black sand"]},
 };
