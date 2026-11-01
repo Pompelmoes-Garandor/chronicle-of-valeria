@@ -38,8 +38,6 @@ Top of the list is what to work on next.
 ## Next
 
 - [ ] **Hand-painted globe** · Changed · either · Painterly filter and paper grain over the globe, desktop and Table mode only.
-- [ ] **Place cards that unfold** · Changed · either · The pin morphs into its card (View Transitions).
-- [ ] **Recap as chapters** · Changed · either · A chapter card per session with a drop cap and a Hans epigraph.
 - [ ] **Works with no signal** · New · either · Service worker so the map loads at the table without wifi.
 - [ ] **People directory** · New · either · Needs Sam. A list of the people the crew has met (Gerda, Thorn, Pieter-Bas, Teenoog, Calysta...), next to Places. Each player keeps how they feel about them (−10 to +10) and a note, saved on their own device like sheet edits.
 - [ ] **Get tag edits to everyone** · New · either · Start with a "Send to Sam" button that opens a GitHub issue or copies the edits for the group chat. Sam or Niels folds them into the places database.
@@ -63,6 +61,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Recap as chapters, and place cards that unfold** · Changed · Sam · PR #NEXT
 - [x] **Fly the route: camera follows a session's road** · New · Sam · PR #23
 - [x] **Tap to roll from the sheet: 3D dice for skills, abilities, saves and attacks** · New · Sam · PR #22
 - [x] **Living sky: day and night, town lamps, weather and lightning** (the Wind Vault shadow is left out until Sam decides) · New · Sam · PR #22
