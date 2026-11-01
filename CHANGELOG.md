@@ -6,6 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **Changed** The world looks like an old engraved atlas now: hills and mountains catch the light from the north-west and cast soft violet shadows, steep slopes are drawn in fine ink strokes that appear as you zoom in, and snowy peaks have blue shade. Coasts get one clean ink line with sandy beaches or bare cliffs, pale shallows and deeper bands of sea, pack ice in the far north, and the sun glints on the water. Plains and woods are soft watercolour washes. The globe also draws a little faster. (Sam)
 - **New** The Wind Vault's flying city now casts its shadow on the land below. It swings round with the sun, stretches long at dawn and dusk, and is gone at night. (Sam)
 - **Changed** On computers the globe looks hand-painted: colour lies in soft brush strokes on grainy paper, while coasts, rivers and the route stay crisp ink. A brush button bottom left switches back to the plain map. Phones keep the plain map, and a slow computer drops the paint by itself. (Sam)
 - **Changed** The recap opens like a chapter in Hans's book: chapter number, the session's name and its line from the Chronicle, then the stops. Hans's lines start with a brass drop cap. (Sam)
