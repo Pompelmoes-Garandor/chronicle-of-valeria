@@ -6,6 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **Changed** The flying city of the Wind Vault is a proper miniature now: a craggy island of rock that tapers to a point, a grass top with white walls and towers, blue and red roofs, a tall spire with a gold tip, two windmills turning, flags in the wind and two waterfalls spilling off the edge into mist. It catches the same sunlight as the land below, and its windows glow after dark. (Niels)
 - **New** Character sheets: next to Pass it round there's now **Send to Sam**. Amend a section, send it, and Sam accepts it with one tap: everyone's sheet then has it, marked "from the table", on every device. Not signed in yet? The button offers to sign you in first. Pass it round still works for the group chat. (Niels)
 - **New** Propose changes to Sam. Signed in, you can propose new tags for a place, or a few lines about it. Your phone sends Sam a message with a link; he taps it, taps Accept all, and everyone sees the change at once, marked "from the table". Hans writes it into his own copy at Sam's next session. (Niels)
 - **New** Everything players share online (notes, pins, votes, answers) is now copied to a safe place every week, and Sam can download a copy himself from the DM view. (Niels)

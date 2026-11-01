@@ -22,7 +22,6 @@ Things that are wrong on the live site today. Check this list before **Now**: a 
 - **Severity**: **blocker** (the table can't use the site), **annoying** (works, but gets in the way), **cosmetic** (looks off).
 - Anyone at the table can report a bug to Sam or Niels; whoever hears it adds it here. Fixing one is a **Fixed** line in the patch notes, and the bug moves to **Done**.
 
-- [ ] **The flying city looks crude up close** · cosmetic · Map, the Wind Vault · Zoomed in, the floating rock is a flat tan shape with dark blobs, rough next to the detailed land around it. In the lowest close-up over the hills it hangs cut off at the top of the view with a dark wedge under it. Seen in the test screenshots of 2026-11-01.
 - [ ] **The open sea is one flat colour up close** · cosmetic · Map · Zoomed in, the ocean has no texture or swell left, so it looks empty next to the land. Seen in the test screenshots of 2026-11-01.
 - [ ] **Saphira's Passive Perception doesn't add up** · cosmetic · Characters, Saphira · Her paper says Passive Perception 15, but her Perception skill is +4, which gives 14. The sheet shows the paper's 15. Lore question for Sam: which number is right?
 
@@ -59,6 +58,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **The flying city looks crude up close:** rebuilt as a lit, painted miniature · Fixed · Niels · PR #44
 - [x] **Get tag edits to everyone:** players propose tags and notes, Sam accepts with one tap · New · Niels · PR #43
 - [x] **Play session 10 on a 3D table: lit dioramas, painted minis, a camera you can turn and zoom** · New · Sam · PR #41
 - [x] **Play session 10: scenes, grid battles and the monsters from the script** · New · Sam · PR #37
