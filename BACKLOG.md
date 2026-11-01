@@ -37,8 +37,6 @@ Top of the list is what to work on next.
 
 ## Next
 
-- [ ] **Region soundscapes** · New · either · Sam welcomes sound (2026-11-01). Wind in the north, crackle at the Fire Vault, birds in Summerwood, a faint techno leak from Hans. Web Audio, off by default.
-- [ ] **Hans reads aloud** · New · either · Recap stops read in the phone's built-in voice, pitched down. Off by default.
 - [ ] **Hand-painted globe** · Changed · either · Painterly filter and paper grain over the globe, desktop and Table mode only.
 - [ ] **Place cards that unfold** · Changed · either · The pin morphs into its card (View Transitions).
 - [ ] **Recap as chapters** · Changed · either · A chapter card per session with a drop cap and a Hans epigraph.
@@ -68,6 +66,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Sound of the world, and Hans reads aloud** · New · Sam · PR #NEXT
 - [x] **Fog that burns away, screen stays awake in Table mode, Postcard from Hans** · New · Sam · PR #NEXT
 - [x] **Replay the journey: rewind the chart session by session, route drawn live** · New · Sam · PR #19
 - [x] **Spider button: an assassin drops from the ceiling and slashes the screen** · New · Niels · PR #16
