@@ -4133,21 +4133,89 @@ function t3surf(kind,Vb){
 
 /* ---- OWNER: lighting. Fog, sky/ground light, the key light with shadows, the lantern over whoever acts, the headlight.
    t3lights runs once per board after the world is built; t3lightTick every frame. ---- */
-function t3lights(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,tree=Vb.tree,scene=Vb.scene;
-  if(tree){scene.fog=new THREE.Fog(0x0c1220,14,40);Vb.fogK=[1.1,2.6];
-    scene.add(new THREE.HemisphereLight(0x6a7cb0,0x2a1c10,1.3),new THREE.AmbientLight(0x34406a,.8));
-    const moonL=new THREE.DirectionalLight(0xa9bcff,1.5);moonL.position.set(-8,12,12);Vb.key(moonL);}
-  else{scene.fog=new THREE.Fog(0x07080b,10,30);Vb.fogK=[.95,2.3];
-    scene.add(new THREE.HemisphereLight(0x9aaac8,0x3a2a1a,1.25),new THREE.AmbientLight(0x50566a,.8));
-    const sun=new THREE.DirectionalLight(0xbcd0ff,1.1);sun.position.set(-W*.35,14,-H*.25);Vb.key(sun);}
-  Vb.lantern=new THREE.PointLight(0xffc27a,tree?6:14,tree?5:8,1.5);Vb.lantern.position.set(0,2,0);scene.add(Vb.lantern);
-  Vb.head=new THREE.DirectionalLight(0xfff0dd,tree?.7:.85);scene.add(Vb.head,Vb.head.target);}
-function t3lightTick(dt,tt){const Vw=V.view;
-  if(V.sun){V.sun.target.position.set(Vw.tx,Vw.ty,Vw.tz);}
+function t3lights(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,tree=Vb.tree,scene=Vb.scene,hi=T3Q.hi,cav=mp.key==="cavern",L=Vb.l3={shafts:[],pulse:null,i0:0};
+  // fog: near and far follow the camera distance (see t3lightTick)
+  scene.fog=new THREE.Fog(tree?0x0a1120:cav?0x060907:0x05070b,10,30);Vb.fogK=tree?[1.2,2.9]:cav?[1.0,2.4]:[1.0,2.5];
+  // phones: one sky/ground fill, the lantern, the headlight. Computers add the key (with shadows) and a counter or rim light
+  const fill=hi?(tree?.48:cav?.5:.48):(tree?1.05:.95);
+  scene.add(new THREE.HemisphereLight(tree?0x5a6ea8:cav?0x4a5a78:0x627494,tree?0x1c120a:cav?0x16200e:0x22170e,fill));
+  if(tree){
+    // blue moonlight from high left, a little in front: long soft shadows across the platforms onto the trunk
+    if(hi){const moonL=new THREE.DirectionalLight(0xa4b8ff,1.8);moonL.position.set(-8.5,9.5,10);moonL.target.position.set(0,0,0);Vb.key(moonL);
+    // cool rim from behind, so silhouettes lift off the dark wood
+      const rim=new THREE.DirectionalLight(0x7f9cff,1.4);rim.position.set(7,6,-12);scene.add(rim,rim.target);}
+  }
+  else if(cav&&mp.def.glow){const [gx,gy]=mp.def.glow,c=Vb.cell(gx,gy);
+    // the Blight Heart is the key: a sickly green spot just above and behind it, its shadows reach toward the way in
+    if(hi){const k=new THREE.SpotLight(0x8fe36a,62,0,1.15,.85,1.25);k.position.set(c.x,5.4,c.z-1.5);k.target.position.set(c.x,0,c.z+2.6);Vb.key(k);L.pulse=k;L.i0=k.intensity;
+    // a cold counter-light from the far side (the way in)
+      const cl=new THREE.DirectionalLight(0x6f8cff,.75);cl.position.set(W*.5,7,H*.8);scene.add(cl,cl.target);}
+    t3l_pool(Vb,c,3.6,0x7fd36a,hi?.18:.42,true);}
+  else{
+    // a cold shaft from a crack high above, slanting onto the middle of the tunnel
+    const c=Vb.cell(4,4),top=new THREE.Vector3(c.x-1.6,9.5,c.z-1.1);
+    if(hi){const k=new THREE.SpotLight(0xc8d8ff,44,0,.26,.75,1.05);k.position.copy(top);k.target.position.copy(c);Vb.key(k);}
+    t3l_shaft(Vb,top,c,.28,2.3,0xbfd2ff,hi?.22:.3,false);
+    // a thinner second crack further down
+    const c2=Vb.cell(2,10),top2=new THREE.Vector3(c2.x+1.2,9.5,c2.z-.9);
+    if(hi){const k2=new THREE.SpotLight(0xb4c8ff,20,0,.17,.8,1.05);k2.position.copy(top2);k2.target.position.copy(c2);scene.add(k2,k2.target);}
+    t3l_shaft(Vb,top2,c2,.18,1.45,0xb4c8ff,hi?.15:.22,false);}
+  // the lantern: warm light over whoever is acting
+  Vb.lantern=new THREE.PointLight(0xffbf73,tree?(hi?7:6):(hi?13:12),tree?5.5:7.5,1.5);Vb.lantern.position.set(0,2,0);scene.add(Vb.lantern);
+  // the headlight follows the camera so no mini ever goes black; on phones it carries the scene's key colour
+  Vb.head=new THREE.DirectionalLight(hi?0xffeedd:(tree?0xc8d2ff:cav?0xd8f0c8:0xe6ecff),hi?(tree?.42:.5):(tree?.95:1.05));scene.add(Vb.head,Vb.head.target);
+  t3l_blobs(Vb);}
+function t3lightTick(dt,tt){const Vw=V.view,L=V.l3;
   V.head.position.copy(V.cam.position);V.head.target.position.set(Vw.tx,Vw.ty,Vw.tz);
   if(V.fogK){V.scene.fog.near=Vw.dist*V.fogK[0];V.scene.fog.far=Vw.dist*V.fogK[1];}
   if(B.cur){const m=V.minis.get(B.cur);if(m){V.lantern.position.lerp(t3v.set(m.g.position.x,m.g.position.y+(V.tree?1.4:2.2),m.g.position.z+(V.tree?1.2:0)),1-Math.exp(-dt*4));}}
-  for(const l of V.flicker)l.intensity=(l.userData.i0??(l.userData.i0=l.intensity))*(.85+.15*Math.sin(tt*13+l.id)+.08*Math.sin(tt*31+l.id*3));}
+  for(const l of V.flicker)l.intensity=(l.userData.i0??(l.userData.i0=l.intensity))*(.85+.15*Math.sin(tt*13+l.id)+.08*Math.sin(tt*31+l.id*3));
+  if(!L)return;
+  // the heart beats: the green key swells with it (same beat as its glow)
+  const beat=Math.max(0,Math.sin(tt*4.2));if(L.pulse)L.pulse.intensity=L.i0*(.72+.42*beat);
+  for(const s of L.shafts){s.uniforms.uT.value=tt;if(s.beat)s.uniforms.uK.value=s.k0*(.7+.5*beat);}
+  t3l_blobTick();}
+
+/* lighting helpers: fit the shadow camera to the board, light shafts, light pools, soft blob shadows under the minis */
+const t3l_box=new THREE.Box3(),t3l_p=new THREE.Vector3(),t3l_p2=new THREE.Vector3();
+function t3l_fit(l,Vb){const mp=Vb.mp,w=mp.W/2+1,h=mp.H/2+1,cam=l.shadow.camera;
+  if(Vb.tree)t3l_box.set(t3l_p.set(-w-1,-h-.6,-1.6),t3l_p2.set(w+1,h+3,1.2));else t3l_box.set(t3l_p.set(-w,-.45,-h),t3l_p2.set(w,3.6,h));
+  cam.position.copy(l.position);cam.lookAt(l.target.position);cam.updateMatrixWorld();const inv=cam.matrixWorldInverse;
+  let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9,z0=1e9,z1=-1e9;
+  for(let i=0;i<8;i++){t3l_p.set(i&1?t3l_box.max.x:t3l_box.min.x,i&2?t3l_box.max.y:t3l_box.min.y,i&4?t3l_box.max.z:t3l_box.min.z).applyMatrix4(inv);
+    x0=Math.min(x0,t3l_p.x);x1=Math.max(x1,t3l_p.x);y0=Math.min(y0,t3l_p.y);y1=Math.max(y1,t3l_p.y);z0=Math.min(z0,t3l_p.z);z1=Math.max(z1,t3l_p.z);}
+  Object.assign(cam,{left:x0,right:x1,bottom:y0,top:y1,near:Math.max(.1,-z1-.5),far:-z0+.5});cam.updateProjectionMatrix();}
+const t3l_vs="varying vec3 vW;varying vec3 vN;varying vec2 vU;void main(){vec4 w=modelMatrix*vec4(position,1.);vW=w.xyz;vN=normalize(mat3(modelMatrix)*normal);vU=uv;gl_Position=projectionMatrix*viewMatrix*w;}";
+// a visible shaft of light: an open cone, bright in its core, soft at the edges, fading out before it meets the floor
+function t3l_shaft(Vb,top,bot,r0,r1,col,k,beat){const d=new THREE.Vector3().subVectors(top,bot),len=d.length(),g=new THREE.CylinderGeometry(r0,r1,len,28,1,true);
+  const uniforms={uC:{value:new THREE.Color(col)},uK:{value:k},uT:{value:0}};
+  const m=new THREE.ShaderMaterial({uniforms,vertexShader:t3l_vs,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,
+    fragmentShader:"uniform vec3 uC;uniform float uK;uniform float uT;varying vec3 vW;varying vec3 vN;varying vec2 vU;void main(){vec3 v=normalize(cameraPosition-vW);float f=abs(dot(normalize(vN),v));f=f*f*(3.-2.*f);"+
+      "float h=vU.y;float a=f*smoothstep(0.,.35,h)*smoothstep(1.,.5,h);"+
+      "float dust=.78+.22*sin(vW.y*2.3+uT*.6+vU.x*25.)*sin(vU.x*11.-uT*.35);gl_FragColor=vec4(uC*a*dust*uK,1.);}"});
+  const s=new THREE.Mesh(g,m);s.position.addVectors(top,bot).multiplyScalar(.5);s.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());s.renderOrder=3;s.frustumCulled=false;Vb.root.add(s);
+  Vb.l3.shafts.push({uniforms,k0:k,beat:!!beat});
+  if(!Vb.tree)t3l_pool(Vb,bot,r1*1.15,col,T3Q.hi?.12:.32,beat);return s;}
+// a soft pool of light on the floor (on phones it stands in for the spotlight)
+function t3l_pool(Vb,c,r,col,k,beat){const uniforms={uC:{value:new THREE.Color(col)},uK:{value:k},uT:{value:0}};
+  const m=new THREE.ShaderMaterial({uniforms,vertexShader:t3l_vs,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
+    fragmentShader:"uniform vec3 uC;uniform float uK;varying vec2 vU;void main(){float d=length(vU-.5)*2.;float a=pow(clamp(1.-d,0.,1.),1.8);gl_FragColor=vec4(uC*a*uK,1.);}"});
+  const p=new THREE.Mesh(new THREE.PlaneGeometry(r*2,r*2),m);p.rotation.x=-Math.PI/2;p.position.set(c.x,.018,c.z);p.renderOrder=2;Vb.root.add(p);
+  Vb.l3.shafts.push({uniforms,k0:k,beat:!!beat});return p;}
+// contact shadows: one instanced soft dark disc under every mini base (one draw call)
+function t3l_blobs(Vb){const N=48,g=new THREE.PlaneGeometry(1,1);g.rotateX(-Math.PI/2);const ao=new THREE.InstancedBufferAttribute(new Float32Array(N),1);g.setAttribute("aO",ao);
+  const m=new THREE.ShaderMaterial({transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2,
+    vertexShader:"attribute float aO;varying vec2 vU;varying float vO;void main(){vU=uv;vO=aO;gl_Position=projectionMatrix*modelViewMatrix*instanceMatrix*vec4(position,1.);}",
+    fragmentShader:"varying vec2 vU;varying float vO;void main(){float d=length(vU-.5)*2.;float a=smoothstep(1.,.2,d);a*=a;gl_FragColor=vec4(0.,0.,0.,a*vO);}"});
+  const im=new THREE.InstancedMesh(g,m,N);im.count=0;im.frustumCulled=false;im.renderOrder=1;Vb.root.add(im);Vb.l3.blob={im,ao,N};}
+const t3l_m=new THREE.Matrix4(),t3l_s=new THREE.Vector3(),t3l_q=new THREE.Quaternion();
+function t3l_blobTick(){const b=V.l3.blob;if(!b)return;let i=0;const dark=T3Q.hi?.55:.78;
+  for(const [u,m] of V.minis){if(i>=b.N)break;if(!m.g.visible||m.gone)continue;
+    if(V.tree&&!"=TBsgD".includes(V.mp.c(u.x,u.y)))continue;  // on a rope or a ladder: nothing to land on
+    const fy=V.tree?m.pos.y:0,lift=Math.max(0,m.g.position.y-fy),s=(u.size||1)*(1.25+lift*.35);
+    t3l_m.compose(t3l_p.set(m.g.position.x,fy+.014,m.g.position.z),t3l_q,t3l_s.set(s,1,s));b.im.setMatrixAt(i,t3l_m);
+    b.ao.array[i]=dark*m.fade/(1+lift*1.5)*(u.hp<=0?.6:1);i++;}
+  b.im.count=i;b.im.instanceMatrix.needsUpdate=true;b.ao.needsUpdate=true;}
 
 /* ---- OWNER: post-processing. t3post runs once per board; it may set Vb.render(dt) (e.g. an EffectComposer) and Vb.onResize(w,h).
    Without it the board renders straight. Three.js add-ons from the same three@0.160.0 build are allowed. ---- */
@@ -4263,8 +4331,9 @@ function t3build(mp,host){
   const Vb={mp,scene,root,cam,r,tree,flames:[],flicker:[],minis:new Map(),fx:[],ticks:[],motes:null,host,
     cell(x,y){return tree?new THREE.Vector3(x+.5-mp.W/2,(mp.H-1-y)-mp.H/2+.5,0):new THREE.Vector3(x+.5-mp.W/2,0,y+.5-mp.H/2);},
     unitPos(u){const s=u.size||1,c=this.cell(u.x+(s-1)/2,u.y+(s-1)/2);return c;},
-    key(l){l.castShadow=!SMALL;if(!SMALL){const s=l.shadow;s.mapSize.set(2048,2048);const e=Math.max(mp.W,mp.H)*.8;Object.assign(s.camera,{left:-e,right:e,top:e,bottom:-e,near:1,far:60});s.bias=-.0006;s.normalBias=.02;}
-      l.target.position.set(0,0,0);scene.add(l,l.target);this.sun=l;},
+    key(l){l.castShadow=T3Q.hi;scene.add(l,l.target);this.sun=l;if(!T3Q.hi)return;  // soft PCF, frustum fitted tight to the board
+      r.shadowMap.type=THREE.PCFShadowMap;const s=l.shadow;s.mapSize.set(2048,2048);s.radius=3;s.bias=-.00035;s.normalBias=.022;l.updateMatrixWorld();l.target.updateMatrixWorld();
+      if(l.isDirectionalLight)t3l_fit(l,this);else{const d=l.position.distanceTo(l.target.position);s.focus=1;Object.assign(s.camera,{near:Math.max(.5,d-6),far:d+3});s.bias=-.0002;}},
     live(){return PLAY.on&&B&&B.mp===mp&&host.isConnected;}};
   if(tree)t3tree(Vb);else t3cave(Vb);
   t3lights(Vb);
