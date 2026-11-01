@@ -48,7 +48,6 @@ Top of the list is what to work on next.
 
 ## Later
 
-- [ ] **Tap to roll from the sheet** · New · either · 3D dice tumble over the map from a tapped skill or attack.
 - [ ] **Fly-through for each new session** · New · either · A 20 second camera flight along the new route before control comes back.
 - [ ] **Map beside the recap on desktop** · Changed · either · Put the recap text next to the globe instead of over it, as Craft does with its map.
 - [ ] **Live online storage** · New · Sam and Niels · Needs Sam. Shared tags, notes and trackers for everyone at once through a hosted database (Firebase or Supabase), with sign-in limited to the table. Breaks two house rules (no new libraries, player data stays on the device), so only if both agree.
@@ -65,6 +64,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Tap to roll from the sheet: 3D dice for skills, abilities, saves and attacks** · New · Sam · PR #NEXT
 - [x] **Living sky: day and night, town lamps, weather and lightning** (the Wind Vault shadow is left out until Sam decides) · New · Sam · PR #NEXT
 - [x] **Sound of the world, and Hans reads aloud** · New · Sam · PR #21
 - [x] **Fog that burns away, screen stays awake in Table mode, Postcard from Hans** · New · Sam · PR #21
