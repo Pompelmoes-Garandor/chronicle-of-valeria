@@ -379,6 +379,32 @@ body:not(.cinema) #cine{bottom:calc(var(--bot) + 96px)}
 .cs-line{margin:3px 0 0;font:500 11px/1.5 var(--label);letter-spacing:.1em;text-transform:uppercase;color:var(--parch-dim)}
 .cs-sec{display:flex;flex-direction:column;gap:6px}
 .cs-lvl{padding:10px 12px;border:1px dashed #8fd3c866;border-radius:10px;background:#8fd3c80d}
+/* classic stat block */
+.sb{display:flex;flex-direction:column;gap:6px}
+.sb-row3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.sb-row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.sb-box,.sb-hp{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 4px 9px;border:1px solid var(--hairline);border-radius:10px;background:#0b0d1266;text-align:center;min-width:0}
+.sb-k{font:500 10px/1.15 var(--label);letter-spacing:.12em;color:var(--brass)}
+.sb-v{font:500 26px/1 var(--mono);color:var(--parch)}
+.sb-v small{font:400 13px/1 var(--mono);color:var(--parch-dim)}
+.sb-ac{border-radius:10px 10px 46% 46% / 10px 10px 30% 30%;border-color:var(--brass-dim);padding-bottom:13px}
+.sb-hp{flex-direction:row;justify-content:space-between;padding:10px 14px;cursor:pointer}
+.sb-hp .sb-v{font-size:30px}
+.sb-hp:focus-visible{outline:2px solid var(--parch);outline-offset:2px}
+.sb-hp.bloodied .sb-v{color:var(--ember)} .sb-hp.critical .sb-v,.sb-hp.down .sb-v{color:#ff5a4a} .sb-hp.critical,.sb-hp.down{border-color:#ff5a4a88}
+.sb-abil{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
+.sb-ab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 1px 6px;border:1px solid var(--hairline);border-radius:10px;background:#0b0d1266;min-width:0}
+.sb-mod{font:500 23px/1 var(--mono);color:var(--parch);margin-top:1px}
+.sb-sc{font:400 12px/1 var(--mono);color:var(--parch-dim);border:1px solid var(--brass-dim);border-radius:999px;padding:3px 7px;margin-top:2px}
+.sb-sv{display:flex;flex-direction:column;align-items:center;gap:1px;margin-top:4px;padding-top:5px;border-top:1px solid #c9a35c22;width:100%}
+.sb-sv span{font:500 8.5px/1 var(--label);letter-spacing:.12em;color:var(--parch-dim)}
+.sb-sv b{font:500 14px/1.2 var(--mono);color:var(--parch-dim)}
+.sb-sv i{width:6px;height:6px;border-radius:50%;border:1px solid var(--brass-dim);margin-bottom:2px}
+.sb-sv.prof b{color:var(--parch)} .sb-sv.prof i{background:var(--steward);border-color:var(--steward)}
+.sb-foot{margin:0;font:400 11px/1.4 var(--mono);color:var(--parch-dim)}
+.sb-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--steward);vertical-align:1px}
+.sb-edrow{display:flex;justify-content:flex-end;align-items:center;gap:8px}
+@media (max-width:350px){.sb-abil{grid-template-columns:repeat(3,minmax(0,1fr))}.sb-v{font-size:22px}.sb-k{font-size:9px;letter-spacing:.08em}}
 .vitals{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;text-align:center}
 .vitals div{padding:8px 2px 6px;border:1px solid var(--hairline);border-radius:9px;background:#0b0d1266}
 .vitals b{display:block;font:500 18px/1.1 var(--mono);color:var(--parch)}
@@ -1882,6 +1908,39 @@ function showSheets(keep){
   const vitals=h("div",{class:"vitals"},s.vit.map(([k,v])=>k==="HP"&&hp
     ?h("div",{class:"hp "+hp.st,role:"button",tabindex:"0","aria-label":"Set hit points",onclick:()=>{const v=prompt("Hit points now?",String(hp.cur));if(v!=null&&v.trim()!=="")setHp(cur,parseInt(v,10));}},h("b",{},String(hp.cur)),h("span",{},"HP / "+hp.max))
     :h("div",{},h("b",{},v),h("span",{},k))));
+  // classic stat block: AC · initiative · speed, then hit points, then six abilities with their saves
+  const vget=k=>{const x=s.vit.find(v=>v[0]===k);return x?String(x[1]):null;};
+  const num=v=>{const m=String(v||"").match(/[+−-]?\s?\d+/);return m?m[0].replace(/\s/g,"").replace("−","-"):null;};
+  const signed=v=>{const n=parseInt(String(v).replace("−","-"),10);return Number.isFinite(n)?(n<0?"−":"+")+Math.abs(n):"—";};
+  const SAVE_OF={};(s.saves||"").split(/\s*·\s*/).forEach(p=>{const m=p.match(/^([A-Za-z]{3})\w*\s+([+−-]\s?\d+)$/);if(m)SAVE_OF[m[1].toUpperCase()]=parseInt(m[2].replace(/\s/g,"").replace("−","-"),10);});
+  const savesOk=s.ab.every(([k])=>Number.isFinite(SAVE_OF[k]));
+  const wis=(s.ab.find(a=>a[0]==="WIS")||[])[2];
+  const ppPaper=(String(s.passive||"").match(/passive perception\s*(\d+)/i)||[])[1];
+  const percSkill=(s.skills||[]).find(x=>/^perception$/i.test(x[0]));
+  const pp=ppPaper?{v:ppPaper,est:false}:percSkill?{v:String(10+parseInt(String(percSkill[1]).replace("−","-"),10)),est:false}:Number.isFinite(wis)?{v:String(10+wis),est:true}:null;
+  const KNOWN=new Set(["AC","HP","SPEED","INIT","PROF"]);
+  const box=(cls,label,val,unit,extra)=>h("div",{class:"sb-box "+cls,...(extra||{})},h("span",{class:"sb-k"},label),h("b",{class:"sb-v"},val??"—",unit?h("small",{},unit):null));
+  const spd=vget("SPEED"), spdN=num(spd);
+  const statTop=h("div",{class:"sb"},
+    h("div",{class:"sb-row3"},
+      box("sb-ac","ARMOR CLASS",num(vget("AC"))),
+      box("","INITIATIVE",vget("INIT")!=null?signed(num(vget("INIT"))):null),
+      box("","SPEED",spdN??spd,spdN&&/ft/i.test(spd)?" ft":null)),
+    hp?h("div",{class:"sb-hp "+hp.st,role:"button",tabindex:"0","aria-label":"Hit points "+hp.cur+" of "+hp.max+". Tap to set.",
+        onclick:()=>{const v=prompt("Hit points now?",String(hp.cur));if(v!=null&&v.trim()!=="")setHp(cur,parseInt(v,10));},
+        onkeydown:ev=>{if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();ev.currentTarget.click();}}},
+        h("span",{class:"sb-k"},"HIT POINTS"),h("b",{class:"sb-v"},String(hp.cur),h("small",{}," / "+hp.max)))
+      :box("sb-hp","HIT POINTS",vget("HP")),
+    s.vit.some(v=>!KNOWN.has(v[0]))?h("div",{class:"vitals"},s.vit.filter(v=>!KNOWN.has(v[0])).map(([k,v])=>h("div",{},h("b",{},v),h("span",{},k)))):null);
+  const abilBlock=h("div",{class:"sb"},
+    h("div",{class:"sb-abil"},s.ab.map(([k,sc,mo])=>{const sv=SAVE_OF[k],prof=Number.isFinite(sv)&&Number.isFinite(mo)&&sv!==mo;
+      return h("div",{class:"sb-ab"},h("span",{class:"sb-k"},k),h("b",{class:"sb-mod"},mod(mo)),h("span",{class:"sb-sc"},sc==null?"—":String(sc)),
+        savesOk?h("span",{class:"sb-sv"+(prof?" prof":""),title:prof?"Proficient save":"Save"},h("i",{"aria-hidden":"true"}),h("span",{},"SAVE"),h("b",{},signed(sv))):null);})),
+    h("div",{class:"sb-row2"},
+      box("","PROFICIENCY",vget("PROF")!=null?signed(num(vget("PROF"))):null),
+      box("","PASSIVE PERCEPTION",pp?pp.v:null,pp&&pp.est?"*":null)),
+    savesOk||pp&&pp.est?h("p",{class:"sb-foot"},savesOk?[h("i",{class:"sb-dot","aria-hidden":"true"})," proficient save"]:null,savesOk&&pp&&pp.est?" · ":null,pp&&pp.est?"* worked out from Wisdom; not on the paper":null):null,
+    savesOk&&!isEd("saves")?h("div",{class:"sb-edrow"},mark("saves"),h("button",{class:"cs-edit",type:"button","aria-label":"Edit saving throws",onclick:()=>{editing={id:cur,key:"saves"};showSheets(true);}},"edit saves")):null);
   const hpLine=hp?{ok:"This device only. Tap the number to set it.",bloodied:"Bloodied.",critical:"Hold on.",down:cur==="hans"?"Shut down. Stable. Wake me after.":"Down. Not gone. Mark the saves."}[hp.st]:"";
   const hpNodes=hp?[h("div",{class:"hprow"},
       h("button",{type:"button","aria-label":"Lose a hit point",onclick:()=>setHp(cur,hp.cur-1)},"−"),
@@ -1911,10 +1970,10 @@ function showSheets(keep){
     picks,
     s.empty&&!nEd?h("div",{class:"scan",html:s.empty}):null,
     sec("head","",h("h3",{class:"cs-name",style:`color:${hex}`},s.name),h("p",{class:"cs-line"},s.line),s.alias?h("p",{class:"note"},s.alias):null),
-    sec("vit","VITALS",vitals,...hpNodes),
-    sec("ab","ABILITIES",h("div",{class:"abil"},s.ab.map(([k,sc,mo])=>h("div",{},h("span",{class:"k"},k),h("b",{},mod(mo)),h("i",{},sc==null?"—":String(sc)))))),
+    sec("vit","COMBAT",statTop,...hpNodes),
+    sec("ab","ABILITIES · SAVES",abilBlock),
     sec("lvl6","SESSION "+NEXT+" · LEVEL 6",s.lvl6?h("p",{class:"small"},s.lvl6):empty("Not decoded yet. Tap edit when the new page is in.")),
-    sec("saves","SAVING THROWS",savesNode||empty()),
+    savesOk&&!isEd("saves")?null:sec("saves","SAVING THROWS",savesNode||empty()),
     sec("skills","SKILLS",s.skills&&s.skills.length?h("div",{class:"skl"},s.skills.map(([k,v])=>h("span",{},k,h("b",{},v)))):s.skillNote?h("p",{class:"small voice"},s.skillNote):empty()),
     sec("passive","SENSES",s.passive?h("p",{class:"note"},s.passive):empty()),
     sec("attacks","ATTACKS",(s.attacks||[]).length?h("div",{class:"atk"},s.attacks.map(([n,hit,d])=>h("div",{},h("span",{},n),h("b",{},hit),d?h("span",{class:"d"},d):null))):empty()),
