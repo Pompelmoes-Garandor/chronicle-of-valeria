@@ -253,6 +253,20 @@ table.ans td,table.ans th{border-bottom:1px solid #c9a35c22;padding:6px 4px;text
 .progress{position:absolute;top:8px;left:18px;right:18px;display:flex;gap:4px}
 #caption .jr{display:flex;gap:8px;align-items:center}
 #caption .skip.fly{color:var(--brass)}
+::view-transition-group(place-title),::view-transition-group(place-card){animation-duration:.42s;animation-timing-function:cubic-bezier(.2,.8,.2,1)}
+::view-transition-old(place-seal){animation:.3s ease-in both vt-seal}
+@keyframes vt-seal{to{opacity:0;transform:scale(2.2)}}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.2s}
+/* chapter card before a recap */
+#chapter{position:fixed;inset:0;z-index:12;display:grid;place-items:center;background:radial-gradient(ellipse at center,#0a0c10dd,#0a0c10f5);cursor:pointer;text-align:center;padding:24px}
+#chapter .ch-in{max-width:560px;animation:rise .6s ease-out}
+#chapter .ch-n{font:400 13px/1.4 var(--mono);letter-spacing:.3em;color:var(--steward)}
+#chapter .ch-t{font:400 clamp(34px,8vw,64px)/1.05 var(--display);color:var(--parch);margin:10px 0 14px}
+#chapter .ch-rule{width:120px;height:1px;margin:0 auto 16px;background:linear-gradient(90deg,transparent,var(--brass),transparent)}
+#chapter .ch-s{font:italic 18px/1.5 var(--body);color:var(--parch-dim)}
+#chapter .ch-by{font:500 12px/1 var(--label);letter-spacing:.2em;color:var(--brass);margin-top:14px}
+#chapter.out{opacity:0;transition:opacity .5s}
+#caption:not(.steward) .txt p::first-letter{font:400 2.6em/0.8 var(--display);float:left;margin:4px 6px 0 0;color:var(--brass)}
 body.flying #pins{opacity:1}
 body.flying #pins .pin:not(.party){opacity:.55}
 #caption .jr .btn:not(.next){border-radius:24px}
@@ -585,6 +599,7 @@ addEventListener("error",function(e){if(e.target&&e.target.tagName==="LINK")retu
 <div id="caption" hidden></div>
 <div id="placing" hidden><span>Tap the map to mark the spot</span><button type="button" id="cancel-place">Cancel</button></div>
 <div id="toast" hidden></div>
+<div id="chapter" hidden role="status" aria-live="polite"></div>
 <div id="dice" hidden aria-hidden="true"></div>
 <div id="roll" hidden role="status" aria-live="polite"></div>
 <div id="lbox" aria-hidden="true"><i></i><i></i></div>
@@ -1760,7 +1775,7 @@ function mkPin(o){
   const rec={el:b,...o}; pinEls.push(rec);
   b.addEventListener("click",e=>{if(e.detail&&moved>=6)return;
     if(placing){stopPlacing();draft.ll={lon:+o.lon.toFixed(2),lat:+o.lat.toFixed(2)};showMissed();return;}
-    o.onClick&&o.onClick();}); return rec;
+    if(o.place&&o.place.id!=="crash"&&document.startViewTransition&&!reduced) unfold(rec); else o.onClick&&o.onClick();}); return rec;
 }
 for(const p of PLACES){
   const r=mkPin({lon:p.lon,lat:p.lat,label:p.name,place:p,onClick:()=>openPlace(p.id)});
@@ -1922,6 +1937,13 @@ cineEl.onclick=()=>{const tx=cineEl.querySelector(".cn-txt"), full=cineCur&&(cin
 function cineClear(){cineQ=[];cineCur=null;clearInterval(cineEl.__iv);clearTimeout(cineEl.__to);cineEl.hidden=true;}
 function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>t.hidden=true,2200);}
 
+// the pin's name flies up into the place card's title (View Transitions; a plain open where the browser has none)
+function unfold(rec){
+  const lbl=rec.el.querySelector(".lbl"); lbl.style.viewTransitionName="place-title"; rec.el.querySelector(".seal").style.viewTransitionName="place-seal";
+  const vt=document.startViewTransition(()=>{lbl.style.viewTransitionName="";rec.el.querySelector(".seal").style.viewTransitionName="";
+    rec.onClick(); sTitle.style.viewTransitionName="place-title"; sheet.style.viewTransitionName="place-card";});
+  vt.finished.finally(()=>{sTitle.style.viewTransitionName="";sheet.style.viewTransitionName="";});
+}
 function openPlace(id,after){
   const p=byId[id]; if(!p)return; if(id==="crash"&&!after&&!reduced){playCrash();return;} const meta=placeMeta(id); flyTo(p.lon,p.lat,Math.min(cam.zoom,.42));
   const tags=h("div",{class:"row"},
@@ -2049,7 +2071,17 @@ let recapOn=false, recapI=0, recapTimer=null; const cap=document.getElementById(
 function startRecap(){
   if(journeyOn) endJourney(false); if(viewS!==AS_OF) setView(AS_OF,{play:false});
   closeSheet(); setTab("recap"); recapOn=true; recapI=0;
-  reveal.v=0; reveal.goal=0; showStop();
+  reveal.v=0; reveal.goal=0; chapterCard(showStop);
+}
+// each recap opens like a chapter in Hans's book: the session number, its name, and the Chronicle's line for it
+const ROMAN=n=>[[10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]].reduce((o,[v,r])=>{while(n>=v){o+=r;n-=v;}return o;},"");
+function chapterCard(then){
+  const s=SESSIONS.find(x=>x.n===AS_OF), el=document.getElementById("chapter"); if(!s||reduced){then();return;}
+  el.replaceChildren(h("div",{class:"ch-in"},h("div",{class:"ch-n"},"CHAPTER "+ROMAN(AS_OF)),h("div",{class:"ch-t"},s.t),h("div",{class:"ch-rule"}),h("p",{class:"ch-s"},bird&&s.v!=="steward"?squawk(s.s):s.s),
+    h("div",{class:"ch-by"},s.v==="steward"?"THE STEWARD, AS TOLD TO HANS":"AS TOLD BY HANS")));
+  el.classList.remove("out"); el.hidden=false; let done=false;
+  const go=()=>{if(done)return;done=true;clearTimeout(t);el.classList.add("out");setTimeout(()=>{el.hidden=true;},500);if(recapOn)then();};
+  const t=setTimeout(go,4200); el.onclick=go;
 }
 function showStop(){
   const s=RECAP[recapI]; clearTimeout(recapTimer);

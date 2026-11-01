@@ -6,6 +6,8 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **Changed** The recap opens like a chapter in Hans's book: chapter number, the session's name and its line from the Chronicle, then the stops. Hans's lines start with a brass drop cap. (Sam)
+- **Changed** Tapping a place on the map unfolds it: the pin's name flies up into the card's title. Phones and browsers without this effect simply open the card. (Sam)
 - **New** Fly the route: on a replay card ("Fly it") or at the end of the recap ("Fly the route"), the camera follows that session's road in letterbox while the ink draws it and the party walks along. Tap anywhere or Skip to stop. (Sam)
 - **New** Roll from your sheet: on Characters, tap a skill, an ability, a save or an attack and real 3D dice tumble across the screen. Attacks roll to hit and damage together (a natural 20 doubles the damage dice), and Hans comments on the very good and very bad rolls. Handy if your dice are under the table. (Sam)
 - **New** Living sky: a slow day and night passes over the globe (one day every eight minutes). After dark the towns the crew knows light their lamps, thin weather drifts over the ground you have seen, and now and then lightning flashes inside a cloud, with thunder if sound is on. (Sam)
