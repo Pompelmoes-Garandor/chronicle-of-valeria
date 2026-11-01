@@ -252,6 +252,7 @@ table.ans td,table.ans th{border-bottom:1px solid #c9a35c22;padding:6px 4px;text
 @keyframes bf-yap{to{transform:rotate(22deg)}}
 @keyframes bf-bob{50%{transform:rotate(-8deg)}}
 .eggs button.blood{color:#c9373a;border-color:#7a1d1f}
+.asn{position:fixed;inset:0;width:100vw;height:100vh;z-index:9;pointer-events:none;image-rendering:pixelated}
 .eggs button.blood:hover{color:#ff4a4a;border-color:#c9373a;box-shadow:0 0 12px #c9373a66}
 #hack{position:fixed;inset:0;z-index:20;background:radial-gradient(ellipse at center,#3a0508e6,#0a0000f5);color:#ff3b3b;font-family:var(--mono);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:18px;padding:24px;box-sizing:border-box;cursor:pointer;overflow:hidden}
 #hack pre{margin:0;font:400 12px/1.6 var(--mono);color:#ff6a5a;white-space:pre-wrap;max-width:560px;width:100%;text-shadow:0 0 6px #ff000088}
@@ -523,6 +524,7 @@ addEventListener("error",function(e){if(e.target&&e.target.tagName==="LINK")retu
   <button type="button" id="egg-bird" aria-pressed="false" title="Bird mode"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 15c3 0 4-2 5-5 1-3 3-5 6-5 2 0 3.5 1.2 4 3l2 .8-2 .9c0 4-3 8-8 8H6l-2 2z"/><circle cx="15.5" cy="7.6" r=".9" fill="currentColor"/></svg><span>Bird mode</span></button>
   <button type="button" id="egg-moo" title="Moo mode"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7C5 7 3 6 2.5 4.5 4 4.6 5.5 5 7 6M17 7c2 0 4-1 4.5-2.5C20 4.6 18.5 5 17 6"/><path d="M7 6.5h10c1 2 1.4 4.5 1 7-.6 3.6-3 5.5-6 5.5s-5.4-1.9-6-5.5c-.4-2.5 0-5 1-7z"/><path d="M8.5 15.5c1.5 1.2 5.5 1.2 7 0"/><circle cx="10" cy="16.4" r=".6" fill="currentColor"/><circle cx="14" cy="16.4" r=".6" fill="currentColor"/><circle cx="9.5" cy="10.5" r=".8" fill="currentColor"/><circle cx="14.5" cy="10.5" r=".8" fill="currentColor"/></svg><span>Moo mode</span></button>
   <button type="button" id="egg-blood" class="blood" title="Blood Guild"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c3 4 6 7.6 6 11.2a6 6 0 0 1-12 0c0-3.6 3-7.2 6-11.2z"/><path d="M9 13.5l1.8 1.6L9 16.7M12.4 16.7h2.6" stroke-width="1.4"/></svg><span>Blood Guild</span></button>
+  <button type="button" id="egg-asn" title="Something on the ceiling"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5v5"/><circle cx="12" cy="8.6" r="2.1"/><ellipse cx="12" cy="14.6" rx="3.1" ry="3.8"/><path d="M9.6 12.8 6.3 10.4 4.5 6.8M9.1 14.6H5.6l-2.4 1.3M9.4 16.6l-2.8 2.6-1.1 3M14.4 12.8l3.3-2.4 1.8-3.6M14.9 14.6h3.5l2.4 1.3M14.6 16.6l2.8 2.6 1.1 3"/></svg><span>Something on the ceiling</span></button>
 </div>
 <div id="hack" hidden role="alert"><div class="hk-scan"></div><pre id="hk-log"></pre><div class="hk-big"><b>LOCATION HACKED</b><i>ATTACK IMMEDIATE</i></div><div class="hk-sig">⟁ THE BLOOD GUILD ⟁</div></div>
 
@@ -1458,6 +1460,123 @@ function hack(){
 }
 function endHack(){const el=document.getElementById("hack");if(el.hidden)return;hackT.forEach(clearTimeout);el.hidden=true;cine([{who:"HANS",text:"I have closed the port. Probably. The Blood Guild knows we are here, then. Good to know.",ms:5200}]);}
 document.getElementById("egg-blood").onclick=hack; document.getElementById("hack").onclick=endHack;
+/* ---- easter egg: the assassin on the ceiling ---- */
+// pixel sprites, 16 wide. k outline · h/H hood · f face shadow · e eyes · s scarf · c cloak · b belt · p boots · l blade · g hilt
+const ASN_PAL={k:"#07080b",h:"#2b303b",H:"#454c5a",f:"#0e1015",e:"#ff4a3a",s:"#8f1e22",S:"#b8302f",c:"#1c2029",C:"#2a303c",b:"#6b5230",p:"#101219",l:"#e4e8ee",L:"#9aa3ad",g:"#a8853f"};
+const ASN={
+ crouch:[
+  "................",
+  "......kkkk......",
+  ".....kHHHHk.....",
+  "....kHhhhhHk....",
+  "....khffffhk....",
+  "....kfeffefk....",
+  "....khffffhk....",
+  "...kSssssssSk...",
+  "..kCcssssssccCk.",
+  "..kcccccccccccck",
+  ".gkccbbbbbbccckg",
+  ".l.kccccccccck.l",
+  ".l.kcCcccccCck.l",
+  "...kccck.kccck..",
+  "...kppk...kppk..",
+  "..kppppk.kppppk.",
+ ],
+ leap:[
+  "l..............l",
+  ".l....kkkk....l.",
+  "..g..kHHHHk..g..",
+  "...kkHhhhhHkk...",
+  "....khffffhk....",
+  "....kfeffefk....",
+  "....khffffhk....",
+  "...kSssssssSk...",
+  "..kCcssssssccCk.",
+  ".kCcccccccccccCk",
+  "kcccccbbbbbccccc",
+  "kCc.kccccccck.cC",
+  "kc..kcCcccCck..c",
+  "....kccck.kccck.",
+  "....kppk...kppk.",
+  "...kppk.....kppk",
+ ],
+ slash:[
+  "................",
+  "......kkkk......",
+  ".....kHHHHk.....",
+  "....kHhhhhHk....",
+  "....khffffhk....",
+  "....kfeffefk....",
+  "....khffffhk....",
+  "...kSssssssSkkk.",
+  "..kCcssssssccCCkg",
+  ".kCcccccccccccc.Ll",
+  "kcccccbbbbbbcc...Ll",
+  "kCc.kccccccck.....Ll",
+  "gc..kcCcccCck......l",
+  "l..kccck..kccck.....",
+  "l..kppk....kppk.....",
+  "..kppppk..kppppk....",
+ ],
+};
+let asnBusy=false;
+function shing(){const a=ac();if(!a)return;const t=a.currentTime;
+  const n=a.createBuffer(1,a.sampleRate*.25,a.sampleRate),d=n.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,3);
+  const src=a.createBufferSource();src.buffer=n;const hp=a.createBiquadFilter();hp.type="highpass";hp.frequency.value=3500;const g=a.createGain();g.gain.value=.22;
+  src.connect(hp).connect(g).connect(a.destination);src.start(t);
+  const o=a.createOscillator(),og=a.createGain();o.type="triangle";o.frequency.setValueAtTime(5200,t);o.frequency.exponentialRampToValueAtTime(2400,t+.2);
+  og.gain.setValueAtTime(.07,t);og.gain.exponentialRampToValueAtTime(.001,t+.25);o.connect(og).connect(a.destination);o.start(t);o.stop(t+.26);}
+function assassin(){
+  if(asnBusy)return; asnBusy=true;
+  const W=innerWidth,H=innerHeight,dpr=Math.min(2,devicePixelRatio||1);
+  const cv=document.createElement("canvas");cv.className="asn";cv.setAttribute("aria-hidden","true");cv.width=W*dpr;cv.height=H*dpr;document.body.append(cv);
+  const x=cv.getContext("2d");x.scale(dpr,dpr);x.imageSmoothingEnabled=false;
+  const px=Math.max(4,Math.round(Math.min(W,H)/90)), sw=16*px, sh=16*px;
+  const draw=(fr,cx,cy,flip)=>{const rows=ASN[fr];x.save();x.translate(Math.round(cx),Math.round(cy));if(flip)x.scale(-1,1);
+    rows.forEach((r,j)=>{for(let i=0;i<r.length;i++){const c=ASN_PAL[r[i]];if(!c)continue;x.fillStyle=c;x.fillRect((i-8)*px,(j-16)*px,px,px);}});x.restore();};
+  // three knife tears, diagonal through the landing spot
+  const lx=W*.56, ly=Math.min(H*.58,H-140);
+  const tears=[-1,0,1].map(k=>{const len=Math.min(W,H)*.7,ang=-0.62+k*.05,ox=lx+k*px*7,oy=ly-sh*.4+k*px*5;
+    const a=[ox-Math.cos(ang)*len*.5,oy-Math.sin(ang)*len*.5],b=[ox+Math.cos(ang)*len*.5,oy+Math.sin(ang)*len*.5];
+    const n=26,pts=[];for(let i=0;i<=n;i++){const t=i/n,w=Math.sin(Math.PI*t)*(px*2.6)*(0.7+0.6*Math.random());pts.push({t,x:a[0]+(b[0]-a[0])*t,y:a[1]+(b[1]-a[1])*t,w,j:(Math.random()-.5)*px*1.4});}
+    return {pts,nx:-Math.sin(ang),ny:Math.cos(ang)};});
+  const drawTear=(tr,prog,alpha)=>{const P=tr.pts.filter(p=>p.t<=prog);if(P.length<2)return;x.save();x.globalAlpha=alpha;
+    const side=s=>P.map(p=>[p.x+tr.nx*(p.w*s+p.j),p.y+tr.ny*(p.w*s+p.j)]);
+    const up=side(1),dn=side(-1).reverse();
+    // curled paper lip
+    x.beginPath();[...side(1.55),...side(-1.55).reverse()].forEach(([a,b],i)=>i?x.lineTo(a,b):x.moveTo(a,b));x.closePath();x.fillStyle="#ead9b4";x.globalAlpha=alpha*.55;x.fill();
+    // the void behind the map, with a faint ember glow
+    x.globalAlpha=alpha;x.beginPath();[...up,...dn].forEach(([a,b],i)=>i?x.lineTo(a,b):x.moveTo(a,b));x.closePath();
+    x.fillStyle="#040507";x.fill();x.strokeStyle="#b8302f";x.lineWidth=Math.max(1,px*.4);x.globalAlpha=alpha*.8;x.stroke();x.restore();};
+  const smoke=[];for(let i=0;i<22;i++)smoke.push({a:Math.random()*Math.PI*2,v:.4+Math.random(),s:px*(1+Math.floor(Math.random()*3))});
+  const T0=performance.now(), PEEK=900, LEAP=650, SLASH=520, HOLD=900, VANISH=520, FADE=1100, END=PEEK+LEAP+SLASH+HOLD+FADE;
+  const sx=W*.62, ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+  let shung=false;
+  const frame=now=>{const t=now-T0;x.clearRect(0,0,W,H);
+    const tSlash=t-PEEK-LEAP, prog=Math.max(0,Math.min(1,tSlash/SLASH)), fade=t>PEEK+LEAP+SLASH+HOLD?Math.max(0,1-(t-PEEK-LEAP-SLASH-HOLD)/FADE):1;
+    if(tSlash>0) tears.forEach((tr,i)=>drawTear(tr,Math.max(0,Math.min(1,prog*1.6-i*.3)),fade));
+    if(t<PEEK){ // peeks down from the top edge, upside-down, then drops into the room
+      const pk=Math.min(1,t/450), y=-sh+sh*.55*ease(pk);
+      x.save();x.translate(sx,y);x.scale(1,-1);draw("crouch",0,0,false);x.restore();
+    } else if(t<PEEK+LEAP){ // the leap: an arc down to the landing spot, knives out
+      const k=(t-PEEK)/LEAP, e=ease(k);
+      draw("leap",sx+(lx-sx)*e,  -sh*.1+(ly+sh*.1)*e - Math.sin(Math.PI*k)*H*.08, true);
+    } else if(t<PEEK+LEAP+SLASH+HOLD-VANISH){
+      if(!shung){shung=true;shing();}
+      draw(tSlash<SLASH*.7?"slash":"crouch",lx,ly,true);
+    } else if(t<PEEK+LEAP+SLASH+HOLD){ // gone in a puff of smoke
+      const k=(t-(PEEK+LEAP+SLASH+HOLD-VANISH))/VANISH;
+      if(k<.35){x.globalAlpha=1-k/.35;draw("crouch",lx,ly,true);x.globalAlpha=1;}
+      smoke.forEach(s=>{const r=k*sw*.9*s.v;x.fillStyle=`rgba(150,158,170,${(1-k)*.85})`;x.fillRect(Math.round(lx+Math.cos(s.a)*r-s.s/2),Math.round(ly-sh*.45+Math.sin(s.a)*r*.7-s.s/2),s.s,s.s);});
+    }
+    if(t<END)requestAnimationFrame(frame); else {cv.remove();asnBusy=false;}
+  };
+  if(reduced){ // no movement: the tears appear, then fade
+    tears.forEach(tr=>drawTear(tr,1,1)); setTimeout(()=>{cv.remove();asnBusy=false;},1600);
+  } else requestAnimationFrame(frame);
+  setTimeout(()=>toast("Hans: I did not see anyone. Neither did you."),reduced?300:PEEK+LEAP+SLASH+HOLD);
+}
+document.getElementById("egg-asn").onclick=assassin;
 const GLYPHS="░▒▚▞01ᚠᚦ";
 function scramble(el,text){
   el.textContent=text; if(reduced||!text) return;
