@@ -16,7 +16,7 @@
 //   --site DIR           serve this folder as the site instead of fetching --url (no web server needed)
 //   --browsers LIST      chromium,webkit,firefox (default chromium,webkit)
 //   --channel NAME       use an installed browser for Chromium, e.g. chrome
-//   --sizes LIST         desktop,phone (default both)
+//   --sizes LIST         desktop, big (a full-screen 16-inch laptop), phone (default desktop,phone)
 //   --poses LIST         which views (default all, see POSES below)
 //   --quality LIST       auto (the page picks, as players get it), full, nopaint, lite, plain, off (default auto,full).
 //                        For a breakdown of where the time goes: --quality full,nopaint,lite,plain (each drops one more
@@ -56,6 +56,7 @@ const POSES = {
 const poses = list(opt.poses, Object.keys(POSES).join(',')).filter(k => POSES[k] || console.warn('unknown pose', k));
 const SIZES = {
   desktop: { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 },
+  big:     { viewport: { width: 1728, height: 1117 }, deviceScaleFactor: 2 },   // a browser filling a 16-inch MacBook Pro
   phone:   { viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true },
 };
 const LEVELS = {                                   // what each quality means; "full" is what a fresh device starts with

@@ -61,6 +61,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 Newest first, with the PR that shipped it.
 
 - [x] **Play session 10: scenes, grid battles and the monsters from the script** · New · Sam · PR #37
+- [x] **Smooth first on computers: auto quality aims for 60 fps by softening the 3D map a little, and sharpens again** · Changed · Sam · PR #40
 - [x] **Faster globe, part 2: static noise baked at load, weather per vertex** · Changed · Sam · PR #39
 - [x] **Faster globe, part 1: skip shader work that is never shown** · Changed · Sam · PR #38
 - [x] **Frame-rate readout (`?fps`) and a visual test script (`tests/visual/check.js`)** · New · Sam · PR #36
