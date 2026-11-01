@@ -6,6 +6,8 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **New** Replay the journey: open the Chronicle and tap a session, or "Replay the whole journey", and Hans rewinds the chart to how it stood after that session. The cloud closes back in, later places disappear, and then the session plays forward: new ground clears, the route draws itself in ink and the party walks it. Step back and forth with the arrows, or tap "Back to now". (Sam)
+- **Changed** In the recap, the session's route now draws itself as the fog lifts, with the party walking along it, instead of popping in at once. (Sam)
 - **Changed** The assassin behind the spider button is a woman now: blonde hair under the hood, a long braid that flies as she leaps. (Niels)
 - **New** A fourth silly button, with a spider on it. Press it and see what drops from the ceiling. (Niels)
 - **Changed** Places has a short, fixed set of tags: tavern, shop, healing, work, travel, danger, and the factions (Blood Guild, Order of the Seal, Order of the Air, rebels, elves, One-Eyed Champions). Everyday words still work in search: "food" or "inn" finds the taverns, "harbour" finds travel points. When you edit a place's tags, the set is offered as one-tap buttons. (Niels)

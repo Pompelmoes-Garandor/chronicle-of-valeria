@@ -34,9 +34,19 @@ Top of the list is what to work on next.
 - [ ] **Passive Perception for Katy and Hans** · Lore · Sam · Their papers don't list it, so the sheet shows 12 and 11 worked out from Wisdom (marked *). Put the real numbers under Senses.
 - [ ] **Rename the "Character sheets" panel title to "Characters"** · Changed · either · Matches the dock button.
 - [ ] **Trackers panel** · New · either · Needs Sam for the counters. Places explored per region (Hans's chart: 13 of 23), Sigils claimed 2/4, and a party strip with everyone's HP at a glance. Idea from Craft RPG's trackers.
+- [ ] **Replay the journey: rewind the chart session by session** · New · either · From the design brainstorm (2026-11-01). Fog, pins and route go back to any session; the route draws itself and the party walks it. In progress, PR to follow.
+- [ ] **Fog that burns away** · New · either · A new session's ground is revealed by a glowing ember edge and drifting ash.
+- [ ] **Keep the screen awake in Table mode** · New · either · Screen Wake Lock, quiet fallback where unsupported.
+- [ ] **Postcard from Hans** · New · either · One tap renders the current view into a framed card and opens the share sheet.
 
 ## Next
 
+- [ ] **Region soundscapes** · New · either · Sam welcomes sound (2026-11-01). Wind in the north, crackle at the Fire Vault, birds in Summerwood, a faint techno leak from Hans. Web Audio, off by default.
+- [ ] **Hans reads aloud** · New · either · Recap stops read in the phone's built-in voice, pitched down. Off by default.
+- [ ] **Hand-painted globe** · Changed · either · Painterly filter and paper grain over the globe, desktop and Table mode only.
+- [ ] **Place cards that unfold** · Changed · either · The pin morphs into its card (View Transitions).
+- [ ] **Recap as chapters** · Changed · either · A chapter card per session with a drop cap and a Hans epigraph.
+- [ ] **Works with no signal** · New · either · Service worker so the map loads at the table without wifi.
 - [ ] **People directory** · New · either · Needs Sam. A list of the people the crew has met (Gerda, Thorn, Pieter-Bas, Teenoog, Calysta...), next to Places. Each player keeps how they feel about them (−10 to +10) and a note, saved on their own device like sheet edits.
 - [ ] **Get tag edits to everyone** · New · either · Start with a "Send to Sam" button that opens a GitHub issue or copies the edits for the group chat. Sam or Niels folds them into the places database.
 - [ ] **Richer place records** · New · either · Needs Sam. Add region and controlling faction to the places database (Order of the Seal for Orda and the Crow's Nest), and a "Mentioned in" list on each place: sessions, people and places that refer to it.
@@ -44,6 +54,9 @@ Top of the list is what to work on next.
 
 ## Later
 
+- [ ] **Living sky** · New · either · Needs Sam: should the Wind Vault's flying city cast a moving shadow? Slow day and night line and drifting weather over seen ground.
+- [ ] **Tap to roll from the sheet** · New · either · 3D dice tumble over the map from a tapped skill or attack.
+- [ ] **Fly-through for each new session** · New · either · A 20 second camera flight along the new route before control comes back.
 - [ ] **Map beside the recap on desktop** · Changed · either · Put the recap text next to the globe instead of over it, as Craft does with its map.
 - [ ] **Live online storage** · New · Sam and Niels · Needs Sam. Shared tags, notes and trackers for everyone at once through a hosted database (Firebase or Supabase), with sign-in limited to the table. Breaks two house rules (no new libraries, player data stays on the device), so only if both agree.
 

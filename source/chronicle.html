@@ -220,6 +220,14 @@ table.ans td,table.ans th{border-bottom:1px solid #c9a35c22;padding:6px 4px;text
 #caption .next{width:48px;height:48px;border-radius:50%;padding:0;display:grid;place-items:center;font-size:20px}
 #caption .ctl .btn:not(.next){border-radius:24px}
 .progress{position:absolute;top:8px;left:18px;right:18px;display:flex;gap:4px}
+#caption .jr{display:flex;gap:8px;align-items:center}
+#caption .jr .btn:not(.next){border-radius:24px}
+#caption .next[disabled]{opacity:.35;cursor:default}
+#caption.journey .who2{color:var(--brass)}
+.btn.replay{align-self:flex-start;border-radius:24px;margin:2px 0 10px}
+body.rewound #restore span{color:var(--ember)}
+body.rewound #asof{color:var(--ember)}
+.pin.party.walking .lbl{opacity:.75}
 .progress i{flex:1;height:2px;border-radius:1px;background:#ffffff14}
 .progress i.on{background:var(--brass)}
 .progress i.cur{background:var(--steward);box-shadow:0 0 6px var(--steward)}
@@ -829,10 +837,19 @@ function worldPos(lon,lat,lift=0){
   return s.lerp(f,m);
 }
 
+/* rewind: when each place, fog blob and route leg entered the chart, worked out from the sessions already listed */
+const firstS=p=>p&&p.sessions&&p.sessions.length?Math.min(...p.sessions):0;   // 0 = known before the decoded sessions
+const nearS=(lon,lat)=>{let b=null,d=1e9;for(const p of PLACES){if(p.state!=="rumour")continue;const dd=(p.lon-lon)**2+(p.lat-lat)**2;if(dd<d){d=dd;b=p;}}return firstS(b);};
+const LEG_S=(()=>{const out=[];let s=0;for(let i=0;i<ROUTE.length-1;i++){const later=byId[ROUTE[i+1]].sessions.filter(n=>n>=s);if(later.length)s=Math.min(...later);out.push(s);}return out;})();
+const legS=i=>i>=ROUTE_NEW_FROM?AS_OF:Math.min(LEG_S[i],AS_OF-1);
+const blobS=(e,fresh)=>fresh?AS_OF:Math.min(AS_OF-1,typeof e[0]==="string"?firstS(byId[e[0]]):nearS(e[0],e[1]));
+const MIN_S=Math.max(1,Math.min(...LEG_S.filter(n=>n>0),...PLACES.map(firstS).filter(n=>n>0)));
+let viewS=AS_OF;   // the session the chart is showing; below AS_OF = rewound
+
 /* fog mask: R = known before this session, G = revealed this session */
 const maskCv = document.createElement("canvas"); maskCv.width=1024; maskCv.height=512;
-function paintMask(){
-  const c=maskCv.getContext("2d"); c.fillStyle="#000"; c.fillRect(0,0,1024,512); c.globalCompositeOperation="lighten";
+function paintMask(T=AS_OF){
+  const c=maskCv.getContext("2d"); c.globalCompositeOperation="source-over"; c.fillStyle="#000"; c.fillRect(0,0,1024,512); c.globalCompositeOperation="lighten";
   const blob=(lon,lat,r,v,ch)=>{
     const x=(lon+180)/360*1024, y=(90-lat)/180*512, ry=r/180*512, rx=ry/Math.max(.2,Math.cos(lat*D2R));
     const val=Math.round(v*255); const col=a=>ch==="g"?`rgba(0,${val},0,${a})`:`rgba(${val},0,0,${a})`;
@@ -841,17 +858,18 @@ function paintMask(){
     c.fillStyle=g; c.beginPath(); c.arc(0,0,ry,0,7); c.fill(); c.restore();
   };
   const res=(e)=>typeof e[0]==="string"?[byId[e[0]].lon,byId[e[0]].lat,e[1],e[2]]:e;
-  FOG.rumour.forEach(e=>{const [a,b,r,v]=res(e);blob(a,b,r,v,"r")});
-  FOG.old.forEach(e=>{const [a,b,r,v]=res(e);blob(a,b,r,v,"r")});
-  FOG.fresh.forEach(e=>{const [a,b,r,v]=res(e);blob(a,b,r,v,"g")});
+  FOG.rumour.forEach(e=>{if(blobS(e)>T)return;const [a,b,r,v]=res(e);blob(a,b,r,v,"r")});
+  FOG.old.forEach(e=>{const s=blobS(e);if(s>T)return;const [a,b,r,v]=res(e);blob(a,b,r,v,s<T?"r":"g")});
+  FOG.fresh.forEach(e=>{if(T<AS_OF)return;const [a,b,r,v]=res(e);blob(a,b,r,v,"g")});
   // the route corridor
-  for(let i=0;i<ROUTE.length-1;i++){const A=byId[ROUTE[i]],B=byId[ROUTE[i+1]];if(ROUTE[i]+">"+ROUTE[i+1]===TELEPORT)continue;
-    for(let k=0;k<=10;k++){const t=k/10;blob(A.lon+(B.lon-A.lon)*t,A.lat+(B.lat-A.lat)*t,2.2,1,i>=ROUTE_NEW_FROM?"g":"r")}}
+  for(let i=0;i<ROUTE.length-1;i++){const A=byId[ROUTE[i]],B=byId[ROUTE[i+1]];if(ROUTE[i]+">"+ROUTE[i+1]===TELEPORT||legS(i)>T)continue;
+    for(let k=0;k<=10;k++){const t=k/10;blob(A.lon+(B.lon-A.lon)*t,A.lat+(B.lat-A.lat)*t,2.2,1,legS(i)<T?"r":"g")}}
 }
 paintMask();
-const PCT=(()=>{const d=maskCv.getContext("2d").getImageData(0,0,1024,512).data;let o=0,n=0,t=0;
+const calcPct=()=>{const d=maskCv.getContext("2d").getImageData(0,0,1024,512).data;let o=0,n=0,t=0;
   for(let y=0;y<512;y++){const w=Math.cos(((y+.5)/512-.5)*Math.PI);for(let x=0;x<1024;x++){const i=(y*1024+x)*4;o+=w*d[i]/255;n+=w*Math.max(d[i],d[i+1])/255;t+=w;}}
-  return {old:o/t*100,now:n/t*100};})();
+  return {old:o/t*100,now:n/t*100};};
+let PCT=calcPct();
 const pctEl=document.getElementById("pct"); let pctShown=-1;
 const maskTex = new THREE.CanvasTexture(maskCv); maskTex.minFilter=THREE.LinearFilter;
 
@@ -1257,10 +1275,16 @@ const trailNewMat = new THREE.LineDashedMaterial({color:0xe8743b,dashSize:0.012,
 const trailOld=new THREE.Line(new THREE.BufferGeometry(),trailMat), trailNew=new THREE.Line(new THREE.BufferGeometry(),trailNewMat);
 trailOld.frustumCulled=trailNew.frustumCulled=false; scene.add(trailOld,trailNew);
 function routePts(a,b){const out=[];for(let i=a;i<b;i++){const A=byId[ROUTE[i]],B=byId[ROUTE[i+1]];const tp=ROUTE[i]+">"+ROUTE[i+1]===TELEPORT,n=tp?60:12;for(let k=0;k<=n;k++){const t=k/n;out.push([A.lon+(B.lon-A.lon)*t,A.lat+(B.lat-A.lat)*t,tp?0.004+0.18*Math.sin(Math.PI*t):0.004])}}return out;}
-const RP_OLD=routePts(0,ROUTE_NEW_FROM), RP_NEW=routePts(ROUTE_NEW_FROM,ROUTE.length-1);
+// legs of the shown session are "new": they draw themselves as the fog lifts, and the party walks the tip
+function legRange(T){let a=0;while(a<ROUTE.length-1&&legS(a)<T)a++;let b=a;while(b<ROUTE.length-1&&legS(b)<=T)b++;return [a,b];}
+let RP_OLD, RP_NEW, partyHome=byId[PARTY_AT], walkTip=null;
+function setTrail(T){const [a,b]=legRange(T);RP_OLD=routePts(0,a);RP_NEW=routePts(a,b);partyHome=T>=AS_OF?byId[PARTY_AT]:byId[ROUTE[b]];}
+setTrail(AS_OF);
 function updateTrail(){
   for(const [line,pts] of [[trailOld,RP_OLD],[trailNew,RP_NEW]]){line.geometry.setFromPoints(pts.map(([a,b,l])=>worldPos(a,b,l)));line.computeLineDistances();}
-  trailNew.visible = uniforms.uReveal.value>0.6;
+  const k=Math.max(0,Math.min(1,(uniforms.uReveal.value-0.12)/0.78)), n=Math.round(RP_NEW.length*k);
+  trailNew.geometry.setDrawRange(0,n); trailNew.visible=n>1;
+  walkTip = n>1&&n<RP_NEW.length ? RP_NEW[n-1] : null;
 }
 
 /* =================== CAMERA =================== */
@@ -1615,11 +1639,13 @@ const v3=new THREE.Vector3();
 function updatePins(){
   const w=innerWidth,h=innerHeight, m=ease(morph), cp=camera.position;
   for(const r of pinEls){
-    const p=worldPos(r.lon,r.lat,0.006);
+    if(r===partyPin){const t=walkTip; r.lon=t?t[0]:partyHome.lon+1.4; r.lat=t?t[1]:partyHome.lat-1.2; r.lift=t?t[2]:0; r.el.classList.toggle("walking",!!t);}
+    const p=worldPos(r.lon,r.lat,0.006+(r.lift||0));
     let vis=true;
     if(m<0.5){const n=sphDir(r.lon,r.lat);vis=n.dot(cp)>R*1.02;}
     if(r.newPin&&uniforms.uReveal.value<0.55) vis=false;
-    if(r===partyPin&&uniforms.uReveal.value<0.9) vis=false;
+    if(r===partyPin&&(RP_NEW.length?trailNew.geometry.drawRange.count<=1:uniforms.uReveal.value<0.9)) vis=false;
+    if(r.place&&viewS<AS_OF){const f=firstS(r.place); if(f>viewS||(f===viewS&&uniforms.uReveal.value<0.55)) vis=false;}
     v3.copy(p).project(camera);
     if(v3.z>1||Math.abs(v3.x)>1.2||Math.abs(v3.y)>1.2) vis=false;
     r.el.hidden=!vis; if(!vis) continue;
@@ -1703,7 +1729,7 @@ document.getElementById("sheet-close").onclick=closeSheet;
    if(dy>sheet.offsetHeight*.25&&!tall||dy>sheet.offsetHeight*.45)closeSheet(); else if(dy>40)sheet.classList.remove("tall"); else if(dy<-40)sheet.classList.add("tall"); else if(Math.abs(dy)<4)sheet.classList.toggle("tall");};
  hd.forEach(el=>{el.addEventListener("pointerdown",down);el.addEventListener("pointermove",move);el.addEventListener("pointerup",up);el.addEventListener("pointercancel",up);});}
 tabs.forEach(b=>b.onclick=()=>{const t=b.dataset.tab;if(tab===t){closeSheet();return;}
-  if(recapOn&&t!=="recap")endRecap();
+  if(recapOn&&t!=="recap")endRecap(); if(journeyOn)endJourney();
   ({recap:startRecap,chronicle:showChronicle,sheets:showSheets,places:()=>showPlaces(),missed:showMissed,ask:showAsk,dm:showDM})[t]();});
 /* ---- cinematic lines: one at a time, stay until read (tap advances) ---- */
 const cineEl=document.getElementById("cine"); let cineQ=[], cineCur=null;
@@ -1852,6 +1878,7 @@ function openNote(n){openSheet(n.missed?"Missed by the box":"Party pin",[noteCar
 /* =================== RECAP =================== */
 let recapOn=false, recapI=0, recapTimer=null; const cap=document.getElementById("caption");
 function startRecap(){
+  if(journeyOn) endJourney(false); if(viewS!==AS_OF) setView(AS_OF,{play:false});
   closeSheet(); setTab("recap"); recapOn=true; recapI=0;
   reveal.v=0; reveal.goal=0; showStop();
 }
@@ -1886,15 +1913,65 @@ function showStop(){
 let typing=null;
 function endRecap(){recapOn=false;clearTimeout(recapTimer);cap.hidden=true;reveal.goal=1;setTab(null);store.set("chron-seen",SKEY);
   document.querySelector('[data-tab="recap"] .dot')?.remove();}
-addEventListener("keydown",e=>{if(e.key==="Escape"){if(recapOn)endRecap();else if(placing)stopPlacing();else closeSheet();}});
+addEventListener("keydown",e=>{if(e.key==="Escape"){if(recapOn)endRecap();else if(journeyOn)endJourney();else if(placing)stopPlacing();else closeSheet();}});
+
+/* =================== REWIND: replay the journey, one session at a time =================== */
+const asofEl=document.getElementById("asof"), restoreS=document.querySelector("#restore span");
+const ASOF_TXT=asofEl.textContent, RESTORE_TXT=restoreS.textContent;
+const JOURNEY=SESSIONS.filter(x=>typeof x.n==="number"&&x.n>=MIN_S&&x.n<=AS_OF).map(x=>x.n);
+let journeyOn=false, journeyAuto=false, journeyTimer=null, revealT=null;
+const s2=n=>String(n).padStart(2,"0");
+function setView(T,{play=true}={}){
+  T=Math.max(MIN_S,Math.min(AS_OF,T)); viewS=T;
+  paintMask(T); maskTex.needsUpdate=true; PCT=calcPct(); pctShown=-1; setTrail(T);
+  const back=T<AS_OF; document.body.classList.toggle("rewound",back);
+  asofEl.textContent=back?"REWOUND · THE CHART AS IT STOOD AFTER SESSION "+T:ASOF_TXT;
+  restoreS.textContent=back?"S"+s2(T)+" · REPLAY":RESTORE_TXT;
+  clearTimeout(revealT);
+  if(play){reveal.v=0;reveal.goal=0;revealT=setTimeout(()=>{reveal.goal=1},reduced?0:900);} else {reveal.v=reveal.goal=1;}
+}
+function startJourney(T,{auto=false}={}){
+  if(recapOn) endRecap(); closeSheet(); journeyOn=true; journeyAuto=auto&&!reduced; showJourney(T);
+}
+function showJourney(T){
+  clearTimeout(journeyTimer); setView(T);
+  const s=SESSIONS.find(x=>x.n===viewS)||SESSIONS[SESSIONS.length-1], st=s.v==="steward", i=JOURNEY.indexOf(viewS), last=viewS>=AS_OF;
+  flyToPlace(s.at,.5);
+  const prog=h("div",{class:"progress","aria-hidden":"true"},JOURNEY.map((_,k)=>h("i",{class:k<i?"on":k===i?"cur":""})));
+  const face=h("span",{html:hansFace({state:st?"is-steward":"is-speaking",label:st?"The black box, speaking through Hans":bird?"Hans, a talking bird":"Hans"})}).firstElementChild;
+  if(!st) setTimeout(()=>face.classList.remove("is-speaking"),2600);
+  const place=h("div",{class:"place"}), txt=h("div",{class:"txt in"},h("p",{},bird&&!st?squawk(s.s):s.s));
+  const go=d=>{journeyAuto=false;showJourney(JOURNEY[Math.max(0,Math.min(JOURNEY.length-1,i+d))]);};
+  txt.onclick=()=>{if(!last)go(1);};
+  cap.replaceChildren(prog,
+    h("div",{class:"narr"},face,h("div",{},h("div",{class:"who2"},`REPLAY · S${s2(viewS)} · ${i+1}/${JOURNEY.length} · ${st?"THE STEWARD, AS TOLD TO HANS":bird?"HANS (A BIRD NOW) REMEMBERS":"HANS REMEMBERS"}`),place)),
+    txt,
+    h("div",{class:"ctl"},
+      h("button",{class:"skip",type:"button",onclick:()=>endJourney()},last?"Close":"Back to now"),
+      h("span",{class:"jr"},
+        h("button",{class:"btn next",type:"button","aria-label":"Previous session",disabled:i<=0?"":null,onclick:()=>go(-1)},"←"),
+        last?h("button",{class:"btn",type:"button",onclick:()=>{endJourney(false);startRecap();}},"Play the recap"):
+             h("button",{class:"btn next",type:"button","aria-label":"Next session",onclick:()=>go(1)},"→")))
+  );
+  cap.classList.remove("steward"); cap.classList.add("journey"); cap.hidden=false; scramble(place,"Session "+viewS+" · "+s.t);
+  if(journeyAuto&&!last) journeyTimer=setTimeout(()=>{if(journeyOn&&journeyAuto)showJourney(JOURNEY[i+1]);},Math.max(8000,s.s.length*60));
+  const cue=()=>txt.classList.toggle("more",txt.scrollTop+txt.clientHeight<txt.scrollHeight-2);
+  txt.addEventListener("scroll",cue,{passive:true}); requestAnimationFrame(cue);
+}
+function endJourney(toNow=true){
+  journeyOn=false; journeyAuto=false; clearTimeout(journeyTimer); cap.hidden=true; cap.classList.remove("journey");
+  if(toNow&&viewS!==AS_OF){setView(AS_OF,{play:false}); toast("Back to now. Session "+AS_OF+".");}
+}
 
 /* =================== CHRONICLE =================== */
 function showChronicle(){
   const list=h("ul",{class:"sessions"},SESSIONS.map(s=>h("li",{},h("button",{type:"button",onclick:(e)=>{
+      if(s.recap){startRecap();return;}
+      if(typeof s.n==="number"&&s.n>=MIN_S&&s.n<AS_OF){startJourney(s.n);return;}
       flyToPlace(s.at,.42); [...list.querySelectorAll("button")].forEach(b=>b.setAttribute("aria-pressed",String(b===e.currentTarget)));
-      if(s.recap){startRecap();}
     }},h("span",{class:"n"},"S"+(typeof s.n==="number"?String(s.n).padStart(2,"0"):s.n)),h("span",{},h("span",{class:"t"},s.t),h("span",{class:"by"},s.v==="hans"?"Hans":"The Steward, as told to Hans"),h("span",{class:"s"},s.s))))));
-  openSheet("The Chronicle",[h("p",{class:"eyebrow m"},"DECODED FROM THE BLACK BOX · AS OF SESSION "+AS_OF),h("p",{class:"muted small"},"Hans placed the black box from the ship inside his own body to decode its beeping. This chart is what he has decoded so far. Where the data is still scrambled, there is cloud. Tap a session to fly there."),list,
+  openSheet("The Chronicle",[h("p",{class:"eyebrow m"},"DECODED FROM THE BLACK BOX · AS OF SESSION "+AS_OF),h("p",{class:"muted small"},"Hans placed the black box from the ship inside his own body to decode its beeping. This chart is what he has decoded so far. Where the data is still scrambled, there is cloud. Tap a session to see the chart as it stood after it."),
+    h("button",{class:"btn replay",type:"button",onclick:()=>startJourney(MIN_S,{auto:true})},"Replay the whole journey"),list,
     h("p",{class:"eyebrow"},"WHAT THE PARTY CARRIES"),
     h("p",{class:"small voice"},"The black box from the ship, now inside me. The ring and booklet of Vayne and a green bracelet, all still to identify. The ash blade +1. A towel that drinks 200 litres. The Vial of Dragon's Fire. I have catalogued all of it. Twice."),
     h("p",{class:"eyebrow"},"HANS'S FILES"),
