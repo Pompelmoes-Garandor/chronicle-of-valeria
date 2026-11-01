@@ -90,7 +90,7 @@ nav.dock{position:fixed;z-index:5;left:50%;transform:translateX(-50%);bottom:cal
 .dock button[aria-pressed="true"]{color:var(--parch);background:#ffffff08}
 .dock button[aria-pressed="true"]::before{transform:scaleX(1)}
 .dock button .dot{position:absolute;top:8px;left:calc(50% + 8px);width:7px;height:7px;border-radius:50%;background:var(--ember);box-shadow:0 0 8px var(--ember)}
-@media (prefers-reduced-motion:no-preference){.dock button .dot{animation:pulse 1.6s ease-in-out infinite}}
+@media (prefers-reduced-motion:no-preference){.dock button .dot{animation:pulse 1.6s ease-in-out 3}}
 @keyframes pulse{50%{opacity:.35}}
 .dock button.dm{color:var(--dm)}
 .dock button span{white-space:nowrap}
@@ -124,7 +124,7 @@ aside#sheet{position:fixed;z-index:6;color:var(--parch);background:var(--brk),li
 }
 .sheet-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:16px 16px 10px 20px;border-bottom:1px solid #c9a35c22}
 .sheet-head h2{margin:0;font:400 24px/1.15 var(--display);text-wrap:balance}
-.x{background:none;border:0;color:var(--parch-dim);font:18px/1 var(--body);cursor:pointer;width:40px;height:40px;border-radius:10px;flex:none}
+.x{background:none;border:0;color:var(--parch-dim);font:18px/1 var(--body);cursor:pointer;width:44px;height:44px;border-radius:10px;flex:none}
 .x:hover{background:#ffffff0a;color:var(--parch)}
 .sheet-body{padding:14px 20px 20px;overflow-y:auto;min-height:0;display:flex;flex-direction:column;gap:12px}
 .sheet-body p{margin:0}
@@ -280,7 +280,7 @@ body.rewound #asof{color:var(--ember)}
 .tray button[aria-pressed="true"]::after{content:"on";color:var(--steward);opacity:1}
 .tray button.snd[aria-pressed="false"] .w1,.tray button.snd[aria-pressed="false"] .w2{opacity:.25}
 .tray .sep{display:block;height:1px;margin:4px 8px;background:#c9a35c26}
-#caption .say{background:none;border:1px solid var(--hairline);color:var(--parch-dim);border-radius:999px;width:36px;height:36px;padding:0;display:grid;place-items:center;cursor:pointer;flex:none;margin-left:auto}
+#caption .say{background:none;border:1px solid var(--hairline);color:var(--parch-dim);border-radius:999px;width:44px;height:44px;padding:0;display:grid;place-items:center;cursor:pointer;flex:none;margin-left:auto}
 #caption .say[aria-pressed="true"]{color:#1a1307;background:var(--brass);border-color:var(--brass)}
 #caption .say svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6}
 .eggs svg{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
@@ -316,7 +316,7 @@ body.rewound #asof{color:var(--ember)}
 body.cinema #lbox i{height:10vh}
 body.cinema header.top,body.cinema nav.dock,body.cinema .eggs,body.cinema #pins{opacity:0;pointer-events:none}
 header.top,nav.dock,.eggs,#pins{transition:opacity .5s}
-#cine-skip{position:fixed;z-index:9;right:16px;top:calc(var(--top) + 3vh);background:none;border:1px solid #ffffff33;color:#ffffffaa;font:500 12px/1 var(--label);letter-spacing:.14em;padding:9px 12px;border-radius:999px;cursor:pointer}
+#cine-skip{position:fixed;z-index:9;right:16px;top:calc(var(--top) + 3vh);background:none;border:1px solid #ffffff33;color:#ffffffaa;font:500 12px/1 var(--label);letter-spacing:.14em;min-height:44px;padding:0 16px;border-radius:999px;cursor:pointer}
 #cine{position:fixed;z-index:9;left:50%;transform:translateX(-50%);bottom:calc(var(--bot) + 13vh);width:min(720px,calc(100vw - 32px));box-sizing:border-box;text-align:left;cursor:pointer;display:flex;gap:16px;align-items:flex-start;
   padding:18px 22px 14px;border-radius:14px;background:linear-gradient(#0b0d12d0,#0b0d12ee);border:1px solid var(--hairline);box-shadow:0 20px 60px #000c}
 body:not(.cinema) #cine{bottom:calc(var(--bot) + 96px)}
@@ -328,7 +328,7 @@ body:not(.cinema) #cine{bottom:calc(var(--bot) + 96px)}
 #cine.glitch{border-color:#c9373a88;text-align:left}
 #cine.steward.glitch .cn-who{color:#ff5a4a}
 #cine.steward.glitch .cn-txt{font-size:clamp(13px,1.7vw,16px);line-height:1.55;text-shadow:1.5px 0 #ff2a5a88,-1.5px 0 #00ffd588}
-@media (prefers-reduced-motion:no-preference){#cine.glitch{animation:cglitch 2.2s steps(1) infinite}}
+@media (prefers-reduced-motion:no-preference){#cine.glitch{animation:cglitch 4.5s steps(1) infinite}}
 @keyframes cglitch{0%,100%{transform:translateX(-50%)}8%{transform:translateX(calc(-50% + 3px)) skewX(-2deg)}9%{transform:translateX(-50%)}47%{transform:translateX(calc(-50% - 2px));filter:hue-rotate(-40deg)}48%{transform:translateX(-50%);filter:none}}
 #cine.steward .cn-who{color:var(--steward)} #cine.steward .cn-txt{white-space:pre-line} #cine.steward .cn-txt{font:400 clamp(15px,2vw,19px)/1.6 var(--mono);color:var(--steward);letter-spacing:.02em}
 .cn-foot{display:flex;align-items:center;gap:10px;margin-top:12px}
@@ -1289,23 +1289,24 @@ const BAKE=(()=>{const big=renderer.capabilities.maxTextureSize>=4096, w=big?204
 const cloudU = {...uniforms,uLift:{value:0.02},uOpacity:{value:1}};
 const clouds = new THREE.Mesh(geo,new THREE.ShaderMaterial({uniforms:cloudU,vertexShader:VERT,fragmentShader:CLOUD_FRAG,transparent:true,depthWrite:false,side:THREE.DoubleSide}));
 clouds.frustumCulled=false; scene.add(clouds);
-// living world: snow over the cold north, embers from the Fire Vault, steam over the thaw, fireflies in Summerwood
+// living world: snow over the cold north, embers from the Fire Vault, steam over the thaw, fireflies in Summerwood (only once you zoom in)
+const LIVE={uNear:{value:0}};
 {const K=[[0,150,-48,-2,37,52],[1,46,-32.2,-28.8,30.5,32.7],[2,22,-33,-26,22,29],[3,80,84,100,15,31]];
  const n=K.reduce((s,k)=>s+k[1],0), a=new Float32Array(n*4); let i=0;
  for(const [k,c,l0,l1,b0,b1] of K) for(let j=0;j<c;j++,i++) a.set([l0+Math.random()*(l1-l0),b0+Math.random()*(b1-b0),Math.random(),k],i*4);
  const g=new THREE.BufferGeometry(); g.setAttribute("position",new THREE.BufferAttribute(new Float32Array(n*3),3)); g.setAttribute("aP",new THREE.BufferAttribute(a,4));
- const u={uTime:uniforms.uTime,uMorph:uniforms.uMorph,uCenter:uniforms.uCenter,uMask:uniforms.uMask,uReveal:uniforms.uReveal,uPx:{value:800}};
+ const u={uTime:uniforms.uTime,uMorph:uniforms.uMorph,uCenter:uniforms.uCenter,uMask:uniforms.uMask,uReveal:uniforms.uReveal,uPx:{value:800},uNear:LIVE.uNear};
  const m=new THREE.ShaderMaterial({uniforms:u,transparent:true,depthWrite:false,vertexShader:`
-uniform float uTime,uMorph,uPx,uReveal; uniform vec2 uCenter; uniform sampler2D uMask;
+uniform float uTime,uMorph,uPx,uReveal,uNear; uniform vec2 uCenter; uniform sampler2D uMask;
 attribute vec4 aP; varying vec3 vC; varying float vA; varying float vK;
 void main(){
   float k=aP.w,s=aP.z,t=uTime,lon=aP.x,lat=aP.y,lift=0.0,a=1.0,sz=0.005; vec3 c=vec3(0.97,0.98,1.0);
   if(k<0.5){float ph=fract(t*0.06+s);lift=0.045*(1.0-ph);lon+=sin(t*0.6+s*40.0)*0.7;lat-=ph*1.5;a=0.9*smoothstep(0.0,0.15,ph)*(1.0-smoothstep(0.85,1.0,ph));}
   else if(k<1.5){float ph=fract(t*0.22+s);lift=0.002+0.045*ph;lon+=sin(t*1.3+s*30.0)*0.6*ph;lat+=0.4*ph;
-    a=(1.0-ph)*(0.7+0.3*sin(t*9.0+s*50.0));sz=0.0045*(1.0-0.5*ph);c=mix(vec3(1.0,0.85,0.4),vec3(0.95,0.3,0.08),ph);}
+    a=(1.0-ph)*(0.85+0.15*sin(t*4.0+s*50.0));sz=0.0045*(1.0-0.5*ph);c=mix(vec3(1.0,0.85,0.4),vec3(0.95,0.3,0.08),ph);}
   else if(k<2.5){float ph=fract(t*0.05+s);lift=0.004+0.03*ph;lon+=ph*1.5;a=0.35*sin(ph*3.14159);sz=0.02+0.03*ph;}
   else{lon+=sin(t*0.31+s*17.0)*0.7+sin(t*0.73+s*5.0)*0.3;lat+=cos(t*0.27+s*11.0)*0.6;lift=0.004+0.004*sin(t+s*9.0);
-    a=pow(max(0.0,sin(t*(0.9+s)+s*40.0)),4.0);sz=0.0042;c=vec3(0.98,1.0,0.55);}
+    a=pow(max(0.0,sin(t*(0.45+0.5*s)+s*40.0)),4.0)*uNear;sz=0.0042;c=vec3(0.98,1.0,0.55);}
   vec4 mk=texture2D(uMask,vec2(lon/360.0+0.5,lat/180.0+0.5));
   a*=clamp(max(mk.r,mk.g*uReveal)*1.4-0.25,0.0,1.0);
   float lo=radians(lon),la=radians(lat);
@@ -1324,7 +1325,7 @@ void main(){float d=length(gl_PointCoord-0.5);
  pts.onBeforeRender=r=>{u.uPx.value=r.domElement.height;}; scene.add(pts);}
 
 // ash: as the burn line passes over new ground, embers lift off it and cool to grey
-const ash=(()=>{const N=260, g=new THREE.BufferGeometry(); const aP=new Float32Array(N*3);
+const ash=(()=>{const N=170, g=new THREE.BufferGeometry(); const aP=new Float32Array(N*3);
  g.setAttribute("position",new THREE.BufferAttribute(new Float32Array(N*3),3)); g.setAttribute("aP",new THREE.BufferAttribute(aP,3));
  const u={uTime:uniforms.uTime,uMorph:uniforms.uMorph,uCenter:uniforms.uCenter,uReveal:uniforms.uReveal,uPx:{value:800}};
  const m=new THREE.ShaderMaterial({uniforms:u,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,vertexShader:`
@@ -1334,7 +1335,7 @@ ${NOISE}
 void main(){
   float lon=aP.x,lat=aP.y,s=aP.z,t=uTime;
   float rn=fbm(dir(lon,lat)*9.0)*0.5+0.5, bd=uReveal*1.15-0.05-rn, ph=clamp(bd/0.16,0.0,1.0);
-  float a=step(0.0,bd)*(1.0-ph)*step(0.02,uReveal)*step(uReveal,0.999)*(0.6+0.4*sin(t*11.0+s*70.0));
+  float a=step(0.0,bd)*(1.0-ph)*step(0.02,uReveal)*step(uReveal,0.999)*0.8*(0.85+0.15*sin(t*5.0+s*70.0));
   float lift=0.003+0.05*ph*(0.6+0.4*s); lon+=sin(t*1.1+s*30.0)*0.8*ph; lat+=0.5*ph;
   vec3 c=mix(vec3(1.0,0.72,0.3),vec3(0.32,0.30,0.29),smoothstep(0.15,0.7,ph));
   float lo=radians(lon),la=radians(lat);
@@ -1363,7 +1364,7 @@ void main(){float d=length(gl_PointCoord-0.5); float a=smoothstep(0.5,0.1,d)*vA;
 // orrery rings
 const brass = new THREE.MeshBasicMaterial({color:0xc9a35c,transparent:true,opacity:.9});
 const rings = new THREE.Group(); scene.add(rings);
-[[1.32,0.006,0.4],[1.45,0.004,-0.9],[1.2,0.003,1.3]].forEach(([r,t,tilt],i)=>{const m=new THREE.Mesh(new THREE.TorusGeometry(r,t,8,160),brass);m.rotation.x=Math.PI/2+tilt*0.3;m.rotation.y=tilt;m.userData.spin=(i%2?-1:1)*0.04*(i+1);rings.add(m)});
+[[1.32,0.006,0.4],[1.45,0.004,-0.9],[1.2,0.003,1.3]].forEach(([r,t,tilt],i)=>{const m=new THREE.Mesh(new THREE.TorusGeometry(r,t,8,160),brass);m.rotation.x=Math.PI/2+tilt*0.3;m.rotation.y=tilt;m.userData.spin=(i%2?-1:1)*0.015*(i+1);rings.add(m)});
 {const bead=new THREE.Mesh(new THREE.SphereGeometry(0.025,16,12),brass);bead.position.set(1.32,0,0);rings.children[0].add(bead);}
 // halo
 {const c=document.createElement("canvas");c.width=c.height=256;const x=c.getContext("2d");const g=x.createRadialGradient(128,128,60,128,128,128);g.addColorStop(0,"rgba(201,163,92,.22)");g.addColorStop(.6,"rgba(120,140,170,.08)");g.addColorStop(1,"rgba(0,0,0,0)");x.fillStyle=g;x.fillRect(0,0,256,256);
@@ -1960,7 +1961,7 @@ function updatePins(){
 /* =================== LIVING SKY =================== */
 // lamps: the settled places the crew has walked through (fog hides any the chart does not show yet)
 PLACES.filter(p=>p.state==="explored"&&!p.vault&&!p.minor).slice(0,8).forEach((p,i)=>{const d=sphDir(p.lon,p.lat);uniforms.uLights.value[i].set(d.x,d.y,d.z,p.major?1:.6);});
-const SKY={day:480, lon0:cam.lon+70, flash:{next:performance.now()+25000+Math.random()*30000,t:-1}};   // one day every 8 minutes, starting mid-morning where you look
+const SKY={day:480, lon0:cam.lon+70, flash:{next:performance.now()+60000+Math.random()*60000,t:-1}};   // one day every 8 minutes, starting mid-morning where you look
 function tickSky(now,dt){
   const lon=reduced?cam.lon+20:SKY.lon0-(now/1000)*360/SKY.day, lat=12;
   uniforms.uSun.value.copy(sphDir(lon,lat));
@@ -1968,8 +1969,8 @@ function tickSky(now,dt){
   if(!reduced&&now>f.next&&!document.hidden){ // a strike over seen ground, somewhere the weather is; thunder follows when sound is on
     const ex=PLACES.filter(p=>p.state==="explored"&&firstS(p)<=viewS), p=ex[Math.floor(Math.random()*ex.length)];
     if(p){const d=sphDir(p.lon+(Math.random()-.5)*8,p.lat+(Math.random()-.5)*6);F.set(d.x,d.y,d.z,0);f.t=now;thunder(1.2+Math.random()*1.5);}
-    f.next=now+30000+Math.random()*45000;}
-  if(f.t>0){const k=(now-f.t)/1000; F.w=k<.08?1:k<.16?.2:k<.26?.8:Math.max(0,.8-(k-.26)*3); if(k>1)f.t=-1;}
+    f.next=now+70000+Math.random()*80000;}
+  if(f.t>0){const k=(now-f.t)/1000; F.w=.5*(k<.12?k/.12:Math.exp(-(k-.12)*3.5)); if(k>1.6){f.t=-1;F.w=0;}}
 }
 // the Wind Vault's shadow: where the sun throws the floating city onto the ground, stretched when the sun is low
 const _cs=new THREE.Vector3(), _ct=new THREE.Vector3();
@@ -2055,6 +2056,7 @@ function frame(now){
   tickFly(now);
   if(reveal.v!==reveal.goal){reveal.v+=Math.sign(reveal.goal-reveal.v)*Math.min(Math.abs(reveal.goal-reveal.v),dt/(reduced?.01:3.2));}
   uniforms.uReveal.value=reveal.v;
+  LIVE.uNear.value=Math.min(1,Math.max(0,(0.45-cam.zoom)/0.15));
   {const v=Math.round((PCT.old+(PCT.now-PCT.old)*reveal.v)*10)/10; if(v!==pctShown){pctShown=v;pctEl.textContent=v.toFixed(1)+"%";
     const f=Math.min(1,v/100); hud.style.setProperty("--decoded",Math.max(.02,f)); dbar.style.width=(f*100)+"%";}
    hud.classList.toggle("is-decoding",reveal.v!==reveal.goal);}
@@ -2065,7 +2067,7 @@ function frame(now){
    if(Math.abs(vo.x)+Math.abs(vo.y)>.5) camera.setViewOffset(innerWidth,innerHeight,vo.x,vo.y,innerWidth,innerHeight); else camera.clearViewOffset();}
   const mm=ease(morph);
   // the orrery rings frame the overview; they fade out as you zoom in on a place so they never cut across it
-  const ringA=0.9*(1-mm)*(innerWidth<=700?.4:1)*Math.min(1,Math.max(0,(cam.zoom-0.4)/0.18));
+  const ringA=0.55*(1-mm)*(innerWidth<=700?.5:1)*Math.min(1,Math.max(0,(cam.zoom-0.4)/0.18));
   halo.visible=mm<0.98; rings.visible=ringA>0.01; brass.opacity=ringA;
   halo.material.opacity=1-mm; rings.children.forEach(r=>r.rotation.z+=r.userData.spin*dt);
   const w=byId["v-wind"]; const bob=Math.sin(now/900)*0.006;
@@ -2119,11 +2121,13 @@ tabs.forEach(b=>b.onclick=()=>{const t=b.dataset.tab;if(tab===t){closeSheet();re
   ({recap:startRecap,chronicle:showChronicle,sheets:showSheets,places:()=>showPlaces(),missed:showMissed,ask:showAsk,dm:showDM})[t]();});
 /* ---- cinematic lines: one at a time, stay until read (tap advances) ---- */
 const cineEl=document.getElementById("cine"); let cineQ=[], cineCur=null;
+// one reading speed for every caption: a couple of seconds to find the line, then about 200 words a minute
+function readMs(t){return 2200+String(t).length*55;}
 function cine(lines){cineQ.push(...lines); if(!cineCur) cineNext();}
 function cineNext(){
   clearInterval(cineEl.__iv); clearTimeout(cineEl.__to);
   cineCur=cineQ.shift(); if(!cineCur){cineEl.hidden=true;return;}
-  const l=cineCur, st=l.voice==="steward", text=st?l.text:squawk(l.text), ms=l.ms||Math.max(4200,text.length*62);
+  const l=cineCur, st=l.voice==="steward", text=st?l.text:squawk(l.text), ms=Math.max(l.ms||0,readMs(text));
   cineEl.classList.toggle("steward",st); cineEl.classList.toggle("glitch",!!l.glitch);
   const who=l.face||(/STEWARD|BLACK BOX/.test(l.who)?"steward":"hans");
   cineEl.querySelector(".cn-face").innerHTML=who==="steward"?stewardFace({state:l.glitch?"is-glitch":""}):hansFace({state:"is-speaking"}); cineEl.querySelector(".cn-who").textContent=l.who;
@@ -2309,7 +2313,7 @@ function showStop(){
   if(st&&!reduced){let i=0;const iv=setInterval(()=>{i+=2;para.textContent=s.text.slice(0,i);if(i>=s.text.length){clearInterval(iv);typing=null;}},24);
     typing=()=>{clearInterval(iv);para.textContent=s.text;typing=null;};}
   else para.textContent=st?s.text:squawk(s.text);
-  if(!last&&!reduced) recapTimer=setTimeout(()=>{if(recapOn){recapI++;showStop();}},Math.max(9000,s.text.length*70));
+  if(!last&&!reduced) recapTimer=setTimeout(()=>{if(recapOn){recapI++;showStop();}},Math.max(9000,readMs(s.text)*1.2));
   const cue=()=>txt.classList.toggle("more",txt.scrollTop+txt.clientHeight<txt.scrollHeight-2);
   txt.addEventListener("scroll",cue,{passive:true}); requestAnimationFrame(cue); if(st&&!reduced) setTimeout(cue,s.text.length*12+200);
 }
