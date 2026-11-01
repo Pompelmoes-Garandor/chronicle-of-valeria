@@ -59,6 +59,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **High-res world: 8k relief carved by erosion, rivers that follow the valleys** · New · Sam · PR #34
 - [x] **Real relief: mountains stand up, sunlit slopes and shadows, tilted close-ups** · New · Sam · PR #33
 - [x] **Lit planet: atmosphere, golden hour, glow and tilt-shift** · New · Sam · PR #32
 - [x] **Calmer map: one tools button bottom left, Hans only animates while he talks or decodes** · Changed · Sam · PR #29
