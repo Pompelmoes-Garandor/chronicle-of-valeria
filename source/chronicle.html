@@ -994,7 +994,7 @@ void main(){
 }`;
 const WORLD_FRAG = `
 precision highp float;
-uniform sampler2D uMask; uniform sampler2D uBake; uniform vec2 uBakeTx; uniform float uTime; uniform float uReveal; uniform float uMorph; uniform vec3 uSun; uniform vec4 uLights[8]; uniform vec4 uShade; uniform vec4 uShadeAx;
+uniform sampler2D uMask; uniform sampler2D uBake; uniform vec2 uBakeTx; uniform float uTime; uniform float uReveal; uniform float uMorph; uniform vec3 uSun; uniform vec4 uLights[8]; uniform vec4 uShade; uniform vec4 uShadeAx; uniform float uGlow;
 varying vec2 vUv; varying vec3 vSph; varying vec3 vWorld;
 ${NOISE}
 float fbm3(vec3 p){float a=0.0,w=0.5;for(int i=0;i<3;i++){a+=w*gn(p);p=p*2.03+vec3(1.7,9.2,3.1);w*=0.5;}return a;}
@@ -1241,6 +1241,7 @@ void main(){
     float crack=1.0-smoothstep(0.0,0.025+fwidth(cr)*0.8,abs(cr));
     float pulse=0.6+0.4*sin(t*2.1+cr*7.0+gn(p*6.0+t*0.2)*5.0);
     land=mix(land,vec3(1.0,0.55,0.18),crack*scar*pulse*0.85);
+    land+=vec3(1.0,0.42,0.10)*crack*scar*pulse*(uGlow-1.0);   // with the lens on, the cracks run hotter than white so they glow
   }
   land+=vec3(0.9,0.30,0.06)*scar*scar*(0.18+0.10*sin(t*1.7));
   // the weather cells cast their shadows on the land, a little away from the sun
@@ -1267,15 +1268,18 @@ void main(){
   if(uShadeAx.w>0.0){vec3 q=p-uShade.xyz; float al=dot(q,uShadeAx.xyz), pr=length(q-al*uShadeAx.xyz);
     float sdd=length(vec2(al/uShadeAx.w,pr))/uShade.w; float rag=gn(p*260.0)*0.12+0.10*sin(atan(pr,al)*7.0+uTime*0.6);
     float sh=1.0-smoothstep(0.55,1.05,sdd+rag); col*=1.0-0.42*sh*smoothstep(0.08,0.25,sd); }
+  // golden hour: the land near the terminator warms up and the long light turns everything amber
+  float gold=1.0-smoothstep(0.0,0.3,abs(sd-0.07));
+  col*=mix(vec3(1.0),vec3(1.12,0.94,0.76),gold*0.5);
   col*=mix(vec3(0.36,0.41,0.58),vec3(1.0),day);
-  col+=vec3(0.95,0.45,0.18)*dusk*0.07+vec3(1.0,0.72,0.35)*lamp*(1.0-day)*seen*1.1;
+  col+=vec3(0.95,0.45,0.18)*dusk*0.07+vec3(1.0,0.72,0.35)*lamp*(1.0-day)*seen*1.1*uGlow;
   // the reveal burns the old chart away: a flickering ember line, scorched paper just behind it
   float bd=uReveal*1.15-0.05-rn, live=fresh*step(0.02,uReveal)*(1.0-smoothstep(0.9,1.0,uReveal));
   float edge=live*(1.0-smoothstep(0.0,0.07,abs(bd)));
   float scorch=live*smoothstep(0.0,0.02,bd)*(1.0-smoothstep(0.03,0.22,bd));
   float flick=0.75+0.25*sin(uTime*13.0+rn*60.0);
   col=mix(col,col*vec3(0.38,0.30,0.24),scorch*0.75);
-  col+=vec3(1.0,0.42,0.12)*edge*1.6*flick+vec3(1.0,0.85,0.5)*pow(edge,4.0)*0.9;
+  col+=vec3(1.0,0.42,0.12)*edge*1.6*flick*uGlow+vec3(1.0,0.85,0.5)*pow(edge,4.0)*0.9;
   gl_FragColor=vec4(col,1.0);
 }`;
 
@@ -1304,7 +1308,7 @@ void main(){
   cc+=vec3(0.75,0.85,1.0)*fl*1.6;
   gl_FragColor=vec4(cc,(max(a,wa)+fl*0.5*smoothstep(0.5,0.7,wx))*uOpacity);
 }`;
-const uniforms = {uMask:{value:maskTex},uTime:{value:0},uReveal:{value:1},uSun:{value:new THREE.Vector3(0,0,1)},uLights:{value:Array.from({length:8},()=>new THREE.Vector4())},uShade:{value:new THREE.Vector4(0,0,1,0.03)},uShadeAx:{value:new THREE.Vector4(1,0,0,0)},uFlash:{value:new THREE.Vector4(0,0,1,0)},uBake:{value:null},uBakeTx:{value:new THREE.Vector2(1/2048,1/1024)},uMorph:{value:0},uCenter:{value:new THREE.Vector2(CENTER.lon,CENTER.lat)},uLift:{value:0}};
+const uniforms = {uMask:{value:maskTex},uTime:{value:0},uReveal:{value:1},uSun:{value:new THREE.Vector3(0,0,1)},uLights:{value:Array.from({length:8},()=>new THREE.Vector4())},uShade:{value:new THREE.Vector4(0,0,1,0.03)},uShadeAx:{value:new THREE.Vector4(1,0,0,0)},uFlash:{value:new THREE.Vector4(0,0,1,0)},uBake:{value:null},uBakeTx:{value:new THREE.Vector2(1/2048,1/1024)},uMorph:{value:0},uGlow:{value:1},uCenter:{value:new THREE.Vector2(CENTER.lon,CENTER.lat)},uLift:{value:0}};
 const geo = new THREE.PlaneGeometry(1,1,256,128);
 const world = new THREE.Mesh(geo,new THREE.ShaderMaterial({uniforms,vertexShader:VERT,fragmentShader:WORLD_FRAG,side:THREE.DoubleSide,extensions:{derivatives:true}}));
 world.frustumCulled=false; scene.add(world);
@@ -1321,6 +1325,43 @@ const BAKE=(()=>{const big=renderer.capabilities.maxTextureSize>=4096, w=big?204
 const cloudU = {...uniforms,uLift:{value:0.02},uOpacity:{value:1}};
 const clouds = new THREE.Mesh(geo,new THREE.ShaderMaterial({uniforms:cloudU,vertexShader:VERT,fragmentShader:CLOUD_FRAG,transparent:true,depthWrite:false,side:THREE.DoubleSide}));
 clouds.frustumCulled=false; scene.add(clouds);
+// the air: a thin shell of scattered sunlight round the world. Blue on the day side, amber along the terminator, a bright ring
+// when the sun stands behind the globe, and a faint haze over the ground. Worked out per pixel along the view ray (single scattering)
+const ATMO_FRAG = `
+precision highp float;
+uniform vec3 uSun; uniform float uFade; uniform float uGround;
+varying vec3 vW;
+const float RA=1.075, HS=0.021;
+vec2 hitS(vec3 o,vec3 d,float r){float b=dot(o,d),c=dot(o,o)-r*r,h=b*b-c; if(h<0.0) return vec2(1e5,-1e5); h=sqrt(h); return vec2(-b-h,-b+h);}
+void main(){
+  if(uFade<0.003) discard;
+  vec3 o=cameraPosition, d=normalize(vW-o);
+  vec2 a=hitS(o,d,RA); if(a.y<=0.0) discard;
+  vec2 g=hitS(o,d,1.0); float ground=step(0.0,g.x)*step(g.x,1e4);
+  float t0=max(a.x,0.0), t1=ground>0.5?g.x:a.y, ds=(t1-t0)/float(STEPS);
+  const vec3 B=vec3(1.9,4.5,10.6);                          // how strongly the air scatters red, green and blue
+  float odV=0.0; vec3 acc=vec3(0.0); float accM=0.0;
+  for(int i=0;i<STEPS;i++){
+    vec3 p=o+d*(t0+ds*(float(i)+0.5)); float r=length(p);
+    float rho=exp(-max(r-1.0,0.0)/HS), mu=dot(p/r,uSun);
+    float odL=rho*HS/max(mu+0.15,0.04);                    // air between this point and the sun
+    float lit=smoothstep(-0.22,0.06,mu);                     // the night side lies in the world's own shadow
+    float s=rho*ds; odV+=s*0.5;
+    vec3 tr=exp(-B*(odV+odL)); acc+=s*tr*lit; accM+=s*dot(tr,vec3(0.333))*lit;
+    odV+=s*0.5;
+  }
+  float c=dot(d,uSun), pr=0.75*(1.0+c*c), gm=0.78, pm=0.06*(1.0-gm*gm)/pow(1.0+gm*gm-2.0*gm*c,1.5);
+  vec3 col=(acc*B*pr+accM*vec3(1.0,0.92,0.80)*pm*7.0)*1.25;
+  float T=exp(-dot(B,vec3(0.333))*odV);
+  float k=mix(1.0,uGround,ground);                           // over the land only a light veil, so the chart stays readable
+  gl_FragColor=vec4(col*k*uFade,1.0-(1.0-T)*k*uFade);
+}`;
+const atmoU={uSun:uniforms.uSun,uFade:{value:1},uGround:{value:0.16}};
+const atmo=new THREE.Mesh(new THREE.SphereGeometry(1.075,72,48),new THREE.ShaderMaterial({uniforms:atmoU,
+  vertexShader:`varying vec3 vW;void main(){vW=(modelMatrix*vec4(position,1.0)).xyz;gl_Position=projectionMatrix*viewMatrix*vec4(vW,1.0);}`,
+  fragmentShader:ATMO_FRAG,defines:{STEPS:innerWidth<=700?6:9},side:THREE.BackSide,transparent:true,depthTest:false,depthWrite:false,
+  blending:THREE.CustomBlending,blendEquation:THREE.AddEquation,blendSrc:THREE.OneFactor,blendDst:THREE.SrcAlphaFactor}));
+atmo.renderOrder=5; atmo.frustumCulled=false; scene.add(atmo);
 // living world: snow over the cold north, embers from the Fire Vault, steam over the thaw, fireflies in Summerwood (only once you zoom in)
 const LIVE={uNear:{value:0}};
 {const K=[[0,150,-48,-2,37,52],[1,46,-32.2,-28.8,30.5,32.7],[2,22,-33,-26,22,29],[3,80,84,100,15,31]];
@@ -2051,10 +2092,86 @@ const paintBtn=document.getElementById("paint");
 const paintFits=()=>innerWidth>700&&!reduced;
 function setPaint(on,save){
   PAINT.on=on&&paintFits(); paintBtn.setAttribute("aria-pressed",String(PAINT.on)); if(save) store.set("chron-paint",on?"1":"0");
-  if(PAINT.on&&!PAINT.rt) PAINT.rt=new THREE.WebGLRenderTarget(1,1,{depthBuffer:true});
+  if(PAINT.on&&!PAINT.rt&&!POST.on) PAINT.rt=new THREE.WebGLRenderTarget(1,1,{depthBuffer:true});
   if(PAINT.rt){const v=renderer.getDrawingBufferSize(new THREE.Vector2()); PAINT.rt.setSize(v.x,v.y); PAINT.u.uRes.value.copy(v);}
 }
+/* =================== THE LENS: glow, tilt-shift and a soft filmic finish over the whole picture =================== */
+// The scene is drawn into a half-float buffer, so lamps, lava and the sunlit rim of the air can run brighter than white.
+// Those bright parts bleed light (bloom). Zoomed in, the top and bottom of the view soften like a photo of a miniature on
+// the table (tilt-shift). A gentle shoulder rolls off the highlights instead of clipping them. Everything below the shoulder
+// keeps the colours exactly as painted. Slow devices drop to a lighter lens, then to no lens at all.
+const POST=(()=>{
+  const ok=renderer.capabilities.isWebGL2&&renderer.extensions.has("EXT_color_buffer_float")&&!/[?&]nolens/.test(location.search);
+  const P={ok,on:ok,lite:innerWidth<=700,w:0,h:0,n:0};
+  if(!ok) return P;
+  const opt=o=>Object.assign({type:THREE.HalfFloatType,depthBuffer:false,minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter},o);
+  P.rs=new THREE.WebGLRenderTarget(1,1,opt({depthBuffer:true,samples:4,generateMipmaps:true,minFilter:THREE.LinearMipmapLinearFilter}));
+  P.rs.texture.colorSpace=THREE.SRGBColorSpace;            // built-in materials (rings, stars, the city) write the same colours as on screen
+  P.rp=new THREE.WebGLRenderTarget(1,1,opt({generateMipmaps:true,minFilter:THREE.LinearMipmapLinearFilter}));
+  P.b=[0,1,2,3,4].map(()=>new THREE.WebGLRenderTarget(1,1,opt()));
+  const qs=new THREE.Scene(), qc=new THREE.Camera(), quad=new THREE.Mesh(new THREE.PlaneGeometry(2,2)); quad.frustumCulled=false; qs.add(quad);
+  const VQ=`varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.0,1.0);}`;
+  const mat=(frag,u,add)=>new THREE.ShaderMaterial({uniforms:u,vertexShader:VQ,fragmentShader:"precision highp float; varying vec2 vUv;\n"+frag,depthTest:false,depthWrite:false,
+    transparent:!!add,blending:add?THREE.AdditiveBlending:THREE.NoBlending});
+  // bright pass: only what is brighter than white glows, with a soft knee so nothing pops on or off
+  const pre=mat(`uniform sampler2D tMap; uniform vec2 uTx;
+vec3 br(vec3 c){float l=max(c.r,max(c.g,c.b)); float s=clamp(l-0.82,0.0,0.36); s=s*s/0.72; return c*max(s,l-1.0)/max(l,1e-4);}
+void main(){vec2 o=uTx*0.75;
+  gl_FragColor=vec4((br(texture2D(tMap,vUv+vec2(-o.x,-o.y)).rgb)+br(texture2D(tMap,vUv+vec2(o.x,-o.y)).rgb)+br(texture2D(tMap,vUv+vec2(-o.x,o.y)).rgb)+br(texture2D(tMap,vUv+o).rgb))*0.25,1.0);}`,
+    {tMap:{value:null},uTx:{value:new THREE.Vector2()}});
+  // dual-filter blur: down halves the size, up spreads it back out and adds it on top
+  const down=mat(`uniform sampler2D tMap; uniform vec2 uTx;
+void main(){vec2 o=uTx; vec3 c=texture2D(tMap,vUv).rgb*4.0+texture2D(tMap,vUv-o).rgb+texture2D(tMap,vUv+o).rgb+texture2D(tMap,vUv+vec2(o.x,-o.y)).rgb+texture2D(tMap,vUv+vec2(-o.x,o.y)).rgb;
+  gl_FragColor=vec4(c/8.0,1.0);}`,{tMap:{value:null},uTx:{value:new THREE.Vector2()}});
+  const up=mat(`uniform sampler2D tMap; uniform vec2 uTx;
+void main(){vec2 o=uTx; vec3 c=texture2D(tMap,vUv+vec2(-2.0*o.x,0.0)).rgb+texture2D(tMap,vUv+vec2(2.0*o.x,0.0)).rgb+texture2D(tMap,vUv+vec2(0.0,2.0*o.y)).rgb+texture2D(tMap,vUv+vec2(0.0,-2.0*o.y)).rgb
+  +2.0*(texture2D(tMap,vUv+o).rgb+texture2D(tMap,vUv-o).rgb+texture2D(tMap,vUv+vec2(o.x,-o.y)).rgb+texture2D(tMap,vUv+vec2(-o.x,o.y)).rgb);
+  gl_FragColor=vec4(c/12.0,1.0);}`,{tMap:{value:null},uTx:{value:new THREE.Vector2()}},true);
+  P.u={tMap:{value:null},tBloom:{value:null},uRes:{value:new THREE.Vector2(1,1)},uBloom:{value:0.42},uTilt:{value:0},uFocus:{value:0.5},uLod:{value:3},uTime:uniforms.uTime};
+  const comp=mat(`uniform sampler2D tMap; uniform sampler2D tBloom; uniform vec2 uRes; uniform float uBloom; uniform float uTilt; uniform float uFocus; uniform float uLod; uniform float uTime;
+float hsh(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}
+void main(){
+  vec3 c=texture2D(tMap,vUv).rgb;
+  // tilt-shift: a sharp band through the subject, the rest drifting out of focus like a macro photo of a model
+  if(uTilt>0.001){
+    float b=smoothstep(0.09,0.46,abs(vUv.y-uFocus))*uTilt;
+    if(b>0.01){
+      float L=b*uLod, r=hsh(gl_FragCoord.xy)*6.2832; vec2 e1=vec2(cos(r),sin(r))*exp2(L)*0.55/uRes, e2=vec2(-e1.y,e1.x);
+      vec3 bl=(texture2D(tMap,vUv+e1,L).rgb+texture2D(tMap,vUv-e1,L).rgb+texture2D(tMap,vUv+e2,L).rgb+texture2D(tMap,vUv-e2,L).rgb)*0.25;
+      c=mix(c,bl,smoothstep(0.0,0.3,b));
+    }
+  }
+  c+=texture2D(tBloom,vUv).rgb*uBloom;
+  // a soft shoulder: up to 0.8 the colours stay exactly as painted, brighter light rolls off instead of clipping
+  vec3 x=max(c-0.8,0.0); c=min(c,0.8)+0.2*(1.0-exp(-x/0.2));
+  vec2 q=vUv-0.5; q.x*=uRes.x/uRes.y; c*=1.0-0.22*smoothstep(0.5,1.25,length(q));
+  c+=(hsh(gl_FragCoord.xy+fract(uTime*7.0)*61.0)-0.5)*(1.5/255.0);     // a grain of dither against banding in the dark sky
+  gl_FragColor=vec4(c,1.0);
+}`,P.u);
+  const draw=(m,t)=>{quad.material=m; renderer.setRenderTarget(t); renderer.render(qs,qc);};
+  const _v=new THREE.Vector2();
+  function sizeAll(W,H){P.w=W;P.h=H; P.rs.setSize(W,H); P.rp.setSize(W,H); P.u.uRes.value.set(W,H);
+    const d=P.lite?4:2; P.n=P.lite?4:5; P.b.forEach((t,i)=>t.setSize(Math.max(1,Math.round(W/(d<<i))),Math.max(1,Math.round(H/(d<<i)))));
+    PAINT.u.uRes.value.set(W,H); P.sizedLite=P.lite;}
+  P.render=(zoom,mm,focus)=>{
+    renderer.getDrawingBufferSize(_v); if(_v.x!==P.w||_v.y!==P.h||P.sizedLite!==P.lite) sizeAll(_v.x,_v.y);
+    uniforms.uGlow.value=1.7;
+    renderer.setRenderTarget(P.rs); renderer.render(scene,camera);
+    const ac=renderer.autoClear; renderer.autoClear=false;
+    let src=P.rs;
+    if(PAINT.on){PAINT.u.tMap.value=P.rs.texture; PAINT.u.uK.value=0.35+0.65*Math.min(1,Math.max(0,(zoom-0.06)/0.3)); draw(PAINT.mat,P.rp); src=P.rp;}
+    pre.uniforms.tMap.value=src.texture; pre.uniforms.uTx.value.set(1/P.w,1/P.h); draw(pre,P.b[0]);
+    for(let i=0;i<P.n-1;i++){const s=P.b[i]; down.uniforms.tMap.value=s.texture; down.uniforms.uTx.value.set(1/s.width,1/s.height); draw(down,P.b[i+1]);}
+    for(let i=P.n-2;i>=0;i--){const s=P.b[i+1]; up.uniforms.tMap.value=s.texture; up.uniforms.uTx.value.set(0.5/s.width,0.5/s.height); draw(up,P.b[i]);}
+    const u=P.u; u.tMap.value=src.texture; u.tBloom.value=P.b[0].texture;
+    u.uTilt.value=P.lite?0:Math.max(Math.min(1,Math.max(0,(0.34-zoom)/0.24)),mm*0.75); u.uFocus.value=focus; u.uLod.value=2.6+Math.log2(Math.max(1,renderer.getPixelRatio()));
+    draw(comp,null); renderer.autoClear=ac;
+  };
+  return P;
+})();
 function renderWorld(){
+  if(POST.on){POST.render(cam.zoom,ease(morph),0.5+vo.y/innerHeight);return;}
+  uniforms.uGlow.value=1;
   if(!PAINT.on){renderer.render(scene,camera);return;}
   const v=renderer.getDrawingBufferSize(new THREE.Vector2()); if(v.x!==PAINT.rt.width||v.y!==PAINT.rt.height){PAINT.rt.setSize(v.x,v.y);PAINT.u.uRes.value.copy(v);}
   renderer.setRenderTarget(PAINT.rt); renderer.render(scene,camera); renderer.setRenderTarget(null);
@@ -2076,6 +2193,8 @@ function adaptRes(raw){
   res.n++; res.sum+=raw; if(res.n<20) return;
   const avg=res.sum/res.n; res.n=0; res.sum=0;      // 36 ms leaves phones capped at 30 fps alone
   if(avg>36&&PAINT.on){setPaint(false,false);res.skip=10;return;}
+  if(avg>36&&POST.on&&!POST.lite){POST.lite=true;res.skip=10;return;}
+  if(avg>36&&POST.on&&res.pr<=0.75){POST.on=false;res.skip=10;return;}
   if(avg>36&&res.pr>0.75){res.pr=Math.max(0.75,res.pr*Math.max(0.5,Math.sqrt(28/avg))); renderer.setPixelRatio(res.pr); resize(); res.skip=10;}
 }
 function frame(now){
@@ -2101,7 +2220,7 @@ function frame(now){
   // the orrery rings frame the overview; they fade out as you zoom in on a place so they never cut across it
   const ringA=0.55*(1-mm)*(innerWidth<=700?.5:1)*Math.min(1,Math.max(0,(cam.zoom-0.4)/0.18));
   halo.visible=mm<0.98; rings.visible=ringA>0.01; brass.opacity=ringA;
-  halo.material.opacity=1-mm; rings.children.forEach(r=>r.rotation.z+=r.userData.spin*dt);
+  halo.material.opacity=(1-mm)*(POST.on?0.55:1); atmoU.uFade.value=Math.max(0,1-mm*1.6); atmo.visible=atmoU.uFade.value>0.003; rings.children.forEach(r=>r.rotation.z+=r.userData.spin*dt);
   const w=byId["v-wind"]; const bob=Math.sin(now/900)*0.006;
   city.position.copy(worldPos(w.lon,w.lat,0.06+bob));
   const up=sphDir(w.lon,w.lat).lerp(new THREE.Vector3(0,0,1),mm).normalize();
