@@ -61,6 +61,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Lit planet: atmosphere, golden hour, glow and tilt-shift** · New · Sam · PR #32
 - [x] **Calmer map: one tools button bottom left, Hans only animates while he talks or decodes** · Changed · Sam · PR #29
 - [x] **Section headings no longer show through behind the character picker** · Fixed · Sam · PR #29
 - [x] **Map labels make room for each other and stay clear of the header, dock and cards** · Fixed · Sam · PR #29
