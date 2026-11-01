@@ -34,9 +34,6 @@ Top of the list is what to work on next.
 - [ ] **Passive Perception for Katy and Hans** · Lore · Sam · Their papers don't list it, so the sheet shows 12 and 11 worked out from Wisdom (marked *). Put the real numbers under Senses.
 - [ ] **Rename the "Character sheets" panel title to "Characters"** · Changed · either · Matches the dock button.
 - [ ] **Trackers panel** · New · either · Needs Sam for the counters. Places explored per region (Hans's chart: 13 of 23), Sigils claimed 2/4, and a party strip with everyone's HP at a glance. Idea from Craft RPG's trackers.
-- [ ] **Fog that burns away** · New · either · A new session's ground is revealed by a glowing ember edge and drifting ash.
-- [ ] **Keep the screen awake in Table mode** · New · either · Screen Wake Lock, quiet fallback where unsupported.
-- [ ] **Postcard from Hans** · New · either · One tap renders the current view into a framed card and opens the share sheet.
 
 ## Next
 
@@ -71,6 +68,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Fog that burns away, screen stays awake in Table mode, Postcard from Hans** · New · Sam · PR #NEXT
 - [x] **Replay the journey: rewind the chart session by session, route drawn live** · New · Sam · PR #19
 - [x] **Spider button: an assassin drops from the ceiling and slashes the screen** · New · Niels · PR #16
 - [x] **Tags revised to a short fixed set (Sam and Niels to keep to it)** · Changed · Niels · PR #15

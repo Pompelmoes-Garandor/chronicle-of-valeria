@@ -224,7 +224,9 @@ table.ans td,table.ans th{border-bottom:1px solid #c9a35c22;padding:6px 4px;text
 #caption .jr .btn:not(.next){border-radius:24px}
 #caption .next[disabled]{opacity:.35;cursor:default}
 #caption.journey .who2{color:var(--brass)}
-.btn.replay{align-self:flex-start;border-radius:24px;margin:2px 0 10px}
+.btn.replay{border-radius:24px}
+.row-btns{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 12px}
+img.postcard{display:block;width:100%;max-width:420px;margin:4px auto 12px;border-radius:10px;box-shadow:0 10px 40px #000a}
 body.rewound #restore span{color:var(--ember)}
 body.rewound #asof{color:var(--ember)}
 .pin.party.walking .lbl{opacity:.75}
@@ -848,9 +850,11 @@ let viewS=AS_OF;   // the session the chart is showing; below AS_OF = rewound
 
 /* fog mask: R = known before this session, G = revealed this session */
 const maskCv = document.createElement("canvas"); maskCv.width=1024; maskCv.height=512;
-function paintMask(T=AS_OF){
+let freshSpots=[];   // [lon,lat,radius] of everything painted as "new this session": the ash rises from here
+function paintMask(T=AS_OF){ freshSpots=[];
   const c=maskCv.getContext("2d"); c.globalCompositeOperation="source-over"; c.fillStyle="#000"; c.fillRect(0,0,1024,512); c.globalCompositeOperation="lighten";
   const blob=(lon,lat,r,v,ch)=>{
+    if(ch==="g") freshSpots.push([lon,lat,r]);
     const x=(lon+180)/360*1024, y=(90-lat)/180*512, ry=r/180*512, rx=ry/Math.max(.2,Math.cos(lat*D2R));
     const val=Math.round(v*255); const col=a=>ch==="g"?`rgba(0,${val},0,${a})`:`rgba(${val},0,0,${a})`;
     c.save(); c.translate(x,y); c.scale(rx/ry,1);
@@ -1059,8 +1063,13 @@ void main(){
   float fogA=clamp((1.0-seen)*(0.78+0.45*drift)-0.08*drift2,0.0,1.0);
   vec3 fogC=mix(vec3(0.10,0.12,0.16),vec3(0.55,0.58,0.64),smoothstep(0.25,0.85,drift*0.7+drift2*0.3));
   col=mix(col,fogC,fogA);
-  float edge=fresh*(1.0-smoothstep(0.0,0.09,abs(uReveal*1.15-0.05-rn)))*step(0.02,uReveal)*step(uReveal,0.99);
-  col+=vec3(1.0,0.45,0.15)*edge*1.4;
+  // the reveal burns the old chart away: a flickering ember line, scorched paper just behind it
+  float bd=uReveal*1.15-0.05-rn, live=fresh*step(0.02,uReveal)*(1.0-smoothstep(0.9,1.0,uReveal));
+  float edge=live*(1.0-smoothstep(0.0,0.07,abs(bd)));
+  float scorch=live*smoothstep(0.0,0.02,bd)*(1.0-smoothstep(0.03,0.22,bd));
+  float flick=0.75+0.25*sin(uTime*13.0+rn*60.0);
+  col=mix(col,col*vec3(0.38,0.30,0.24),scorch*0.75);
+  col+=vec3(1.0,0.42,0.12)*edge*1.6*flick+vec3(1.0,0.85,0.5)*pow(edge,4.0)*0.9;
   gl_FragColor=vec4(col,1.0);
 }`;
 
@@ -1117,6 +1126,39 @@ void main(){float d=length(gl_PointCoord-0.5);
   a*=vA; if(a<0.01)discard; gl_FragColor=vec4(vC,min(a,1.0));}`});
  const pts=new THREE.Points(g,m); pts.frustumCulled=false; pts.renderOrder=1; pts.visible=!reduced;
  pts.onBeforeRender=r=>{u.uPx.value=r.domElement.height;}; scene.add(pts);}
+
+// ash: as the burn line passes over new ground, embers lift off it and cool to grey
+const ash=(()=>{const N=260, g=new THREE.BufferGeometry(); const aP=new Float32Array(N*3);
+ g.setAttribute("position",new THREE.BufferAttribute(new Float32Array(N*3),3)); g.setAttribute("aP",new THREE.BufferAttribute(aP,3));
+ const u={uTime:uniforms.uTime,uMorph:uniforms.uMorph,uCenter:uniforms.uCenter,uReveal:uniforms.uReveal,uPx:{value:800}};
+ const m=new THREE.ShaderMaterial({uniforms:u,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,vertexShader:`
+uniform float uTime,uMorph,uPx,uReveal; uniform vec2 uCenter;
+attribute vec3 aP; varying vec3 vC; varying float vA;
+${NOISE}
+void main(){
+  float lon=aP.x,lat=aP.y,s=aP.z,t=uTime;
+  float rn=fbm(dir(lon,lat)*9.0)*0.5+0.5, bd=uReveal*1.15-0.05-rn, ph=clamp(bd/0.16,0.0,1.0);
+  float a=step(0.0,bd)*(1.0-ph)*step(0.02,uReveal)*step(uReveal,0.999)*(0.6+0.4*sin(t*11.0+s*70.0));
+  float lift=0.003+0.05*ph*(0.6+0.4*s); lon+=sin(t*1.1+s*30.0)*0.8*ph; lat+=0.5*ph;
+  vec3 c=mix(vec3(1.0,0.72,0.3),vec3(0.32,0.30,0.29),smoothstep(0.15,0.7,ph));
+  float lo=radians(lon),la=radians(lat);
+  vec3 sp=vec3(cos(la)*sin(lo),sin(la),cos(la)*cos(lo))*(1.0+lift);
+  vec3 f=vec3(lo-uCenter.x,la-uCenter.y,lift);
+  float m=uMorph<0.5?2.0*uMorph*uMorph:1.0-pow(-2.0*uMorph+2.0,2.0)/2.0;
+  gl_Position=projectionMatrix*modelViewMatrix*vec4(mix(sp,f,m),1.0);
+  gl_PointSize=a<0.01?0.0:clamp(0.0045*uPx*0.5*projectionMatrix[1][1]/gl_Position.w,1.5,24.0);
+  vC=c;vA=a;
+}`,fragmentShader:`
+precision highp float; varying vec3 vC; varying float vA;
+void main(){float d=length(gl_PointCoord-0.5); float a=smoothstep(0.5,0.1,d)*vA; if(a<0.01)discard; gl_FragColor=vec4(vC,min(a,1.0));}`});
+ const pts=new THREE.Points(g,m); pts.frustumCulled=false; pts.renderOrder=2; pts.visible=!reduced;
+ pts.onBeforeRender=r=>{u.uPx.value=r.domElement.height;}; scene.add(pts);
+ function seed(){const W=freshSpots.map(x=>x[2]*x[2]), tot=W.reduce((a,b)=>a+b,0); pts.visible=!reduced&&tot>0; if(!tot)return;
+   for(let i=0;i<N;i++){let k=Math.random()*tot,j=0;while(j<W.length-1&&k>W[j]){k-=W[j];j++;}
+     const [lon,lat,r]=freshSpots[j], an=Math.random()*7, d=Math.sqrt(Math.random())*r*0.85;
+     aP.set([lon+Math.cos(an)*d/Math.max(.2,Math.cos(lat*D2R)),lat+Math.sin(an)*d,Math.random()],i*3);}
+   g.attributes.aP.needsUpdate=true;}
+ seed(); return {seed};})();
 
 // stars
 {const n=1400,pos=new Float32Array(n*3);for(let i=0;i<n;i++){const v=new THREE.Vector3().randomDirection().multiplyScalar(30+Math.random()*20);pos.set([v.x,v.y,v.z],i*3)}
@@ -1706,7 +1748,15 @@ const bG=document.getElementById("m-globe"), bT=document.getElementById("m-table
 const thumb=document.querySelector(".seg .thumb");
 function placeThumb(){const b=morphTarget?bT:bG;thumb.style.width=b.offsetWidth+"px";thumb.style.transform=`translateX(${b.offsetLeft-4}px)`;}
 addEventListener("resize",placeThumb); document.fonts?.ready.then(placeThumb);
-function setMode(t){morphTarget=t?1:0;bG.setAttribute("aria-pressed",String(!t));bT.setAttribute("aria-pressed",String(!!t));placeThumb();store.set("chron-mode",t?"table":"globe");
+// Table mode lies on the table for a whole session: keep the screen from dimming where the browser allows it
+let wakeLock=null;
+async function keepAwake(on){
+  try{ if(on&&!wakeLock&&navigator.wakeLock&&document.visibilityState==="visible"){wakeLock=await navigator.wakeLock.request("screen");wakeLock.addEventListener("release",()=>{wakeLock=null;});
+         if(store.get("chron-wake")!=="1"){store.set("chron-wake","1");toast("Table mode keeps the screen awake");}}
+       else if(!on&&wakeLock){const w=wakeLock;wakeLock=null;await w.release();} }catch(e){wakeLock=null;}
+}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&morphTarget===1)keepAwake(true);});
+function setMode(t){morphTarget=t?1:0; keepAwake(!!t);bG.setAttribute("aria-pressed",String(!t));bT.setAttribute("aria-pressed",String(!!t));placeThumb();store.set("chron-mode",t?"table":"globe");
   if(t&&cam.zoom>0.6) flyTo(cam.lon,cam.lat,0.45,1400);}
 bG.onclick=()=>setMode(0); bT.onclick=()=>setMode(1);
 if(store.get("chron-mode")==="table"){morph=morphTarget=1;setMode(1);} placeThumb();
@@ -1923,7 +1973,7 @@ let journeyOn=false, journeyAuto=false, journeyTimer=null, revealT=null;
 const s2=n=>String(n).padStart(2,"0");
 function setView(T,{play=true}={}){
   T=Math.max(MIN_S,Math.min(AS_OF,T)); viewS=T;
-  paintMask(T); maskTex.needsUpdate=true; PCT=calcPct(); pctShown=-1; setTrail(T);
+  paintMask(T); maskTex.needsUpdate=true; PCT=calcPct(); pctShown=-1; setTrail(T); ash.seed();
   const back=T<AS_OF; document.body.classList.toggle("rewound",back);
   asofEl.textContent=back?"REWOUND · THE CHART AS IT STOOD AFTER SESSION "+T:ASOF_TXT;
   restoreS.textContent=back?"S"+s2(T)+" · REPLAY":RESTORE_TXT;
@@ -1963,6 +2013,57 @@ function endJourney(toNow=true){
   if(toNow&&viewS!==AS_OF){setView(AS_OF,{play:false}); toast("Back to now. Session "+AS_OF+".");}
 }
 
+/* =================== POSTCARD FROM HANS: the current view as a framed picture for the group chat =================== */
+const CARD_LINES=["Wish you were here. You were. That is how the chart works.","I have marked where we are. I have not marked where the snacks are. Yet.",
+  "The box beeps less now. I think it likes you.","Cloud means I have not decoded it. It does not mean there is weather. Mostly.","Bring dice. Bring snacks. Bring the bard."];
+function postcard(){
+  const W=1080,H=1350, cv=document.createElement("canvas"); cv.width=W; cv.height=H; const c=cv.getContext("2d");
+  const css=getComputedStyle(document.documentElement), F=k=>css.getPropertyValue(k).trim();
+  // the map, exactly as it stands now (read straight after a render, so no preserved buffer is needed)
+  renderer.render(scene,camera); const src=renderer.domElement, sw=src.width, sh=src.height;
+  const mx=60,my=210,mw=W-120,mh=860, k=Math.max(mw/sw,mh/sh), cw=mw/k, ch=mh/k;
+  c.fillStyle="#0a0c10"; c.fillRect(0,0,W,H);
+  c.save(); c.beginPath(); c.roundRect(mx,my,mw,mh,18); c.clip();
+  c.drawImage(src,(sw-cw)/2,(sh-ch)/2,cw,ch,mx,my,mw,mh);
+  // the pins on the map, redrawn from their place on screen
+  const sx=x=>mx+((x*devicePixelRatio*src.width/(innerWidth*devicePixelRatio))-(sw-cw)/2)*k, sy=y=>my+((y*src.height/innerHeight)-(sh-ch)/2)*k;
+  c.textBaseline="middle"; c.font=`italic 26px ${F("--display")}`;
+  for(const el of document.querySelectorAll(".pin:not([hidden])")){
+    const sd=el.querySelector(".seal").getBoundingClientRect(), x=sx(sd.left+sd.width/2), y=sy(sd.top+sd.height/2);
+    if(x<mx||x>mx+mw||y<my||y>my+mh) continue;
+    const party=el.classList.contains("party"); c.fillStyle=party?"#e8743b":"#c9a35c"; c.beginPath(); c.arc(x,y,party?10:8,0,7); c.fill();
+    c.strokeStyle="#0a0c10"; c.lineWidth=3; c.stroke();
+    if(el.classList.contains("small")&&!party) continue;
+    const t=el.querySelector(".lbl").textContent, tw=c.measureText(t).width;
+    c.fillStyle="#0a0c10cc"; c.beginPath(); c.roundRect(x-tw/2-10,y+16,tw+20,38,8); c.fill(); c.fillStyle="#ead9b4"; c.textAlign="center"; c.fillText(t,x,y+36);
+  }
+  c.restore();
+  // brass frame with corner brackets
+  c.strokeStyle="#c9a35c"; c.lineWidth=2; c.beginPath(); c.roundRect(mx,my,mw,mh,18); c.stroke();
+  c.lineWidth=5; for(const [x,y,dx,dy] of [[mx,my,1,1],[mx+mw,my,-1,1],[mx,my+mh,1,-1],[mx+mw,my+mh,-1,-1]]){c.beginPath();c.moveTo(x+dx*8,y+dy*70);c.lineTo(x+dx*8,y+dy*8);c.lineTo(x+dx*70,y+dy*8);c.stroke();}
+  c.strokeStyle="#c9a35c55"; c.lineWidth=2; c.strokeRect(24,24,W-48,H-48);
+  // words: who sends it, where we are, one line from Hans
+  c.textAlign="center"; c.fillStyle="#8fd3c8"; c.font=`400 24px ${F("--mono")}`;
+  const sess=viewS<AS_OF?"REPLAY · SESSION "+viewS:"AS OF SESSION "+AS_OF;
+  c.fillText(`POSTCARD FROM HANS · ${sess} · DECODED ${pctEl.textContent}`,W/2,92);
+  c.fillStyle="#ead9b4"; c.font=`64px ${F("--display")}`; c.fillText("The Chronicle of Valeria",W/2,152);
+  const line=CARD_LINES[Math.floor(Math.random()*CARD_LINES.length)];
+  c.font=`italic 38px ${F("--body")}`; c.fillStyle="#ead9b4";
+  const words=line.split(" "), rows=[""]; for(const w of words){const t=(rows[rows.length-1]+" "+w).trim(); if(c.measureText(t).width>W-200){rows.push(w);} else rows[rows.length-1]=t;}
+  rows.forEach((r,i)=>c.fillText(i===0?"“"+r:r,W/2,1140+i*50)); const lastY=1140+(rows.length-1)*50;
+  c.fillText("”",W/2+c.measureText(rows[rows.length-1]).width/2+(rows.length===1?8:0)+6,lastY);
+  c.fillStyle="#c9a35c"; c.font=`500 26px ${F("--label")}`; c.fillText("HANS",W/2,lastY+56);
+  c.fillStyle="#b3a37f"; c.font=`400 20px ${F("--mono")}`; c.fillText(location.host+location.pathname.replace(/index\.html$/,""),W/2,H-52);
+  const img=h("img",{class:"postcard",alt:"Postcard from Hans: the chart as it stands now",src:cv.toDataURL("image/jpeg",.9)});
+  let file=null; cv.toBlob(b=>{file=new File([b],"chronicle-postcard.jpg",{type:"image/jpeg"});},"image/jpeg",.9);
+  const link=location.origin+location.pathname;
+  const send=async()=>{ if(!file) return;
+    try{ if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:"The Chronicle of Valeria",text:"Postcard from Hans · "+link});return;} }catch(e){if(e&&e.name==="AbortError")return;}
+    const a=h("a",{href:img.src,download:"chronicle-postcard.jpg"}); document.body.append(a); a.click(); a.remove(); toast("Postcard saved"); };
+  openSheet("Postcard from Hans",[h("p",{class:"muted small"},"The chart as it stands on your screen right now. Turn the globe or rewind a session first if you want a different view."),img,
+    h("div",{class:"row-btns"},h("button",{class:"btn",type:"button",onclick:send},navigator.share?"Send it":"Save it"),h("button",{class:"btn ghost",type:"button",onclick:showChronicle},"Back"))],"chronicle");
+}
+
 /* =================== CHRONICLE =================== */
 function showChronicle(){
   const list=h("ul",{class:"sessions"},SESSIONS.map(s=>h("li",{},h("button",{type:"button",onclick:(e)=>{
@@ -1971,7 +2072,9 @@ function showChronicle(){
       flyToPlace(s.at,.42); [...list.querySelectorAll("button")].forEach(b=>b.setAttribute("aria-pressed",String(b===e.currentTarget)));
     }},h("span",{class:"n"},"S"+(typeof s.n==="number"?String(s.n).padStart(2,"0"):s.n)),h("span",{},h("span",{class:"t"},s.t),h("span",{class:"by"},s.v==="hans"?"Hans":"The Steward, as told to Hans"),h("span",{class:"s"},s.s))))));
   openSheet("The Chronicle",[h("p",{class:"eyebrow m"},"DECODED FROM THE BLACK BOX · AS OF SESSION "+AS_OF),h("p",{class:"muted small"},"Hans placed the black box from the ship inside his own body to decode its beeping. This chart is what he has decoded so far. Where the data is still scrambled, there is cloud. Tap a session to see the chart as it stood after it."),
-    h("button",{class:"btn replay",type:"button",onclick:()=>startJourney(MIN_S,{auto:true})},"Replay the whole journey"),list,
+    h("div",{class:"row-btns"},
+      h("button",{class:"btn replay",type:"button",onclick:()=>startJourney(MIN_S,{auto:true})},"Replay the whole journey"),
+      h("button",{class:"btn ghost replay",type:"button",onclick:()=>postcard()},"Postcard from Hans")),list,
     h("p",{class:"eyebrow"},"WHAT THE PARTY CARRIES"),
     h("p",{class:"small voice"},"The black box from the ship, now inside me. The ring and booklet of Vayne and a green bracelet, all still to identify. The ash blade +1. A towel that drinks 200 litres. The Vial of Dragon's Fire. I have catalogued all of it. Twice."),
     h("p",{class:"eyebrow"},"HANS'S FILES"),
