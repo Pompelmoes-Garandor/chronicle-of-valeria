@@ -63,7 +63,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
-- [x] **Fly the route: camera follows a session's road** · New · Sam · PR #NEXT
+- [x] **Fly the route: camera follows a session's road** · New · Sam · PR #23
 - [x] **Tap to roll from the sheet: 3D dice for skills, abilities, saves and attacks** · New · Sam · PR #22
 - [x] **Living sky: day and night, town lamps, weather and lightning** (the Wind Vault shadow is left out until Sam decides) · New · Sam · PR #22
 - [x] **Sound of the world, and Hans reads aloud** · New · Sam · PR #21
