@@ -7,8 +7,8 @@ Read this first. It is how Sam and Niels (and each of their Claudes) work on thi
 `BACKLOG.md` is the leading list of features, changes and fixes. At the start of each session:
 
 1. Read `BACKLOG.md` (and glance at open PRs and issues) before doing anything else.
-2. Open with one question built on it: name the top one to three open items under **Now**, say which needs Sam, and ask which to pick up today. If the person already came with a task, do that, and say where it sits in the backlog (or offer to add it).
-3. When a PR ships an item, move it to **Done** with the PR number in the same PR. New requests that are not done today go into the backlog, in the section Sam or Niels chooses.
+2. Open with one question built on it: name any **blocker** under **Known bugs** first, then the top one to three open items under **Now**, say which needs Sam, and ask which to pick up today. If the person already came with a task, do that, and say where it sits in the backlog (or offer to add it).
+3. When a PR ships an item or fixes a known bug, move it to **Done** with the PR number in the same PR. A bug found while working, and not fixed in that PR, goes under **Known bugs**. New requests that are not done today go into the backlog, in the section Sam or Niels chooses.
 
 ## What this repo is
 
