@@ -18,7 +18,9 @@
 //   --channel NAME       use an installed browser for Chromium, e.g. chrome
 //   --sizes LIST         desktop,phone (default both)
 //   --poses LIST         which views (default all, see POSES below)
-//   --quality LIST       auto (the page picks, as players get it), full, lite, off (default auto,full)
+//   --quality LIST       auto (the page picks, as players get it), full, nopaint, lite, plain, off (default auto,full).
+//                        For a breakdown of where the time goes: --quality full,nopaint,lite,plain (each drops one more
+//                        layer at the same sharpness: the paint, the tilt-shift, then the whole lens)
 //   --seconds N          how long to time each view (default 4)
 //   --out DIR            where screenshots and results.json go (default tests/visual/out)
 //   --storage FILE       JSON object of localStorage entries to set before the page loads (e.g. from an opened device)
@@ -58,7 +60,9 @@ const SIZES = {
 };
 const LEVELS = {                                   // what each quality means; "full" is what a fresh device starts with
   full: s => ({ lens: s.viewport.width <= 700 ? 'lite' : 'full', paint: true, pr: Math.min(s.deviceScaleFactor, 1.75), lock: true }),
+  nopaint: s => ({ lens: s.viewport.width <= 700 ? 'lite' : 'full', paint: false, pr: Math.min(s.deviceScaleFactor, 1.75), lock: true }),
   lite: s => ({ lens: 'lite', paint: false, pr: Math.min(s.deviceScaleFactor, 1.75), lock: true }),
+  plain: s => ({ lens: 'off', paint: false, pr: Math.min(s.deviceScaleFactor, 1.75), lock: true }),
   off:  s => ({ lens: 'off', paint: false, pr: 1, lock: true }),
 };
 

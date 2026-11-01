@@ -1283,7 +1283,7 @@ void main(){
   float moist=clamp(0.5+1.25*(B.a-0.5)+0.35*thaw-0.6*dead,0.0,1.0);
   float cold=1.0-smoothstep(0.2,0.6,temp);
   float grain=0.0; if(vis>0.01) grain=fbm3(p*40.0)*dv;
-  float wv=0.0; if(vis>0.01) wv=gn(p*42.0+vec3(t*0.05,-t*0.035,t*0.04));
+  float wv=0.0; if(vis>0.01&&h<2.0*fw) wv=gn(p*42.0+vec3(t*0.05,-t*0.035,t*0.04));   // the swell and the foam: only on the water and at the shore
   // ---- sea: pale shelves by the shore, deeper bands further out; icy north, ember-red Fire Sea ----
   float dpt=-h;
   vec3 shelf=mix(vec3(0.66,0.82,0.76),vec3(0.76,0.85,0.86),cold);
@@ -1341,22 +1341,25 @@ void main(){
   land=mix(land,vec3(0.52,0.46,0.40),shore*cliff*0.55);
   if(detail>0.0){
     // lakes: frozen in the north, meltwater around the thawing hills
+    if(max(cold,thaw)>0.0&&h>0.04){                         // (the noise is only worked out where lakes can be)
     float ln=gn(p*26.0+11.0);
     float lake=smoothstep(0.30,0.33,ln)*smoothstep(0.04,0.09,h)*(1.0-mtn)*max(cold,thaw)*detail;
     float lfw=fwidth(ln)*1.5+1e-4;
     vec3 lakeC=mix(vec3(0.76,0.87,0.93)+0.08*smoothstep(0.36,0.42,ln),vec3(0.48,0.68,0.70),thaw);
     land=mix(land,lakeC,lake);
-    land=mix(land,mix(ink,vec3(0.25,0.36,0.46),cold),0.55*detail*max(cold,thaw)*smoothstep(0.04,0.09,h)*(1.0-mtn)*(1.0-smoothstep(0.0,lfw,abs(ln-0.315))));
+    land=mix(land,mix(ink,vec3(0.25,0.36,0.46),cold),0.55*detail*max(cold,thaw)*smoothstep(0.04,0.09,h)*(1.0-mtn)*(1.0-smoothstep(0.0,lfw,abs(ln-0.315))));}
     // rivers: thin ink-blue lines, strongest in the meltwater country
+    float riv=0.0;
+    if(uWorld<0.5){
     float rv=gn(p*15.0+vec3(3.0,1.0,7.0));
     // wide near the sea, thinning to a hairline upstream; small tributaries join when you are close
     float rw=mix(0.006,0.0008,smoothstep(0.03,0.26,h)), rfw=fwidth(rv)+1e-5;
-    float riv=(1.0-smoothstep(rw,rw+rfw*1.2,abs(rv)))*smoothstep(0.015,0.05,h)*(1.0-smoothstep(0.24,0.32,h));
+    riv=(1.0-smoothstep(rw,rw+rfw*1.2,abs(rv)))*smoothstep(0.015,0.05,h)*(1.0-smoothstep(0.24,0.32,h));
     float trib=smoothstep(3.0,6.0,0.12/px);
     if(trib>0.0){float tv=gn(p*48.0+vec3(9.0,2.0,4.0))+0.25*rv; float tfw=fwidth(tv)+1e-5;
       riv=max(riv,trib*0.6*(1.0-smoothstep(0.0,tfw*1.1,abs(tv)))*smoothstep(0.05,0.12,h)*(1.0-smoothstep(0.22,0.3,h))*(1.0-smoothstep(0.03,0.1,abs(rv))));}   // streams only close to a main river, so they read as feeding it
     riv*=smoothstep(0.62,0.85,moist+0.3*thaw)*(1.0-cold*0.7)*detail;
-    if(uWorld>0.5){
+    } else {
       // the high-res world knows where the water really runs: rivers follow the valleys the rain carved, from hairline
       // streams in the hills to wide rivers at the coast (B: 0.5 = a river's edge, lower = inside it)
       float rs=(texture2D(uRel,vUv,-1.0).b-0.502)*6.0, rf=fwidth(rs)*0.7+1e-4;   // rs: texels from the river's edge (below 0 = in it)
@@ -1374,7 +1377,7 @@ void main(){
   float onLand=smoothstep(0.02,0.1,h)*(1.0-smoothstep(0.32,0.4,h))*(1.0-scar);
   vec2 wf=wash(fr,fth,0.1);
   float forest=wf.x*onLand*dv;
-  float stip=0.5; if(vis>0.01) stip=mix(0.5,smoothstep(0.3,0.9,gn(p*900.0)),smoothstep(1.0,3.0,0.04/px));
+  float stip=0.5; if(vis>0.01&&h>-fw) stip=mix(0.5,smoothstep(0.3,0.9,gn(p*900.0)),smoothstep(1.0,3.0,0.04/px));
   float g30=0.0; if(summer>0.0&&vis>0.01) g30=gn(p*30.0);
   vec3 green=mix(vec3(0.40,0.49,0.26),vec3(0.27,0.40,0.34),cold);
   green=mix(green,mix(vec3(0.33,0.50,0.22),vec3(0.84,0.55,0.18),smoothstep(-0.1,0.2,nT+0.35*g30)),summer);
@@ -1436,7 +1439,7 @@ void main(){
     land*=1.0-0.38*sh*smoothstep(0.03,0.16,sL.z)*rvis*(1.0-mm);   // once the sun is right on the horizon the whole land is dim anyway
   }
   // farmland round the towns the crew knows: a patchwork of fields with ink hedgerows, only up close and on gentle open ground
-  float town=0.0; for(int i=0;i<8;i++){vec4 L=uLights[i]; if(L.w>0.9){float a=acos(clamp(dot(p,L.xyz),-1.0,1.0))*57.2958; town=max(town,1.0-smoothstep(0.8,2.8+gn(p*30.0+float(i))*1.0,a));}}
+  float town=0.0; for(int i=0;i<8;i++){vec4 L=uLights[i]; if(L.w>0.9){float a=acos(clamp(dot(p,L.xyz),-1.0,1.0))*57.2958; if(a<4.6) town=max(town,1.0-smoothstep(0.8,2.8+gn(p*30.0+float(i))*1.0,a));}}
   float fz=smoothstep(10.0,22.0,0.34/px)*town*detail*(1.0-smoothstep(0.02,0.05,slope))*smoothstep(0.02,0.05,h)*(1.0-mtn)*(1.0-forest)*(1.0-snow*0.8);
   if(fz>0.01){
     vec2 fq=ll/0.34+vec2(gn(p*40.0),gn(p*40.0+4.0))*0.5, fi=floor(fq), ff=fract(fq); float d1=8.0,d2=8.0; vec3 fc=vec3(0.0);
@@ -1474,7 +1477,7 @@ void main(){
   }
   land+=vec3(0.9,0.30,0.06)*scar*scar*(0.18+0.10*sin(t*1.7));
   // the weather cells cast their shadows on the land, a little away from the sun
-  float cs=0.0; if(vis>0.01){vec3 q=normalize(p+(uSun-p*dot(p,uSun))*0.035); cs=smoothstep(0.62,0.82,weather(q,t))*max(mk0.r,mk0.g*uReveal);}
+  float cs=0.0; if(vis>0.01&&h>-fw){vec3 q=normalize(p+(uSun-p*dot(p,uSun))*0.035); cs=smoothstep(0.62,0.82,weather(q,t))*max(mk0.r,mk0.g*uReveal);}
   land*=1.0-0.16*dv*cs*smoothstep(-0.1,0.2,dot(p,uSun));
   col=mix(col,land,smoothstep(-fw*0.5,fw*0.5,h));
   // one clean ink coastline
@@ -1485,17 +1488,18 @@ void main(){
   // fog of war
   vec4 mk=mk0;
   float old=mk.r, fresh=mk.g;
-  float rn=0.5; if(fresh>0.0) rn=fbm(p*9.0)*0.5+0.5;
+  float rn=0.5; if(fresh>0.0&&uReveal<1.0) rn=fbm(p*9.0)*0.5+0.5;   // once the reveal is over every fresh patch is simply seen
   float rev=fresh*smoothstep(rn-0.06,rn+0.06,uReveal*1.15-0.05);
   float seen=max(old,rev);
-  float drift=fbm(p*3.0+vec3(uTime*0.020,uTime*0.013,-uTime*0.017))*0.5+0.5;
-  float drift2=fbm3(p*9.0-vec3(uTime*0.03,0.0,uTime*0.02))*0.5+0.5;
-  float fogA=clamp((1.0-seen)*(0.78+0.45*drift)-0.08*drift2,0.0,1.0);
-  vec3 fogC=mix(vec3(0.10,0.12,0.16),vec3(0.55,0.58,0.64),smoothstep(0.25,0.85,drift*0.7+drift2*0.3));
-  col=mix(col,fogC,fogA);
+  if(seen<1.0){                                              // fully seen ground has no fog, so skip working it out
+    float drift=fbm(p*3.0+vec3(uTime*0.020,uTime*0.013,-uTime*0.017))*0.5+0.5;
+    float drift2=fbm3(p*9.0-vec3(uTime*0.03,0.0,uTime*0.02))*0.5+0.5;
+    float fogA=clamp((1.0-seen)*(0.78+0.45*drift)-0.08*drift2,0.0,1.0);
+    vec3 fogC=mix(vec3(0.10,0.12,0.16),vec3(0.55,0.58,0.64),smoothstep(0.25,0.85,drift*0.7+drift2*0.3));
+    col=mix(col,fogC,fogA);}
   // the flying city of the Wind Vault drags its shadow over the land below as the sun goes round
   if(uShadeAx.w>0.0){vec3 q=p-uShade.xyz; float al=dot(q,uShadeAx.xyz), pr=length(q-al*uShadeAx.xyz);
-    float sdd=length(vec2(al/uShadeAx.w,pr))/uShade.w; float rag=gn(p*260.0)*0.12+0.10*sin(atan(pr,al)*7.0+uTime*0.6);
+    float sdd=length(vec2(al/uShadeAx.w,pr))/uShade.w; float rag=sdd>1.5?0.0:gn(p*260.0)*0.12+0.10*sin(atan(pr,al)*7.0+uTime*0.6);
     float sh=1.0-smoothstep(0.55,1.05,sdd+rag); col*=1.0-0.42*sh*smoothstep(0.08,0.25,sd); }
   // golden hour: the land near the terminator warms up and the long light turns everything amber
   float gold=1.0-smoothstep(0.0,0.3,abs(sd-0.07));
@@ -1521,9 +1525,9 @@ float fbm3(vec3 p){float a=0.0,w=0.5;for(int i=0;i<3;i++){a+=w*gn(p);p=p*2.03+ve
 ${WEATHER}
 void main(){
   vec3 p=normalize(vSph); vec4 mk=texture2D(uMask,vUv);
-  float rn=0.5; if(mk.g>0.0) rn=fbm(p*9.0)*0.5+0.5;
+  float rn=0.5; if(mk.g>0.0&&uReveal<1.0) rn=fbm(p*9.0)*0.5+0.5;
   float seen=max(mk.r,mk.g*smoothstep(rn-0.06,rn+0.06,uReveal*1.15-0.05));
-  float c=fbm(p*5.0+vec3(uTime*0.035,-uTime*0.02,uTime*0.01))*0.5+0.5;
+  float c=0.5; if(seen<1.0) c=fbm(p*5.0+vec3(uTime*0.035,-uTime*0.02,uTime*0.01))*0.5+0.5;   // the fog clouds only over unseen ground
   float a=smoothstep(0.52,0.78,c)*(1.0-seen)*0.55;
   // weather: a few large, soft cells over the ground the crew has seen, lit on the sun side like a watercolour cloud
   float wx=weather(p,uTime);
@@ -2473,13 +2477,13 @@ function adaptRes(raw){
 /* =================== MEASURING: ?fps shows how fast the map draws; ?bench also lets tests/visual/check.js steer it =================== */
 // Open the map with ?fps on any device to see frames per second, the time per frame and how much of the lens is on.
 // ?bench adds window.__chron for the test script: set the view and the sun, hold the quality, and time a stretch of frames.
-const BENCH=/[?&]bench(=|&|$)/.test(location.search);
+const BENCH=/[?&]bench(=|&|$)/.test(location.search), FPS=/[?&]fps(=|&|$)/.test(location.search);
 const meter=(()=>{
-  if(!BENCH&&!/[?&]fps(=|&|$)/.test(location.search)) return null;
+  if(!BENCH&&!FPS) return null;
   const gl=renderer.getContext(), dbg=gl.getExtension("WEBGL_debug_renderer_info");
   const gpu=String((dbg&&gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL))||gl.getParameter(gl.RENDERER)||"?");
-  const el=document.createElement("div"); el.id="fps"; el.setAttribute("aria-hidden","true");
-  el.style.cssText="position:fixed;z-index:7;top:calc(var(--top) + 74px);left:max(12px, env(safe-area-inset-left, 0px));max-width:calc(100vw - 24px);box-sizing:border-box;"+
+  const el=document.createElement("div"); el.id="fps"; el.setAttribute("aria-hidden","true"); el.hidden=!FPS;   // the test script times frames without showing it
+  el.style.cssText="position:fixed;z-index:7;right:max(12px, env(safe-area-inset-right, 0px));bottom:calc(var(--bot) + 84px);max-width:calc(100vw - 24px);box-sizing:border-box;"+
     "padding:6px 9px;border-radius:8px;background:#0b0d12d9;border:1px solid #8fd3c833;font:400 11px/1.5 var(--mono);color:var(--steward);white-space:pre;overflow:hidden;text-overflow:ellipsis;pointer-events:none";
   document.body.appendChild(el);
   return {el,gpu,ms:[],t0:performance.now(),rec:null};})();
@@ -2502,7 +2506,7 @@ if(BENCH) window.__chron={
     world:WORLD.on?WORLD.file:"live",worldFile:WORLD.file,gpu:meter.gpu,maxTexture:renderer.capabilities.maxTextureSize,sealed,recap:recapOn}),
   // clear the screen for a test: no recap, no captions, no open sheet, the whole known world shown
   quiet(){if(recapOn)endRecap(); store.set("chron-seen",SKEY); cap.hidden=true; document.getElementById("sheet-close")?.click(); reveal.v=reveal.goal=1;},
-  view(o){if(fly)endFly(); tween=null; idleT=Infinity; cam.lon=o.lon; cam.lat=o.lat; cam.zoom=o.zoom; morph=morphTarget=o.table?1:0;
+  view(o){if(fly)endFly(); tween=null; idleT=Infinity; cam.lon=o.lon; cam.lat=o.lat; cam.zoom=o.zoom; setMode(!!o.table); morph=morphTarget;
     if(o.sun!=null) SKY.lon0=o.sun+performance.now()/1000*360/SKY.day;},
   quality(q){                                     // {lens:"full"|"lite"|"off", paint, pr, lock}; leave a key out to keep it
     if(q.lens) {POST.on=POST.ok&&q.lens!=="off"; POST.lite=q.lens==="lite";}
