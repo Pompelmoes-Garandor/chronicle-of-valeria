@@ -985,6 +985,9 @@ float fbm(vec3 p){float a=0.0,w=0.5;for(int i=0;i<5;i++){a+=w*gn(p);p=p*2.03+vec
 vec3 dir(float lon,float lat){lon=radians(lon);lat=radians(lat);return vec3(cos(lat)*sin(lon),sin(lat),cos(lat)*cos(lon));}
 float blob(vec3 p,vec3 c,float r){return max(0.0,1.0-acos(clamp(dot(p,c),-1.0,1.0))/radians(r));}
 `;
+// the weather cells over seen ground: the cloud layer draws them, the world shader draws their shadows from the same field
+const WEATHER = `
+float weather(vec3 p,float t){return fbm3(p*2.2+vec3(t*0.014,t*0.003,-t*0.010))*0.5+0.5;}`;
 const VERT = `
 uniform float uMorph; uniform vec2 uCenter; uniform float uLift;
 varying vec2 vUv; varying vec3 vSph; varying vec3 vWorld;
@@ -1029,6 +1032,7 @@ uniform sampler2D uMask; uniform sampler2D uBake; uniform vec2 uBakeTx; uniform 
 varying vec2 vUv; varying vec3 vSph; varying vec3 vWorld;
 ${NOISE}
 float fbm3(vec3 p){float a=0.0,w=0.5;for(int i=0;i<3;i++){a+=w*gn(p);p=p*2.03+vec3(1.7,9.2,3.1);w*=0.5;}return a;}
+${WEATHER}
 vec3 hash3(vec2 i){return fract(sin(vec3(dot(i,vec2(127.1,311.7)),dot(i,vec2(269.5,183.3)),dot(i,vec2(419.2,371.9))))*43758.5453);}
 float bH(vec4 b){return (b.r*255.0+b.g)/255.0*1.7-0.7;}
 float bHat(vec2 uv){return bH(texture2D(uBake,uv));}
@@ -1056,12 +1060,12 @@ float hachure(vec2 ll,vec2 g,float h,float sp,float px,float steep){
   return smoothstep(0.15,0.75,acc)*smoothstep(0.04,0.2,fr)*(1.0-smoothstep(0.8,0.96,fr));
 }
 // one ink tree per cell (density read at the cell centre so glyphs are never clipped): conifer when cold, round crown when warm; sways in the wind
-vec2 treeGlyph(vec2 ll,float cell,float aa,float thr,float conif,float t){
+vec2 treeGlyph(vec2 ll,float cell,float aa,float thr,float conif,float t,float sw){
   vec2 g=ll/cell, id=floor(g), q=fract(g); vec3 r=hash3(id);
   vec2 cc=(id+0.5)*cell; float cl=cos(radians(cc.y));
   float on=step(thr+0.03+0.1*r.z,fbm3(dir(cc.x/max(cl,0.05),cc.y)*14.0+3.0))*step(0.05,cl);
   vec2 d=q-(0.5+(r.xy-0.5)*0.36);
-  float sway=0.05*sin(t*1.4+r.x*6.283)*(0.5+0.5*clamp(d.y*3.0+0.4,0.0,1.0));
+  float sway=sw*0.05*sin(t*1.4+r.x*6.283)*(0.5+0.5*clamp(d.y*3.0+0.4,0.0,1.0));
   vec2 dc=vec2(abs(d.x-sway),d.y-0.30);
   float tri=max(dot(dc,vec2(0.920,0.391)),-0.12-d.y);
   float crown=length(d-vec2(sway,0.08))-0.19;
@@ -1090,7 +1094,7 @@ void main(){
   vec2 G=vec2((bHat(vUv+vec2(tx.x,0.0))-bHat(vUv-vec2(tx.x,0.0)))/(2.0*tx.x*360.0*cl),
               (bHat(vUv+vec2(0.0,tx.y))-bHat(vUv-vec2(0.0,tx.y)))/(2.0*tx.y*180.0));
   float mtn0=smoothstep(0.26,0.42,h);
-  float o1=smoothstep(2.0,6.0,0.6/px)*dv, o2=smoothstep(2.0,6.0,0.26/px)*dv, o3=smoothstep(2.0,6.0,0.11/px)*dv;
+  float o1=smoothstep(4.0,10.0,0.6/px)*dv, o2=smoothstep(4.0,10.0,0.26/px)*dv, o3=smoothstep(4.0,10.0,0.11/px)*dv;   // an octave joins only once it is several pixels wide, so the shading never turns to grit
   float hd=0.0; vec2 Gd=vec2(0.0);
   if(o1>0.0){
     float rug=0.55+1.3*mtn0;
@@ -1145,7 +1149,7 @@ void main(){
     col=mix(col,vec3(0.52,0.64,0.74),0.5*smoothstep(0.0,0.15,iceZ)*(1.0-smoothstep(0.0,ffw*1.5,abs(fn-th))));}
   // one slow ripple line travelling out from the shore, and the foam line
   float ph=fract(t*0.04);
-  {float th=-0.012-0.05*ph; float a=0.22*smoothstep(0.0,0.2,ph)*(1.0-ph)*dv;
+  {float th=-0.012-0.05*ph; float a=0.22*smoothstep(0.0,0.2,ph)*(1.0-ph)*dv*smoothstep(2.0,5.0,0.4/px);
    col=mix(col,ink,a*(1.0-smoothstep(0.0,fw,abs(h-th))));}
   float foam=1.0-smoothstep(0.0,fw*2.0,abs(h+0.009+0.003*sin(t*1.1+wv*5.0)));
   col=mix(col,vec3(0.98,0.97,0.93),0.6*foam*(1.0-fsea*0.6));
@@ -1187,7 +1191,12 @@ void main(){
     land=mix(land,mix(ink,vec3(0.25,0.36,0.46),cold),0.55*detail*max(cold,thaw)*smoothstep(0.04,0.09,h)*(1.0-mtn)*(1.0-smoothstep(0.0,lfw,abs(ln-0.315))));
     // rivers: thin ink-blue lines, strongest in the meltwater country
     float rv=gn(p*15.0+vec3(3.0,1.0,7.0));
-    float riv=(1.0-smoothstep(0.0,fwidth(rv)*1.2+0.003,abs(rv)))*smoothstep(0.03,0.08,h)*(1.0-smoothstep(0.24,0.32,h));
+    // wide near the sea, thinning to a hairline upstream; small tributaries join when you are close
+    float rw=mix(0.006,0.0008,smoothstep(0.03,0.26,h)), rfw=fwidth(rv)+1e-5;
+    float riv=(1.0-smoothstep(rw,rw+rfw*1.2,abs(rv)))*smoothstep(0.015,0.05,h)*(1.0-smoothstep(0.24,0.32,h));
+    float trib=smoothstep(3.0,6.0,0.12/px);
+    if(trib>0.0){float tv=gn(p*48.0+vec3(9.0,2.0,4.0))+0.25*rv; float tfw=fwidth(tv)+1e-5;
+      riv=max(riv,trib*0.6*(1.0-smoothstep(0.0,tfw*1.1,abs(tv)))*smoothstep(0.05,0.12,h)*(1.0-smoothstep(0.22,0.3,h))*(1.0-smoothstep(0.03,0.1,abs(rv))));}   // streams only close to a main river, so they read as feeding it
     riv*=smoothstep(0.62,0.85,moist+0.3*thaw)*(1.0-cold*0.7)*detail;
     land=mix(land,mix(vec3(0.30,0.45,0.55),vec3(0.36,0.62,0.66),thaw),0.65*riv);
   }
@@ -1208,11 +1217,14 @@ void main(){
   float conif=smoothstep(0.35,0.6,cold+0.2*(1.0-summer)*step(0.0,nT));
   float vB=smoothstep(14.0,24.0,0.5/px)*detail, vA=smoothstep(14.0,24.0,1.4/px)*detail*(1.0-vB);
   vec2 gA=vec2(0.0), gB=vec2(0.0);
-  if(vA*onLand>0.001) gA=treeGlyph(ll,1.4,px/1.4*1.2,fth,conif,t)*vA*onLand;
-  if(vB*onLand>0.001) gB=treeGlyph(ll,0.5,px/0.5*1.2,fth,conif,t)*vB*onLand;
+  if(vA*onLand>0.001) gA=treeGlyph(ll,1.4,px/1.4*1.2,fth,conif,t,0.0)*vA*onLand;
+  if(vB*onLand>0.001) gB=treeGlyph(ll,0.5,px/0.5*1.2,fth,conif,t,vB)*vB*onLand;
   float glyph=max(vA,vB);
   land=mix(land,green,forest*(0.42+0.3*stip)*(1.0-0.45*glyph));
   land=mix(land,green*0.72,0.35*wf.y*onLand*dv*(1.0-glyph));
+  // canopy: darker crowns clump together under the trees when you are close
+  float cz=smoothstep(2.0,5.0,0.08/px)*forest*detail;
+  if(cz>0.0){float cn=gn(p*380.0)+0.5*gn(p*820.0); land=mix(land,green*0.66,cz*0.45*smoothstep(0.05,0.4,cn)); land=mix(land,green*1.12+0.03,cz*0.25*smoothstep(0.1,0.45,-cn));}
   vec2 gt=max(gA,gB);
   land=mix(land,green*0.85,0.75*gt.x);
   land=mix(land,mix(ink,vec3(0.30,0.22,0.32),blight),0.75*gt.y);
@@ -1228,6 +1240,23 @@ void main(){
   vec3 shadeC=mix(vec3(0.58,0.52,0.64),vec3(0.62,0.72,0.86),cap);
   land=mix(land,land*shadeC,clamp(-k,0.0,1.0)*0.85);
   land=mix(land,land*1.08+vec3(0.02),clamp(k,0.0,1.0)*0.6);
+  // farmland round the towns the crew knows: a patchwork of fields with ink hedgerows, only up close and on gentle open ground
+  float town=0.0; for(int i=0;i<8;i++){vec4 L=uLights[i]; if(L.w>0.9){float a=acos(clamp(dot(p,L.xyz),-1.0,1.0))*57.2958; town=max(town,1.0-smoothstep(0.8,2.8+gn(p*30.0+float(i))*1.0,a));}}
+  float fz=smoothstep(10.0,22.0,0.34/px)*town*detail*(1.0-smoothstep(0.02,0.05,slope))*smoothstep(0.02,0.05,h)*(1.0-mtn)*(1.0-forest)*(1.0-snow*0.8);
+  if(fz>0.01){
+    vec2 fq=ll/0.34+vec2(gn(p*40.0),gn(p*40.0+4.0))*0.5, fi=floor(fq), ff=fract(fq); float d1=8.0,d2=8.0; vec3 fc=vec3(0.0);
+    for(int j=-1;j<=1;j++)for(int i=-1;i<=1;i++){vec2 o=vec2(float(i),float(j)); vec3 r=hash3(fi+o); vec2 dd=o+0.15+0.7*r.xy-ff; float d=dot(dd,dd);
+      if(d<d1){d2=d1;d1=d;fc=r;}else if(d<d2)d2=d;}
+    vec3 crop=fc.z<0.3?vec3(0.90,0.80,0.52):fc.z<0.55?vec3(0.64,0.73,0.44):fc.z<0.75?vec3(0.76,0.67,0.50):land;   // some plots lie fallow
+    float furrow=0.5+0.5*sin(dot(ff,vec2(cos(fc.x*6.28),sin(fc.x*6.28)))*40.0);
+    land=mix(land,crop*(0.96+0.06*furrow)*(0.95+0.08*grain),fz*0.55);
+    float edge=sqrt(d2)-sqrt(d1), efw=fwidth(edge)+1e-4;
+    land=mix(land,vec3(0.36,0.42,0.24),fz*0.45*(1.0-smoothstep(0.0,efw*1.3,edge-0.015)));
+  }
+  // scree: loose stones fanned out at the foot of the steepest slopes, up close
+  float sz=smoothstep(6.0,10.0,0.07/px)*detail*mtn0*smoothstep(0.03,0.09,slope)*(1.0-cap);
+  if(sz>0.01){vec2 sq=ll/0.07, si=floor(sq); vec3 sr=hash3(si); float sdd=length(fract(sq)-0.5-(sr.xy-0.5)*0.5);
+    land=mix(land,vec3(0.38,0.32,0.26),sz*step(0.7,sr.z)*(1.0-smoothstep(0.08+0.1*sr.x,0.16+0.1*sr.x,sdd))*0.7);}
   // hachures on steep ground, darker on the shadow side; one coarse set far out, a fine set up close
   if(detail>0.0&&slope>0.025&&h>0.01){
     vec2 g=G/slope; float steep=smoothstep(0.02,0.12,slope);
@@ -1235,7 +1264,7 @@ void main(){
     float hh=0.0;
     if(v1>0.0) hh+=v1*hachure(ll,g,h,1.1,px,steep);
     if(v2>0.0) hh+=v2*hachure(ll,g,h,0.3,px,steep);
-    float a=hh*smoothstep(0.025,0.07,slope)*detail*(0.35+0.4*clamp(1.0-hs,0.0,1.0))*(1.0-0.5*cap);
+    float a=hh*smoothstep(0.025,0.07,slope)*detail*(0.28+0.36*clamp(1.0-hs,0.0,1.0))*(1.0-0.5*cap);
     land=mix(land,mix(vec3(0.33,0.24,0.15),vec3(0.40,0.50,0.62),cap),a);
   }
   // the Fire Vault: a hot scar of cooled lava with glowing cracks
@@ -1248,9 +1277,9 @@ void main(){
     land=mix(land,vec3(1.0,0.55,0.18),crack*scar*pulse*0.85);
   }
   land+=vec3(0.9,0.30,0.06)*scar*scar*(0.18+0.10*sin(t*1.7));
-  // drifting cloud shadows
-  float cs=0.0; if(vis>0.01) cs=gn(p*3.6+vec3(t*0.012,0.0,t*0.009));
-  land*=1.0-0.08*dv*smoothstep(0.05,0.35,cs);
+  // the weather cells cast their shadows on the land, a little away from the sun
+  float cs=0.0; if(vis>0.01){vec3 q=normalize(p+(uSun-p*dot(p,uSun))*0.035); cs=smoothstep(0.62,0.82,weather(q,t))*max(mk0.r,mk0.g*uReveal);}
+  land*=1.0-0.16*dv*cs*smoothstep(-0.1,0.2,dot(p,uSun));
   col=mix(col,land,smoothstep(-fw*0.5,fw*0.5,h));
   // one clean ink coastline
   col=mix(col,ink,0.8*(1.0-smoothstep(0.0,fw*1.1,abs(h))));
@@ -1290,17 +1319,20 @@ uniform sampler2D uMask; uniform float uTime; uniform float uReveal; uniform flo
 varying vec2 vUv; varying vec3 vSph;
 ${NOISE}
 float fbm3(vec3 p){float a=0.0,w=0.5;for(int i=0;i<3;i++){a+=w*gn(p);p=p*2.03+vec3(1.7,9.2,3.1);w*=0.5;}return a;}
+${WEATHER}
 void main(){
   vec3 p=normalize(vSph); vec4 mk=texture2D(uMask,vUv);
   float rn=0.5; if(mk.g>0.0) rn=fbm(p*9.0)*0.5+0.5;
   float seen=max(mk.r,mk.g*smoothstep(rn-0.06,rn+0.06,uReveal*1.15-0.05));
   float c=fbm(p*5.0+vec3(uTime*0.035,-uTime*0.02,uTime*0.01))*0.5+0.5;
   float a=smoothstep(0.52,0.78,c)*(1.0-seen)*0.55;
-  // weather: thin cells drifting over the ground the crew has seen
-  float wx=fbm3(p*3.2+vec3(uTime*0.018,uTime*0.004,-uTime*0.012))*0.5+0.5;
-  float wa=smoothstep(0.60,0.80,wx)*seen*0.30;
+  // weather: a few large, soft cells over the ground the crew has seen, lit on the sun side like a watercolour cloud
+  float wx=weather(p,uTime);
+  float wa=smoothstep(0.62,0.82,wx)*seen*0.42;
   float day=smoothstep(-0.42,0.02,dot(p,uSun));
-  vec3 cc=mix(vec3(0.62,0.65,0.71),vec3(0.9,0.9,0.92),max(c,wx))*mix(0.45,1.0,day);
+  float lit=0.5; if(wa>0.003) lit=clamp(0.5+(wx-weather(normalize(p+(uSun-p*dot(p,uSun))*0.03),uTime))*9.0,0.0,1.0);
+  vec3 cc=mix(mix(vec3(0.62,0.65,0.71),vec3(0.9,0.9,0.92),c),mix(vec3(0.70,0.72,0.80),vec3(0.99,0.97,0.93),lit),wa/(wa+a+1e-4));
+  cc*=mix(0.45,1.0,day);
   // lightning lights up the cloud around the strike from inside
   float fl=uFlash.w*exp(-pow(acos(clamp(dot(p,uFlash.xyz),-1.0,1.0))*57.2958,2.0)/18.0);
   cc+=vec3(0.75,0.85,1.0)*fl*1.6;
@@ -2026,9 +2058,9 @@ function thunder(delay){const n=SND.nodes; if(!n) return; const a=n.a, t=a.curre
 // a Kuwahara filter: each pixel takes the calmest of the four corners around it, so colour lies in strokes while edges stay sharp
 const PAINT={on:false,rt:null};
 {const g=new THREE.PlaneGeometry(2,2);
- PAINT.u={tMap:{value:null},uRes:{value:new THREE.Vector2(1,1)},uTime:uniforms.uTime};
+ PAINT.u={tMap:{value:null},uRes:{value:new THREE.Vector2(1,1)},uTime:uniforms.uTime,uK:{value:1}};
  PAINT.mat=new THREE.ShaderMaterial({uniforms:PAINT.u,depthTest:false,depthWrite:false,vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.0,1.0);}`,fragmentShader:`
-precision highp float; uniform sampler2D tMap; uniform vec2 uRes; uniform float uTime; varying vec2 vUv;
+precision highp float; uniform sampler2D tMap; uniform vec2 uRes; uniform float uTime; uniform float uK; varying vec2 vUv;
 float hsh(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}
 void main(){
   vec2 px=1.25/uRes; vec3 m0=vec3(0.),m1=vec3(0.),m2=vec3(0.),m3=vec3(0.),s0=vec3(0.),s1=vec3(0.),s2=vec3(0.),s3=vec3(0.);
@@ -2041,7 +2073,7 @@ void main(){
   float v0=dot(s0/9.-m0*m0,vec3(1.)),v1=dot(s1/9.-m1*m1,vec3(1.)),v2=dot(s2/9.-m2*m2,vec3(1.)),v3=dot(s3/9.-m3*m3,vec3(1.));
   vec3 col=m0; float v=v0; if(v1<v){v=v1;col=m1;} if(v2<v){v=v2;col=m2;} if(v3<v){v=v3;col=m3;}
   // ink stays ink: where every corner is busy (a line, a route, a coast) keep the original pixel
-  col=mix(col,texture2D(tMap,vUv).rgb,smoothstep(0.0003,0.003,v));
+  col=mix(col,texture2D(tMap,vUv).rgb,max(smoothstep(0.0003,0.003,v),1.0-uK));   // up close the brush lifts, so fields, rivers and hachures stay sharp
   // paper: fine grain and long fibres, a little warmth in the light parts
   vec2 fc=gl_FragCoord.xy; float grain=hsh(floor(fc))-0.5, fib=hsh(floor(fc*vec2(0.05,0.9)))-0.5;
   col+=(grain*0.035+fib*0.02)*(0.4+0.6*dot(col,vec3(0.33)));
@@ -2060,7 +2092,7 @@ function renderWorld(){
   if(!PAINT.on){renderer.render(scene,camera);return;}
   const v=renderer.getDrawingBufferSize(new THREE.Vector2()); if(v.x!==PAINT.rt.width||v.y!==PAINT.rt.height){PAINT.rt.setSize(v.x,v.y);PAINT.u.uRes.value.copy(v);}
   renderer.setRenderTarget(PAINT.rt); renderer.render(scene,camera); renderer.setRenderTarget(null);
-  PAINT.u.tMap.value=PAINT.rt.texture; renderer.render(PAINT.scene,PAINT.cam);
+  PAINT.u.tMap.value=PAINT.rt.texture; PAINT.u.uK.value=0.35+0.65*Math.min(1,Math.max(0,(cam.zoom-0.06)/0.3)); renderer.render(PAINT.scene,PAINT.cam);
 }
 paintBtn.onclick=()=>{setPaint(!PAINT.on,true);toast(PAINT.on?"Hand-painted map":"Plain map");};
 function paintSync(){paintBtn.hidden=!paintFits(); setPaint(store.get("chron-paint")!=="0",false);}
