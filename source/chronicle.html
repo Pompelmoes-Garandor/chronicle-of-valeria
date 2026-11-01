@@ -221,6 +221,9 @@ table.ans td,table.ans th{border-bottom:1px solid #c9a35c22;padding:6px 4px;text
 #caption .ctl .btn:not(.next){border-radius:24px}
 .progress{position:absolute;top:8px;left:18px;right:18px;display:flex;gap:4px}
 #caption .jr{display:flex;gap:8px;align-items:center}
+#caption .skip.fly{color:var(--brass)}
+body.flying #pins{opacity:1}
+body.flying #pins .pin:not(.party){opacity:.55}
 #caption .jr .btn:not(.next){border-radius:24px}
 #caption .next[disabled]{opacity:.35;cursor:default}
 #caption.journey .who2{color:var(--brass)}
@@ -1363,10 +1366,34 @@ function setTrail(T){const [a,b]=legRange(T);RP_OLD=routePts(0,a);RP_NEW=routePt
 setTrail(AS_OF);
 function updateTrail(){
   for(const [line,pts] of [[trailOld,RP_OLD],[trailNew,RP_NEW]]){line.geometry.setFromPoints(pts.map(([a,b,l])=>worldPos(a,b,l)));line.computeLineDistances();}
-  const k=Math.max(0,Math.min(1,(uniforms.uReveal.value-0.12)/0.78)), n=Math.round(RP_NEW.length*k);
+  const k=fly?fly.k:Math.max(0,Math.min(1,(uniforms.uReveal.value-0.12)/0.78)), n=Math.round(RP_NEW.length*k);
   trailNew.geometry.setDrawRange(0,n); trailNew.visible=n>1;
   walkTip = n>1&&n<RP_NEW.length ? RP_NEW[n-1] : null;
 }
+
+/* =================== FLY THE ROUTE: the camera follows a session's road while the ink draws it =================== */
+let fly=null;
+function flyRoute(T=viewS){
+  const [a,b]=legRange(T); if(b<=a){toast("Session "+T+": no road travelled. They stayed put.");return;}
+  const pts=routePts(a,b), seg=[0];
+  for(let i=1;i<pts.length;i++){const [x0,y0]=pts[i-1],[x1,y1]=pts[i];seg.push(seg[i-1]+Math.hypot((x1-x0)*Math.cos(y0*D2R),y1-y0)+0.01);}
+  const total=seg[seg.length-1]; if(journeyOn){journeyAuto=false;clearTimeout(journeyTimer);}
+  if(recapOn){clearTimeout(recapTimer);}
+  closeSheet(); reveal.v=reveal.goal=1; tween=null;
+  fly={pts,seg,total,k:0,t0:performance.now()+700,ms:reduced?1:Math.min(20000,Math.max(8000,total*220)),capWas:!cap.hidden};
+  cap.hidden=true; document.body.classList.add("cinema","flying"); const sk=document.getElementById("cine-skip"); sk.hidden=false; sk.onclick=endFly;
+  const s0=pts[0]; flyTo(s0[0],s0[1],.3,700);
+}
+function tickFly(now){
+  if(!fly) return; const t=Math.max(0,Math.min(1,(now-fly.t0)/fly.ms)); if(now<fly.t0) return; tween=null;
+  const e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2, d=e*fly.total, S=fly.seg; let i=1; while(i<S.length-1&&S[i]<d)i++;
+  const f=(d-S[i-1])/Math.max(1e-6,S[i]-S[i-1]), A=fly.pts[i-1], B=fly.pts[i];
+  const lon=A[0]+(B[0]-A[0])*f, lat=A[1]+(B[1]-A[1])*f, lift=A[2]+(B[2]-A[2])*f;
+  cam.lon=lon; cam.lat=lat; cam.zoom=.3+lift*1.6; fly.k=Math.max(fly.k,(i-1+f)/(fly.pts.length-1)); idleT=now;
+  if(t>=1) endFly();
+}
+function endFly(){ if(!fly) return; const was=fly.capWas; fly=null; document.body.classList.remove("cinema","flying");
+  const sk=document.getElementById("cine-skip"); sk.hidden=true; sk.onclick=finishCrash; if(was) cap.hidden=false; }
 
 /* =================== CAMERA =================== */
 const cam = {lon:-16,lat:20,zoom:.62}, camGoal = {...cam};
@@ -1391,7 +1418,7 @@ const ptrs=new Map(); let drag=null, pinch0=null, moved=0, idleT=performance.now
 const cvs=renderer.domElement;
 // labels sit on top of the canvas, so gestures that start on one are handled here too (they bubble up to #pins)
 const pinsLayer=document.getElementById("pins");
-const onDown=e=>{const pin=e.target.closest?.(".pin");try{(pin||cvs).setPointerCapture(e.pointerId);}catch(err){}ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY,pin:!!pin});moved=0;tween=null;idleT=performance.now();
+const onDown=e=>{if(fly)endFly();const pin=e.target.closest?.(".pin");try{(pin||cvs).setPointerCapture(e.pointerId);}catch(err){}ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY,pin:!!pin});moved=0;tween=null;idleT=performance.now();
   if(ptrs.size===2){const [a,b]=[...ptrs.values()];pinch0={d:Math.hypot(a.x-b.x,a.y-b.y),z:cam.zoom};}};
 const onMove=e=>{if(!ptrs.has(e.pointerId))return;const p=ptrs.get(e.pointerId);const dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;moved+=Math.abs(dx)+Math.abs(dy);idleT=performance.now();
   if(ptrs.size===2&&pinch0){const [a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);cam.zoom=Math.min(1,Math.max(0,pinch0.z*pinch0.d/d));return;}
@@ -1775,7 +1802,8 @@ function frame(now){
   if(morph!==morphTarget){morph+=Math.sign(morphTarget-morph)*Math.min(Math.abs(morphTarget-morph),dt/(reduced?.01:1.4));}
   uniforms.uMorph.value=morph; cloudU.uOpacity.value=1-morph*0.4;
   if(tween){const t=Math.min(1,(now-tween.t0)/tween.ms),e=ease(t);for(const k of ["lon","lat","zoom"])cam[k]=tween.from[k]+(tween.to[k]-tween.from[k])*e;if(t>=1)tween=null;}
-  else if(!reduced&&morph<0.02&&now-idleT>9000&&!recapOn){cam.lon+=dt*1.6;}
+  else if(!reduced&&morph<0.02&&now-idleT>9000&&!recapOn&&!fly){cam.lon+=dt*1.6;}
+  tickFly(now);
   if(reveal.v!==reveal.goal){reveal.v+=Math.sign(reveal.goal-reveal.v)*Math.min(Math.abs(reveal.goal-reveal.v),dt/(reduced?.01:3.2));}
   uniforms.uReveal.value=reveal.v;
   {const v=Math.round((PCT.old+(PCT.now-PCT.old)*reveal.v)*10)/10; if(v!==pctShown){pctShown=v;pctEl.textContent=v.toFixed(1)+"%";
@@ -2005,7 +2033,7 @@ function showStop(){
     h("div",{class:"narr"},face,h("div",{},h("div",{class:"who2"},st?(bird?"BLACK BOX · INSIDE A BIRD":"BLACK BOX · INSIDE HANS"):`S${String(AS_OF).padStart(2,"0")} · ${recapI+1}/${RECAP.length} · ${bird?"HANS (A BIRD NOW) SQUAWKS":"HANS DECODES"}`),place),sayBtn(s.title+". "+s.text,s.voice)),
     txt,
     h("div",{class:"ctl"},
-      last?h("span"):h("button",{class:"skip",type:"button",onclick:endRecap},"Skip"),
+      last?h("button",{class:"skip fly",type:"button",onclick:()=>flyRoute(AS_OF)},"Fly the route"):h("button",{class:"skip",type:"button",onclick:endRecap},"Skip"),
       last?h("button",{class:"btn",type:"button",onclick:endRecap},"Explore the map"):
            h("button",{class:"btn next",type:"button","aria-label":"Next",onclick:next},"→"))
   );
@@ -2055,7 +2083,8 @@ function showJourney(T){
     h("div",{class:"narr"},face,h("div",{},h("div",{class:"who2"},`REPLAY · S${s2(viewS)} · ${i+1}/${JOURNEY.length} · ${st?"THE STEWARD, AS TOLD TO HANS":bird?"HANS (A BIRD NOW) REMEMBERS":"HANS REMEMBERS"}`),place),sayBtn("Session "+viewS+". "+s.t+". "+s.s,s.v)),
     txt,
     h("div",{class:"ctl"},
-      h("button",{class:"skip",type:"button",onclick:()=>endJourney()},last?"Close":"Back to now"),
+      h("span",{class:"jr"},h("button",{class:"skip",type:"button",onclick:()=>endJourney()},last?"Close":"Back to now"),
+        h("button",{class:"skip fly",type:"button",onclick:()=>flyRoute(viewS)},"Fly it")),
       h("span",{class:"jr"},
         h("button",{class:"btn next",type:"button","aria-label":"Previous session",disabled:i<=0?"":null,onclick:()=>go(-1)},"←"),
         last?h("button",{class:"btn",type:"button",onclick:()=>{endJourney(false);startRecap();}},"Play the recap"):
