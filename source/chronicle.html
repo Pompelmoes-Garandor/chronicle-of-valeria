@@ -2461,16 +2461,25 @@ let reveal={v:1,goal:1}, vo={x:0,y:0};
 function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
 addEventListener("resize",resize); resize();
 let last=performance.now();
-const res={n:0,sum:0,skip:15,pr:renderer.getPixelRatio()};
+// Computers aim for a smooth 60 frames a second. When frames run long, the 3D map is drawn a little less sharp first (never
+// below 1.25 pixels per point or 70% of full, whichever is sharper; text and buttons stay sharp), and every so often it tries
+// a step sharper again, waiting longer each time that did not hold. Only a really slow device drops the paint and the lens.
+// Phones keep their full sharpness down to 30 frames a second, as before
+const res={n:0,sum:0,skip:15,pr:renderer.getPixelRatio(),max:renderer.getPixelRatio(),wait:4000,next:0};
+res.soft=Math.min(res.max,Math.max(1.25,res.max*0.7));
+function setPR(v){res.pr=v; renderer.setPixelRatio(v); resize(); res.skip=10;}
 function adaptRes(raw){
   if(document.hidden||raw>2000||res.lock) return;  // a real pause (tab switch), not a slow frame; a test can hold the quality still
   raw=Math.min(raw,250); if(res.skip>0){res.skip--;return;}
   res.n++; res.sum+=raw; if(res.n<20) return;
-  const avg=res.sum/res.n; res.n=0; res.sum=0;      // 36 ms leaves phones capped at 30 fps alone
+  const avg=res.sum/res.n, now=performance.now(); res.n=0; res.sum=0;
+  if(!SMALL&&avg>19.5&&res.pr>res.soft){setPR(Math.max(res.soft,res.pr*Math.max(0.8,Math.sqrt(16/avg)))); res.wait=Math.min(res.wait*2,32000); res.next=now+res.wait; return;}
+  if(!SMALL&&avg<17.5&&res.pr<res.max&&now>res.next){setPR(Math.min(res.max,res.pr*1.1)); res.next=now+res.wait; return;}
+  // 36 ms leaves phones capped at 30 fps alone
   if(avg>36&&PAINT.on){setPaint(false,false);res.skip=10;return;}
   if(avg>36&&POST.on&&!POST.lite){POST.lite=true;res.skip=10;return;}
   if(avg>36&&POST.on&&res.pr<=0.75){POST.on=false;res.skip=10;return;}
-  if(avg>36&&res.pr>0.75){res.pr=Math.max(0.75,res.pr*Math.max(0.5,Math.sqrt(28/avg))); renderer.setPixelRatio(res.pr); resize(); res.skip=10;}
+  if(avg>36&&res.pr>0.75){setPR(Math.max(0.75,res.pr*Math.max(0.5,Math.sqrt(28/avg))));}
 }
 /* =================== MEASURING: ?fps shows how fast the map draws; ?bench also lets tests/visual/check.js steer it =================== */
 // Open the map with ?fps on any device to see frames per second, the time per frame and how much of the lens is on.
