@@ -1746,11 +1746,11 @@ const CITY={};
  const R=0.052, rag=a=>1+0.05*Math.sin(a*5)+0.03*Math.sin(a*11+1);
  const FALLS=[0.9,-0.55];   // where the two streams run off the edge (angle around the island)
  // the rock underneath: a lathe profile, made craggy by moving every point a little, then earth at the top, slate at the keel
- const rockProfile=[[0.0,-0.096],[0.012,-0.084],[0.02,-0.07],[0.031,-0.056],[0.038,-0.04],[0.047,-0.026],[0.05,-0.014],[R,-0.004],[R,0.0]].map(([r,y])=>new THREE.Vector2(r,y));
+ const rockProfile=[[0.0,-0.104],[0.006,-0.092],[0.012,-0.076],[0.019,-0.058],[0.028,-0.04],[0.038,-0.024],[0.046,-0.012],[R,-0.004],[R,0.0]].map(([r,y])=>new THREE.Vector2(r,y));
  const rock=new THREE.LatheGeometry(rockProfile,28);{const p=rock.attributes.position;
    for(let i=0;i<p.count;i++){const k0=rag(Math.atan2(p.getZ(i),p.getX(i)));p.setX(i,p.getX(i)*k0);p.setZ(i,p.getZ(i)*k0);}
    for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i); if(y>-0.003)continue; const h=hash(Math.round(x*900),Math.round(y*900),Math.round(z*900));
-     const k=1+(h-0.5)*0.42*Math.min(1,-y/0.02); p.setXYZ(i,x*k,y-(h*0.008),z*k);}}
+     const k=1+(h-0.5)*0.55*Math.min(1,-y/0.02); p.setXYZ(i,x*k,y-(h*0.012),z*k);}}
  rock.computeVertexNormals();
  part(rock,(x,y,z,c)=>{const t=Math.min(1,-y/0.09), n=hash(Math.round(x*400),Math.round(y*400),Math.round(z*400));
    c.setRGB(0.70-0.28*t+n*0.07,0.56-0.20*t+n*0.05,0.40-0.10*t+n*0.05,THREE.SRGBColorSpace);});
