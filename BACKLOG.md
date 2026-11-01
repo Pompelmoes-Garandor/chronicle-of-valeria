@@ -62,6 +62,8 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Sign in on the Netlify edition and share the table data (GitHub Pages unchanged)** · New · Niels · PR #14
+- [x] **Netlify builds the site too, with deploy previews** · Changed · Niels · PR #13
 - [x] **The Wind Vault's flying city casts a shadow that moves with the sun** · New · Sam · PR #26
 - [x] **Hand-painted globe on computers** · Changed · Sam · PR #25
 - [x] **Recap as chapters, and place cards that unfold** · Changed · Sam · PR #24
