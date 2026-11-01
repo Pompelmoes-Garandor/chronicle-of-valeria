@@ -765,12 +765,12 @@ const byId = Object.fromEntries(PLACES.map(p=>[p.id,p]));
    Only what the table has seen. Tags are lowercase; a space is fine ("blood guild"). */
 const KINDS = {
   settlement:{label:"Towns & cities",    one:"Town or city",       icon:"M4 20V10l5-4 5 4v10M14 20v-7h6v7M3 20h18M8 14h2"},
-  inn:       {label:"Taverns & inns",    one:"Tavern or inn",      icon:"M6 4h9v11a4 4 0 0 1-4 4h-1a4 4 0 0 1-4-4zM15 7h2a2 2 0 0 1 0 6h-2M6 9h9", tags:["food","drink","lodging"]},
-  market:    {label:"Markets & shops",   one:"Market or shop",     icon:"M4 9h16l-1.5-4h-13zM5 9v11h14V9M9 20v-6h6v6",  tags:["food","trade"]},
+  inn:       {label:"Taverns & inns",    one:"Tavern or inn",      icon:"M6 4h9v11a4 4 0 0 1-4 4h-1a4 4 0 0 1-4-4zM15 7h2a2 2 0 0 1 0 6h-2M6 9h9", tags:["tavern"]},
+  market:    {label:"Markets & shops",   one:"Market or shop",     icon:"M4 9h16l-1.5-4h-13zM5 9v11h14V9M9 20v-6h6v6", tags:["shop"]},
   castle:    {label:"Castles & strongholds",one:"Castle or stronghold",icon:"M4 20V8h3v3h3V8h4v3h3V8h3v12zM10 20v-5h4v5"},
-  temple:    {label:"Temples & shrines", one:"Temple or shrine",   icon:"M12 3l7 5H5zM6 8v12M18 8v12M10 8v12M14 8v12M4 20h16", tags:["faith"]},
-  vault:     {label:"Sigil vaults",      one:"Sigil vault",        icon:"M12 3l8 4.6v8.8L12 21l-8-4.6V7.6zM12 9v6M9 12h6", tags:["sigil","valerian"]},
-  ancient:   {label:"Ancient tech",      one:"Ancient tech",       icon:"M12 3v3M12 18v3M3 12h3M18 12h3M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z", tags:["valerian"]},
+  temple:    {label:"Temples & shrines", one:"Temple or shrine",   icon:"M12 3l7 5H5zM6 8v12M18 8v12M10 8v12M14 8v12M4 20h16"},
+  vault:     {label:"Sigil vaults",      one:"Sigil vault",        icon:"M12 3l8 4.6v8.8L12 21l-8-4.6V7.6zM12 9v6M9 12h6"},
+  ancient:   {label:"Ancient tech",      one:"Ancient tech",       icon:"M12 3v3M12 18v3M3 12h3M18 12h3M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"},
   ruin:      {label:"Ruins & wrecks",    one:"Ruin or wreck",      icon:"M4 20h16M6 20v-8l3-2v10M11 20V8l3 3v9M16 20v-5l2-1v6"},
   cave:      {label:"Caves, pits & dungeons",one:"Cave, pit or dungeon",icon:"M3 20c1-7 4-12 9-12s8 5 9 12M9 20c0-3 1.3-5 3-5s3 2 3 5", tags:["danger"]},
   nature:    {label:"Natural wonders",   one:"Natural wonder",     icon:"M5 20c2-5 2-11 7-16 5 5 5 11 7 16M12 4v16M9 14h6"},
@@ -780,36 +780,45 @@ const KINDS = {
   region:    {label:"Realms & regions",  one:"Realm or region",    icon:"M4 6l5-2 6 2 5-2v14l-5 2-6-2-5 2zM9 4v14M15 6v14"},
   poi:       {label:"Points of interest",one:"Point of interest",  icon:"M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11zM12 7.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"},
 };
+// The agreed tags (Sam and Niels, Nov 2026). Keep to this list; add a tag here first if the table needs a new one.
+const TAG_LIST = ["tavern","shop","healing","work","travel","danger","blood guild","order of the seal","order of the air","rebels","elves","one-eyed champions"];
+// everyday words that search should treat as one of the tags
+const TAG_WORDS = {food:"tavern",drink:"tavern",drinks:"tavern",inn:"tavern",inns:"tavern",bar:"tavern",pub:"tavern",lodging:"tavern",sleep:"tavern",beer:"tavern",ale:"tavern",
+  market:"shop",shops:"shop",store:"shop",trade:"shop",trader:"shop",merchant:"shop",buy:"shop",sell:"shop",
+  heal:"healing",healer:"healing",temple:"healing",potion:"healing",potions:"healing",
+  job:"work",jobs:"work",contract:"work",contracts:"work",quest:"work",
+  harbour:"travel",harbor:"travel",port:"travel",ship:"travel",boat:"travel",waystone:"travel",waypoint:"travel",
+  dangerous:"danger",enemy:"danger",enemies:"danger",threat:"danger",elf:"elves",elven:"elves"};
 const PLACE_DB = {
-  valeria:   {kind:"settlement", tags:["hans","gerda","rebels","thawed"]},
-  inn:       {kind:"inn",        tags:["gerda","blood guild","arcane lock"]},
-  icy:       {kind:"mountain",   tags:["ice","bridge","travel","one-eyed champions"]},
-  hills:     {kind:"mountain",   tags:["rebels","battle","teenoog","steward","ice"]},
-  orda:      {kind:"settlement", tags:["order of the seal","magic","marble"]},
-  ship:      {kind:"ruin",       tags:["ship","steward"]},
-  crash:     {kind:"ruin",       tags:["ship","black box","steward"]},
-  ravine:    {kind:"nature",     tags:["blood guild","thorias","danger"]},
-  waystone:  {kind:"ancient",    tags:["travel","teleport","sigil"]},
-  forest:    {kind:"forest",     tags:["battle","blight","thorn","elves","danger"]},
-  "v-earth": {kind:"vault",      tags:["earth","claimed"]},
-  "v-water": {kind:"vault",      tags:["water","claimed"]},
-  "v-fire":  {kind:"vault",      tags:["fire","vayne","battle","sacrifice"]},
-  "v-wind":  {kind:"vault",      tags:["wind","flying city","order of the air"]},
-  firesea:   {kind:"water",      tags:["travel","sea"]},
-  summerwood:{kind:"region",     tags:["elves","foxglove woods","valethorn"]},
-  valethorn: {kind:"castle",     tags:["elves","court","high elves"]},
-  fraasden:  {kind:"region",     tags:["city-states","baronies","kingdoms","merchant-republics","stig"]},
-  myratma:   {kind:"region",     in:"fraasden", tags:["province","prince-elect","stig"]},
-  grisshaven:{kind:"settlement", in:"myratma",  tags:["harbour","coast"]},
-  deadvalley:{kind:"region",     tags:["vision","army","aggron","danger"]},
-  cathedral: {kind:"temple",     tags:["vision","desert","black sand"]},
+  valeria:   {kind:"settlement", tags:["rebels"]},
+  inn:       {kind:"inn",        tags:["blood guild"]},
+  icy:       {kind:"mountain",   tags:["one-eyed champions"]},
+  hills:     {kind:"mountain",   tags:["rebels","danger"]},
+  orda:      {kind:"settlement", tags:["order of the seal"]},
+  ship:      {kind:"ruin",       tags:[]},
+  crash:     {kind:"ruin",       tags:[]},
+  ravine:    {kind:"nature",     tags:["blood guild","danger"]},
+  waystone:  {kind:"ancient",    tags:["travel"]},
+  forest:    {kind:"forest",     tags:["elves","danger"]},
+  "v-earth": {kind:"vault",      tags:[]},
+  "v-water": {kind:"vault",      tags:[]},
+  "v-fire":  {kind:"vault",      tags:["danger"]},
+  "v-wind":  {kind:"vault",      tags:["order of the air"]},
+  firesea:   {kind:"water",      tags:[]},
+  summerwood:{kind:"region",     tags:["elves"]},
+  valethorn: {kind:"castle",     tags:["elves"]},
+  fraasden:  {kind:"region",     tags:[]},
+  myratma:   {kind:"region",     in:"fraasden", tags:[]},
+  grisshaven:{kind:"settlement", in:"myratma",  tags:["travel"]},
+  deadvalley:{kind:"region",     tags:["danger"]},
+  cathedral: {kind:"temple",     tags:[]},
 };
 const SPOTS = [
   {id:"wetowl",  name:"The Wet Owl",     in:"orda",       kind:"inn",    voice:"steward", state:"explored", sessions:[5],
-   tags:["traitors","poison","pieter-bas"],
+   tags:["danger"],
    body:"<p>A tavern of traitors in Orda. Poison. A man called Pieter-Bas. That is all the Steward logged.</p>"},
   {id:"crowsnest",name:"The Crow's Nest", in:"orda",       kind:"castle", voice:"steward", state:"explored", sessions:[5],
-   tags:["prison","order of the seal","calysta","elias","order of the air"],
+   tags:["danger","order of the seal","order of the air"],
    body:"<p>A prison in Orda for all who will not bow to the Order of the Seal. Calysta the wizard was held here, and Elias, Father of the Order of the Air.</p>"},
   {id:"foxglove",name:"The Foxglove Woods",in:"summerwood", kind:"forest", voice:"fragment",state:"rumour",   sessions:[],
    tags:["elves"],
@@ -818,7 +827,7 @@ const SPOTS = [
    tags:[],
    body:"<p>A tavern in Grisshaven. A name on the chart, nothing more yet.</p>"},
   {id:"aggron",  name:"The Pit of Aggron",in:"deadvalley", kind:"cave",   voice:"fragment",state:"rumour",   sessions:[6],
-   tags:["vision","army"],
+   tags:[],
    body:"<p>Not from the box. From Saphira's vision: a pit in the Dead Valley where an army gathers.</p>"},
 ];
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -1652,7 +1661,7 @@ const strip=s=>(s||"").replace(/<[^>]+>/g," ").replace(/\s+/g," ");
 function gazEntry(p,spot){
   const d=spot?p:(PLACE_DB[p.id]||{}), kind=KINDS[d.kind]?d.kind:"poi", parent=spot?byId[p.in]:(d.in&&byId[d.in]&&d.in!==p.id?byId[d.in]:null);
   const tags=[...new Set([...(KINDS[kind].tags||[]),...(d.tags||[])].map(t=>t.toLowerCase()))];
-  return gzRetag({id:p.id,name:p.name,kind,base:tags,parent,spot,state:p.state,isNew:!!p.isNew,text:strip(p.body).toLowerCase()});
+  return gzRetag({id:p.id,name:p.name,kind,base:tags,parent,spot,state:p.state,isNew:!!p.isNew,text:strip(p.body).toLowerCase().replace(/[^\p{L}\p{N}' -]+/gu," ")});
 }
 // tag edits from the Places list: kept on this device only, like sheet amendments
 let tagEdits={}; try{tagEdits=JSON.parse(store.get("chron-place-tags")||"{}")||{};}catch(e){tagEdits={};}
@@ -1667,7 +1676,7 @@ const gazById=Object.fromEntries(GAZ.map(e=>[e.id,e]));
 let gq=store.get("chron-places-q")||"", gk=store.get("chron-places-k")||"all", gzBack=false, gzEdit=null;
 if(gk!=="all"&&!KINDS[gk]) gk="all";
 function gzMatch(e,toks){let s=0;for(const t of toks){
-  if(e.name.toLowerCase().startsWith(t))s+=4; else if(e.tags.includes(t))s+=3; else if(e.key.includes(t))s+=2; else if(e.text.includes(t))s+=1; else return -1;}
+  if(e.name.toLowerCase().startsWith(t))s+=4; else if(e.tags.includes(t)||TAG_WORDS[t]&&e.tags.includes(TAG_WORDS[t]))s+=3; else if(e.key.includes(t))s+=2; else if((" "+e.text).includes(" "+t))s+=1; else return -1;}
   return s;}
 const kindIcon=k=>{const s=document.createElementNS("http://www.w3.org/2000/svg","svg");s.setAttribute("viewBox","0 0 24 24");s.setAttribute("aria-hidden","true");
   const p=document.createElementNS("http://www.w3.org/2000/svg","path");p.setAttribute("d",KINDS[k].icon);s.append(p);return s;};
@@ -1679,15 +1688,16 @@ function showPlaces(keep){
   const tagsEl=h("div",{class:"chips gz-tags",role:"group","aria-label":"Tags"});
   const list=h("div",{class:"gz-list","aria-live":"polite"});
   const clear=h("button",{class:"x gz-clear",type:"button","aria-label":"Clear search",hidden:!gq,onclick:()=>{input.value="";gq="";upd();input.focus();}},"✕");
-  const input=h("input",{type:"text",class:"gz-q",value:gq,placeholder:"Search: tavern, food, sigil, elves…","aria-label":"Search places and tags",enterkeyhint:"search",autocomplete:"off",spellcheck:"false",
+  const input=h("input",{type:"text",class:"gz-q",value:gq,placeholder:"Search: tavern, shop, danger, elves…","aria-label":"Search places and tags",enterkeyhint:"search",autocomplete:"off",spellcheck:"false",
     oninput:ev=>{gq=ev.target.value;upd();},onkeydown:ev=>{if(ev.key==="Enter")ev.target.blur();}});
   function tagEditor(e){
     const add=()=>{const v=inp.value.split(",").map(cleanTag).filter(Boolean);if(!v.length)return;setTags(e.id,[...e.tags,...v]);upd();list.querySelector(".gz-tagin")?.focus();};
-    const inp=h("input",{type:"text",class:"gz-tagin",placeholder:"Add a tag",maxlength:"24","aria-label":"New tag for "+e.name,enterkeyhint:"done",autocomplete:"off",spellcheck:"false",
+    const inp=h("input",{type:"text",class:"gz-tagin",placeholder:"Or type your own",maxlength:"24","aria-label":"New tag for "+e.name,enterkeyhint:"done",autocomplete:"off",spellcheck:"false",
       onkeydown:ev=>{if(ev.key==="Enter"){ev.preventDefault();add();}else if(ev.key==="Escape"){gzEdit=null;upd();}}});
     return h("div",{class:"gz-editor"},
       h("div",{class:"chips"},e.tags.length?e.tags.map(t=>h("button",{type:"button",class:"chip sm tg gz-rm","aria-label":"Remove tag "+t,onclick:()=>{setTags(e.id,e.tags.filter(x=>x!==t));upd();}},"#"+t," ✕"))
         :[h("span",{class:"note"},"No tags. Add one below.")]),
+      TAG_LIST.some(t=>!e.tags.includes(t))?h("div",{class:"chips gz-sugg",role:"group","aria-label":"Add a tag"},TAG_LIST.filter(t=>!e.tags.includes(t)).map(t=>h("button",{type:"button",class:"chip sm","aria-label":"Add tag "+t,onclick:()=>{setTags(e.id,[...e.tags,t]);upd();}},"+ "+t))):null,
       h("div",{class:"gz-addrow"},inp,h("button",{type:"button",class:"btn ghost",onclick:add},"Add")),
       h("div",{class:"row"},
         h("button",{type:"button",class:"btn",onclick:()=>{if(inp.value.trim())add();gzEdit=null;upd();}},"Done"),
@@ -1705,7 +1715,7 @@ function showPlaces(keep){
       ...used.map(k=>h("button",{type:"button",class:"chip sm","aria-pressed":String(gk===k),disabled:!count[k]&&gk!==k,onclick:()=>{gk=gk===k?"all":k;upd();}},KINDS[k].label,h("small",{},String(count[k]||0)))));
     const q=gq.toLowerCase().trim();
     const tally={}; GAZ.forEach(e=>e.tags.forEach(t=>tally[t]=(tally[t]||0)+1));
-    const topTags=Object.keys(tally).filter(t=>tally[t]>1||t==="food").sort((a,b)=>(b==="food")-(a==="food")||tally[b]-tally[a]||a.localeCompare(b)).slice(0,12);
+    const topTags=[...TAG_LIST.filter(t=>tally[t]),...Object.keys(tally).filter(t=>!TAG_LIST.includes(t)).sort()];
     tagsEl.replaceChildren(...topTags.map(t=>h("button",{type:"button",class:"chip sm tg","aria-pressed":String(q===t),onclick:()=>{gq=q===t?"":t;input.value=gq;upd();}},"#"+t)));
     const rows=hits.filter(x=>gk==="all"||x.e.kind===gk).sort((a,b)=>b.s-a.s||KORD[a.e.kind]-KORD[b.e.kind]||a.e.name.localeCompare(b.e.name)).map(x=>x.e);
     list.replaceChildren(...(rows.length?rows.map(e=>h("div",{class:"gz-row"+(gzEdit===e.id?" editing":"")},
