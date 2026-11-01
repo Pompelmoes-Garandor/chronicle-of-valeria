@@ -60,11 +60,12 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **The Wind Vault's flying city casts a shadow that moves with the sun** · New · Sam · PR #26
 - [x] **Hand-painted globe on computers** · Changed · Sam · PR #25
 - [x] **Recap as chapters, and place cards that unfold** · Changed · Sam · PR #24
 - [x] **Fly the route: camera follows a session's road** · New · Sam · PR #23
 - [x] **Tap to roll from the sheet: 3D dice for skills, abilities, saves and attacks** · New · Sam · PR #22
-- [x] **Living sky: day and night, town lamps, weather and lightning** (the Wind Vault shadow is left out until Sam decides) · New · Sam · PR #22
+- [x] **Living sky: day and night, town lamps, weather and lightning** · New · Sam · PR #22
 - [x] **Sound of the world, and Hans reads aloud** · New · Sam · PR #21
 - [x] **Fog that burns away, screen stays awake in Table mode, Postcard from Hans** · New · Sam · PR #21
 - [x] **Replay the journey: rewind the chart session by session, route drawn live** · New · Sam · PR #19

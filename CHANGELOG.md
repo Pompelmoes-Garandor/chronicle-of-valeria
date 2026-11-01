@@ -6,6 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **New** The Wind Vault's flying city now casts its shadow on the land below. It swings round with the sun, stretches long at dawn and dusk, and is gone at night. (Sam)
 - **Changed** On computers the globe looks hand-painted: colour lies in soft brush strokes on grainy paper, while coasts, rivers and the route stay crisp ink. A brush button bottom left switches back to the plain map. Phones keep the plain map, and a slow computer drops the paint by itself. (Sam)
 - **Changed** The recap opens like a chapter in Hans's book: chapter number, the session's name and its line from the Chronicle, then the stops. Hans's lines start with a brass drop cap. (Sam)
 - **Changed** Tapping a place on the map unfolds it: the pin's name flies up into the card's title. Phones and browsers without this effect simply open the card. (Sam)
