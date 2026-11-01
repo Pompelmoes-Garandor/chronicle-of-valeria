@@ -6,7 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
-- **Changed** The assassin behind the spider button is a woman now: auburn hair under the hood, a long braid that flies as she leaps. (Niels)
+- **Changed** The assassin behind the spider button is a woman now: blonde hair under the hood, a long braid that flies as she leaps. (Niels)
 - **New** A fourth silly button, with a spider on it. Press it and see what drops from the ceiling. (Niels)
 - **Changed** Places has a short, fixed set of tags: tavern, shop, healing, work, travel, danger, and the factions (Blood Guild, Order of the Seal, Order of the Air, rebels, elves, One-Eyed Champions). Everyday words still work in search: "food" or "inn" finds the taverns, "harbour" finds travel points. When you edit a place's tags, the set is offered as one-tap buttons. (Niels)
 - **Lore** The small southern continent has a name: Fraas-Den, a land of free city-states, small baronies, kingdoms and merchant-republics, and the place Stig was born and calls home. Grisshaven is a small harbour on its coast, in Myratma, the Patrechon Province ruled by a Prince-elect, where Stig grew up. (Niels)
