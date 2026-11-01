@@ -51,7 +51,6 @@ Top of the list is what to work on next.
 Not planned. Kept so nobody re-proposes them without a reason.
 
 - **GM secrets in the site:** the repo is public, so players could read them.
-- **Grid battle maps with tokens:** needs artwork for every scene.
 - **Offline mode (service worker):** Sam chose to skip it (2026-11-01). It would add a second file to the one-file site and risks players seeing an old map.
 - **Making the repo private:** GitHub Pages would stop on the free plan, and the table wants the site open to everyone with the link.
 
@@ -59,6 +58,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Play session 10: scenes, grid battles and the monsters from the script** · New · Sam · PR #37
 - [x] **Frame-rate readout (`?fps`) and a visual test script (`tests/visual/check.js`)** · New · Sam · PR #36
 - [x] **High-res world: 8k relief carved by erosion, rivers that follow the valleys** · New · Sam · PR #34
 - [x] **Real relief: mountains stand up, sunlit slopes and shadows, tilted close-ups** · New · Sam · PR #33

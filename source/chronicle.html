@@ -554,6 +554,120 @@ body.sealed header.top,body.sealed nav.dock,body.sealed .eggs,body.sealed #pins{
 @media (max-height:520px){#seal{padding-top:calc(var(--top) + 10px);padding-bottom:calc(var(--bot) + 10px)}
   .sl-face .hans-face{--hf-size:60px}.sl-h{display:none}.sl-say{font-size:16px}.sl-in{gap:6px}
   #sl-plate{width:min(150px,38vh)}#sl-plate b{font-size:14px}.sl-cmd{font-size:16px;min-height:1.4em}}
+/* =================== PLAY SESSION 10: the battle map (one shared screen at the table) =================== */
+#play{position:fixed;inset:0;z-index:25;background:var(--void);color:var(--parch);display:grid;grid-template-rows:auto 1fr auto;font-family:var(--body);
+  padding:calc(var(--top) + 8px) max(10px,env(safe-area-inset-right,0px)) calc(var(--bot) + 8px) max(10px,env(safe-area-inset-left,0px));box-sizing:border-box}
+body.playing header.top,body.playing nav.dock,body.playing .eggs,body.playing #pins,body.playing #stage{visibility:hidden}
+.pl-top{display:flex;align-items:center;gap:10px;min-height:44px}
+.pl-top .pl-t{flex:1;min-width:0}
+.pl-eye{font:500 10px/1.3 var(--mono);letter-spacing:.14em;color:var(--steward);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl-h{font:22px/1.1 var(--display);margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl-btn{font:500 14px/1 var(--label);letter-spacing:.04em;color:var(--parch);background:var(--housing-2);border:1px solid var(--hairline);border-radius:10px;min-height:44px;padding:0 14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-align:center}
+.pl-btn:hover{border-color:var(--brass)}
+.pl-btn:disabled{opacity:.38;cursor:default;border-color:var(--hairline)}
+.pl-btn.pri{background:linear-gradient(#d8b673,#a8823f);color:#1a1307;border-color:#ecd08f;font-weight:700}
+.pl-btn.on{border-color:var(--steward);box-shadow:inset 0 0 0 1px var(--steward)}
+.pl-btn.warn{border-color:var(--ember);color:#ffc7a8}
+.pl-btn small{display:block;font:400 11px/1.2 var(--mono);letter-spacing:0;color:var(--parch-dim);margin-top:3px}
+.pl-btn.pri small{color:#3a2a10}
+.pl-x{width:44px;padding:0;font-size:18px}
+.pl-main{position:relative;min-height:0;display:grid;grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto;gap:8px}
+@media (min-width:900px){.pl-main{grid-template-columns:1fr 380px;grid-template-rows:minmax(0,1fr)}}
+.pl-stage{position:relative;min-height:0;display:grid;place-items:center;overflow:hidden;border-radius:12px;background:#07080b}
+.pl-map{position:relative;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.pl-map canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.pl-tks{position:absolute;inset:0}
+.tk{position:absolute;box-sizing:border-box;padding:6%;border:0;background:none;cursor:pointer;transition:left .28s ease-in-out,top .28s ease-in-out,opacity .5s,transform .2s;color:#111}
+.tk .rg{position:absolute;inset:6%;border-radius:50%;background:var(--c,#888);box-shadow:0 0 0 2px #0b0d12,0 3px 8px #000c;display:grid;place-items:center;overflow:hidden}
+.tk .rg b{font:700 calc(var(--cs)*.36px)/1 var(--display);color:#14110b;letter-spacing:0}
+.tk.foe .rg{background:radial-gradient(circle at 40% 35%,#4a4f57,#16181d);box-shadow:0 0 0 2px var(--c,#b8402a),0 3px 8px #000c}
+.tk.foe .rg b{color:#e9e1cf;font-size:calc(var(--cs)*.3px)}
+.tk svg{width:78%;height:78%;fill:none;stroke:#e9e1cf;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.tk .n{position:absolute;right:2%;bottom:2%;min-width:14px;height:14px;border-radius:7px;background:#0b0d12;color:var(--parch);font:500 9px/14px var(--mono);text-align:center;padding:0 2px;box-shadow:0 0 0 1px var(--hairline)}
+.tk .hp{position:absolute;left:14%;right:14%;bottom:-3px;height:4px;border-radius:2px;background:#000a;overflow:hidden}
+.tk .hp i{display:block;height:100%;background:#7bc36a;transition:width .3s}
+.tk .hp i.lo{background:#e0b14a}.tk .hp i.cr{background:#e2553c}
+.tk.cur .rg{box-shadow:0 0 0 2px #0b0d12,0 0 0 4px var(--brass-hi),0 0 18px #ecd08f99}
+.tk.tgt .rg{box-shadow:0 0 0 2px #0b0d12,0 0 0 4px #ff6a4a,0 0 16px #ff6a4a99;animation:tkp 1s infinite}
+.tk.ally-tgt .rg{box-shadow:0 0 0 2px #0b0d12,0 0 0 4px #7bc36a,0 0 16px #7bc36a99;animation:tkp 1s infinite}
+@keyframes tkp{50%{transform:scale(1.06)}}
+.tk.down{opacity:.55}.tk.down .rg{filter:grayscale(1)}
+.tk.gone{opacity:0;pointer-events:none;transform:scale(.4)}
+.tk.hidden-u .rg{opacity:.45;filter:blur(.5px)}
+.tk .cd{position:absolute;left:-2px;top:-2px;display:flex;gap:1px}
+.tk .cd i{font:700 8px/12px var(--mono);font-style:normal;background:#0b0d12;color:var(--ember);border-radius:3px;padding:0 2px;box-shadow:0 0 0 1px #e8743b66}
+.tk.big .rg{border-radius:38%}
+.tk.hit{animation:tkhit .35s}
+@keyframes tkhit{30%{transform:translate(3px,-2px)}60%{transform:translate(-3px,1px)}}
+.fl{position:absolute;z-index:3;pointer-events:none;font:700 15px/1 var(--mono);color:#ffb08a;text-shadow:0 1px 3px #000,0 0 8px #000;transform:translate(-50%,-50%);animation:fl 1.5s forwards;white-space:nowrap}
+.fl.heal{color:#9fe08c}.fl.miss{color:var(--mist)}.fl.info{color:var(--steward);font-size:12px}
+@keyframes fl{0%{opacity:0;margin-top:6px}15%{opacity:1}100%{opacity:0;margin-top:-34px}}
+.pl-side{min-height:0;display:flex;flex-direction:column;gap:8px}
+.pl-chip{position:absolute;z-index:4;left:50%;top:10px;transform:translateX(-50%);max-width:calc(100% - 24px);box-sizing:border-box;background:var(--housing);border:1px solid var(--steward);color:var(--steward);border-radius:10px;padding:8px 12px;font:500 13px/1.35 var(--mono);text-align:center;box-shadow:0 8px 30px #000a;pointer-events:none;animation:fl 3.2s forwards;animation-name:chipin}
+.pl-chip.bad{border-color:var(--ember);color:#ffb08a}
+@keyframes chipin{0%{opacity:0}8%{opacity:1}85%{opacity:1}100%{opacity:0}}
+.pl-init{position:sticky;top:-10px;z-index:1;background:var(--housing)}
+.pl-panel{background:var(--housing);border:1px solid var(--hairline);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;max-height:36vh;overflow:auto;box-sizing:border-box}
+@media (min-width:900px){.pl-panel{max-height:none;flex:1}}
+.pl-who{display:flex;align-items:center;gap:10px}
+.pl-who .dot{width:34px;height:34px;border-radius:50%;background:var(--c);flex:none;display:grid;place-items:center;font:700 14px/1 var(--display);color:#14110b}
+.pl-who .nm{font:20px/1.1 var(--display)}
+.pl-who .ln{font:12px/1.3 var(--mono);color:var(--parch-dim)}
+.pl-acts{display:flex;flex-wrap:wrap;gap:6px}
+.pl-acts .pl-btn{flex:1 1 calc(50% - 6px);min-width:0;padding:6px 8px;flex-direction:column;font-size:13px}
+@media (min-width:900px){.pl-acts .pl-btn{flex-basis:calc(50% - 6px)}}
+.pl-sec{font:500 10px/1.2 var(--mono);letter-spacing:.14em;color:var(--brass);text-transform:uppercase;margin-top:2px}
+.pl-hint{font:italic 15px/1.4 var(--body);color:var(--parch)}
+.pl-hint.m{font:400 12px/1.4 var(--mono);font-style:normal;color:var(--steward)}
+.pl-log{font:400 12px/1.45 var(--mono);color:var(--parch-dim);max-height:20vh;overflow:auto;background:#0d0f14;border-radius:10px;padding:8px 10px;border:1px solid #c9a35c22}
+@media (min-width:900px){.pl-log{max-height:34vh;flex:none}}
+@media (max-width:899px){.pl-log{max-height:11vh}}
+.pl-log p{margin:0 0 3px}.pl-log p.b{color:var(--parch)}.pl-log p.h{color:var(--steward)}.pl-log p.r{color:#ffb08a}.pl-log p.g{color:#9fe08c}
+.pl-init{display:flex;gap:4px;overflow-x:auto;padding:2px 0;scrollbar-width:none}
+.pl-init span{flex:none;min-width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font:700 11px/1 var(--display);color:#14110b;background:var(--c,#555);opacity:.6;box-shadow:0 0 0 1px #0008}
+.pl-init span.foe{color:#e9e1cf;background:#2a2e36;box-shadow:0 0 0 1px var(--c,#b8402a)}
+.pl-init span.cur{opacity:1;box-shadow:0 0 0 2px var(--brass-hi)}
+.pl-init span.out{opacity:.25}
+.pl-bars{display:flex;gap:6px;flex-wrap:wrap;font:400 11px/1.3 var(--mono);color:var(--parch-dim)}
+.pl-bars b{color:var(--parch);font-weight:500}
+.pl-pips{display:inline-flex;gap:3px;vertical-align:middle}.pl-pips i{width:9px;height:9px;border-radius:50%;box-shadow:inset 0 0 0 1px var(--brass)}.pl-pips i.f{background:var(--brass)}
+/* story and challenge scenes */
+.pl-story{position:absolute;inset:0;overflow:auto;display:flex;flex-direction:column;align-items:center;padding:18px 14px 24px;box-sizing:border-box;gap:14px;
+  background:radial-gradient(ellipse at 50% 0%,#1d222c 0%,#0b0d12 70%)}
+.pl-story .art{width:min(520px,100%);aspect-ratio:16/9;border-radius:12px;overflow:hidden;box-shadow:0 0 0 1px var(--hairline);flex:none}
+.pl-story .art canvas{width:100%;height:100%;display:block}
+.pl-read{width:min(620px,100%);font:italic 18px/1.55 var(--body);color:var(--parch);margin:0;text-wrap:pretty}
+.pl-read.say{font-style:normal}
+.pl-read q{quotes:"“" "”" "‘" "’"}
+.pl-spk{font:500 11px/1 var(--mono);letter-spacing:.14em;color:var(--brass);text-transform:uppercase;width:min(620px,100%)}
+.pl-choices{width:min(620px,100%);display:flex;flex-direction:column;gap:6px}
+.pl-choices .pl-btn{justify-content:flex-start;text-align:left;padding:10px 14px;min-height:46px;font:16px/1.3 var(--body);letter-spacing:0;flex-direction:column;align-items:flex-start}
+.pl-choices .pl-btn.used{opacity:.5}
+.pl-res{width:min(620px,100%);font:400 13px/1.5 var(--mono);color:var(--steward);background:#0d0f14;border-radius:10px;padding:10px 12px;border:1px solid #8fd3c833}
+.pl-res.bad{color:#ffb08a;border-color:#e8743b55}
+.pl-track{display:flex;gap:16px;justify-content:center;font:500 12px/1 var(--mono);color:var(--parch-dim);flex-wrap:wrap}
+.pl-track .pl-pips i{width:14px;height:14px}.pl-track .pl-pips.bad i.f{background:var(--ember);box-shadow:inset 0 0 0 1px var(--ember)}
+.pl-track .pl-pips.ok i.f{background:var(--steward);box-shadow:inset 0 0 0 1px var(--steward)}
+.pl-stations{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:min(620px,100%)}
+.pl-st{background:var(--housing);border:1px solid var(--hairline);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.pl-st h4{margin:0;font:16px/1.1 var(--display)}
+.pl-st p{margin:0;font:11px/1.35 var(--mono);color:var(--parch-dim)}
+.pl-st .pl-btn{font-size:12px;padding:4px 6px;min-height:40px;flex-direction:column}
+.pl-st.done{border-color:var(--steward)}.pl-st.bad{border-color:var(--ember)}
+.pl-timer{font:500 34px/1 var(--mono);color:var(--steward);text-align:center}
+.pl-timer.hot{color:var(--ember);animation:tkp .5s infinite}
+.pl-stone{width:min(520px,100%);display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.pl-stone .pl-btn{min-height:70px;flex-direction:column;font:15px/1.2 var(--body)}
+.pl-stone .pl-btn.ok{border-color:var(--steward);color:var(--steward)}
+.pl-menu{position:absolute;right:0;top:48px;z-index:4;background:var(--housing);border:1px solid var(--brass);border-radius:12px;padding:8px;display:flex;flex-direction:column;gap:6px;min-width:250px;max-height:70vh;overflow:auto;box-shadow:0 10px 40px #000c}
+.pl-menu .pl-btn{justify-content:flex-start;min-height:40px}
+.pl-modal{position:absolute;inset:0;z-index:5;background:#0b0d12cc;display:grid;place-items:center;padding:16px}
+.pl-modal>div{background:var(--housing);border:1px solid var(--brass);border-radius:14px;padding:16px;max-width:420px;width:100%;display:flex;flex-direction:column;gap:10px;box-sizing:border-box}
+.pl-modal h3{margin:0;font:20px/1.2 var(--display)}
+.pl-modal p{margin:0}
+.pl-modal .row{display:flex;gap:8px}.pl-modal .row .pl-btn{flex:1}
+.pl-cipher{font:18px/1.6 var(--mono);letter-spacing:.2em;color:var(--parch-dim);word-break:break-all;width:min(520px,100%);text-align:center}
+@media (prefers-reduced-motion:reduce){.tk{transition:none}.fl{animation-duration:.01s}.tk.tgt .rg,.tk.ally-tgt .rg,.pl-timer.hot{animation:none}}
 </style>
 
 <div id="stage" aria-label="3D map of the world of Valeria. Drag to turn, pinch or scroll to zoom." role="img"></div>
@@ -594,6 +708,7 @@ addEventListener("error",function(e){if(e.target&&e.target.tagName==="LINK")retu
   <div class="tray" id="tray" role="group" aria-label="Map tools and silly modes" hidden>
   <button type="button" id="paint" class="snd" aria-pressed="false" title="Hand-painted map" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 4.5l5 5-8.2 8.2c-1 1-2.6 1-3.6 0l-1.4-1.4c-1-1-1-2.6 0-3.6z"/><path d="M6.3 15.1C4 15.6 3.5 17.4 3.5 20.5c3.1 0 4.9-.5 5.4-2.8"/></svg><span>Hand-painted map</span></button>
   <button type="button" id="snd" class="snd" aria-pressed="false" title="Sound of the world"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path class="w1" d="M15.5 9.2a4 4 0 0 1 0 5.6"/><path class="w2" d="M18 6.8a7.4 7.4 0 0 1 0 10.4"/></svg><span>Sound</span></button>
+  <button type="button" id="play-s10" title="Play session 10"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l9-9M14.5 3.5l6 6-4 1.5-3.5-3.5z"/><path d="M6.5 13.5l4 4M3.5 18.5l2 2"/><path d="M20 20l-9-9M9.5 3.5l-6 6 4 1.5 3.5-3.5z"/></svg><span>Play session 10</span></button>
   <i class="sep" aria-hidden="true"></i>
   <button type="button" id="egg-bird" aria-pressed="false" title="Bird mode"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 15c3 0 4-2 5-5 1-3 3-5 6-5 2 0 3.5 1.2 4 3l2 .8-2 .9c0 4-3 8-8 8H6l-2 2z"/><circle cx="15.5" cy="7.6" r=".9" fill="currentColor"/></svg><span>Bird mode</span></button>
   <button type="button" id="egg-moo" title="Moo mode"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7C5 7 3 6 2.5 4.5 4 4.6 5.5 5 7 6M17 7c2 0 4-1 4.5-2.5C20 4.6 18.5 5 17 6"/><path d="M7 6.5h10c1 2 1.4 4.5 1 7-.6 3.6-3 5.5-6 5.5s-5.4-1.9-6-5.5c-.4-2.5 0-5 1-7z"/><path d="M8.5 15.5c1.5 1.2 5.5 1.2 7 0"/><circle cx="10" cy="16.4" r=".6" fill="currentColor"/><circle cx="14" cy="16.4" r=".6" fill="currentColor"/><circle cx="9.5" cy="10.5" r=".8" fill="currentColor"/><circle cx="14.5" cy="10.5" r=".8" fill="currentColor"/></svg><span>Moo mode</span></button>
@@ -2364,6 +2479,7 @@ if(BENCH) window.__chron={
   measure:ms=>new Promise(done=>{const f=[]; meter.rec=f; setTimeout(()=>{meter.rec=null; done(frameStats(f));},ms);}),
 };
 function frame(now){
+  if(PLAY.on){last=now;requestAnimationFrame(frame);return;}  // the battle map has the screen
   const raw=now-last, dt=Math.min(.05,raw/1000); adaptRes(raw); if(meter) meterTick(raw,now); last=now;
   uniforms.uTime.value=now/1000; tickSky(now,dt);
   if(morph!==morphTarget){morph+=Math.sign(morphTarget-morph)*Math.min(Math.abs(morphTarget-morph),dt/(reduced?.01:1.4));}
@@ -3522,6 +3638,1171 @@ function liftSeal(){
           {who:"HANS",text:fresh?"Let me play you what the box recorded.":"Tap a place, and I will tell you what we know.",ms:3600,
            done:()=>{if(fresh)setTimeout(()=>{if(!recapOn&&tab===null)startRecap()},400);else document.querySelector('[data-tab="recap"] .dot')?.remove();}}]);
   }
+}
+
+/* =================== PLAY SESSION 10: the battle map ===================
+   The session the table played on 31 October, rebuilt as a game for one shared screen.
+   Scenes run in order; the crew moves on a grid, the monsters play themselves with the script's tactics.
+   Public repo: no secret slips, nothing from later sessions. Rules: 2024 PHB, with the script's own rulings. */
+const PLAY={on:false,auto:/[?&]playtest=auto/.test(location.search)};  // playtest=auto: the crew plays itself (for testing)
+{
+const PKEY="chron-play-s10", POPT="chron-play-opt";
+const opt=Object.assign({dice:!PLAY.auto,fast:PLAY.auto,sound:!PLAY.auto},(()=>{try{return JSON.parse(store.get(POPT)||"{}")}catch(e){return{}}})());
+const saveOpt=()=>store.set(POPT,JSON.stringify(opt));
+const ABORT={abort:true};PLAY.gen=0;
+const sleep=ms=>new Promise((r,j)=>{const g=PLAY.gen;setTimeout(()=>PLAY.gen!==g?j(ABORT):r(),opt.fast?ms*.35:ms);});
+addEventListener("unhandledrejection",e=>{if(e.reason===ABORT)e.preventDefault();});
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const pick=a=>a[rnd(a.length)-1];
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+function dice(expr){ // "2d6+4" -> {t,rolls,flat,sides}
+  const rolls=[];let flat=0;const sides=[];
+  for(const m of String(expr).replace(/\s/g,"").matchAll(/([+-]?)(\d*)d(\d+)|([+-]?)(\d+)/g)){
+    if(m[3]){const n=parseInt(m[2]||"1",10),s=parseInt(m[3],10),sg=m[1]==="-"?-1:1;for(let i=0;i<n;i++){const v=rnd(s);rolls.push(v*sg);sides.push(s);}}
+    else flat+=(m[4]==="-"?-1:1)*parseInt(m[5],10);}
+  return {t:rolls.reduce((a,b)=>a+b,0)+flat,rolls,flat,sides};}
+const avgDice=expr=>{let t=0;for(const m of String(expr).matchAll(/(\d*)d(\d+)|([+-]\d+)/g)){if(m[2])t+=(parseInt(m[1]||"1",10))*(parseInt(m[2],10)+1)/2;else t+=parseInt(m[3],10);}return t;};
+const maxDice=expr=>String(expr).replace(/(\d*)d(\d+)/g,(_,n,s)=>String((parseInt(n||"1",10))*parseInt(s,10)));
+
+/* ---- the crew (level 5 from their papers; level 6 at lunch, average hit points until the table gives the real ones) ---- */
+const SKILL_AB={acrobatics:"dex","animal handling":"wis",arcana:"int",athletics:"str",deception:"cha",history:"int",insight:"wis",intimidation:"cha",investigation:"int",medicine:"wis",nature:"int",perception:"wis",performance:"cha",persuasion:"cha",religion:"int","sleight of hand":"dex",stealth:"dex",survival:"wis"};
+const CREW={
+  katy:{name:"Katy Berry",short:"Katy",ini:"K",hex:"#e7a3b8",ac:14,hp:34,lv6hp:5,speed:7,init:2,str:8,prof:3,
+    ab:{str:-1,dex:2,con:0,int:1,wis:2,cha:4},sv:{str:-1,dex:5,con:0,int:1,wis:2,cha:7},jack:1,
+    sk:{performance:7,persuasion:7,deception:7,"sleight of hand":5},slots:[4,3,2],slots6:[4,3,3],res:{bi:4,misty:1,pwt:1},dc:15},
+  stig:{name:"Stig",short:"Stig",ini:"S",hex:"#7fb8dc",ac:18,hp:38,lv6hp:7,speed:6,init:4,str:10,prof:3,
+    ab:{str:0,dex:1,con:2,int:0,wis:4,cha:0},sv:{str:0,dex:1,con:2,int:0,wis:7,cha:3},
+    sk:{acrobatics:1,"animal handling":4,arcana:7,athletics:0,deception:0,history:3,insight:7,intimidation:3,investigation:0,medicine:7,nature:0,perception:4,performance:0,persuasion:0,religion:4,"sleight of hand":1,stealth:1,survival:4},
+    slots:[4,3,2],slots6:[4,3,3],res:{cd:2,tattoo:1,shield:1},dc:17,resist:["acid","necrotic"],imm:["fire"],conAdv:true},
+  saphira:{name:"Saphira Vale",short:"Saphira",ini:"Sa",hex:"#b39af0",ac:16,hp:21,lv6hp:6,speed:6,init:4,str:13,prof:3,
+    ab:{str:1,dex:4,con:1,int:2,wis:1,cha:3},sv:{str:1,dex:7,con:1,int:5,wis:4,cha:6},
+    sk:{acrobatics:7,"animal handling":1,arcana:5,athletics:1,deception:6,history:2,insight:1,intimidation:6,investigation:4,medicine:1,nature:2,perception:4,performance:3,persuasion:6,religion:2,"sleight of hand":10,stealth:11,survival:1},
+    pact:2,res:{curse:1,misty:1,echo:1,pot:2,gpot:1},dc:14,noCharm:true},
+  hans:{name:"Hans",short:"Hans",ini:"H",hex:"#c9a35c",ac:17,hp:60,lv6hp:0,speed:6,init:0,str:18,prof:2,
+    ab:{str:4,dex:0,con:3,int:0,wis:1,cha:-1},sv:{str:4,dex:0,con:3,int:0,wis:1,cha:-1},sk:{athletics:4},res:{},construct:true,imm:["poison","psychic"]}
+};
+const CREW_IDS=["katy","stig","saphira","hans"];
+const skillMod=(id,sk)=>{const c=CREW[id],s=sk.toLowerCase();if(c.sk&&s in c.sk)return c.sk[s];const ab=SKILL_AB[s]||s;return (c.ab[ab]??0)+(c.jack||0);};
+
+/* ---- monsters, from the session 10 stat cards ---- */
+const ICON={
+  hollower:'<path d="M12 3c-4 0-6 3-6 7v10l2-2 2 2 2-2 2 2 2-2 2 2V10c0-4-2-7-6-7z"/><circle cx="9.6" cy="10" r="1"/><circle cx="14.4" cy="10" r="1"/>',
+  husk:'<path d="M6 21v-6c0-4 2.5-7 6-7s6 3 6 7v6"/><path d="M8 9c0-3 1.8-5.5 4-5.5S16 6 16 9"/><path d="M10 12h.01M14 12h.01M10.5 15.5h3"/>',
+  vine:'<path d="M12 21c0-5 0-8 3-11 2-2 1-5-2-5s-4 3-2 5"/><path d="M12 14c-3-1-5-3-5-6M12 17c2 0 4-1 5-3"/>',
+  needle:'<path d="M12 3v18M5 7l14 10M19 7L5 17M12 3l-2 3M12 3l2 3"/>',
+  heart:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/><path d="M9 11l2 2 3-4"/>',
+  grey:'<path d="M5 21c0-6 3-10 7-10s7 4 7 10"/><path d="M8 11c0-4 1.8-7 4-7s4 3 4 7"/><path d="M3 9c4 1 8 6 9 12"/>',
+  warden:'<path d="M6 3c8 3 8 15 0 18"/><path d="M6 3v18M4 12h14M15 9l3 3-3 3"/>',
+  thorn:'<path d="M12 21V9"/><path d="M12 9c-3-1-5-4-5-7 3 0 5 2 5 7zM12 13c3-1 5-4 5-7-3 0-5 2-5 7z"/>',
+  matthew:'<ellipse cx="9" cy="15" rx="4.5" ry="4"/><path d="M12 12l7-8M17 3l3 3"/><circle cx="9" cy="15" r="1.2"/>'
+};
+const MON={
+  hollower:{name:"Hollower",ini:"Ho",icon:"hollower",ac:12,hp:26,speed:8,init:2,size:1,undead:true,
+    sv:{str:-2,dex:2,con:1,int:-2,wis:0,cha:-1},res:["acid","cold","fire","lightning","thunder","nonmagical"],vul:["radiant"],imm:["necrotic","poison"],noCond:["grappled","prone","restrained","poisoned"],
+    atk:[{n:"Strength Drain",hit:4,dmg:"2d6+2",type:"necrotic",reach:1,drain:true}],hide:true,ai:"hollower"},
+  husk:{name:"Ash Husk",ini:"A",icon:"husk",ac:8,hp:22,speed:4,init:-2,size:1,undead:true,
+    sv:{str:1,dex:-2,con:3,int:-4,wis:0,cha:-3},imm:["poison"],atk:[{n:"Slam",hit:3,dmg:"1d6+1",type:"bludgeoning",reach:1}],fort:true,burst:true,ai:"brute"},
+  vine:{name:"Vine Blight",ini:"V",icon:"vine",ac:12,hp:26,speed:2,init:-1,size:1,
+    sv:{str:2,dex:-1,con:2,int:-3,wis:0,cha:-4},atk:[{n:"Constrict",hit:4,dmg:"2d6+2",type:"bludgeoning",reach:2,grab:12}],tangle:true,ai:"brute"},
+  needle:{name:"Needle Blight",ini:"N",icon:"needle",ac:12,hp:11,speed:6,init:1,size:1,
+    sv:{str:1,dex:1,con:1,int:-3,wis:-1,cha:-4},atk:[{n:"Claws",hit:3,dmg:"2d4+1",type:"piercing",reach:1},{n:"Needles",hit:3,dmg:"2d6+1",type:"piercing",range:[6,12]}],ai:"archer"},
+  heart:{name:"The Blight Heart",ini:"♥",icon:"heart",ac:15,hp:180,speed:0,init:-2,size:3,boss:true,
+    sv:{str:5,dex:-2,con:3,int:-3,wis:0,cha:-3},res:["cold","fire"],imm:["lightning"],noCond:["blinded","deafened","prone","restrained","grappled","frightened"],
+    atk:[{n:"Root Lash",hit:8,dmg:"2d8+4",type:"bludgeoning",reach:6}],lr:1,ai:"heart"},
+  grey:{name:"The Grey Man",ini:"G",icon:"grey",ac:15,hp:78,speed:7,init:4,size:1,boss:true,
+    sv:{str:0,dex:7,con:2,int:1,wis:4,cha:3},atk:[{n:"Shortsword",hit:7,dmg:"1d6+4",plus:"2d6",plusType:"poison",type:"piercing",reach:1}],ai:"grey"},
+  warden:{name:"Hollow Warden",ini:"W",icon:"warden",ac:14,hp:32,speed:7,init:3,size:1,
+    sv:{str:0,dex:3,con:1,int:0,wis:1,cha:0},atk:[{n:"Longbow",hit:6,dmg:"1d8+3",type:"piercing",range:[30,120]},{n:"Shortsword",hit:5,dmg:"1d6+3",type:"piercing",reach:1}],ai:"warden"},
+  thorn:{name:"Thorn",ini:"T",icon:"thorn",hex:"#9bc46a",ac:15,hp:45,speed:7,init:3,size:1,
+    sv:{str:0,dex:3,con:1,int:0,wis:3,cha:0},atk:[{n:"Longbow",hit:5,dmg:"1d8+3",type:"piercing",range:[30,120]}],ai:"thorn"},
+  matthew:{name:"Matthew",ini:"M",icon:"matthew",hex:"#d9b98a",ac:11,hp:9,speed:6,init:1,size:1,sv:{str:0,dex:1,con:0,int:0,wis:1,cha:3},atk:[],ai:"none"}
+};
+
+/* ---- the maps: 1 square = 5 ft. Tunnels and cavern from above, the Hollowmother from the side ---- */
+const MAPS={
+  tunnel:{kind:"cave",rows:[
+    "###...###","##.....##","#...,...#","#..r....#","##.....##","#....rr.#","#..o....#","#.....W##","##......#","#..rrr..#","#.......#","#..,,...#","##.....##","#.......#","###...###"],
+    label:[[4,0,"deeper ↑"],[4,14,"↓ cave mouth"]]},
+  cavern:{kind:"cave",glow:[6,4],rows:[
+    "############","###......###","##..o.....##","#....HHH...#","#,...HHH..o#","#....HHH...#","#.r.......,#","##...rr....#","#o.........#","#...,,...r.#","##........##","###..o....##","####....####","#####..#####"]},
+  tree:{kind:"tree",rows:[
+    "-------------","---TTT|s-----","------|-s-===","-TTT==|s-----","------|-s----","------|s=TTT-","-BBB==|-s----","--R---|s-----",
+    "------|-s===-","TTT===|s-----","--R---|-s----","------|s=TTT-","--R---|-s----","--R---|s-----","--R---|-s----","ggggggDgggggg"],
+    turrets:[["ysolde",3,1,3,"Ysolde's"],["elodie",1,3,3,"Elodie's"],["a",9,5,3,"guest"],["c",0,9,3,"guest"],["d",9,11,3,"guest"]]}
+};
+const CAVE_COST={".":1,",":1,r:2,"W":0,"#":0,o:0,H:0};
+const TREE_COST={"-":0,"=":1,T:1,s:1,"|":2,R:2,g:1,D:1,B:1};
+
+
+/* ---- progress: party state carries from scene to scene, saved on this device ---- */
+let ST=null;
+function freshParty(){const p={};for(const id of CREW_IDS){const c=CREW[id];p[id]={hp:c.hp,max:c.hp,temp:0,slots:c.slots?[...c.slots]:null,pact:c.pact||0,pactLv:1,res:{...c.res},ex:0,insp:0,vein:0,lv:5,str:c.str};}return p;}
+function freshState(){return {v:1,scene:0,party:freshParty(),flags:{},snap:null,done:[]};}
+function loadState(){try{const s=JSON.parse(store.get(PKEY)||"null");if(s&&s.v===1&&s.party)return s;}catch(e){}return null;}
+function saveState(){store.set(PKEY,JSON.stringify(ST));}
+const P=id=>ST.party[id];
+const F=()=>ST.flags;
+
+/* ---- sound: plucked notes, the heart's pulse, the foxglove bells (only while play sound is on) ---- */
+let pOut=null;
+function pAc(){if(!opt.sound)return null;const a=ac();if(!a)return null;if(!pOut){pOut=a.createGain();pOut.gain.value=.5;pOut.connect(a.destination);}return a;}
+function pluck(f,t0=0,dur=1.4,vol=.22,type="triangle"){const a=pAc();if(!a)return;const t=a.currentTime+t0,o=a.createOscillator(),o2=a.createOscillator(),g=a.createGain(),lp=a.createBiquadFilter();
+  o.type=type;o.frequency.value=f;o2.type="sine";o2.frequency.value=f*2.003;lp.type="lowpass";lp.frequency.setValueAtTime(f*6,t);lp.frequency.exponentialRampToValueAtTime(f*1.2,t+dur);
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.008);g.gain.exponentialRampToValueAtTime(.0008,t+dur);
+  o.connect(lp);o2.connect(lp);lp.connect(g).connect(pOut);o.start(t);o2.start(t);o.stop(t+dur+.05);o2.stop(t+dur+.05);}
+const NOTE={A3:220,D4:293.66,E4:329.63,F4:349.23,Eb4:311.13,A4:440,C4:261.63,G4:392,Bb3:233.08};
+function fourNotes(wrong,gap=.62,beep){const n=["A3","D4","F4",wrong?"Eb4":"E4"];n.forEach((k,i)=>pluck(NOTE[k]*(beep?2:1),i*gap,beep?.25:1.6,beep?.12:.24,beep?"square":"triangle"));}
+function thump(){const a=pAc();if(!a)return;const t=a.currentTime;[0,.28].forEach((d,i)=>{const o=a.createOscillator(),g=a.createGain();o.type="sine";o.frequency.setValueAtTime(70-i*8,t+d);o.frequency.exponentialRampToValueAtTime(38,t+d+.25);
+  g.gain.setValueAtTime(0,t+d);g.gain.linearRampToValueAtTime(i?.25:.4,t+d+.02);g.gain.exponentialRampToValueAtTime(.001,t+d+.4);o.connect(g).connect(pOut);o.start(t+d);o.stop(t+d+.45);});}
+function bells(n=6){for(let i=0;i<n;i++){const f=[784,880,1046,988,1175,880][i%6];pluck(f,i*.33+Math.random()*.08,2.6,.07,"sine");pluck(f*2.76,i*.33,1.2,.02,"sine");}}
+function hitSnd(kind){const a=pAc();if(!a)return;const t=a.currentTime,n=a.sampleRate*.12|0,b=a.createBuffer(1,n,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,kind==="miss"?4:2);
+  const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();s.buffer=b;f.type=kind==="miss"?"highpass":"lowpass";f.frequency.value=kind==="miss"?2400:900;g.gain.value=kind==="miss"?.08:.3;s.connect(f).connect(g).connect(pOut);s.start(t);}
+let pulseIv=0;function pulse(on){clearInterval(pulseIv);if(on)pulseIv=setInterval(thump,1500);}
+
+/* ---- the overlay ---- */
+const root=h("div",{id:"play",hidden:true,role:"dialog","aria-modal":"true","aria-label":"Play session 10"});
+const topEye=h("div",{class:"pl-eye"},"Session 10 · The Black Ash"), topH=h("h2",{class:"pl-h"},"");
+const menuBtn=h("button",{type:"button",class:"pl-btn pl-x","aria-label":"Menu",title:"Menu"},"☰");
+const stage=h("div",{class:"pl-stage"}), side=h("div",{class:"pl-side"}), panel=h("div",{class:"pl-panel"}), logEl=h("div",{class:"pl-log","aria-live":"polite"});
+side.append(panel,logEl);
+const main=h("div",{class:"pl-main"},stage,side);
+root.append(h("div",{class:"pl-top"},h("div",{class:"pl-t"},topEye,topH),menuBtn),main);
+document.body.append(root);
+function chip(t,bad){const c=h("div",{class:"pl-chip"+(bad?" bad":""),role:"status"},t);stage.append(c);setTimeout(()=>c.remove(),3200);}
+function setTitle(eye,t){topEye.textContent=eye;topH.textContent=t;}
+function log(t,c=""){logEl.append(h("p",{class:c},t));while(logEl.children.length>160)logEl.firstChild.remove();logEl.scrollTop=logEl.scrollHeight;}
+function clearLog(){logEl.replaceChildren();}
+function sideMode(on){side.hidden=!on;main.style.gridTemplateColumns=on?"":"1fr";}
+
+/* modal questions: reactions, rerolls, confirmations */
+function ask(title,text,yes="Yes",no="No"){if(PLAY.auto)return Promise.resolve(Math.random()<.6);return new Promise(res=>{const m=h("div",{class:"pl-modal"},h("div",{},h("h3",{},title),text?h("p",{class:"pl-hint"},text):null,
+  h("div",{class:"row"},h("button",{type:"button",class:"pl-btn",onclick:()=>{m.remove();res(false);}},no),h("button",{type:"button",class:"pl-btn pri",onclick:()=>{m.remove();res(true);}},yes))));stage.append(m);});}
+function askMany(title,text,opts){return new Promise(res=>{const m=h("div",{class:"pl-modal"},h("div",{},h("h3",{},title),text?h("p",{class:"pl-hint"},text):null,
+  ...opts.map((o,i)=>h("button",{type:"button",class:"pl-btn"+(i===0?" pri":""),onclick:()=>{m.remove();res(i);}},o))));stage.append(m);});}
+
+/* ---- the menu ---- */
+let menuEl=null;
+function closeMenu(){menuEl?.remove();menuEl=null;}
+menuBtn.onclick=()=>{if(menuEl){closeMenu();return;}
+  const tg=(k,l)=>h("button",{type:"button",class:"pl-btn"+(opt[k]?" on":""),"aria-pressed":String(!!opt[k]),onclick:e=>{opt[k]=!opt[k];saveOpt();e.currentTarget.classList.toggle("on",opt[k]);e.currentTarget.setAttribute("aria-pressed",String(opt[k]));if(k==="sound"&&!opt[k])pulse(false);}},l);
+  menuEl=h("div",{class:"pl-menu"},
+    h("div",{class:"pl-sec"},"Chapters"),
+    ...SCENES.map((s,i)=>h("button",{type:"button",class:"pl-btn"+(i===ST.scene?" on":""),onclick:async()=>{closeMenu();if(await ask("Jump to "+s.t+"?","The crew keeps the hit points and spell slots they have now.","Jump","Stay")){ST.scene=i;ST.snap=null;saveState();runScene();}}},(i+1)+". "+s.t)),
+    h("div",{class:"pl-sec"},"Table"),
+    tg("dice","3D dice for the crew"),tg("fast","Faster monsters"),tg("sound","Sound"),
+    h("button",{type:"button",class:"pl-btn",onclick:async()=>{closeMenu();if(await ask("Start the session again?","Everyone back to full, chapter 1.","Start again","Cancel")){ST=freshState();saveState();runScene();}}},"Start the session again"),
+    h("button",{type:"button",class:"pl-btn",onclick:()=>{closeMenu();exitPlay();}},"Back to the map"));
+  root.querySelector(".pl-top").style.position="relative";root.querySelector(".pl-top").append(menuEl);};
+addEventListener("pointerdown",e=>{if(menuEl&&!e.target.closest(".pl-menu")&&e.target!==menuBtn)closeMenu();},true);
+
+/* ---- rolling for the crew: the d20 (and damage) tumble in 3D, then the number stays in the log ---- */
+async function show3d(list){if(opt.dice&&list.length)await throwDice(list.slice(0,10));}
+function hide3d(){const el=document.getElementById("dice");el.hidden=true;el.querySelectorAll(".dn").forEach(n=>n.remove());}
+function d20(adv,dis,lucky){let a=rnd(20),b=rnd(20);if(lucky){if(a===1)a=rnd(20);if(b===1)b=rnd(20);}const mode=adv&&!dis?1:dis&&!adv?-1:0;return {v:mode===1?Math.max(a,b):mode===-1?Math.min(a,b):a,a,b,mode};}
+const modeTxt=r=>r.mode===1?` (adv ${r.a}/${r.b})`:r.mode===-1?` (dis ${r.a}/${r.b})`:"";
+
+/* a check or save for one of the crew, outside battle or in it. Returns {tot,v,ok} */
+async function crewRoll(id,label,mod,dc,{adv=false,dis=false,u=null,quiet=false}={}){
+  const pp=P(id); if(pp.ex){mod-=2*pp.ex;}
+  let r=d20(adv,dis);
+  const list=[{sides:20,value:r.v}]; if(!quiet) await show3d(list);
+  let tot=r.v+mod;
+  log(`${CREW[id].short} · ${label}: d20 ${r.v}${modeTxt(r)} ${sgn(mod)} = ${tot}`+(dc!=null?` vs DC ${dc}`:""),"b");
+  if(dc!=null&&tot<dc){
+    const insp=u?u.cond.insp:null;
+    if(insp&&tot+insp>=dc&&await ask(`${CREW[id].short}: add Bardic Inspiration?`,`${tot} misses DC ${dc}. Roll the d${insp} and add it.`,"Add it","Keep it")){const b=rnd(insp);delete u.cond.insp;tot+=b;log(`  + Bardic Inspiration d${insp}: ${b} → ${tot}`,"g");}
+  }
+  if(dc!=null&&tot<dc&&pp.insp&&await ask(`${CREW[id].short}: use Heroic Inspiration?`,`${tot} misses DC ${dc}. Reroll the d20.`,"Reroll","Keep it")){pp.insp=0;r=d20(false,false);await show3d([{sides:20,value:r.v}]);tot=r.v+mod;log(`  Reroll: d20 ${r.v} ${sgn(mod)} = ${tot}`,"g");}
+  hide3d();const ok=dc==null?true:tot>=dc;chip(`${CREW[id].short} · ${label}: ${tot}`+(dc!=null?` vs DC ${dc} · ${ok?"success":"fail"}`:""),dc!=null&&!ok);
+  return {tot,v:r.v,ok};
+}
+
+
+/* =================== THE BATTLE MAP: painting, tokens, movement =================== */
+let B=null; // the battle in progress
+function seeded(s){let x=s%2147483647||7;return ()=>((x=x*16807%2147483647)-1)/2147483646;}
+function mapOf(key){const m=MAPS[key],rows=m.rows,H=rows.length,W=rows[0].length;return {key,kind:m.kind,W,H,c:(x,y)=>(x<0||y<0||x>=W||y>=H)?(m.kind==="tree"?"-":"#"):rows[y][x],def:m};}
+function cost(mp,x,y){const ch=mp.c(x,y);return mp.kind==="tree"?(TREE_COST[ch]??0):(CAVE_COST[ch]??0);}
+function blocksLos(mp,x,y){return mp.kind!=="tree"&&"#oW".includes(mp.c(x,y));}
+function inTurret(mp,x,y){return mp.kind==="tree"&&mp.c(x,y)==="T";}
+
+function paintMap(cv,mp,cs){
+  const dpr=Math.min(2,devicePixelRatio||1),W=mp.W*cs,H=mp.H*cs;cv.width=W*dpr;cv.height=H*dpr;const g=cv.getContext("2d");g.setTransform(dpr,0,0,dpr,0,0);
+  const R=seeded(mp.key.length*977+13), rr=(a,b)=>a+(b-a)*R();
+  const root=(x,y,ang,len,w,col)=>{g.strokeStyle=col;g.lineWidth=w;g.lineCap="round";g.beginPath();g.moveTo(x,y);for(let i=0;i<len;i++){ang+=rr(-.5,.5);const nx=x+Math.cos(ang)*cs*.3,ny=y+Math.sin(ang)*cs*.3;g.quadraticCurveTo((x+nx)/2+rr(-3,3),(y+ny)/2+rr(-3,3),nx,ny);x=nx;y=ny;}g.stroke();};
+  if(mp.kind==="cave"){
+    g.fillStyle="#0c0b0a";g.fillRect(0,0,W,H);
+    for(let y=0;y<mp.H;y++)for(let x=0;x<mp.W;x++){const ch=mp.c(x,y),X=x*cs,Y=y*cs;
+      if("#o".includes(ch))continue;
+      g.fillStyle=ch===","?"#3b3833":"#2e2923";g.fillRect(X,Y,cs,cs);
+      for(let i=0;i<cs*.6;i++){g.fillStyle=R()<.5?"#4a443c":"#1f1b17";g.globalAlpha=rr(.2,.6);g.fillRect(X+rr(0,cs),Y+rr(0,cs),rr(.6,1.8),rr(.6,1.8));}g.globalAlpha=1;
+      if(ch===","){g.fillStyle="#9a958c22";g.beginPath();g.ellipse(X+cs/2,Y+cs/2,cs*.45,cs*.32,R()*3,0,7);g.fill();}
+    }
+    // walls: tangled grey roots
+    for(let y=0;y<mp.H;y++)for(let x=0;x<mp.W;x++){const ch=mp.c(x,y);if(!"#o".includes(ch))continue;const X=x*cs,Y=y*cs;
+      const open=[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>!"#o".includes(mp.c(x+dx,y+dy)));
+      g.fillStyle=ch==="o"?"#2e2923":"#0c0b0a";g.fillRect(X,Y,cs,cs);
+      if(ch==="o"){g.fillStyle="#17130f";g.beginPath();g.arc(X+cs/2,Y+cs/2,cs*.42,0,7);g.fill();for(let i=0;i<6;i++)root(X+cs/2,Y+cs/2,rr(0,7),3,rr(1,3),"#5a5047");continue;}
+      if(open)for(let i=0;i<4;i++)root(X+rr(0,cs),Y+rr(0,cs),rr(0,7),rr(2,5),rr(1,4),R()<.6?"#3d342b":"#6a6058");}
+    for(let y=0;y<mp.H;y++)for(let x=0;x<mp.W;x++){if(mp.c(x,y)!=="r")continue;for(let i=0;i<3;i++)root(x*cs+rr(0,cs),y*cs+rr(0,cs),rr(0,7),rr(3,6),rr(2,5),"#14100c");}
+    // waystone
+    for(let y=0;y<mp.H;y++)for(let x=0;x<mp.W;x++){if(mp.c(x,y)!=="W")continue;const X=x*cs+cs/2,Y=y*cs+cs/2;g.fillStyle="#2e2923";g.fillRect(x*cs,y*cs,cs,cs);
+      g.fillStyle="#6f6a60";g.beginPath();g.moveTo(X-cs*.3,Y+cs*.42);g.lineTo(X-cs*.24,Y-cs*.3);g.quadraticCurveTo(X,Y-cs*.55,X+cs*.24,Y-cs*.3);g.lineTo(X+cs*.3,Y+cs*.42);g.closePath();g.fill();
+      g.strokeStyle="#8fd3c8";g.lineWidth=1.2;for(let i=0;i<3;i++){g.beginPath();g.moveTo(X-cs*.14,Y-cs*.18+i*cs*.14);g.lineTo(X+cs*.14,Y-cs*.12+i*cs*.14);g.stroke();}
+      for(let i=0;i<5;i++)root(X+rr(-cs*.3,cs*.3),Y+cs*.4,rr(3,6.3),3,rr(1.5,3),"#0e0b09");}
+    if(mp.def.glow){const [gx,gy]=mp.def.glow,gr=g.createRadialGradient(gx*cs+cs/2,gy*cs,cs,gx*cs+cs/2,gy*cs,cs*7);gr.addColorStop(0,"#7fd36a55");gr.addColorStop(1,"#7fd36a00");g.fillStyle=gr;g.fillRect(0,0,W,H);
+      for(let i=0;i<40;i++)root(gx*cs+cs/2+rr(-cs,cs),gy*cs+rr(-cs,cs),rr(0,7),rr(5,14),rr(1.5,6),"#120e0b");}
+  } else { // the Hollowmother at night, from the side
+    const sky=g.createLinearGradient(0,0,0,H);sky.addColorStop(0,"#070b16");sky.addColorStop(1,"#162033");g.fillStyle=sky;g.fillRect(0,0,W,H);
+    for(let i=0;i<70;i++){g.fillStyle="#e9e1cf";g.globalAlpha=rr(.15,.7);g.fillRect(rr(0,W),rr(0,H*.7),1.2,1.2);}g.globalAlpha=1;
+    // distant foxgloves
+    for(let i=0;i<14;i++){const x=rr(0,W),hh=rr(cs*2,cs*4.5);g.strokeStyle="#1d2a22";g.lineWidth=2;g.beginPath();g.moveTo(x,H-cs);g.lineTo(x+rr(-6,6),H-cs-hh);g.stroke();for(let k=0;k<5;k++){g.fillStyle="#3b2440";g.beginPath();g.ellipse(x+3,H-cs-hh+k*cs*.35,3,5,0,0,7);g.fill();}}
+    // trunk
+    const tx=6*cs;g.fillStyle="#2c2017";g.fillRect(tx-cs*.25,0,cs*1.5,H);for(let i=0;i<40;i++){g.strokeStyle=R()<.5?"#3a2b1f":"#1a130d";g.lineWidth=rr(1,3);const y=rr(0,H);g.beginPath();g.moveTo(tx-cs*.2+rr(0,cs*1.4),y);g.lineTo(tx-cs*.2+rr(0,cs*1.4),y+rr(cs*.5,cs*2));g.stroke();}
+    for(let i=0;i<8;i++)root(tx+cs*.5,rr(cs,H-cs*2),rr(0,7),rr(3,7),rr(1.5,4),"#0b0806");
+    for(let y=0;y<mp.H;y++)for(let x=0;x<mp.W;x++){const ch=mp.c(x,y),X=x*cs,Y=y*cs;
+      if(ch==="="||ch==="B"){g.fillStyle=ch==="B"?"#6b4a2b":"#4a3420";g.fillRect(X,Y+cs*.72,cs,cs*.22);g.strokeStyle="#1a120a";g.lineWidth=1;g.strokeRect(X+.5,Y+cs*.72,cs-1,cs*.22);
+        if(ch==="B"&&mp.c(x-1,y)!=="B"){g.fillStyle="#8a5ba0";g.beginPath();g.moveTo(X,Y+cs*.72);g.quadraticCurveTo(X+cs*1.5,Y-cs*.4,X+cs*3,Y+cs*.72);g.fill();}}
+      if(ch==="s"){g.fillStyle="#5a4128";g.fillRect(X+cs*.1,Y+cs*.62,cs*.8,cs*.16);g.fillRect(X+cs*.1,Y+cs*.22,cs*.8,cs*.12);}
+      if(ch==="R"){g.strokeStyle="#c9b48a";g.lineWidth=2;g.beginPath();g.moveTo(X+cs/2,Y);g.lineTo(X+cs/2,Y+cs);g.stroke();}
+      if(ch==="g"||ch==="D"){g.fillStyle="#1b1510";g.fillRect(X,Y+cs*.55,cs,cs*.45);if(R()<.5){g.fillStyle="#b8402a";g.beginPath();g.ellipse(X+rr(4,cs-4),Y+cs*.55,4,3,0,Math.PI,0);g.fill();}}
+      if(ch==="D"){g.fillStyle="#050403";g.beginPath();g.ellipse(X+cs/2,Y+cs*.6,cs*.42,cs*.55,0,Math.PI,0);g.fill();}
+    }
+    for(const [id,x0,y0,w,lab] of mp.def.turrets){const X=x0*cs,Y=y0*cs;g.fillStyle="#3b2a1c";g.fillRect(X,Y-cs*.9,w*cs,cs*1.85);g.fillStyle="#24180f";g.fillRect(X+3,Y-cs*.9+3,w*cs-6,cs*1.6);
+      g.fillStyle=id==="elodie"?"#1a120c":"#5e3a5c";g.beginPath();g.moveTo(X-4,Y-cs*.9);g.lineTo(X+w*cs/2,Y-cs*2.1);g.lineTo(X+w*cs+4,Y-cs*.9);g.closePath();g.fill();
+      if(id!=="elodie"){const lg=g.createRadialGradient(X+w*cs/2,Y-cs*.3,2,X+w*cs/2,Y-cs*.3,cs*1.6);lg.addColorStop(0,"#f0b85a66");lg.addColorStop(1,"#f0b85a00");g.fillStyle=lg;g.fillRect(X-cs,Y-cs*2,w*cs+cs*2,cs*3);}
+      g.fillStyle="#4a3420";g.fillRect(X,Y+cs*.72,w*cs,cs*.28);
+      g.fillStyle="#c9a35c99";g.font=`${Math.max(9,cs*.26)}px Alegreya Sans SC, sans-serif`;g.textAlign="center";g.fillText(lab,X+w*cs/2,Y-cs*.55);}
+  }
+  g.strokeStyle="#ead9b412";g.lineWidth=1;for(let x=0;x<=mp.W;x++){g.beginPath();g.moveTo(x*cs+.5,0);g.lineTo(x*cs+.5,H);g.stroke();}for(let y=0;y<=mp.H;y++){g.beginPath();g.moveTo(0,y*cs+.5);g.lineTo(W,y*cs+.5);g.stroke();}
+  if(mp.def.label){g.fillStyle="#c9a35c";g.font=`${Math.max(10,cs*.3)}px Alegreya Sans SC, sans-serif`;g.textAlign="center";for(const [x,y,t] of mp.def.label)g.fillText(t,x*cs+cs/2,y*cs+cs*.62);}
+}
+
+/* ---- the battle view: map canvas, highlight canvas, tokens ---- */
+let mapEl=null,mapCv=null,hiCv=null,tkLayer=null,CS=32;
+function buildBattleView(){
+  mapCv=h("canvas");hiCv=h("canvas");tkLayer=h("div",{class:"pl-tks"});mapEl=h("div",{class:"pl-map"},mapCv,hiCv,tkLayer);
+  stage.replaceChildren(mapEl);fitMap();
+  mapEl.addEventListener("click",onMapClick);
+}
+function fitMap(){if(!B||!mapEl)return;const r=stage.getBoundingClientRect();const cs=Math.max(18,Math.floor(Math.min((r.width-8)/B.mp.W,(r.height-8)/B.mp.H)));CS=cs;
+  mapEl.style.width=cs*B.mp.W+"px";mapEl.style.height=cs*B.mp.H+"px";paintMap(mapCv,B.mp,cs);hiCv.width=cs*B.mp.W;hiCv.height=cs*B.mp.H;drawHi();renderTokens();}
+if(window.ResizeObserver)new ResizeObserver(()=>{if(PLAY.on&&B&&mapEl&&stage.contains(mapEl)){clearTimeout(fitMap.t);fitMap.t=setTimeout(fitMap,80);}}).observe(stage);
+
+function tokenEl(u){
+  if(!u.el){const isPc=u.side!=="foe";const m=MON[u.key];
+    u.el=h("button",{type:"button",class:"tk "+(isPc?"pc":"foe")+(u.size>1?" big":""),"aria-label":u.name});
+    const rg=h("span",{class:"rg"});
+    if(u.crew)rg.append(h("b",{},CREW[u.key].ini));else rg.innerHTML=`<svg viewBox="0 0 24 24">${ICON[m.icon]||""}</svg>`;
+    u.el.append(rg,h("span",{class:"hp"},h("i")),h("span",{class:"cd"}));
+    if(u.num)u.el.append(h("span",{class:"n"},String(u.num)));
+    u.el.style.setProperty("--c",u.hex||"#b8402a");
+    tkLayer.append(u.el);}
+  return u.el;}
+const COND_SHORT={prone:"PR",restrained:"RS",grappled:"GR",poisoned:"PO",blinded:"BL",engulfed:"EN",netted:"NET",mocked:"VM",guided:"GB",hexed:"HX",cursed:"CU",bane:"BN",slowed:"SL",enfeebled:"RE",turned:"TU",dodging:"DO",grave:"PG",drained:"DR",stable:"ST",insp:"BI",ko:"KO",surprised:"SU"};
+function renderTokens(){if(!B)return;for(const u of B.units){const el=tokenEl(u);el.style.setProperty("--cs",CS*u.size);
+  el.style.left=u.x*CS+"px";el.style.top=u.y*CS+"px";el.style.width=el.style.height=CS*u.size+"px";
+  const pct=Math.max(0,u.hp/u.max);const bar=el.querySelector(".hp i");bar.style.width=(pct*100)+"%";bar.className=pct<.25?"cr":pct<.5?"lo":"";
+  el.classList.toggle("down",u.hp<=0&&!u.gone);el.classList.toggle("gone",!!(u.gone||u.ghost));el.classList.toggle("hidden-u",!!u.hidden);
+  el.classList.toggle("cur",B.cur===u);
+  const tg=B.tgt&&B.tgt.list.includes(u);el.classList.toggle("tgt",tg&&u.side==="foe");el.classList.toggle("ally-tgt",tg&&u.side!=="foe");
+  const cd=el.querySelector(".cd");cd.replaceChildren(...Object.keys(u.cond).filter(k=>COND_SHORT[k]).slice(0,3).map(k=>h("i",{},COND_SHORT[k])));
+  el.title=`${u.name} · ${Math.max(0,u.hp)}/${u.max} HP · AC ${acOf(u)}`+(Object.keys(u.cond).length?" · "+Object.keys(u.cond).join(", "):"");}}
+function floatTxt(u,t,cls=""){if(!tkLayer)return;const f=h("div",{class:"fl "+cls,style:`left:${(u.x+u.size/2)*CS}px;top:${(u.y+.2)*CS}px`},t);tkLayer.append(f);setTimeout(()=>f.remove(),1600);}
+function shake(u){if(!u.el)return;u.el.classList.remove("hit");void u.el.offsetWidth;u.el.classList.add("hit");}
+function drawHi(){if(!hiCv||!B)return;const g=hiCv.getContext("2d");g.clearRect(0,0,hiCv.width,hiCv.height);
+  if(B.reach){for(const [k,v] of B.reach.d){if(k===B.reach.start||v.occ)continue;const [x,y]=k.split(",").map(Number);g.fillStyle=v.jump?"#e8743b33":"#8fd3c82a";g.fillRect(x*CS+1,y*CS+1,CS-2,CS-2);}}
+  if(B.area){g.fillStyle="#e8743b40";g.strokeStyle="#e8743b";for(const [x,y] of B.area){g.fillRect(x*CS,y*CS,CS,CS);}}
+  if(B.cellPick){g.strokeStyle="#ecd08f66";for(const [x,y] of B.cellPick){g.strokeRect(x*CS+3,y*CS+3,CS-6,CS-6);}}}
+
+/* ---- geometry ---- */
+const cells=u=>{const o=[];for(let i=0;i<u.size;i++)for(let j=0;j<u.size;j++)o.push([u.x+i,u.y+j]);return o;};
+function gap(a0,a1,b0,b1){return a1<b0?b0-a1:b1<a0?a0-b1:0;}
+function dist(a,b){return Math.max(gap(a.x,a.x+a.size-1,b.x,b.x+b.size-1),gap(a.y,a.y+a.size-1,b.y,b.y+b.size-1));}
+function distXY(u,x,y){return Math.max(gap(u.x,u.x+u.size-1,x,x),gap(u.y,u.y+u.size-1,y,y));}
+function los(a,b){const ax=a.x+(a.size-1)/2,ay=a.y+(a.size-1)/2,bx=b.x+(b.size-1)/2,by=b.y+(b.size-1)/2,n=Math.ceil(Math.max(Math.abs(bx-ax),Math.abs(by-ay))*2);
+  for(let i=1;i<n;i++){const x=Math.round(ax+(bx-ax)*i/n),y=Math.round(ay+(by-ay)*i/n);if(blocksLos(B.mp,x,y))return false;}return true;}
+const alive=u=>!u.gone&&u.hp>0;
+const live=side=>B.units.filter(u=>alive(u)&&(side==="foe"?u.side==="foe":u.side!=="foe"));
+const enemiesOf=u=>B.units.filter(o=>alive(o)&&!o.untarget&&(u.side==="foe"?o.side!=="foe":o.side==="foe"));
+const occupant=(x,y,except)=>B.units.find(o=>o!==except&&!o.gone&&!o.ghost&&x>=o.x&&x<o.x+o.size&&y>=o.y&&y<o.y+o.size);
+const incap=u=>u.hp<=0||u.cond.engulfed||u.cond.ko||u.cond.turned||u.cond.stunned;
+
+/* movement: cheapest paths (5 ft per square, diagonals too), rough ground costs double; on the tree you can jump short gaps */
+function reachable(u,budget){
+  const mp=B.mp,start=u.x+","+u.y,d=new Map([[start,{c:0,p:null}]]),q=[[0,u.x,u.y]];
+  const passable=(x,y)=>{const o=occupant(x,y,u);return !o||(o.side==="foe")===(u.side==="foe")||o.hp<=0;};
+  while(q.length){q.sort((a,b)=>a[0]-b[0]);const [c,x,y]=q.shift();const cur=d.get(x+","+y);if(cur.c<c)continue;
+    const step=(nx,ny,k,jump)=>{if(k<=0||c+k>budget||!passable(nx,ny))return;const key=nx+","+ny,old=d.get(key);if(!old||old.c>c+k){d.set(key,{c:c+k,p:x+","+y,jump});q.push([c+k,nx,ny]);}};
+    for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){if(!dx&&!dy)continue;const nx=x+dx,ny=y+dy;let k=cost(mp,nx,ny);
+      if(u.climber&&k===2&&mp.kind==="tree")k=1;step(nx,ny,k,false);}
+    if(mp.kind==="tree")for(const dir of[-1,1])for(let g=1;g<=2;g++){const nx=x+dir*(g+1);let clear=true;for(let i=1;i<=g;i++)if(cost(mp,x+dir*i,y)!==0)clear=false;
+      if(!clear)continue;for(const dy of[0,1]){if(cost(mp,nx,y+dy)>0){step(nx,y+dy,g+1,true);break;}}}
+  }
+  for(const [k,v] of d){const [x,y]=k.split(",").map(Number);if(k!==start&&occupant(x,y,u))v.occ=true;}
+  return {d,start};}
+function pathTo(reach,x,y){const out=[];let k=x+","+y;while(k&&k!==reach.start){const n=reach.d.get(k);if(!n)return null;out.unshift({k,jump:n.jump});k=n.p;}return out;}
+
+
+/* =================== RULES: attacks, saves, damage, conditions =================== */
+function mkCrew(id,x,y){const c=CREW[id],p=P(id);return {id,key:id,crew:true,name:c.name,short:c.short,side:"pc",ctl:"p",hex:c.hex,x,y,size:1,hp:p.hp,max:p.max,temp:p.temp||0,cond:{},ds:[0,0],speed:c.speed,react:true};}
+function mkMon(key,x,y,num,o={}){const m=MON[key];return Object.assign({id:key+(num||""),key,name:m.name+(num?" "+num:""),short:m.name,side:"foe",ctl:"ai",x,y,size:m.size,hp:m.hp,max:m.hp,temp:0,cond:{},speed:m.speed,react:true,num,hex:m.hex,rech:{}},o);}
+function mkAlly(key,x,y,o={}){return Object.assign(mkMon(key,x,y,0),{side:"ally",id:key},o);}
+const PHYS=["bludgeoning","piercing","slashing"];
+function acOf(u){let a=u.crew?CREW[u.key].ac:MON[u.key].ac;if(u.cond.slowed)a-=2;if(u.cond.shield)a+=5;return a;}
+function saveOf(u,ab){let m=u.crew?CREW[u.key].sv[ab]:(MON[u.key].sv[ab]??0);if(u.crew&&P(u.key).ex)m-=2*P(u.key).ex;return m;}
+function addC(u,k,v=true){if(!u.crew&&(MON[u.key].noCond||[]).includes(k))return false;if(u.crew&&k==="charmed"&&CREW[u.key].noCharm)return false;u.cond[k]=v;return true;}
+function tickC(cur,at){for(const u of B.units)for(const [k,v] of Object.entries(u.cond)){if(v&&typeof v==="object"&&v.exp&&v.exp.u===cur.id&&v.exp.at===at){if(v.exp.n>1){v.exp.n--;continue;}delete u.cond[k];if(k==="turned"&&u.ghost)continue;}}}
+function speedOf(u){if(u.cond.restrained||u.cond.grappled||u.cond.engulfed||u.cond.netted||u.cond.ko||u.hp<=0)return 0;let s=u.speed;if(u.cond.slowed||u.cond.drained)s=Math.floor(s/2);if(u.crew)s-=P(u.key).ex;return Math.max(0,s);}
+function nameOf(u){return u.short&&u.crew?u.short:u.name;}
+
+/* advantage and disadvantage for an attack */
+function attackMode(a,t,at){let adv=[],dis=[];const melee=!at.range,d=dist(a,t);
+  if(a.hidden)adv.push("unseen");if(t.hidden)dis.push("can't see it");
+  if(t.cond.restrained||t.cond.netted)adv.push("restrained");if(t.cond.blinded)adv.push("blinded");if(t.hp<=0||t.cond.ko)adv.push("helpless");
+  if(t.cond.prone){if(melee&&d<=1)adv.push("prone");else dis.push("prone");}
+  if(t.cond.guided&&!at.noGuide)adv.push("Guiding Bolt");
+  if(a.cond.poisoned)dis.push("poisoned");if(a.cond.restrained||a.cond.netted)dis.push("restrained");if(a.cond.prone)dis.push("prone");if(a.cond.blinded)dis.push("blinded");
+  if(a.cond.mocked)dis.push("Vicious Mockery");if(a.cond.enfeebled&&melee)dis.push("enfeebled");if(t.cond.dodging&&!incap(t))dis.push("dodging");
+  if(at.range){if(enemiesOf(a).some(o=>dist(o,a)<=1&&!incap(o)&&o.side!=="ally"))dis.push("enemy next to them");if(d>at.range[0])dis.push("long range");}
+  if(a.key==="saphira"&&!t.hasActed&&B.round===1)adv.push("Assassinate");if(a.key==="grey"&&!t.hasActed)adv.push("Assassinate");
+  if(at.shadow&&B.dim)adv.push("dim light");if(at.disNext)dis.push("the song");
+  return {adv:adv.length>0,dis:dis.length>0,why:[...adv.map(x=>"+"+x),...dis.map(x=>"−"+x)].join(", ")};}
+
+/* one attack roll, reactions included. Returns {hit,crit} */
+async function attack(a,t,at,o={}){
+  const m=attackMode(a,t,at);let r=d20(m.adv,m.dis,a.crew&&CREW[a.key].lucky);const critOn=(t.cond.cursed&&t.cond.cursed.by===a.id)?19:20;
+  let bonus=at.hit;if(a.crew&&P(a.key).ex)bonus-=2*P(a.key).ex;if(a.cond.bane){const b=rnd(4);bonus-=b;}
+  if(a.cond.mocked)delete a.cond.mocked;if(t.cond.guided&&!at.noGuide)delete t.cond.guided;
+  if(a.hidden){a.hidden=false;}
+  const crewSide=a.crew;
+  let dmgRoll=null; // pre-roll damage so the dice can show it together
+  const roll=()=>{let crit=r.v>=critOn,tot=r.v+bonus;return {crit,tot,hit:r.v!==1&&(crit||tot>=acOf(t))};};
+  let res=roll();
+  if(crewSide)await show3d([{sides:20,value:r.a},...(r.mode?[{sides:20,value:r.b}]:[])]);
+  log(`${nameOf(a)} · ${at.n} → ${nameOf(t)}: d20 ${r.v}${modeTxt(r)} ${sgn(bonus)} = ${res.tot} vs AC ${acOf(t)}${m.why?" ("+m.why+")":""}${res.crit?" · CRITICAL":res.hit?" · hit":" · miss"}`,crewSide?"b":"");
+  if(crewSide&&!res.hit){const pp=P(a.key);
+    if(a.cond.insp&&res.tot+a.cond.insp>=acOf(t)&&r.v!==1&&await ask(`${a.short}: add Bardic Inspiration?`,`${res.tot} misses AC ${acOf(t)} by ${acOf(t)-res.tot}. Add the d${a.cond.insp}.`,"Add it","Keep it")){const b=rnd(a.cond.insp);delete a.cond.insp;bonus+=b;res=roll();log(`  + Bardic Inspiration ${b} → ${res.tot}${res.hit?" · hit":" · miss"}`,"g");}
+    if(!res.hit&&(pp.insp||(a.key==="hans"&&B.sc.overclocked))&&await ask(`${a.short}: reroll?`,a.key==="hans"&&B.sc.overclocked?"Hans is Overclocked: one reroll in this fight.":"Spend Heroic Inspiration to reroll the d20.","Reroll","Keep it")){
+      if(a.key==="hans"&&B.sc.overclocked)B.sc.overclocked=false;else pp.insp=0;r=d20(m.adv,m.dis);await show3d([{sides:20,value:r.v}]);res=roll();log(`  Reroll: d20 ${r.v} ${sgn(bonus)} = ${res.tot}${res.hit?" · hit":" · miss"}`,"g");}}
+  // the target's reactions
+  if(res.hit&&!res.crit&&t.crew&&t.react&&!incap(t)&&res.tot<acOf(t)+5){
+    if(t.key==="saphira"&&P("saphira").pact>0&&await ask("Saphira: cast Shield?",`${res.tot} hits AC ${acOf(t)}. Shield gives +5 AC until her next turn (one pact slot, ${P("saphira").pact} left).`,"Shield","Take it")){P("saphira").pact--;t.react=false;addC(t,"shield",{exp:{u:t.id,at:"start"}});res=roll();log("  Saphira raises Shield: "+(res.hit?"still hits":"miss"),"g");}
+    else if(t.key==="stig"&&P("stig").res.shield>0&&await ask("Stig: cast Shield?",`${res.tot} hits AC ${acOf(t)}. Once a day, +5 AC until his next turn.`,"Shield","Take it")){P("stig").res.shield--;t.react=false;addC(t,"shield",{exp:{u:t.id,at:"start"}});res=roll();log("  Stig raises Shield: "+(res.hit?"still hits":"miss"),"g");}}
+  hide3d();
+  if(!res.hit){floatTxt(t,"miss","miss");hitSnd("miss");return {hit:false};}
+  let tgt=t;
+  if(t.crew&&t.key!=="hans"&&!o.noGuard){const hans=B.units.find(u=>u.key==="hans"&&alive(u));
+    if(hans&&hans.react&&!incap(hans)&&!hans.cond.drained&&dist(hans,t)<=1&&await ask("Hans: Bodyguard?",`${at.n} hits ${t.short}. Hans can step in and take it.`,"Take the hit","Let it land")){hans.react=false;tgt=hans;log("  Hans steps in front: Bodyguard.","h");o.guarded=true;}}
+  // damage
+  let expr=at.dmg;if(res.crit)expr=expr.replace(/(\d*)d(\d+)/g,(_,n,s)=>(2*parseInt(n||"1",10))+"d"+s);
+  const parts=[[dice(expr),at.type]];
+  if(at.plus)parts.push([dice(res.crit?at.plus.replace(/(\d*)d/,(_, n)=>2*parseInt(n||"1",10)+"d"):at.plus),at.plusType]);
+  if(a.key==="saphira"&&at.sneak&&!a.sneakUsed&&((m.adv&&!m.dis)||B.units.some(o=>o!==a&&o.side!=="foe"&&alive(o)&&!incap(o)&&dist(o,tgt)<=1))){a.sneakUsed=true;parts.push([dice(res.crit?"4d6":"2d6"),at.type]);log("  Sneak Attack","b");}
+  if(a.key==="grey"&&!a.sneakUsed&&m.adv&&!m.dis){a.sneakUsed=true;parts.push([dice(res.crit?"6d6":"3d6"),at.type]);log("  Sneak Attack","r");}
+  if(tgt.cond.hexed&&tgt.cond.hexed.by===a.id&&!at.noHex)parts.push([dice(res.crit?"2d6":"1d6"),"necrotic"]);
+  if(tgt.cond.cursed&&tgt.cond.cursed.by===a.id)parts.push([{t:3,rolls:[],flat:3},at.type]);
+  if(crewSide&&opt.dice){const list=parts.flatMap(([d])=>d.rolls.map((v,i)=>({sides:d.sides[i],value:Math.abs(v),dmg:true})));if(list.length){await show3d(list);await sleep(250);hide3d();}}
+  if(at.dmg!=="0")for(const [d,type] of parts){await hurt(tgt,d.t,type,a,{magic:at.magic,crit:res.crit,src:at.n});}
+  if(at.onHit&&alive(tgt))await at.onHit(tgt,res);
+  return {hit:true,crit:res.crit,guarded:!!o.guarded,tgt};}
+
+/* a saving throw by any creature. Returns true on a success */
+async function save(u,ab,dc,label){let m=saveOf(u,ab);const adv=(ab==="con"&&u.crew&&CREW[u.key].conAdv)||(u.key==="hans"&&ab==="con"&&false);let dis=false;
+  if(u.cond.restrained&&ab==="dex")dis=true;
+  if(u.cond.bane)m-=rnd(4);
+  if(u.crew)return (await crewRoll(u.key,(label?label+" · ":"")+ab.toUpperCase()+" save",m,dc,{adv,dis,u,quiet:!opt.dice})).ok;
+  const r=d20(adv,dis);let ok=r.v+m>=dc;
+  if(!ok&&u.key==="heart"&&B.sc.lr>0){B.sc.lr--;ok=true;log(`${u.name}: d20 ${r.v} ${sgn(m)} fails DC ${dc}, but it uses Legendary Resistance.`,"r");return true;}
+  log(`${nameOf(u)} · ${ab.toUpperCase()} save: d20 ${r.v}${modeTxt(r)} ${sgn(m)} = ${r.v+m} vs DC ${dc} · ${ok?"success":"fail"}`);return ok;}
+
+/* damage. Handles resistance, temp HP, concentration, dropping to 0 */
+async function hurt(t,amt,type,src,o={}){
+  if(!alive(t)&&!(t.crew&&t.hp<=0&&!t.dead))return;
+  if(t.key==="katy"&&src&&src.key==="grey"&&t.cond.netted){log("  He doesn't hurt her while she's in the net. He wants her alive.","r");return;}
+  const def=t.crew?CREW[t.key]:MON[t.key];const imm=def.imm||[],res=t.crew?(CREW[t.key].resist||[]):(def.res||[]),vul=t.crew?[]:(def.vul||[]);
+  let n=amt,note="";
+  if(imm.includes(type)){n=0;note=" (immune)";}
+  else{if(!(B.sc.weak&&t.key==="heart")&&(res.includes(type)||(PHYS.includes(type)&&!o.magic&&res.includes("nonmagical")))){n=Math.floor(n/2);note=" (resists)";}
+    if(vul.includes(type)){n*=2;note=" (vulnerable)";}}
+  if(t.cond.grave&&n>0){n*=2;delete t.cond.grave;note+=" (Path to the Grave: doubled)";}
+  if(t.key==="grey"&&t.react&&!incap(t)&&n>0&&!o.aoe&&src&&!(src.key==="saphira"&&B.sc.cantResisted)){t.react=false;n=Math.floor(n/2);note+=" (Uncanny Dodge: halved)";}
+  if(n<=0){floatTxt(t,"0"+note.trim(),"miss");log(`  ${nameOf(t)} takes 0${note}`);return;}
+  if(t.temp>0){const s=Math.min(t.temp,n);t.temp-=s;n-=s;}
+  if(t.key==="heart")B.sc.turnDmg=(B.sc.turnDmg||0)+n;
+  const was=t.hp;t.hp-=n;shake(t);hitSnd("hit");floatTxt(t,"−"+n);log(`  ${nameOf(t)} takes ${n} ${type}${note} → ${Math.max(0,t.hp)}/${t.max}`,t.crew?"r":"");
+  if(t.crew&&was<=0&&!t.dead){t.hp=0;if(t.key==="hans"||t.cond.ko){renderTokens();return;}t.ds[1]+=o.crit?2:1;log(`  ${t.short} fails a death save from the hit (${t.ds[1]}/3).`,"r");if(t.ds[1]>=3)die(t);renderTokens();return;}
+  if(t.conc&&t.hp>0){const dc=Math.max(10,Math.floor(n/2));if(!(await save(t,"con",dc,"Concentration")))dropConc(t);}
+  if(t.hp<=0)await zero(t,src,type,Object.assign({},o,{lastDmg:n}));
+  if(t.key==="heart"&&B.sc.engulfed&&B.sc.turnDmg>=20&&alive(t)){log("Twenty damage in one turn: the Heart spits out "+nameOf(B.sc.engulfed)+".","g");spit();}
+  if(B.def.onHurt)await B.def.onHurt(t,src);
+  renderTokens();}
+function dropConc(u){const c=u.conc;if(!c)return;u.conc=null;for(const o of B.units)for(const k of c.conds||[])if(o.cond[k]&&o.cond[k].by===u.id)delete o.cond[k];log(`  ${nameOf(u)} loses concentration on ${c.n}.`,"r");}
+async function zero(t,src,type,o){
+  t.hp=0;if(t.conc)dropConc(t);
+  if(t.side==="foe"){
+    if(MON[t.key].fort&&type!=="radiant"&&!o.crit){const dc=5+(o.lastDmg||5);const r=d20();if(r.v+3>=dc){t.hp=1;log(`  ${t.name} won't stay down (Undead Fortitude): 1 HP.`,"r");return;}}
+    if(t.key==="heart"){spit();B.sc.heartDead=true;return;}
+    t.gone=true;log(`  ${t.name} falls.`,"g");
+    if(MON[t.key].burst){log("  Ash bursts from the husk.","r");for(const u of B.units.filter(u=>alive(u)&&u!==t&&dist(u,t)<=1)){if(!(await save(u,"con",12,"Ash Burst"))){await hurt(u,dice("1d6").t,"poison",t,{aoe:true});if(alive(u))addC(u,"poisoned",{exp:{u:u.id,at:"end"}});}}}
+    return;}
+  if(t.key==="hans"){addC(t,"stable");log("  Hans shuts down. The beeping stops. (Stable; he wakes after the fight.)","r");return;}
+  if(t.side==="ally"){addC(t,"stable");log(`  ${t.name} goes down, out of the fight.`,"r");return;}
+  if(t.key==="katy"&&B.def.key==="ambush"&&src&&src.key==="grey"){addC(t,"ko");addC(t,"stable");log("  Katy is knocked out, not killed. He wanted that.","r");return;}
+  t.ds=[0,0];delete t.cond.stable;addC(t,"prone");if(t.cond.engulfed)spit();log(`  ${t.short} drops to 0 HP and is dying.`,"r");}
+function die(t){t.dead=true;t.hp=0;log(`  ${t.short} is dead.`,"r");}
+function heal(t,n,src){if(!t||t.dead||t.gone)return;const was=t.hp;t.hp=Math.min(t.max,Math.max(0,t.hp)+n);if(was<=0){t.ds=[0,0];delete t.cond.stable;delete t.cond.ko;delete t.cond.prone;}floatTxt(t,"+"+(t.hp-Math.max(0,was)),"heal");log(`  ${nameOf(t)} heals ${t.hp-Math.max(0,was)} → ${t.hp}/${t.max}${was<=0?", back on their feet":""}`,"g");renderTokens();}
+function spit(){const g=B.sc.engulfed;if(!g)return;B.sc.engulfed=null;delete g.cond.engulfed;delete g.cond.restrained;delete g.cond.blinded;const [x,y]=g.out||[g.x,g.y];const c=freeNear(x,y);g.x=c[0];g.y=c[1];renderTokens();}
+function freeNear(x,y){for(let r=0;r<6;r++)for(let dx=-r;dx<=r;dx++)for(let dy=-r;dy<=r;dy++){const nx=x+dx,ny=y+dy;if(cost(B.mp,nx,ny)>0&&!occupant(nx,ny))return [nx,ny];}return [x,y];}
+
+/* moving a token one square at a time: opportunity attacks, jumps and falls */
+async function moveAlong(u,path){
+  for(const st of path){const [nx,ny]=st.k.split(",").map(Number);
+    if(st.jump&&u.crew){const ok=(await crewRoll(u.key,"Acrobatics (jump)",skillMod(u.key,"acrobatics"),12,{u,quiet:!opt.dice})).ok;if(!ok){log(`  ${u.short} misses the jump.`,"r");await fall(u,nx-(Math.sign(nx-u.x)),u.y);return false;}}
+    if(!u.disengage&&!u.teleport){for(const e of enemiesOf(u)){if(!e.react||incap(e)||e.key==="heart"||u.cond.engulfed)continue;const reach=Math.max(...(MON[e.key]?.atk||[{reach:1}]).map(a=>a.reach||0),e.crew?1:0);
+      if(dist(e,u)<=reach&&distXY(e,nx,ny)>reach){e.react=false;log(`${nameOf(e)} takes an opportunity attack.`,"");await sleep(200);await oppAttack(e,u);if(!alive(u)||u.hp<=0)return false;}}}
+    u.x=nx;u.y=ny;renderTokens();await sleep(170);
+    if(B.def.onStep){const stop=await B.def.onStep(u);if(stop)return false;}}
+  return true;}
+async function oppAttack(e,u){if(e.crew){const a=crewMelee(e);if(a)await attack(e,u,a);}else{const a=(MON[e.key].atk||[]).find(x=>x.reach);if(a)await attack(e,u,a);}}
+function crewMelee(u){if(u.key==="hans")return {n:"Slam",hit:6,dmg:"2d6+4",type:"bludgeoning"};if(u.key==="saphira")return B.sc.blade?{n:"Shadow Blade",hit:7,dmg:"2d8",type:"psychic",magic:true,sneak:true,shadow:true}:{n:"Magical dagger",hit:8,dmg:"1d4+5",type:"piercing",magic:true,sneak:true};if(u.key==="stig")return {n:"Mace",hit:3,dmg:"1d6",type:"bludgeoning"};return {n:"Dagger",hit:5,dmg:"1d4+2",type:"piercing"};}
+async function fall(u,x,y){let ny=y,drop=0;while(ny<B.mp.H-1&&cost(B.mp,x,ny+1)===0){ny++;drop++;}ny=Math.min(B.mp.H-1,ny+1);drop++;
+  const c=occupant(x,ny,u)?freeNear(x,ny):[x,ny];u.x=c[0];u.y=c[1];renderTokens();const n=Math.max(1,Math.floor(drop/2));log(`  ${nameOf(u)} falls ${drop*5} ft.`,"r");await hurt(u,dice(n+"d6").t,"bludgeoning",null,{aoe:true});if(alive(u))addC(u,"prone");}
+
+
+/* =================== TURNS: initiative, the crew's turn, the monsters' turn =================== */
+async function battle(def){
+  B={def,mp:mapOf(def.map),units:[],order:[],round:0,sc:Object.assign({},def.sc||{}),over:null,cur:null,reach:null,tgt:null,area:null,dim:!!def.dim};
+  sideMode(true);buildBattleView();clearLog();
+  def.setup();for(const u of B.units)if(u.crew&&P(u.key).hp<=0){u.hp=1;}
+  fitMap();
+  log(def.intro||"Roll initiative.","h");
+  // initiative: the app rolls for everyone, the crew's rolls shown in the log
+  const groups={};
+  for(const u of B.units){if(u.ghost)continue;const base=u.crew?CREW[u.key].init:MON[u.key].init;
+    let v;if(!u.crew&&u.num&&!MON[u.key].boss){groups[u.key]=groups[u.key]??(rnd(20)+base);v=groups[u.key];}else{const r=d20(u.cond.surprised?false:false,!!u.cond.surprised);v=r.v+base;}
+    u.init=v+(u.crew?.1:0)+(u.key==="katy"?.05:0);}
+  if(def.fixInit)def.fixInit();
+  B.order=B.units.filter(u=>!u.ghost||u.lateJoin).sort((a,b)=>b.init-a.init).map(u=>({u}));
+  if(def.lair)B.order.splice(B.order.findIndex(e=>e.u.init<20)<0?B.order.length:B.order.findIndex(e=>e.u.init<20),0,{lair:true,init:20});
+  log("Initiative: "+B.order.map(e=>e.lair?"lair (20)":`${nameOf(e.u)} ${Math.floor(e.u.init)}`).join(" · "));
+  renderTokens();
+  while(!B.over){
+    B.round++;log(`— Round ${B.round} —`,"h");if(def.onRound)await def.onRound(B.round);if(B.over)break;
+    for(B.ti=0;B.ti<B.order.length;B.ti++){const e=B.order[B.ti];if(B.over)break;
+      if(e.lair){if(def.lair){await def.lair(B.round);}await checkEnd();continue;}
+      const u=e.u;if(u.gone||u.dead||u.ghost)continue;
+      await takeTurn(u);await checkEnd();if(B.over)break;
+      if(def.after)await def.after(u);await checkEnd();}
+    if(!B.over&&def.onRoundEnd)await def.onRoundEnd(B.round);await checkEnd();}
+  const out=B.over;B.reach=B.tgt=B.area=null;drawHi();
+  // the crew's state goes back to the party sheet
+  for(const u of B.units)if(u.crew){const p=P(u.key);p.hp=u.dead?0:Math.max(u.key==="hans"?1:0,u.hp);p.temp=u.temp;if(u.dead)p.dead=true;}
+  return out;}
+async function checkEnd(){if(B.over)return;const r=await B.def.check();if(r)B.over=r;}
+function addUnit(u,join){B.units.push(u);if(join&&B.order.length){B.order.push({u});}if(tkLayer)renderTokens();return u;}
+
+async function takeTurn(u){
+  B.cur=u;tickC(u,"start");u.act=1;u.bonus=1;u.react=true;u.mv=speedOf(u);u.moved=0;u.disengage=false;u.teleport=false;u.sneakUsed=false;u.talked=false;u.dashed=false;
+  if(u.key==="heart")B.sc.turnDmg=0;else B.sc.turnDmg=0;
+  renderTokens();renderInit();
+  if(u.cond.surprised){delete u.cond.surprised;log(`${nameOf(u)} is surprised and loses the turn.`,"r");u.hasActed=true;await sleep(500);B.cur=null;return;}
+  if(B.def.startTurn){const skip=await B.def.startTurn(u);if(skip){u.hasActed=true;tickC(u,"end");B.cur=null;return;}}
+  if(u.crew&&u.hp<=0){if(!u.dead&&!u.cond.stable&&u.key!=="hans")await deathSave(u);u.hasActed=true;tickC(u,"end");B.cur=null;renderTokens();return;}
+  if(u.hp<=0||u.dead){B.cur=null;return;}
+  if(u.cond.prone&&u.mv>0&&!u.crew){delete u.cond.prone;u.mv=Math.floor(u.mv/2);log(`${nameOf(u)} stands up.`);}
+  if(u.ctl==="p"&&!u.cond.ko)await playerTurn(u);else await aiTurn(u);
+  u.hasActed=true;tickC(u,"end");if(u.cond.dodging&&u.cond.dodging.exp==null)delete u.cond.dodging;
+  if(B.def.endTurn)await B.def.endTurn(u);
+  B.cur=null;B.reach=null;B.tgt=null;B.area=null;drawHi();renderTokens();}
+async function deathSave(u){panelMsg(u,`${u.short} is dying. Roll a death save.`,[["Roll a death save",true]]);await waitBtn();
+  const r=d20();await show3d([{sides:20,value:r.v}]);hide3d();
+  if(r.v===20){log(`${u.short} · death save: 20! Back up with 1 HP.`,"g");heal(u,1);return;}
+  if(r.v===1)u.ds[1]+=2;else if(r.v>=10)u.ds[0]++;else u.ds[1]++;
+  log(`${u.short} · death save: ${r.v} · ${u.ds[0]} saved, ${u.ds[1]} failed`,r.v>=10?"g":"r");
+  if(u.ds[0]>=3){addC(u,"stable");log(`${u.short} is stable.`,"g");}if(u.ds[1]>=3)die(u);renderTokens();}
+
+/* ---- the initiative strip ---- */
+let initEl=null;
+function renderInit(){if(!initEl)return;initEl.replaceChildren(...B.order.filter(e=>e.lair||(!e.u.gone&&!e.u.ghost)).map(e=>{if(e.lair)return h("span",{class:"foe",title:"Lair action (initiative 20)"},"20");const u=e.u;
+  return h("span",{class:(u.side==="foe"?"foe":"")+(B.cur===u?" cur":"")+(u.hp<=0?" out":""),style:`--c:${u.hex||"#b8402a"}`,title:nameOf(u)},u.crew?CREW[u.key].ini:(MON[u.key].ini+(u.num||"")));}));
+  const c=initEl.querySelector(".cur");if(c)initEl.scrollLeft=c.offsetLeft-initEl.clientWidth/2;}
+
+/* ---- panel helpers ---- */
+let btnRes=null;
+function waitBtn(){if(PLAY.auto)return Promise.resolve(true);return new Promise(r=>btnRes=r);}
+function panelMsg(u,text,btns){initEl=initEl||h("div",{class:"pl-init"});renderInit();
+  panel.replaceChildren(initEl,whoRow(u),h("p",{class:"pl-hint"},text),...(btns||[]).map(([l,v])=>h("button",{type:"button",class:"pl-btn pri",onclick:()=>{const r=btnRes;btnRes=null;r&&r(v);}},l)));}
+function whoRow(u){const hp=Math.max(0,u.hp);
+  return h("div",{class:"pl-who"},h("span",{class:"dot",style:`--c:${u.hex||"#555"};background:${u.side==="foe"?"#2a2e36":u.hex}`},u.crew?CREW[u.key].ini:MON[u.key].ini),
+    h("div",{},h("div",{class:"nm"},nameOf(u)),h("div",{class:"ln"},`HP ${hp}/${u.max}${u.temp?" +"+u.temp:""} · AC ${acOf(u)}`+(Object.keys(u.cond).length?" · "+Object.keys(u.cond).filter(k=>k!=="exp").join(", "):""))));}
+const pips=(n,max)=>h("span",{class:"pl-pips"},...Array.from({length:max},(_,i)=>h("i",{class:i<n?"f":""})));
+
+/* ---- targeting ---- */
+function pickTarget(list,hint){if(PLAY.auto)return Promise.resolve(list.length?pick(list):null);return new Promise(res=>{B.tgt={list,res};renderTokens();B.reach=null;drawHi();setHint(hint+" (tap a highlighted token)",()=>{B.tgt=null;renderTokens();res(null);});});}
+function pickCell(cellsList,hint,areaFn){if(PLAY.auto)return Promise.resolve(cellsList.length?pick(cellsList):null);return new Promise(res=>{B.cellPick=cellsList;B.cellRes=res;B.areaFn=areaFn;B.reach=null;drawHi();setHint(hint,()=>{B.cellPick=null;B.area=null;drawHi();res(null);});});}
+let hintEl=null;
+function setHint(t,cancel){hintEl=h("div",{class:"pl-hint m"},t);const c=h("button",{type:"button",class:"pl-btn",onclick:()=>{cancel();refreshPanel&&refreshPanel();}},"Cancel");panel.replaceChildren(initEl||"",hintEl,c);}
+function onMapClick(e){if(!B)return;const r=mapEl.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)/CS),y=Math.floor((e.clientY-r.top)/CS);
+  const tok=e.target.closest(".tk");const u=tok&&B.units.find(o=>o.el===tok);
+  if(B.tgt){const t=u||occupant(x,y);if(t&&B.tgt.list.includes(t)){const r2=B.tgt.res;B.tgt=null;renderTokens();r2(t);}return;}
+  if(B.cellPick){if(B.cellPick.some(([a,b])=>a===x&&b===y)){const r2=B.cellRes;B.cellPick=null;B.area=null;drawHi();r2([x,y]);}return;}
+  if(B.reach&&B.onMove){const n=B.reach.d.get(x+","+y);if(n&&!n.occ&&x+","+y!==B.reach.start)B.onMove(x,y);}}
+let refreshPanel=null;
+document.addEventListener("pointermove",e=>{if(!B||!B.cellPick||!B.areaFn||!mapEl)return;const r=mapEl.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)/CS),y=Math.floor((e.clientY-r.top)/CS);
+  if(B.cellPick.some(([a,b])=>a===x&&b===y)){B.area=B.areaFn(x,y);drawHi();}});
+
+/* ---- the crew's turn ---- */
+function playerTurn(u){if(PLAY.auto)return autoTurn(u);return new Promise(done=>{
+  let busy=false;
+  const run=async fn=>{if(busy)return;busy=true;B.reach=null;drawHi();try{await fn();}finally{busy=false;}await checkEnd();if(B.over||u.hp<=0||u.cond.ko){done();return;}draw();};
+  B.onMove=(x,y)=>run(async()=>{const path=pathTo(B.reach0,x,y);if(!path)return;const c=B.reach0.d.get(x+","+y).c;
+    if(u.cond.prone){delete u.cond.prone;u.mv=Math.max(0,u.mv-Math.ceil(speedOf(u)/2));log(`${u.short} gets up.`);}
+    u.mv-=c;u.moved+=c;if(B.def.onMoveStart)B.def.onMoveStart(u);await moveAlong(u,path);});
+  const draw=()=>{
+    if(B.over||u.hp<=0){done();return;}
+    B.reach0=reachable(u,Math.max(0,u.cond.prone?u.mv-Math.ceil(speedOf(u)/2):u.mv));B.reach=u.mv>0?B.reach0:null;drawHi();renderTokens();
+    initEl=initEl||h("div",{class:"pl-init"});renderInit();
+    const acts=crewActions(u),A=acts.filter(a=>a.kind==="action"),Bo=acts.filter(a=>a.kind==="bonus"),Fr=acts.filter(a=>a.kind==="free");
+    const mk=a=>h("button",{type:"button",class:"pl-btn"+(a.warn?" warn":""),disabled:!a.ok,title:a.sub||"",onclick:()=>run(a.run)},a.n,a.sub?h("small",{},a.sub):null);
+    const p=P(u.key),c=CREW[u.key];
+    const res=[];if(p.slots)res.push(h("span",{},"Slots ",...p.slots.map((n,i)=>h("span",{},` ${i+1}:`,pips(n,(p.lv>=6&&c.slots6?c.slots6:c.slots)[i])))));
+    if(c.pact)res.push(h("span",{},"Pact ",pips(p.pact,2)));if(p.res.bi!=null)res.push(h("span",{},"Inspiration ",pips(p.res.bi,4)));if(p.res.cd!=null)res.push(h("span",{},"Channel ",pips(p.res.cd,2)));
+    panel.replaceChildren(initEl,whoRow(u),
+      h("div",{class:"pl-bars"},h("span",{},"Move ",h("b",{},(u.mv*5)+" ft")),h("span",{},"Action ",pips(u.act,1)),h("span",{},"Bonus ",pips(u.bonus,1)),h("span",{},"Reaction ",pips(u.react?1:0,1)),...res),
+      u.mv>0&&speedOf(u)>0?h("p",{class:"pl-hint m"},"Tap a lit square to move."):null,
+      A.length?h("div",{class:"pl-sec"},"Action"):null,h("div",{class:"pl-acts"},...A.map(mk)),
+      Bo.length?h("div",{class:"pl-sec"},"Bonus action"):null,Bo.length?h("div",{class:"pl-acts"},...Bo.map(mk)):null,
+      Fr.length?h("div",{class:"pl-acts"},...Fr.map(mk)):null,
+      h("button",{type:"button",class:"pl-btn pri",onclick:()=>{if(busy)return;B.onMove=null;done();}},"End turn"));};
+  refreshPanel=draw;draw();});}
+
+async function autoTurn(u){const f=enemiesOf(u).filter(o=>o.hp>0);if(f.length&&speedOf(u)>0&&Math.random()<.7)await approach(u,nearest(u,f),u.key==="stig"||u.key==="katy"?4:1);if(u.hp<=0)return;
+  for(const kind of ["action","bonus"]){const l=crewActions(u).filter(a=>a.kind===kind&&a.ok&&!/^(Dash|Dodge|Disengage)$/.test(a.n));if(l.length){await (Math.random()<.5?l[0]:pick(l)).run();await checkEnd();if(B.over||u.hp<=0)return;}}}
+/* everything one of the crew can do this turn */
+function crewActions(u){
+  const p=P(u.key),k=u.key,out=[],A=(n,sub,ok,run,kind="action",o={})=>out.push(Object.assign({n,sub,ok:ok&&(kind==="action"?u.act>0:kind==="bonus"?u.bonus>0:true),run,kind},o));
+  const foes=()=>enemiesOf(u).filter(o=>(!o.hidden||dist(u,o)<=1)&&(!u.cond.called||o.key==="grey")),inRange=(r,lo=true)=>foes().filter(o=>dist(u,o)<=r&&(lo?los(u,o):true)),friends=r=>B.units.filter(o=>o.side!=="foe"&&!o.gone&&!o.dead&&dist(u,o)<=r&&!o.untarget);
+  const slot=lv=>{if(!p.slots)return 0;for(let i=lv-1;i<p.slots.length;i++)if(p.slots[i]>0)return i+1;return 0;},spend=lv=>{const s=slot(lv);if(s)p.slots[s-1]--;return s;};
+  const useA=()=>{u.act--;},useB=()=>{u.bonus--;};
+  const atkAct=(at,r,count=1,kind="action",cost=null)=>async()=>{const list=inRange(r);const t=await pickTarget(list,`${at.n}: pick a target`);if(!t)return;
+    kind==="action"?useA():useB();if(cost)cost();for(let i=0;i<count;i++){let tt=t;if(i>0&&!alive(t)){const l=inRange(r);if(!l.length)break;tt=await pickTarget(l,`${at.n}: next target`);if(!tt)break;}await attack(u,tt,at);await sleep(250);}};
+  const saveAct=(n,r,ab,dc,dmg,type,{half=false,kind="action",cost=null,after=null,dmgHurt=null}={})=>async()=>{const list=inRange(r);const t=await pickTarget(list,`${n}: pick a target`);if(!t)return;
+    kind==="action"?useA():useB();if(cost)cost();log(`${u.short} casts ${n} on ${nameOf(t)}.`,"b");const ok=await save(t,ab,dc,n);let d=typeof dmg==="function"?dmg(t):dmg;
+    if(d){const n2=dice(d).t;if(!ok)await hurt(t,n2,type,u,{magic:true});else if(half)await hurt(t,Math.floor(n2/2),type,u,{magic:true});else floatTxt(t,"saved","miss");}
+    if(!ok&&after&&alive(t))await after(t);};
+  const area=(n,center,radius,ab,dc,dmg,type,{range=0,cost=null,friendly=true,after=null,kind="action"}={})=>async()=>{
+    let cx=u.x,cy=u.y;
+    if(!center){const cs=[];for(let y=0;y<B.mp.H;y++)for(let x=0;x<B.mp.W;x++)if(distXY(u,x,y)<=range)cs.push([x,y]);
+      const c=await pickCell(cs,`${n}: tap where it lands`,(x,y)=>{const a=[];for(let yy=y-radius;yy<=y+radius;yy++)for(let xx=x-radius;xx<=x+radius;xx++)a.push([xx,yy]);return a;});if(!c)return;[cx,cy]=c;}
+    kind==="action"?useA():useB();if(cost)cost();log(`${u.short}: ${n}!`,"b");
+    const hitList=B.units.filter(o=>alive(o)&&o!==u&&!o.untarget&&!o.ghost&&Math.max(gap(o.x,o.x+o.size-1,cx,cx),gap(o.y,o.y+o.size-1,cy,cy))<=radius&&(friendly||o.side==="foe"));
+    if(!hitList.length)log("  It hits nobody.");const n2=dice(dmg).t;
+    for(const o of hitList){const ok=await save(o,ab,dc,n);await hurt(o,ok?Math.floor(n2/2):n2,type,u,{magic:true,aoe:true});if(!ok&&after&&alive(o))await after(o);}};
+  const healAct=(n,r,expr,{kind="action",cost=null,multi=1,max=false}={})=>async()=>{let list=friends(r).filter(o=>o.hp<o.max&&!o.dead&&o.key!=="hans"||o.key==="hans"&&o.hp<o.max);
+    const picked=[];for(let i=0;i<multi;i++){const t=await pickTarget(list.filter(o=>!picked.includes(o)),`${n}: pick ${multi>1?"who (Cancel when done)":"who"}`);if(!t)break;picked.push(t);if(list.length<=picked.length)break;}
+    if(!picked.length)return;kind==="action"?useA():useB();if(cost)cost();for(const t of picked){const e=(max||(k==="stig"&&t.hp<=0))?maxDice(expr):expr;heal(t,dice(e).t,u);if(k==="stig"&&t.hp>0&&max===false&&t.hp===t.max){}}
+    if(k==="stig"&&picked.some(t=>t.hp>0))log("  (Circle of Mortality: full dice for anyone at 0 HP.)");};
+  const netted=u.cond.netted,ko=u.cond.ko;
+  const piled=F().piled&&!u.armed&&B.def.key==="ambush";
+  const weapon=at=>piled?Object.assign({},at,{ok:false}):at;
+  // scene actions come first: they are the point of the fight
+  if(B.def.sceneActs)for(const a of B.def.sceneActs(u))A(a.n,a.sub,a.ok,a.run,a.kind||"action");
+  if(piled)A("Find your weapon","In the pile at the root door",true,async()=>{useA();u.armed=true;log(`${u.short} digs a weapon out of the pile.`);});
+  if(netted){A("Break free","Athletics DC 14",true,async()=>{useA();const r=await crewRoll(k,"Athletics",skillMod(k,"athletics"),14,{u});if(r.ok){delete u.cond.netted;log("Katy tears out of the silver net!","g");}else log("The net holds.","r");});}
+  if(u.cond.restrained&&!netted&&!u.cond.engulfed){const dc=u.cond.restrained.dc||14;A("Break free",`Athletics DC ${dc}`,true,async()=>{useA();const r=await crewRoll(k,"Athletics",Math.max(skillMod(k,"athletics"),skillMod(k,"acrobatics")),dc,{u});if(r.ok){delete u.cond.restrained;log(`${u.short} breaks free.`,"g");}});}
+  if(u.cond.grappled){A("Escape the grapple",`DC ${u.cond.grappled.dc}`,true,async()=>{useA();const r=await crewRoll(k,"Athletics/Acrobatics",Math.max(skillMod(k,"athletics"),skillMod(k,"acrobatics")),u.cond.grappled.dc,{u});if(r.ok){delete u.cond.grappled;log(`${u.short} slips free.`,"g");}});}
+  const vs=u.cond.engulfed?[]:null;
+  if(k==="katy"){
+    if(!piled){A("Shortbow","+5 · 1d6+2",!netted&&inRange(64).length>0,atkAct({n:"Shortbow",hit:5,dmg:"1d6+2",type:"piercing",range:[16,64]},64));
+    A("Dagger","+5 · 1d4+2",inRange(1).length>0,atkAct({n:"Dagger",hit:5,dmg:"1d4+2",type:"piercing"},1));}
+    A("Vicious Mockery","Wis DC 15 · 2d6 psychic",inRange(12).length>0,saveAct("Vicious Mockery",12,"wis",15,"2d6","psychic",{after:t=>{addC(t,"mocked",{exp:{u:t.id,at:"end"}});}}));
+    A("Dissonant Whispers","1st · Wis DC 15 · 3d6, flees",!!slot(1)&&inRange(12).length>0,saveAct("Dissonant Whispers",12,"wis",15,"3d6","psychic",{half:true,cost:()=>spend(1),after:async t=>{if(speedOf(t)>0&&!t.cond.engulfed){const away=reachable(t,speedOf(t));let best=null,bd=-1;for(const [kk,v] of away.d){if(v.occ)continue;const [x,y]=kk.split(",").map(Number);const dd=distXY(u,x,y);if(dd>bd){bd=dd;best=[x,y];}}if(best){t.x=best[0];t.y=best[1];renderTokens();log(`  ${nameOf(t)} flees from the whispers.`);}}}}));
+    A("Thunderwave","1st · Con DC 15 · 2d8, next to her",!!slot(1),area("Thunderwave",true,1,"con",15,"2d8","thunder",{cost:()=>spend(1),after:async t=>{if(t.size===1&&!t.crew){t.x=clamp(t.x+Math.sign(t.x-u.x)*2,0,B.mp.W-1);t.y=clamp(t.y+Math.sign(t.y-u.y)*2,0,B.mp.H-1);if(cost(B.mp,t.x,t.y)===0){const c=freeNear(t.x,t.y);t.x=c[0];t.y=c[1];}renderTokens();}}}));
+    A("Shatter","2nd · Con DC 15 · 3d8, 10 ft",!!slot(2),area("Shatter",false,2,"con",15,"3d8","thunder",{range:12,cost:()=>spend(2)}));
+    A("Cure Wounds","1st · touch · 2d8+4",!!slot(1)&&friends(1).some(o=>o.hp<o.max),healAct("Cure Wounds",1,"2d8+4",{cost:()=>spend(1)}));
+    A("Slow","3rd · Wis DC 15 · up to 6",!!slot(3)&&!u.conc,area("Slow",false,2,"wis",15,"0","psychic",{range:24,friendly:false,cost:()=>{spend(3);u.conc={n:"Slow",conds:["slowed"]};},after:t=>{addC(t,"slowed",{by:u.id});}}));
+    A("Mass Healing Word","3rd · bonus · 2d4+4 each",!!slot(3),healAct("Mass Healing Word",12,"2d4+4",{kind:"bonus",multi:6,cost:()=>spend(3)}),"bonus");
+    A("Bardic Inspiration",`d8 · ${p.res.bi} left`,p.res.bi>0,async()=>{const t=await pickTarget(friends(12).filter(o=>o!==u&&!o.cond.insp&&o.crew),"Who gets the die?");if(!t)return;useB();p.res.bi--;addC(t,"insp",8);log(`Katy plays a few notes for ${t.short}: Bardic Inspiration d8.`,"g");pluck(NOTE.A4,0,.8,.12);},"bonus");
+    A("Misty Step",p.res.misty?"bonus · free once":"bonus · 2nd slot",!netted&&(p.res.misty>0||!!slot(2)),teleport(u,6,()=>{if(p.res.misty>0)p.res.misty--;else spend(2);}),"bonus");
+  }
+  if(k==="stig"){
+    A("Sacred Flame","Dex DC 17 · 2d8 radiant",inRange(12).length>0,saveAct("Sacred Flame",12,"dex",17,"2d8","radiant"));
+    A("Toll the Dead","Wis DC 17 · 2d8, 2d12 if hurt",inRange(12).length>0,saveAct("Toll the Dead",12,"wis",17,t=>t.hp<t.max?"2d12":"2d8","necrotic"));
+    A("Guiding Bolt","1st · +9 · 4d6 radiant",!!slot(1)&&inRange(24).length>0,atkAct({n:"Guiding Bolt",hit:9,dmg:"4d6",type:"radiant",range:[24,24],magic:true,onHit:t=>{addC(t,"guided",{exp:{u:u.id,at:"end",n:2}});}},24,1,"action",()=>spend(1)));
+    if(!piled)A("Mace","+3 · 1d6",inRange(1).length>0,atkAct({n:"Mace",hit:3,dmg:"1d6",type:"bludgeoning"},1));
+    A("Turn Undead",`Channel · Wis DC 17 · ${p.res.cd} left`,p.res.cd>0&&B.def.undead,async()=>{useA();p.res.cd--;await turnUndead(u);});
+    A("Path to the Grave","Channel · next hit doubles",p.res.cd>0&&inRange(6,false).length>0,async()=>{const t=await pickTarget(inRange(6),"Curse whom?");if(!t)return;useA();p.res.cd--;addC(t,"grave",{by:u.id});log(`Stig marks ${nameOf(t)} for the grave. The next hit on it does double damage.`,"b");});
+    A("Cure Wounds",p.res.tattoo?"tattoo · free once":"1st · 2d8+4",(p.res.tattoo>0||!!slot(1))&&friends(1).some(o=>o.hp<o.max),healAct("Cure Wounds",1,"2d8+4",{cost:()=>{if(p.res.tattoo>0)p.res.tattoo--;else spend(1);}}));
+    A("Bane","1st · Cha DC 17 · up to 3",!!slot(1)&&!u.conc,area("Bane",false,1,"cha",17,"0","psychic",{range:6,friendly:false,cost:()=>{spend(1);u.conc={n:"Bane",conds:["bane"]};},after:t=>{addC(t,"bane",{by:u.id});}}));
+    A("Ray of Enfeeblement","2nd · Con DC 17",!!slot(2)&&!u.conc&&inRange(12).length>0,saveAct("Ray of Enfeeblement",12,"con",17,null,null,{cost:()=>{spend(2);u.conc={n:"Ray of Enfeeblement",conds:["enfeebled"]};},after:t=>{addC(t,"enfeebled",{by:u.id});log(`  ${nameOf(t)} is enfeebled: its blows go weak.`);}}));
+    A("Vampiric Touch","3rd · +9 · 3d6, heals half",!!slot(3)&&inRange(1).length>0,atkAct({n:"Vampiric Touch",hit:9,dmg:"3d6",type:"necrotic",magic:true,onHit:(t,r)=>{heal(u,Math.max(1,Math.round(avgDice(r.crit?"6d6":"3d6")/2)));}},1,1,"action",()=>spend(3)));
+    A("Revivify","3rd · a diamond · dead ally",!!slot(3)&&B.units.some(o=>o.dead&&dist(u,o)<=1),async()=>{const t=await pickTarget(B.units.filter(o=>o.dead&&dist(u,o)<=1),"Bring back whom?");if(!t)return;useA();spend(3);t.dead=false;t.ds=[0,0];heal(t,1);log(`Stig presses a diamond to ${t.short}'s chest. They breathe.`,"g");});
+    A("Spare the Dying","bonus · 30 ft",friends(6).some(o=>o.hp<=0&&!o.dead&&!o.cond.stable),async()=>{const t=await pickTarget(friends(6).filter(o=>o.hp<=0&&!o.dead&&!o.cond.stable),"Stabilise whom?");if(!t)return;useB();addC(t,"stable");log(`Stig steadies ${t.short}: stable.`,"g");},"bonus");
+  }
+  if(k==="saphira"){
+    const mel=crewMelee(u);
+    if(!piled){A(mel.n,`+${mel.hit} · ${mel.dmg}`+(B.sc.blade?" psychic":""),inRange(1).length>0,atkAct(mel,1));
+    A("Ash blade +1","+8 · 1d4+5 · +1d4 necrotic",!B.sc.blade&&inRange(1).length>0,atkAct({n:"Ash blade",hit:8,dmg:"1d4+5",type:"slashing",plus:"1d4",plusType:"necrotic",magic:true,sneak:true},1));
+    A("Throw the dagger","+8 · 20/60 ft",inRange(12).length>0&&!inRange(1).length,atkAct({n:"Thrown dagger",hit:8,dmg:"1d4+5",type:"piercing",range:[4,12],magic:true,sneak:true},12));}
+    A("Eldritch Blast","two beams · +6 · 1d10+3",inRange(24).length>0,atkAct({n:"Eldritch Blast",hit:6,dmg:"1d10+3",type:"force",range:[24,24],magic:true},24,2));
+    A("Fire Bolt","+6 · 2d10 fire",inRange(24).length>0,atkAct({n:"Fire Bolt",hit:6,dmg:"2d10",type:"fire",range:[24,24],magic:true},24));
+    A("Thunderclap","Con DC 14 · 2d6+1d4 · next to her",true,area("Thunderclap",true,1,"con",14,"2d6+1d4","thunder",{friendly:true}));
+    A("Shatter",p.res.echo?"Petrified Echo · free once":"pact slot",(p.res.echo>0||p.pact>0),area("Shatter",false,2,"con",14,"3d8+1d4","thunder",{range:12,cost:()=>{if(p.res.echo>0)p.res.echo--;else p.pact--;}}));
+    A("Hex","bonus · pact slot · +1d6 necrotic",p.pact>0&&!u.conc&&inRange(18,false).length>0,async()=>{const t=await pickTarget(inRange(18),"Hex whom?");if(!t)return;useB();p.pact--;u.conc={n:"Hex",conds:["hexed"]};addC(t,"hexed",{by:u.id});log(`Saphira hexes ${nameOf(t)}.`,"b");},"bonus");
+    A("Hexblade's Curse","bonus · +3 damage, crit 19–20",p.res.curse>0&&inRange(6,false).length>0,async()=>{const t=await pickTarget(inRange(6),"Curse whom?");if(!t)return;useB();p.res.curse--;addC(t,"cursed",{by:u.id});log(`Saphira lays the Hexblade's Curse on ${nameOf(t)}.`,"b");},"bonus");
+    if(p.lv>=6)A("Shadow Blade","bonus · pact slot · 2d8 psychic",p.pact>0&&!u.conc&&!B.sc.blade,async()=>{useB();p.pact--;B.sc.blade=true;u.conc={n:"Shadow Blade",conds:[]};log("A blade of shadow forms in Saphira's hand.","b");},"bonus");
+    A("Hide","bonus · Stealth +11",!u.hidden&&!enemiesOf(u).some(o=>dist(o,u)<=1),async()=>{useB();const r=await crewRoll(k,"Stealth",11,13,{u,quiet:!opt.dice});if(r.ok){u.hidden=true;log("Saphira melts into the shadows.","b");}else log("She can't find cover.");},"bonus");
+    A("Disengage","bonus",true,async()=>{useB();u.disengage=true;log("Saphira disengages.");},"bonus");
+    A("Dash","bonus",true,async()=>{useB();u.mv+=speedOf(u);},"bonus");
+    A("Healing potion",`bonus · 2d4+2 · ${p.res.pot} left`+(p.res.gpot?` (+1 greater)`:""),(p.res.pot>0||p.res.gpot>0)&&u.hp<u.max,async()=>{useB();if(p.res.pot>0){p.res.pot--;heal(u,dice("2d4+2").t);}else{p.res.gpot--;heal(u,dice("4d4+4").t);}},"bonus");
+    A("Misty Step","cloak · once",p.res.misty>0,teleport(u,6,()=>p.res.misty--),"bonus");
+  }
+  if(k==="hans"){
+    if(!piled)A("Slam ×2","+6 · 2d6+4 each",inRange(1).length>0,atkAct({n:"Slam",hit:6,dmg:"2d6+4",type:"bludgeoning"},1,2));
+    A("The Drop",B.sc.dropReady===false?"recharging (5–6)":"Con DC 14 · 2d8 thunder + prone",B.sc.dropReady!==false&&enemiesOf(u).some(o=>dist(o,u)<=2),async()=>{useA();B.sc.dropReady=false;log("Hans stamps to the beat: THE DROP.","b");thump();
+      for(const o of enemiesOf(u).filter(o=>dist(o,u)<=2)){const ok=await save(o,"con",14,"The Drop");await hurt(o,ok?Math.floor(dice("2d8").t/2):dice("2d8").t,"thunder",u,{aoe:true,magic:true});if(!ok&&alive(o)){addC(o,"prone");if(B.mp.kind==="tree"&&(cost(B.mp,o.x-1,o.y)===0||cost(B.mp,o.x+1,o.y)===0)&&!(await save(o,"dex",13,"Edge")))await fall(o,o.x,o.y);}}});
+  }
+  // everyone
+  A("Dash","double move",true,async()=>{useA();u.mv+=speedOf(u);log(`${u.short} dashes.`);});
+  A("Dodge","attacks on you have disadvantage",true,async()=>{useA();addC(u,"dodging",{exp:{u:u.id,at:"start"}});log(`${u.short} takes the Dodge action.`);});
+  if(k!=="saphira")A("Disengage","no opportunity attacks",true,async()=>{useA();u.disengage=true;log(`${u.short} disengages.`);});
+  const downAlly=friends(1).find(o=>o.hp<=0&&!o.dead&&!o.cond.stable&&o.crew&&o!==u);
+  if(downAlly)A("Stabilise "+downAlly.short,"Medicine DC 10",true,async()=>{useA();const r=await crewRoll(k,"Medicine",skillMod(k,"medicine"),10,{u});if(r.ok){addC(downAlly,"stable");log(`${downAlly.short} is stable.`,"g");}});
+  return out;}
+function teleport(u,r,cost){return async()=>{const cs=[];for(let y=0;y<B.mp.H;y++)for(let x=0;x<B.mp.W;x++)if(distXY(u,x,y)<=r&&cost_(x,y)&&!occupant(x,y))cs.push([x,y]);
+  const c=await pickCell(cs,"Misty Step: tap where to appear");if(!c)return;u.bonus--;cost();delete u.cond.grappled;u.x=c[0];u.y=c[1];renderTokens();log(`${nameOf(u)} steps through silver mist.`,"b");};}
+const cost_=(x,y)=>cost(B.mp,x,y)>0;
+async function turnUndead(u){log("Stig raises his holy symbol: Turn Undead!","b");
+  for(const o of B.units.filter(o=>alive(o)&&o.side==="foe"&&MON[o.key].undead&&dist(o,u)<=6)){
+    if(o.key==="husk"){o.hp=0;o.gone=true;log(`  ${o.name} crumbles to ash.`,"g");floatTxt(o,"crumbles","heal");continue;}
+    const ok=await save(o,"wis",17,"Turn Undead");if(ok){floatTxt(o,"resists","miss");continue;}
+    await hurt(o,dice("4d8").t,"radiant",u,{magic:true,aoe:true});
+    if(alive(o)){o.ghost=true;o.back=B.round+2;o.hidden=false;log(`  ${o.name} flees into the root walls.`,"g");o.el&&o.el.classList.add("gone");}}
+  renderTokens();}
+
+
+/* =================== THE MONSTERS' TURN: tactics from the session 10 script =================== */
+async function aiTurn(u){
+  panelMsg(u,u.side==="foe"?`${nameOf(u)} moves…`:`${nameOf(u)} acts…`);await sleep(350);
+  const ai=MON[u.key].ai;
+  if(u.cond.turned){log(`${nameOf(u)} cowers.`);return;}
+  if(ai==="heart")return heartTurn(u);
+  if(ai==="grey")return greyTurn(u);
+  if(ai==="thorn")return thornTurn(u);
+  if(ai==="none")return;
+  if(ai==="warden")return wardenTurn(u);
+  const foes=enemiesOf(u).filter(o=>o.hp>0&&!o.cond.engulfed&&!o.hidden); // nobody attacks a PC at 0 HP
+  if(!foes.length){log(`${nameOf(u)} waits.`);return;}
+  let target;
+  if(ai==="hollower"){const strOf=o=>o.crew?P(o.key).str:99;target=(u.num%4===1||u.num%4===2)?foes.slice().sort((a,b)=>strOf(a)-strOf(b)||dist(u,a)-dist(u,b))[0]:nearest(u,foes);}
+  else target=(u.focus&&foes.includes(u.focus))?u.focus:nearest(u,foes);
+  u.focus=target;
+  const atks=MON[u.key].atk,melee=atks.find(a=>a.reach),ranged=atks.find(a=>a.range);
+  if(MON[u.key].tangle&&u.rech.tangle!==false){const near=foes.filter(o=>dist(u,o)<=3);if(near.length>=2){u.rech.tangle=false;log(`${u.name}: Entangling Plants! Roots burst from the floor.`,"r");
+    for(const o of near){if(!(await save(o,"str",12,"Entangling Plants")))addC(o,"restrained",{dc:12});}renderTokens();await sleep(300);return;}}
+  else if(MON[u.key].tangle&&rnd(6)>=5)u.rech.tangle=true;
+  if(ai==="archer"&&ranged&&dist(u,target)>1){
+    if(!(dist(u,target)<=ranged.range[1]&&los(u,target))){await approach(u,target,ranged.range[0]);}
+    if(dist(u,target)<=1&&melee){await attack(u,target,melee);return;}
+    if(dist(u,target)<=ranged.range[1]&&los(u,target)){await attack(u,target,ranged);return;}
+    return;}
+  await approach(u,target,melee.reach);
+  if(dist(u,target)<=melee.reach&&alive(target)){
+    const r=await attack(u,target,melee);
+    if(r.hit&&melee.grab&&alive(r.tgt)){addC(r.tgt,"grappled",{dc:melee.grab,by:u.id});log(`  ${nameOf(r.tgt)} is grappled (escape DC ${melee.grab}).`,"r");}
+    if(r.hit&&melee.drain&&r.tgt.crew&&r.tgt.key!=="hans"&&alive(r.tgt)){const d=rnd(4),p=P(r.tgt.key);p.str-=d;log(`  The Hollower drinks ${d} Strength from ${r.tgt.short} (Str ${Math.max(0,p.str)}).`,"r");
+      if(p.str<=0){p.str=1;r.tgt.hp=0;await zero(r.tgt,u,"necrotic",{});}}}
+  if(MON[u.key].hide&&u.bonus&&!enemiesOf(u).some(o=>dist(o,u)<=1&&!incap(o))){u.hidden=true;renderTokens();log(`${u.name} slides back into the dark.`);}}
+function nearest(u,list){return list.slice().sort((a,b)=>dist(u,a)-dist(u,b)||a.hp-b.hp)[0];}
+async function approach(u,t,reach){if(dist(u,t)<=reach||speedOf(u)<=0)return;const rc=reachable(u,u.mv);let best=null,bd=1e9,bc=1e9;
+  for(const [k,v] of rc.d){if(v.occ)continue;const [x,y]=k.split(",").map(Number);const dd=Math.max(gap(x,x+u.size-1,t.x,t.x+t.size-1),gap(y,y+u.size-1,t.y,t.y+t.size-1));const sc=Math.max(0,dd-reach);if(sc<bd||(sc===bd&&v.c<bc)){bd=sc;bc=v.c;best=[x,y];}}
+  if(!best||(best[0]===u.x&&best[1]===u.y))return;const path=pathTo(rc,best[0],best[1]);if(path){u.mv-=bc;await moveAlong(u,path);}}
+
+/* ---- Thorn: bow only, stays by Katy, heals once per fight ---- */
+async function thornTurn(u){
+  if(u.cond.stable)return;
+  const down=B.units.filter(o=>o.crew&&o.hp<=0&&!o.dead&&o.key!=="hans");
+  if(!B.sc.thornHealed&&!u.cond.restrained){const hurtL=B.units.filter(o=>o.crew&&!o.dead&&o.key!=="hans"&&(o.hp<=0||o.hp<o.max/3));const t=down[0]||hurtL[0];
+    if(t){if(dist(u,t)>1)await approach(u,t,1);if(dist(u,t)<=1){B.sc.thornHealed=true;log("Thorn kneels and lays a hand on "+t.short+": Cure Wounds.","g");heal(t,dice("2d8+3").t,u);return;}}}
+  const katy=B.units.find(o=>o.key==="katy");
+  if(katy&&!u.cond.restrained&&dist(u,katy)>2&&!B.def.thornStill)await approach(u,katy,2);
+  for(let i=0;i<2;i++){const foes=enemiesOf(u).filter(o=>!o.hidden&&los(u,o)&&dist(u,o)<=120);if(!foes.length)break;await attack(u,nearest(u,foes),MON.thorn.atk[0]);await sleep(200);}}
+
+/* ---- the Blight Heart ---- */
+async function heartTurn(u){
+  const S=B.sc;
+  if(S.incap>0){S.incap--;log("The Heart shudders, held still by Matthew's song.","g");return;}
+  if(S.ashCharged===false&&rnd(6)>=5)S.ashCharged=true;
+  S.leg=S.weak?0:2;
+  const g=S.engulfed;
+  if(g&&alive(g)){log(`The Heart squeezes ${nameOf(g)}.`,"r");if(!(await save(g,"con",14,"Engulf")))await hurt(g,dice("2d8+4").t,"bludgeoning",u);}
+  const targets=enemiesOf(u).filter(o=>o.hp>0&&!o.cond.engulfed&&!o.untarget&&dist(u,o)<=6);
+  if(!targets.length){log("The roots search the dark.");return;}
+  let t=S.focus&&targets.includes(S.focus)?S.focus:pick(targets.filter(o=>o.crew).length?targets.filter(o=>o.crew):targets);S.focus=t;
+  log(`The Heart lashes at ${nameOf(t)}.`+(S.disNext?" The song makes its roots falter.":""),"r");
+  const lash=Object.assign({},MON.heart.atk[0],{disNext:!!S.disNext,magic:true});
+  if(u.cond.slowed)log("  Slowed: one lash only.");
+  const r1=await attack(u,t,lash);await sleep(250);let r2={hit:false};
+  if(!u.cond.slowed&&alive(t)&&t.hp>0){r2=await attack(u,t,lash);}
+  S.disNext=false;
+  if(r1.hit&&r2.hit&&!r1.guarded&&!r2.guarded&&!S.weak&&!S.engulfed&&alive(t)&&t.hp>0&&t.size===1){
+    S.engulfed=t;t.out=[t.x,t.y];addC(t,"engulfed");t.cond.restrained={dc:15};addC(t,"blinded");t.x=u.x+1;t.y=u.y+1;renderTokens();
+    log(`The roots close around ${nameOf(t)}: ENGULFED. Blinded, restrained, can't breathe. Escape: Athletics DC 15, or 20 damage to the Heart in one turn.`,"r");
+    log("Inside the knot, the man's fingers find the four notes again. While he plays, the Heart has no legendary actions.","h");fourNotes(false);}}
+async function heartLegendary(after){const S=B.sc,hrt=B.units.find(o=>o.key==="heart");if(!hrt||!alive(hrt)||S.weak||S.incap>0||!S.leg||after===hrt||after.side==="foe")return;
+  if(S.engulfed){if(!S.mattNote){S.mattNote=true;log("Matthew plays: the Heart can't use legendary actions while it holds someone.","h");}return;}
+  const tg=enemiesOf(hrt).filter(o=>o.hp>0&&!o.untarget&&dist(hrt,o)<=6);if(!tg.length)return;
+  if(S.ashCharged!==false&&S.leg>=2){const near=tg.filter(o=>dist(hrt,o)<=4);if(near.length>=2){S.leg-=2;S.ashCharged=false;log("Legendary action: ASH BREATH. A cone of black ash.","r");
+    const aim=nearest(hrt,near);for(const o of near.filter(o=>dist(o,aim)<=2)){const ok=await save(o,"con",14,"Ash Breath");const n=dice("3d8").t;await hurt(o,ok?Math.floor(n/2):n,"necrotic",hrt,{aoe:true});}return;}}
+  S.leg--;const t=S.focus&&tg.includes(S.focus)?S.focus:pick(tg);log("Legendary action: a root lashes "+nameOf(t)+".","r");await attack(hrt,t,Object.assign({},MON.heart.atk[0],{magic:true}));}
+
+/* ---- the night ambush: the Grey Man and the wardens ---- */
+const ROPE_PATH=[[4,3],[5,6],[3,6],[2,6]];
+async function greyTurn(u){
+  const S=B.sc,katy=B.units.find(o=>o.key==="katy");
+  if(u.hp<=20||S.letGo){log("The Grey Man lets go. He bites an ash vial and is gone, grey smoke, invisible.","g");u.gone=true;S.greyFled=true;renderTokens();return;}
+  if(!S.cantUsed){const sa=B.units.find(o=>o.key==="saphira"&&o.hp>0);if(sa&&dist(u,sa)<=8){S.cantUsed=true;log("The Grey Man speaks to Saphira in the old cant, soft and certain. Only she understands it.","r");
+    const ok=await save(sa,"wis",15,"The old cant");if(ok){S.cantResisted=true;log("  Saphira shakes it off. His Uncanny Dodge won't work against her.","g");}else{addC(sa,"called",{exp:{u:sa.id,at:"end"}});log("  On her next turn Saphira must go to him and attack only him. (Not a charm.)","r");}}}
+  const dragging=katy&&(katy.cond.netted||katy.cond.ko)&&dist(u,katy)<=1;
+  if(dragging&&B.round>=2&&!u.cond.prone&&!u.cond.restrained&&!u.cond.grappled){S.rope=(S.rope||0)+1;
+    if(S.rope>=4){log("He reaches the bell rope and slides. Matthew throws himself over Katy at the bottom. The knife meant for her finds him.","r");S.matthewStabbed=true;u.gone=true;S.greyFled=true;renderTokens();return;}
+    const [x,y]=ROPE_PATH[Math.min(S.rope-1,ROPE_PATH.length-1)];u.x=x;u.y=y;const c=freeNear(x+(x>2?-1:1),y);katy.x=c[0];katy.y=c[1];renderTokens();
+    log(`He drags Katy toward the farthest bell rope (${S.rope}/3, then he slides). Stop him and you win.`,"r");await sleep(400);}
+  else if(dragging&&B.round>=2){log("He can't drag her this turn.","g");}
+  // first round: down from Ysolde's turret and in through Elodie's window
+  if(B.round===1&&!S.entered){S.entered=true;u.x=4;u.y=3;if(occupant(4,3,u)){const c=freeNear(3,3);u.x=c[0];u.y=c[1];}renderTokens();log("A shape drops from the highest turret and swings in through Elodie's window. Lúmeneth burns hot.","r");await sleep(400);}
+  const adj=enemiesOf(u).filter(o=>dist(u,o)<=1&&o.hp>0);
+  let swings=2;
+  if(katy&&!katy.cond.netted&&!katy.cond.ko&&katy.hp>0&&S.netReady!==false){
+    if(dist(u,katy)>4)await approach(u,katy,1);
+    if(dist(u,katy)<=4&&los(u,katy)){S.netReady=false;swings--;log("The Grey Man flicks a silver-thread net at Katy.","r");
+      const r=await attack(u,katy,{n:"Silver-thread net",hit:7,dmg:"0",type:"none",range:[4,8],noHex:true,onHit:t=>{addC(t,"netted",{hp:10});log("  Katy is netted: restrained, and no spells with a voice. (Break free: Athletics DC 14, or cut it: 10 slashing.)","r");}});}}
+  else if(S.netReady===false&&rnd(6)>=5)S.netReady=true;
+  for(let i=0;i<swings;i++){const tg=enemiesOf(u).filter(o=>dist(u,o)<=1&&o.hp>0&&o.key!=="katy");if(!tg.length)break;const t=tg.find(o=>o.key==="saphira")||tg[0];await attack(u,t,MON.grey.atk[0]);await sleep(200);}}
+async function wardenTurn(u){if(B.sc.talkedDown){log(`${u.name} keeps the bow lowered.`);return;}
+  const out=enemiesOf(u).filter(o=>o.hp>0&&!inTurret(B.mp,o.x,o.y)&&o.side==="pc");
+  if(!out.length){log(`${u.name} holds the bow on the turret doors.`);return;}
+  for(let i=0;i<2;i++){const tg=enemiesOf(u).filter(o=>o.hp>0&&!inTurret(B.mp,o.x,o.y)&&o.side==="pc");if(!tg.length)break;const t=pick(tg);
+    const r=await attack(u,t,MON.warden.atk[0]);await sleep(200);}}
+
+
+/* =================== STORY: read-alouds, choices, checks =================== */
+let storyEl=null,artCv=null;
+function storyView(art){sideMode(false);B=null;stage.replaceChildren();storyEl=h("div",{class:"pl-story"});artCv=h("canvas",{width:960,height:540});
+  storyEl.append(h("div",{class:"art"},artCv));stage.append(storyEl);paintArt(artCv,art);return storyEl;}
+function clearStory(){if(!storyEl)return;[...storyEl.children].slice(1).forEach(n=>n.remove());}
+function sayIt(text,who){if(typeof say==="function"&&SAY.on)say(text.replace(/<[^>]+>/g,""),who||"hans");}
+function read(text,{spk="",btn="Continue",style=""}={}){return new Promise(res=>{clearStory();
+  if(spk)storyEl.append(h("div",{class:"pl-spk"},spk));
+  storyEl.append(h("p",{class:"pl-read"+(style?" "+style:""),html:text}),h("div",{class:"pl-choices"},h("button",{type:"button",class:"pl-btn pri",onclick:()=>{if(typeof hush==="function")hush();res();}},btn)));
+  sayIt(text);storyEl.scrollTop=0;if(PLAY.auto)setTimeout(res,0);});}
+function choose(text,opts,{spk=""}={}){return new Promise(res=>{clearStory();if(spk)storyEl.append(h("div",{class:"pl-spk"},spk));if(text)storyEl.append(h("p",{class:"pl-read",html:text}));
+  storyEl.append(h("div",{class:"pl-choices"},...opts.map((o,i)=>h("button",{type:"button",class:"pl-btn"+(o.used?" used":""),disabled:!!o.off,onclick:()=>res(i)},o.t,o.sub?h("small",{},o.sub):null))));storyEl.scrollTop=0;
+  if(PLAY.auto){const ok=opts.map((o,i)=>o.off?-1:i).filter(i=>i>=0);setTimeout(()=>res(pick(ok)),0);}});}
+async function result(text,bad){clearStory();storyEl.append(h("div",{class:"pl-res"+(bad?" bad":"")},text));await sleep(150);}
+/* ask a list of questions; each answer once; "enough" leaves */
+async function dialogue(intro,qs,{spk,enough="Enough talking",min=0}={}){const used=new Set();let first=true;
+  while(true){const opts=qs.map(q=>({t:q.q,used:used.has(q.q),off:q.when&&!q.when()}));const can=used.size>=min;opts.push({t:enough,sub:can?"":"Ask at least "+min,off:!can});
+    const i=await choose(first?intro:"",opts,{spk});first=false;if(i===qs.length)return used;const q=qs[i];used.add(q.q);if(q.run)await q.run();else await read(q.a,{spk});}}
+/* a check by one of the crew, picked on screen */
+async function crewCheck(id,skill,dc,{adv=false,dis=false,label}={}){const mod=skillMod(id,skill);return crewRoll(id,label||cap(skill),mod,dc,{adv,dis});}
+
+/* ---- painted backdrops for the story scenes ---- */
+function paintArt(cv,kind){const g=cv.getContext("2d"),W=cv.width,H=cv.height,R=seeded(kind.length*131+7),rr=(a,b)=>a+(b-a)*R();
+  const root=(x,y,ang,len,w,col,step=14)=>{g.strokeStyle=col;g.lineWidth=w;g.lineCap="round";g.beginPath();g.moveTo(x,y);for(let i=0;i<len;i++){ang+=rr(-.45,.45);const nx=x+Math.cos(ang)*step,ny=y+Math.sin(ang)*step;g.quadraticCurveTo((x+nx)/2+rr(-4,4),(y+ny)/2+rr(-4,4),nx,ny);x=nx;y=ny;}g.stroke();};
+  const glow=(x,y,r,c)=>{const gr=g.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,c);gr.addColorStop(1,c.slice(0,7)+"00");g.fillStyle=gr;g.fillRect(0,0,W,H);};
+  const P={hans:["#0a0d12","#19202a"],cave:["#0b0a09","#25211c"],heart:["#060807","#18261a"],father:["#0a0b0c","#262019"],stone:["#0b0c0d","#23272a"],road:["#060b08","#13261a"],forest:["#1c1407","#5a4417"],tree:["#070b16","#1a2438"],dawn:["#1a1220","#5a3a3a"]}[kind]||["#0b0d12","#1b1f27"];
+  const bg=g.createLinearGradient(0,0,0,H);bg.addColorStop(0,P[0]);bg.addColorStop(1,P[1]);g.fillStyle=bg;g.fillRect(0,0,W,H);
+  if(kind==="hans"){glow(W/2,H*.55,H*.7,"#e8743b44");for(let i=0;i<30;i++){g.fillStyle="#ead9b4";g.globalAlpha=rr(.05,.25);g.beginPath();g.arc(W/2+rr(-120,120),H*.5-rr(0,260),rr(6,26),0,7);g.fill();}g.globalAlpha=1;
+    g.fillStyle="#2b2418";g.beginPath();g.arc(W/2,H*.62,150,0,7);g.fill();g.strokeStyle="#c9a35c";g.lineWidth=4;g.stroke();
+    for(let i=0;i<5;i++)for(let j=0;j<7;j++){g.strokeStyle=R()<.5?"#8fd3c8":"#6e5428";g.lineWidth=2.4;const x=W/2-90+j*30,y=H*.5+i*28;g.beginPath();g.moveTo(x,y);g.lineTo(x+rr(6,16),y+rr(-6,10));g.lineTo(x+rr(0,16),y+16);g.stroke();}}
+  if(kind==="cave"||kind==="stone"||kind==="father"){for(let i=0;i<120;i++)root(rr(0,W),rr(0,H),rr(0,7),rr(8,22),rr(1,6),R()<.5?"#2a241d":"#4b4239");
+    g.fillStyle="#00000088";g.beginPath();g.ellipse(W/2,H*.62,W*.22,H*.36,0,0,7);g.fill();glow(W/2,H*.62,W*.3,"#00000099");}
+  if(kind==="stone"){g.fillStyle="#6f6a60";g.beginPath();g.moveTo(W/2-70,H*.92);g.lineTo(W/2-55,H*.3);g.quadraticCurveTo(W/2,H*.12,W/2+55,H*.3);g.lineTo(W/2+70,H*.92);g.closePath();g.fill();
+    g.strokeStyle="#8fd3c8";g.lineWidth=2;for(let i=0;i<4;i++){g.globalAlpha=i===3?1:.25;g.beginPath();g.moveTo(W/2-40,H*.38+i*34);g.lineTo(W/2+40,H*.4+i*34);g.stroke();}g.globalAlpha=1;
+    g.strokeStyle="#1a1611";g.lineWidth=3;g.beginPath();g.ellipse(W/2,H*.7,18,26,0,0,7);g.stroke();for(let i=0;i<16;i++)root(W/2+rr(-70,70),H*.92,rr(3.4,6),rr(4,9),rr(2,5),"#0c0a08");}
+  if(kind==="heart"){glow(W/2,H*.55,W*.5,"#7fd36a55");for(let i=0;i<160;i++)root(W/2+rr(-60,60),H*.55+rr(-50,50),rr(0,7),rr(8,26),rr(1,8),"#0e0c0a");
+    g.fillStyle="#141210";g.beginPath();g.ellipse(W/2,H*.56,170,140,0,0,7);g.fill();g.fillStyle="#1e2a1c";g.beginPath();g.ellipse(W/2,H*.58,62,78,0,0,7);g.fill();
+    g.fillStyle="#cfc6b4";g.beginPath();g.arc(W/2-4,H*.5,14,0,7);g.fill();g.strokeStyle="#cfc6b4";g.lineWidth=3;g.beginPath();g.ellipse(W/2+6,H*.62,18,13,-.5,0,7);g.stroke();
+    [[-160,-120],[-120,-150],[120,-150],[160,-120]].forEach(([dx,dy],i)=>{g.fillStyle="#9fe08c";g.beginPath();g.ellipse(W/2+dx,H*.5+dy,8,6,-.3,0,7);g.fill();g.fillRect(W/2+dx+6,H*.5+dy-30,2.5,30);});}
+  if(kind==="father"){glow(W/2,H*.7,W*.35,"#f0b85a33");g.fillStyle="#cfc6b4";g.beginPath();g.arc(W/2-60,H*.6,16,0,7);g.arc(W/2+60,H*.62,14,0,7);g.fill();}
+  if(kind==="road"){for(let i=0;i<140;i++)root(rr(0,W),rr(0,H),rr(0,7),rr(10,26),rr(1,6),R()<.5?"#0d1610":"#203528");g.fillStyle="#000a";g.beginPath();g.ellipse(W/2,H/2,W*.18,H*.3,0,0,7);g.fill();
+    for(let i=0;i<12;i++){const t=i/12;glow(W/2+Math.sin(t*9)*W*.12*(1-t),H*(.95-t*.6),40*(1-t)+8,"#7fd36a55");}}
+  if(kind==="forest"){glow(W*.7,H*.15,W*.6,"#f0c06055");for(let i=0;i<22;i++){const x=rr(0,W),hh=rr(H*.3,H*.8);g.strokeStyle="#2c3a1e";g.lineWidth=3;g.beginPath();g.moveTo(x,H);g.lineTo(x+rr(-10,10),H-hh);g.stroke();
+      for(let k=0;k<9;k++){g.fillStyle=R()<.5?"#8a4f9e":"#b46fb8";g.beginPath();g.ellipse(x+rr(-4,8),H-hh+k*16,7,11,.2,0,7);g.fill();}}
+    g.fillStyle="#3b2a1c";g.fillRect(W*.62,H*.05,46,H);glow(W*.64,H*.2,90,"#f0b85a66");}
+  if(kind==="tree"||kind==="dawn"){for(let i=0;i<90;i++){g.fillStyle="#e9e1cf";g.globalAlpha=rr(.1,.7);g.fillRect(rr(0,W),rr(0,H*.6),1.5,1.5);}g.globalAlpha=1;
+    g.fillStyle="#2c2017";g.beginPath();g.moveTo(W/2-60,H);g.quadraticCurveTo(W/2-30,H*.5,W/2-20,0);g.lineTo(W/2+20,0);g.quadraticCurveTo(W/2+30,H*.5,W/2+60,H);g.closePath();g.fill();
+    [[W/2-150,H*.25],[W/2+110,H*.4],[W/2-130,H*.58],[W/2+120,H*.7],[W/2-40,H*.1]].forEach(([x,y],i)=>{g.fillStyle="#3b2a1c";g.fillRect(x,y,60,42);g.fillStyle="#5e3a5c";g.beginPath();g.moveTo(x-6,y);g.lineTo(x+30,y-40);g.lineTo(x+66,y);g.fill();if(kind==="tree"||i)glow(x+30,y+22,50,"#f0b85a55");});
+    g.fillStyle="#050403";g.beginPath();g.ellipse(W/2,H,36,60,0,Math.PI,0);g.fill();for(let i=0;i<14;i++){g.fillStyle="#b8402a";g.beginPath();g.ellipse(W/2+(i-7)*34,H-10,9,7,0,Math.PI,0);g.fill();}}
+}
+
+
+/* =================== THE SCENES OF SESSION 10 =================== */
+function crewHurt(id,n,type){const c=CREW[id],p=P(id);if((c.imm||[]).includes(type)){log(`${c.short} shrugs off the ${type}.`,"g");return 0;}if((c.resist||[]).includes(type))n=Math.floor(n/2);p.hp=Math.max(0,p.hp-n);log(`${c.short} takes ${n} ${type} → ${p.hp}/${p.max}`,"r");return n;}
+const who=id=>CREW[id].short;
+async function pickCrew(text,ids=["katy","stig","saphira","hans"],{spk="",sub=null}={}){const i=await choose(text,ids.map(id=>({t:who(id),sub:sub?sub(id):`HP ${P(id).hp}/${P(id).max}`})),{spk});return ids[i];}
+
+/* ---- 1. Overclock ---- */
+async function sOverclock(){
+  storyView("hans");
+  await read("Your short rest is over. You're just inside the cave mouth, where the air is cold and smells of ash and old rain. Then Hans stops mid-step. The music in his blue headphones doesn't fade. It just stops. Steam pours from his collar and between his shirt buttons. The beeping in his chest goes faster, and faster, until it's one shrill tone. His almost-human face freezes halfway through a grin. Across the brass plate on his chest, rows of old Valerian runes light up and burn out one by one.");
+  await read("<q>Friends,</q> he says through his teeth, without moving his mouth. <q>The DJ found something big. It's downloading too fast. I can't stop it, and I can't… hold it. Help me.</q>",{spk:"Hans",style:"say"});
+  await read("Three stations. <b>Cool the core</b> with Medicine or Constitution. <b>Keep the rhythm</b> with Performance. <b>Read the runes</b> with Arcana or Investigation. One of you at each station. <b>Six successes before three failures.</b> Everyone rolls once before the alarm, or it counts as a failure. Instead of rolling, you can pour a spell slot into Hans for an automatic success. The DC starts at 15 and climbs by one each round.",{spk:"The rules",btn:"Pick your stations"});
+  const S={ok:0,bad:0,round:0,st:{core:"stig",rhythm:"katy",runes:"saphira"},tattoo:true};
+  const ST_DEF={core:{t:"Cool the core",sk:[["Medicine","medicine"],["Constitution","con"]],bite:["1d6","fire","the core flares"]},rhythm:{t:"Keep the rhythm",sk:[["Performance","performance"]],bite:["1d6","thunder","the beat booms"]},runes:{t:"Read the runes",sk:[["Arcana","arcana"],["Investigation","investigation"]],bite:["1d6","lightning","the runes spark"]}};
+  while(S.ok<6&&S.bad<3){
+    S.round++;const dc=14+S.round,secs=S.round>=3?45:60;let roundFails=0,hint=true,rolled={core:false,rhythm:false,runes:false},failedSt=[],timerT=0,timeUp=false,proneRhythm=false;
+    clearStory();storyEl.append(h("div",{class:"pl-spk"},`Round ${S.round} · DC ${dc}`+(S.round===3?" · PROTOCOL ZERO":"")+(S.round>=4?" · bites deal double":"")));
+    if(S.round===3)fourNotes(false,.2,true);
+    // swap stations between rounds
+    const order=["core","rhythm","runes"];
+    let go=false;while(!go){clearStory();storyEl.append(h("div",{class:"pl-spk"},`Round ${S.round} · DC ${dc}`),h("div",{class:"pl-track"},h("span",{},"Successes ",h("span",{class:"pl-pips ok"},...Array.from({length:6},(_,i)=>h("i",{class:i<S.ok?"f":""})))),h("span",{},"Failures ",h("span",{class:"pl-pips bad"},...Array.from({length:3},(_,i)=>h("i",{class:i<S.bad?"f":""}))))));
+      const i=await choose(`Round ${S.round} · DC ${dc} · ${S.ok} of 6 successes, ${S.bad} of 3 failures. Who stands where? Tap a station to swap who is on it.`,[...order.map(k=>({t:`${ST_DEF[k].t}: ${who(S.st[k])}`,sub:"tap to swap"})),{t:`Start the ${secs} second timer`,sub:"everyone rolls before the alarm"}]);
+      if(i===3)go=true;else{const k=order[i],next=order[(i+1)%3];[S.st[k],S.st[next]]=[S.st[next],S.st[k]];}}
+    if(S.round===2){const id=S.st.rhythm;log(`The floor shakes under ${who(id)} at the rhythm station.`,"r");const r=await crewRoll(id,"Dex save",CREW[id].sv.dex,14);if(!r.ok){proneRhythm=true;log(`${who(id)} is knocked prone: disadvantage on the rhythm roll.`,"r");}}
+    await new Promise(resolve=>{
+      const tEl=h("div",{class:"pl-timer"},String(secs));let left=PLAY.auto?1:secs;
+      const finish=()=>{clearInterval(timerT);resolve();};
+      timerT=setInterval(()=>{left--;tEl.textContent=String(Math.max(0,left));tEl.classList.toggle("hot",left<=10);if(left<=10&&left>0)pluck(880,0,.08,.05,"square");if(left<=0){timeUp=true;finish();}},1000);
+      const draw=()=>{clearStory();
+        storyEl.append(h("div",{class:"pl-spk"},`Round ${S.round} · DC ${dc}`),tEl,
+          h("div",{class:"pl-track"},h("span",{},"Successes ",h("span",{class:"pl-pips ok"},...Array.from({length:6},(_,i)=>h("i",{class:i<S.ok?"f":""})))),h("span",{},"Failures ",h("span",{class:"pl-pips bad"},...Array.from({length:3},(_,i)=>h("i",{class:i<S.bad?"f":""}))))),
+          h("div",{class:"pl-stations"},...order.map(k=>{const id=S.st[k],d=ST_DEF[k],done=rolled[k];const p=P(id);const hasSlot=(p.slots&&p.slots.some(n=>n>0))||p.pact>0;
+            return h("div",{class:"pl-st"+(done==="ok"?" done":done==="bad"?" bad":"")},h("h4",{},d.t),h("p",{},who(id)+(done?(done==="ok"?" · success":" · failure"):"")),
+              ...(done?[]:[...d.sk.map(([l,sk])=>h("button",{type:"button",class:"pl-btn",onclick:()=>roll(k,sk,l)},"Roll "+l,h("small",{},sgn(sk==="con"?CREW[id].ab.con:skillMod(id,sk))))),
+                hasSlot?h("button",{type:"button",class:"pl-btn",onclick:()=>slotIn(k)},"Pour a spell slot",h("small",{},"auto success")):null]));})),
+          h("p",{class:"pl-hint m"},(hint?"Hans's hint is ready: the next roll has advantage. ":"")+(P("katy").res.bi>0?"Katy can spend Bardic Inspiration on the others' rolls (it's offered when a roll misses).":"")));};
+      const tally=async(k,ok)=>{rolled[k]=ok?"ok":"bad";if(ok)S.ok++;else{S.bad++;roundFails++;failedSt.push(k);if(S.bad<=2){P("hans").hp=Math.max(1,P("hans").hp-10);log("Hans −10 HP from the overload.","r");}}
+        if(S.ok>=6||S.bad>=3||order.every(x=>rolled[x])){finish();return;}draw();};
+      const roll=async(k,sk,l)=>{const id=S.st[k];let adv=false;if(hint){hint=false;adv=true;log("Hans's hint: advantage.","h");}
+        if(k==="core"&&id==="stig"&&S.tattoo){S.tattoo=false;adv=true;log("Stig's Water tattoo cools Hans's core: advantage.","h");}
+        const mod=sk==="con"?CREW[id].ab.con:skillMod(id,sk);
+        const ins=id!=="katy"&&P("katy").res.bi>0;const r=await crewRoll(id,l,mod,dc,{adv,dis:k==="rhythm"&&proneRhythm,u:ins?{cond:{insp:8}}:null});
+        if(ins&&r.ok&&r.tot<dc+8&&r.v+mod<dc){P("katy").res.bi--;}
+        await tally(k,r.ok);};
+      const slotIn=async k=>{const id=S.st[k],p=P(id);if(!(await ask("Pour a spell slot into Hans?","An automatic success. The Blight Heart is next, so every slot counts.","Pour it in","Roll instead")))return;
+        if(p.pact>0)p.pact--;else{const i=p.slots.findIndex(n=>n>0);p.slots[i]--;}log(`${who(id)} pours a spell slot into Hans.`,"g");await tally(k,true);};
+      draw();});
+    clearInterval(timerT);
+    if(S.ok<6&&S.bad<3&&timeUp){const miss=order.filter(k=>!rolled[k]);if(miss.length){S.bad++;failedSt.push(miss[0]);log("The alarm! Not everyone rolled in time: one failure.","r");if(S.bad<=2){P("hans").hp=Math.max(1,P("hans").hp-10);}}}
+    // the failed stations bite (between rounds, timer off)
+    for(const k of failedSt){const [d,type,what]=ST_DEF[k].bite;let n=dice(d).t*(S.round>=4?2:1);log(`The ${k} station bites: ${what}.`,"r");
+      if(k==="rhythm")for(const id of ["katy","stig","saphira"])crewHurt(id,n,type);else crewHurt(S.st[k],n,type);}
+  }
+  const F_=F();
+  if(S.bad>=3){P("hans").ex=(P("hans").ex||0)+1;F_.scrambled=true;await result("Third failure. Hans forces it through anyway. Hans takes a level of exhaustion. Part of Summerwood stays a scrambled fragment today.",true);}
+  else if(S.bad===0){F_.overclocked=true;for(const id of ["katy","stig","saphira"])P(id).insp=1;await result("Six successes, not one failure. Hans is <b>Overclocked</b>: one d20 reroll in the next big fight. Every one of you gains Heroic Inspiration.");}
+  else await result(`Six successes. Hans held it, at a cost of ${S.bad*10} HP.`);
+  await sleep(600);
+  await read("The tone in Hans's chest breaks into a beat. The steam stops. Teal light climbs from the brass plate instead: up his neck, across that almost-human face, branching into rivers, coastlines, a city floating in the sky. For a moment the whole of Valeria is drawn across his skin. Then the music kicks back into his headphones, the box beeps along in time, and Hans grins.");
+  await read("<q>Okay. I think I just downloaded the world. Check your… whatever you have. Pockets. I'm sending it.</q>",{spk:"Hans",style:"say"});
+}
+
+/* ---- 2. Thorn at the cave mouth ---- */
+async function sThorn(){
+  storyView("cave");
+  await read("Steam still curls from Hans's collar, and the beeping in his chest has settled back into a slow, steady beat. Thorn stands at the edge of the dark and won't look at Katy. He's waiting for her to speak first.");
+  await choose("Katy, it's yours. Say it at the table, then tap how it went.",[{t:"She lets him have it"},{t:"She says nothing at all"},{t:"She asks him why"}]);
+  await read("He takes it. He never argues, never says <i>but</i>. Only <q>Yes.</q> Only <q>I know.</q>");
+  await read("<q>You're right. I wrote that your father was sick. I lied. It was the only thing I knew would bring you home to the village that threw your mother out. The forest is dying, and only the one who carries the sigil can stop it.</q> He looks into the dark of the cave. <q>The man in there made me swear he'd be the one to tell you who he is. He went in after the blight's heart three days ago. He never came out. When I wrote that letter, it was a lie, niece. I'm afraid it isn't anymore.</q>",{spk:"Thorn",style:"say"});
+  await dialogue("Ask him anything. He answers short.",[
+    {q:"“Your sister. My mother.”",a:"<q>I know she's dead.</q> A long breath. <q>The village cast her out and I said nothing. I've said nothing for twenty-six years. I'm done with that.</q>"},
+    {q:"“Why are you a duke?”",a:"<q>The court calls the Hollow's warden the Duke of the Foxglove March. The title comes with the post, not the family, and it means nothing under this tree. I wrote it on the outside of that letter once, so you'd know who was writing.</q>"},
+    {q:"“How do you even know I exist?”",a:"<q>I was there the year you were born.</q> He doesn't say more. Not yet."},
+    {q:"“The seal on the letter. The bird.”",a:"<q>That bird isn't mine. The man in there will tell you.</q>"},
+    {q:"“Is it the queen?”",a:"<q>It is your e…</q> He stops, and starts again. <q>It is your enemy who wears the crown, and she knows you are coming.</q>"},
+    {q:"Read his face (Insight DC 12)",run:async()=>{const id=await pickCrew("Who reads him?");const r=await crewCheck(id,"insight",12);await read(r.ok?"Under the calm he's terrified. Not of the cave. Terrified that the man inside won't live long enough to keep his promise.":"He gives you nothing. A wall of bark.");}}
+  ],{spk:"Thorn"});
+  const i=await choose("Thorn checks his bowstring.",[{t:"Go in together"},{t:"Tell him to go first, alone"}]);
+  await read(i?"He nods once and walks into the dark ahead of you, alone. You follow his footsteps in the ash.":"He nods once. <q>Then stay close to me.</q> He means Katy.");
+}
+
+/* ---- 3. The hollow tunnels ---- */
+async function sTunnels(){
+  storyView("cave");
+  await read("The cave goes down, and keeps going down. The walls aren't stone but roots, packed tight and grey. The floor is soft with ash that rises in slow clouds around your boots. Somewhere ahead, very faint, someone is playing a stringed instrument. The same four notes, over and over.");
+  fourNotes(false);
+  await read("Behind you, the ash settles slowly into your footprints. When you look back, there is one set of prints too many. Small, bare feet. They stop where your light ends.");
+  await dialogue("On the walk down there's time to look at what you carry.",[
+    {q:"Stig studies the Blight sample (Religion or Medicine, DC 13)",run:async()=>{const r=await crewRoll("stig","Medicine",skillMod("stig","medicine"),13);await read(r.ok?"It isn't a disease. It's necromancy. Black grains swim in the sap like iron filings, all turning the same way, like they're listening.":"It looks like sap gone bad. It smells like a grave.");}},
+    {q:"Saphira's pact dagger",a:"The dagger goes cold in Saphira's hand and hums against the sample, a note too low to hear. She has felt that before: Karthus bragged once that since they awakened the Black Sand, nothing could beat them. This is the Black Sand."},
+    {q:"Wring the sap through Stig's towel",a:"Clean water drips out of the towel. The black grains stay behind in the cloth. Nobody knows why yet."},
+    {q:"Katy listens to the four notes (Wisdom DC 10)",run:async()=>{const r=await crewRoll("katy","Wisdom",CREW.katy.ab.wis,10);fourNotes(false);await read(r.ok?"She knows it. Her mother's lullaby: <i>the foxglove bells over the sleeping roots</i>. She always thought it was an elven song.":"It's familiar, like a word on the tip of your tongue.");}},
+    {q:"The waystone, half swallowed by black roots (History or Arcana, DC 13)",run:async()=>{const id=await pickCrew("Who studies it?");const r=await crewCheck(id,id==="stig"?"arcana":"arcana",13);await read((r.ok?"One end of an old root road. The blight came up through it. ":"Old, carved, and choked with black roots. ")+"Hans touches it. <q>My builders. Very old. Still works, I think. Bad music in it now.</q> The box in his chest beeps faster. <q>It likes this stone.</q>");}}
+  ],{enough:"Go deeper",min:1});
+  await read("The four notes stop. In the silence, the shadows on the root walls peel loose, long and thin, cast by no one. Behind them, shapes in rags shuffle out of the ash. You recognise the coat on one of them: a forester's coat like Thorn's, grey from head to toe.");
+  await ashSave("The ash billows up as they come.");
+  const out=await battle(TUNNELS);
+  return out;}
+async function ashSave(why){clearStory();storyEl.append(h("p",{class:"pl-read"},why+" Everyone makes a DC 13 Constitution save against the ash."));
+  for(const id of ["katy","stig","saphira"]){const r=await crewRoll(id,"Con save (ash)",CREW[id].sv.con,13,{adv:!!CREW[id].conAdv});if(!r.ok){P(id).vein=(P(id).vein||0)+1;log(`A grey vein creeps up ${who(id)}'s arm. It itches.`+(P(id).vein>=2?" Poisoned until the root road.":""),"r");}}
+  await sleep(400);}
+const TUNNELS={key:"tunnels",map:"tunnel",dim:true,undead:true,
+  intro:"Four Hollowers and four Ash Husks. The Hollowers drain Strength and hide in the dark. Radiant hurts them double; Turn Undead crumbles the husks.",
+  setup(){const U=B.units;U.push(mkCrew("katy",4,12),mkCrew("stig",3,12),mkCrew("saphira",5,12),mkCrew("hans",4,11));U.push(mkAlly("thorn",3,13));
+    [[1,5],[7,6],[1,9],[7,9]].forEach(([x,y],i)=>U.push(mkMon("hollower",x,y,i+1)));[[3,2],[5,2],[4,1],[6,3]].forEach(([x,y],i)=>U.push(mkMon("husk",x,y,i+1)));
+    for(const u of U)if(u.crew&&P(u.key).vein>=2)addC(u,"poisoned");},
+  async onRound(r){for(const u of B.units)if(u.ghost&&u.back<=r&&u.hp>0){u.ghost=false;const c=freeNear(4,13);u.x=c[0];u.y=c[1];u.hidden=true;log(`${u.name} slides out of the wall behind the back line.`,"r");if(!B.order.some(e=>e.u===u))B.order.push({u});}renderTokens();},
+  async onRoundEnd(r){if(r>=4&&live("foe").length){log("The four notes start again, deeper in. The rest of them melt into the walls.","h");fourNotes(false);for(const u of live("foe")){u.gone=true;}renderTokens();B.over="win";}},
+  async check(){if(!B.units.some(u=>u.side==="foe"&&(alive(u)||u.ghost)))return "win";if(B.units.filter(u=>u.crew).every(u=>u.hp<=0))return "lose";return null;}};
+
+/* ---- 4. The Blight Heart ---- */
+async function sHeart(){
+  storyView("heart");
+  await read("The tunnel opens into a cavern lit by a sick green glow. In the middle, a knot of black roots the size of a house pulses like a heart. Half swallowed inside it sits a grey-bearded human in a travelling coat. Roots grow out of his shoulders and into the walls. He plays a battered lute with blackening fingers. The four notes. Over and over. Where his music reaches, the roots hold still. When he stops, they move.");
+  fourNotes(false);
+  await read("He sees Katy's ukulele first. His fingers stop.");
+  await ashSave("The air in here is thick with it.");
+  await read("The Heart wakes.",{btn:"Fight"});
+  pulse(true);const out=await battle(HEART);pulse(false);
+  if(out==="win"){storyView("heart");await read("The roots shudder, crack and crumble to dust. The green light dies. In the sudden quiet, the man slides out of the dead roots into the ash, the lute still in his hands.");
+    await sleep(300);fourNotes(false);await read("The man's fingers lie still on the strings. And yet, from somewhere deep in the dead roots, the four notes play once more. Then nothing.");}
+  return out;}
+const HEART={key:"heart",map:"cavern",dim:true,lair:true,
+  intro:"The Blight Heart: 180 HP, roots that reach 30 ft. Three ways to end it: destroy it, the Sigil of Earth (Katy, two turns in a row next to it), or the song (three successes).",
+  sc:{leg:2,lr:1,songs:0,sig:0},
+  setup(){const U=B.units;B.sc.overclocked=!!F().overclocked;U.push(mkCrew("katy",5,12),mkCrew("stig",6,11),mkCrew("saphira",7,12),mkCrew("hans",5,11));U.push(mkAlly("thorn",1,9));
+    U.push(mkMon("heart",5,3,0));U.push(mkMon("vine",2,6,1),mkMon("vine",6,7,2));for(const u of U)if(u.crew&&P(u.key).vein>=2)addC(u,"poisoned");},
+  async lair(r){const S=B.sc;if(S.weak||!alive(B.units.find(u=>u.key==="heart")))return;
+    if(r===1){const t=B.units.find(u=>u.key==="thorn");log("Lair action: roots burst from the wall and pin Thorn (escape DC 16, or an ally cuts him loose).","r");addC(t,"restrained",{dc:16});renderTokens();return;}
+    const needles=B.units.filter(u=>u.key==="needle"&&alive(u)).length;
+    if(needles<6&&rnd(2)===1){log("Lair action: two more Needle Blights drop from the ceiling.","r");spawnNeedles(2);return;}
+    const crew=B.units.filter(u=>u.crew&&u.hp>0&&!u.cond.engulfed&&!u.cond.restrained);const two=crew.sort(()=>Math.random()-.5).slice(0,2);
+    log("Lair action: roots heave up under "+two.map(nameOf).join(" and ")+".","r");for(const t of two){if(!(await save(t,"dex",14,"Roots")))addC(t,"restrained",{dc:14});}renderTokens();},
+  async onRound(r){const S=B.sc;if(r===2){log("Four Needle Blights drop from the cavern roof.","r");spawnNeedles(4);}
+    if(r===6&&!S.playWithMe&&alive(B.units.find(u=>u.key==="heart"))){S.playWithMe=true;S.pwRound=r;log("Matthew shouts through the roots: “Play it with me!” The next song attempt can't fail.","h");fourNotes(false);}},
+  async onRoundEnd(r){const S=B.sc;if(S.playWithMe&&S.pwRound===r&&!S.pwTried){S.songEnd=true;log("Nobody sang, so he does: his song alone breaks it.","h");}},
+  async after(u){await heartLegendary(u);await this.valve();},
+  async valve(){const S=B.sc;if(S.valve)return;const down=B.units.filter(u=>u.crew&&u.hp<=0).length;if(down>=2){S.valve=true;S.incap=1;spit();log("Two of you are down. Inside the knot, Matthew forces his black fingers onto the lute. The Heart locks up, and lets go of whoever it held.","h");fourNotes(false);}},
+  async onHurt(t){if(t.crew)await this.valve();},
+  onMoveStart(u){if(u.key==="katy"&&B.sc.sig){B.sc.sig=0;log("Katy moved: the sigil's hold breaks.","r");}},
+  async endTurn(u){if(u.key==="katy"){if(!u.pressed&&B.sc.sig&&!B.sc.weak){B.sc.sig=0;}u.pressed=false;}},
+  sceneActs(u){const hrt=B.units.find(o=>o.key==="heart"),S=B.sc,out=[];if(!hrt||!alive(hrt))return out;
+    if(u.cond.engulfed)out.push({n:"Escape the roots",sub:"Athletics DC 15",ok:true,run:async()=>{u.act--;const r=await crewRoll(u.key,"Athletics",skillMod(u.key,"athletics"),15,{u});if(r.ok){log(`${u.short} tears free of the Heart.`,"g");spit();}}});
+    if(dist(u,hrt)<=6&&!u.cond.engulfed){const free=S.playWithMe&&!S.pwTried;out.push({n:"Sing the lullaby",sub:free?"Matthew plays with you":`Performance DC 15${u.key==="katy"?" · advantage":""} · ${S.songs}/3`,ok:!S.songThisRound||S.songThisRound!==B.round,run:async()=>{u.act--;
+      let ok;if(free){S.pwTried=true;ok=true;log(`${u.short} sings, and Matthew plays with them.`,"g");}else{const r=await crewRoll(u.key,"Performance",skillMod(u.key,"performance"),15,{adv:u.key==="katy",u});ok=r.ok;}
+      if(S.playWithMe&&S.pwRound===B.round)S.pwTried=true;
+      if(ok){S.songs++;S.songThisRound=B.round;S.disNext=true;fourNotes(false);log(`The song holds: ${S.songs}/3. The Heart's next lashes falter.`,"g");}else log("The song cracks. The roots keep moving.","r");}});}
+    if(u.key==="katy"&&dist(u,hrt)<=1&&!u.cond.engulfed&&!S.weak)out.push({n:"Press the Sigil of Earth",sub:`two turns in a row · ${S.sig}/2`,ok:true,run:async()=>{u.act--;u.pressed=true;S.sig++;log(`Katy presses the Sigil of Earth into the knot (${S.sig}/2).`,"g");
+      if(S.sig>=2){S.weak=true;S.leg=0;log("The sigil bites deep. The Heart loses its resistances, its legendary and lair actions, and it can't engulf.","g");pluck(NOTE.D4,0,2,.2);}}});
+    const th=B.units.find(o=>o.key==="thorn");if(th&&th.cond.restrained&&dist(u,th)<=1)out.push({n:"Cut Thorn loose",sub:"action",ok:true,run:async()=>{u.act--;delete th.cond.restrained;log(`${u.short} cuts Thorn loose.`,"g");}});
+    return out;},
+  async check(){const S=B.sc,hrt=B.units.find(o=>o.key==="heart");if(S.heartDead||!alive(hrt)||S.songs>=3||S.songEnd){if(S.songs>=3||S.songEnd)log("Matthew plays the rest of the song with you. The Heart crumbles.","g");return "win";}
+    if(B.units.filter(u=>u.crew).every(u=>u.hp<=0))return "lose";return null;}};
+function spawnNeedles(n){let k=B.units.filter(u=>u.key==="needle").length;for(let i=0;i<n;i++){const spots=[[2,2],[9,2],[1,5],[10,6],[3,9],[9,9],[2,10],[9,10]];const [x,y]=freeNear(...pick(spots));k++;const u=mkMon("needle",x,y,k);B.units.push(u);B.order.push({u});}renderTokens();}
+
+/* ---- 5. Father and daughter ---- */
+async function sMatthew(){
+  storyView("father");
+  await read("The man looks up at Katy for a long time. His voice is cracked from three days of playing. <q>You have her eyes,</q> he says. <q>And you kept the ukulele. I left it behind in Summerwood twenty-seven years ago, and I never stopped wondering who found it.</q> He tries to stand, and can't. <q>My name is Matthew Berry. I think I'm your father.</q>",{spk:"Matthew"});
+  await dialogue("Katy leads. He answers everything honestly.",[
+    {q:"“Why did you leave?”",a:"<q>I was a fool with a lute and a road. I didn't know about you. If I'd known, I'd never have walked a single step.</q>"},
+    {q:"“Thorn wrote that you were dying.”",a:"He turns to Thorn. <q>You told her I was dying? To get her here?</q> He looks at his grey arms and laughs, a terrible little laugh. <q>Well. You weren't wrong for long.</q> The forest really is dying, he says."},
+    {q:"“Why did you never find us?”",a:"<q>I came back a year later. The village had already cast your mother out, and your uncle sent me away at the door.</q> Thorn looks at the floor. <q>I carved a little ukulele by that door so she'd know I'd been there, if she ever came back. Years later I found her in Valethorn. By then she was the princess's lady, under guard. Elara had me thrown out of the city and swore she'd hurt you if I came back. Your mother told me to stay away. So I did. It was the worst thing I've ever done.</q>"},
+    {q:"“The song you were playing.”",a:"<q>That song your mother sang you? I wrote it for her. The summer we met.</q>"},
+    {q:"“Did anyone carry your letters?”",a:"<q>An old servant at court carried my letters to your mother for years. Doloris. When Elara found out, she had her ears cut off. That's how they mark someone who no longer counts as an elf. I heard she died in the north.</q> Stig buried her. Let it land."},
+    {q:"“The seal. The bird.”",a:"Bluefoot, his blue-legged falcon. The seal is a foxglove, for Elodie, over a lute, for him. She crosses the Fire Sea in a night. After Doloris he never risked another letter; he only sent Bluefoot to see that Katy was still alive. Thorn borrowed her for both letters. Then he asks: <q>Did Bluefoot find you?</q> Someone has to tell him."},
+    {q:"“The revolution.”",a:"<q>I was there when you sang in the court square. I saw you from the crowd. Then the soldiers came and I lost you. I followed your trail as far as the Fire Sea and lost it there. Bluefoot never did. In the end I came back to the Hollow's door, and this time your uncle let me in.</q>"},
+    {q:"“Your arms.”",run:async()=>{await read("Grey to the elbow. He keeps trying to hide them in his sleeves.");const r=await crewRoll("stig","Medicine",skillMod("stig","medicine"),12);
+      await read((r.ok?"Stig can tell: the ash is still in him, and it's spreading. Wringing his blood through the towel each day slows it. ":"Stig can tell it's still in him. ")+"Matthew knows a cure. <q>The Heartgrove under the throne is where Summerwood's old roots meet. Wake the Earth Sigil there and the roots push the ash out.</q>");}}
+  ],{spk:"Matthew",enough:"That's enough for now",min:3});
+  await read("Later, while Katy plays the lullaby, Matthew catches Stig's sleeve and asks him something quietly, under the music. What was said is Stig's.");
+  await read("Thorn waves Saphira over and says something in Elvish, too low for the others. Whatever she answers, he nods.");
+  storyView("father");
+  await read("Matthew gets to his feet, leaning on Katy. Then Lúmeneth flares at Katy's throat, bright as a torch. And out of the stone, faint and amused, comes a woman's voice Katy has not heard in five years.");
+  await read("<q>Hello, little songbird. You found your father. How sweet. Bring me the sigil, and I'll let him live long enough to hear you sing at your own trial.</q>",{spk:"A woman's voice",style:"say"});
+  const i=await choose("Does anyone answer?",[{t:"Someone answers her"},{t:"Silence"}]);
+  if(i===0)await read("A soft laugh. <q>Sing for me, songbird.</q> The stone goes cold.");else await read("The stone goes cold.");
+  // lunch: level 6 and a short rest (the talk with Matthew)
+  storyView("father");
+  const lines=[];
+  for(const id of CREW_IDS){const p=P(id),c=CREW[id];if(p.lv<6){p.lv=6;if(c.lv6hp){p.max+=c.lv6hp;p.hp+=c.lv6hp;}if(c.slots6){p.slots=p.slots.map((n,i)=>n+(c.slots6[i]-c.slots[i]));}if(id==="saphira")p.pactLv=2;}
+    const hd={katy:15,stig:21,saphira:18,hans:30}[id];const before=p.hp;p.hp=Math.min(p.max,p.hp+hd);
+    if(c.pact)p.pact=2;if(p.res.curse!=null)p.res.curse=1;if(p.res.cd!=null)p.res.cd=Math.min(2,p.res.cd+1);if(p.res.bi!=null)p.res.bi=4;p.str=c.str;
+    lines.push(`${c.short}: ${before} → ${p.hp}/${p.max} HP`);}
+  await read("<b>Lunch. Level 6.</b> The talk with Matthew counts as a short rest: Hit Dice, pact slots, short-rest features and drained Strength come back. Other spell slots stay spent. No long rest before the night.<br><br>"+lines.join("<br>")+"<br><br><span class='muted'>New hit points use the average for now. Saphira's pact slots are 2nd level, and Shadow Blade is hers.</span>",{btn:"Back to the waystone"});
+}
+
+/* ---- 6. Waking the root road ---- */
+async function sWaystone(){
+  storyView("stone");
+  await read("Back at the waystone. Matthew walks, leaning on someone. The two sigils aren't enough: the stone is half eaten.");
+  await read("The waystone stands in the ash like a tooth. Up close you can see a socket carved at its centre in the shape of an open hand, with four lines of Valerian script around it. Three of them are worn smooth. The fourth still reads, if anyone can read it: <i>earth, water, song, and a heart that beats without blood.</i>");
+  const need={earth:false,water:false,song:false,heart:false};
+  const LAB={earth:"Earth",water:"Water",song:"Song",heart:"A heart that beats without blood"};
+  while(!Object.values(need).every(Boolean)){
+    clearStory();const grid=h("div",{class:"pl-stone"});storyEl.append(h("p",{class:"pl-read"},"Four lines. What wakes each one?"),grid);
+    const k=await new Promise(res=>{if(PLAY.auto)setTimeout(()=>res(pick(Object.keys(need).filter(x=>!need[x]))),0);for(const key of Object.keys(need))grid.append(h("button",{type:"button",class:"pl-btn"+(need[key]?" ok":""),disabled:need[key],onclick:()=>res(key)},LAB[key],need[key]?h("small",{},"awake"):null));});
+    const opts=[{t:"Katy sets the Sigil of Earth in the hand"},{t:"Stig reads the last page of Control over Water and pours towel-wrung water"},{t:"Katy and Matthew play the lullaby together"},{t:"Hans puts his hand in the socket"}];
+    const i=await choose(LAB[k]+": who, or what?",opts);const right={earth:0,water:1,song:2,heart:3}[k];
+    if(i!==right){await read(pick(["The line stays dark. Hans: <q>Wrong track. Try another one.</q>","Nothing. The stone waits.","The roots tighten a little. Not that."]));continue;}
+    if(k==="earth"){await read("Katy sets the sigil in the socket. The first line glows green. (She takes it back when the road opens.)");}
+    if(k==="water"){await read("Stig speaks the last page aloud while he pours: <q>Where water wakes the sleeping road, and earth remembers what it owed, the bells will ring to call you home.</q> The tattoo on his skin glows, and the water runs uphill into the stone.");}
+    if(k==="song"){const r=await crewRoll("katy","Performance (with Matthew)",skillMod("katy","performance"),14,{adv:true});fourNotes(false);
+      if(!r.ok){await read("The song stumbles. The ash around the stone heaves, and three husks claw up out of it.",{btn:"Fight"});const o=await battle(HUSKS);if(o==="lose")return o;storyView("stone");await read("The husks are ash again. Try the song once more.");continue;}
+      await read("Father and daughter, ukulele and lute. The third line glows.");}
+    if(k==="heart"){await read("Hans puts his hand in the socket. His eyes flicker, and for the first time since you've known him, he is completely silent. Then, from inside his chest, the black box beeps four times.");
+      fourNotes(false,.45,true);await sleep(2200);await read("A, D, F, E. The lullaby's first four notes. Nobody knows how it learned them. Hans is drained: half speed, no Bodyguard, and not a word out of him for a while.");F().drained=true;}
+    need[k]=true;}
+  bells(8);
+  await read("The stone groans. Somewhere far ahead, very faint, bells start ringing. The roots in front of you pull apart like a curtain, and a tunnel opens, lit by a soft green pulse that runs ahead of you into the dark.");
+}
+const HUSKS={key:"husks",map:"tunnel",dim:true,undead:true,intro:"Three Ash Husks claw up around the waystone.",
+  setup(){const U=B.units;U.push(mkCrew("katy",4,9),mkCrew("stig",3,10),mkCrew("saphira",5,10),mkCrew("hans",4,10),mkAlly("thorn",2,10),mkAlly("matthew",5,9,{untarget:true}));[[5,6],[3,7],[5,8]].forEach(([x,y],i)=>U.push(mkMon("husk",x,y,i+1)));},
+  async check(){if(!live("foe").length)return "win";if(B.units.filter(u=>u.crew).every(u=>u.hp<=0))return "lose";return null;}};
+
+/* ---- 7. The root road ---- */
+async function skillChallenge({need,fails,dc,title,approaches,specials=[],onFail,onMid,turns}){
+  let ok=0,bad=0,last=null,n=0,dis=false;const used=new Set();
+  while(ok<need&&bad<fails){
+    clearStory();storyEl.append(h("div",{class:"pl-spk"},title),h("div",{class:"pl-track"},h("span",{},"Successes ",h("span",{class:"pl-pips ok"},...Array.from({length:need},(_,i)=>h("i",{class:i<ok?"f":""})))),h("span",{},"Failures ",h("span",{class:"pl-pips bad"},...Array.from({length:fails},(_,i)=>h("i",{class:i<bad?"f":""}))))));
+    const id=turns?turns[n%turns.length]:await pickCrew("Whose turn to help?",["katy","stig","saphira","hans"]);
+    const opts=approaches.map(a=>({t:a.t,sub:(a.sk===last?"used last time · ":"")+`${who(id)} ${sgn(a.mod?a.mod(id):skillMod(id,a.sk))}`+(a.adv&&a.adv(id)?" · advantage":""),off:a.sk===last||(a.when&&!a.when(id))}));
+    const sp=specials.filter(s=>!used.has(s.t)&&(!s.when||s.when(id)));
+    const i=await choose(turns?`${who(id)} speaks.`:`${who(id)}: how do you help? Say it, then roll.`,[...opts,...sp.map(s=>({t:s.t,sub:s.sub}))]);
+    let pass;
+    if(i>=opts.length){const s=sp[i-opts.length];used.add(s.t);const r=await s.run(id);if(r==="dis"){dis=true;continue;}pass=r;}
+    else{const a=approaches[i];last=a.sk;const r=await crewRoll(id,a.label||cap(a.sk),a.mod?a.mod(id):skillMod(id,a.sk),dc,{adv:!!(a.adv&&a.adv(id)),dis});dis=false;pass=r.ok;}
+    n++;if(pass)ok++;else{bad++;if(onFail)await onFail(bad,id);}
+    if(onMid&&n===3)await onMid();}
+  return ok>=need;}
+async function sRoad(){
+  storyView("road");bells(4);
+  for(const id of CREW_IDS)P(id).vein=Math.min(P(id).vein||0,1);
+  await read("The root road runs on under the forest, green light pulsing ahead. Five successes before three failures, DC 15. Each of you says how you help, then rolls. No skill twice in a row.");
+  const won=await skillChallenge({need:5,fails:3,dc:15,title:"The root road",
+    approaches:[{t:"Read the living roots",sk:"survival",label:"Survival or Nature",mod:id=>Math.max(skillMod(id,"survival"),skillMod(id,"nature"))},{t:"Watch for ash pockets",sk:"perception"},{t:"Keep Matthew going",sk:"medicine",adv:id=>id==="stig"},{t:"Clear a collapsed stretch",sk:"athletics"},{t:"Read the old markers",sk:"arcana",label:"Arcana or History",mod:id=>Math.max(skillMod(id,"arcana"),skillMod(id,"history"))}],
+    specials:[{t:"Saphira reads the Draconic markers at the fork",sub:"one automatic success",when:id=>id==="saphira",run:async()=>{await read("At a fork, two markers in Draconic. Saphira reads them and picks the right way. What they say is hers to share.");return true;}}],
+    onMid:async()=>{fourNotes(true);await read("Halfway along, from a black root, someone hums the lullaby. Slowly. One note wrong. Matthew stops dead. <q>That's not her,</q> he whispers. <q>That's the ash. It's learning the song.</q>");},
+    onFail:async(b,id)=>{if(b===1){await read("An ash pocket bursts under your feet. Everyone: DC 14 Constitution save.");for(const c of ["katy","stig","saphira"]){const r=await crewRoll(c,"Con save",CREW[c].sv.con,14,{adv:!!CREW[c].conAdv});const n=dice("3d6").t;crewHurt(c,r.ok?Math.floor(n/2):n,"poison");}}
+      if(b===2){await read("The roots grab the last in line: Hans. 2d6 a round until he breaks free (Athletics 14).");for(let k=0;k<3;k++){crewHurt("hans",dice("2d6").t,"bludgeoning");const r=await crewRoll("hans","Athletics",4,14);if(r.ok)break;}}}});
+  if(won){await read("You come out at dusk, right below the village. There's time for one short rest.");for(const id of CREW_IDS){const p=P(id);p.hp=Math.min(p.max,p.hp+Math.round(p.max/4));if(CREW[id].pact)p.pact=2;if(p.res.curse!=null)p.res.curse=1;if(p.res.bi!=null)p.res.bi=4;}}
+  else{F().lostRoad=true;await read("A wrong root, half a mile off, and out after dark. No short rest, and a level of exhaustion each.",{});for(const id of CREW_IDS)P(id).ex=(P(id).ex||0)+1;}
+  storyView("forest");bells(10);
+  await read("The tunnel climbs, and the air changes. Ash, then wet earth, then something sweet. You push through a curtain of roots into the evening, and the forest around you is enormous and gold and quiet. Foxgloves taller than a man nod in the wind, and their purple bells are ringing. Katy has heard that sound before. She was a baby the last time. This is the heart of the Foxglove Woods, the oldest corner of Summerwood. Somewhere above the trees, a single great tree rises higher than the rest, with lights in its branches.");
+}
+
+/* ---- 8. Foxglove Hollow ---- */
+async function sHollow(){
+  storyView("tree");
+  await read("The village is one tree. It's a great hollow oak the elves call the Hollowmother, so old its base has split open like a doorway. A stair spirals up around the trunk. On its branches sit five little round houses with pointed roofs, like castle turrets. Between them hang wooden platforms shaped like foxglove bells, swaying on ropes. Lanterns glow in the windows. Around the roots grow red mushrooms in a careful ring, each one with a tiny carved name stone. And by the root door, cut into the bark at knee height and almost grown over, is a little carving of a ukulele.");
+  await read("Matthew kneels, two grey fingers on the carving. He says nothing.",{btn:"Let it sit"});
+  bells(5);
+  const l=await choose("It's the Night of Thin Roots: lanterns over the name stones of the Hollow's dead children. One, by the nailed-shut turret, has never been lit.",[{t:"Katy lights it"},{t:"Matthew lights it"},{t:"Leave it"}]);
+  if(l<2)await read("The little flame catches. When Elder Ysolde sees it, she doesn't put it out.");
+  await read("<q>You have her eyes,</q> Ysolde says. <q>And half of her ears.</q> She doesn't look at Matthew at all. <q>Elodie chose a human over her own roots. We chose the roots. You may sleep here tonight, because Kalian asked it. Then you will give the sigil to the Hollow, where it belongs, and go.</q>",{spk:"Elder Ysolde Greenleaf"});
+  let towel=true,loom=true;
+  const won=await skillChallenge({need:3,fails:3,dc:15,title:"The elders' welcome",turns:["katy","stig","saphira","hans"],
+    approaches:[{t:"Persuade them",sk:"persuasion"},{t:"Sing for them",sk:"performance"},{t:"Read the room",sk:"insight"},{t:"Remind them of the old ways",sk:"history"},{t:"Lean on them",sk:"intimidation",adv:id=>id==="hans"&&loom}],
+    specials:[{t:"Stig's towel proof",sub:"Medicine or Religion, advantage · once",when:id=>id==="stig"&&towel,run:async id=>{towel=false;const r=await crewRoll(id,"Medicine",skillMod(id,"medicine"),15,{adv:true});await read(r.ok?"He wrings black sap through the towel. Clean water drips out. The elders lean in despite themselves.":"The elders look at the wet towel, then at him.");return r.ok;}},
+      {t:"Tell them Matthew is her father",sub:"the next roll has disadvantage",run:async()=>{await read("The word father lands like a stone in a pond. Ysolde's face closes.");return "dis";}}],
+    onFail:async b=>{if(b===1){F().noHeal=true;await read("No healer will touch Matthew tonight.",{});}if(b===2){F().piled=true;await read("<q>Weapons at the root door.</q> They pile them there. Finding yours tonight will take an action.");}if(b===3){F().sigilTaken=true;await read("Ysolde holds out her hand for the sigil, and takes it up to her turret.");}}});
+  if(won){F().elders=true;await read("A young warden, Bram, Ysolde's nephew, falls in beside Katy on the stair. He won't meet anyone's eyes. <q>Don't sleep tonight.</q>",{spk:"Bram"});}
+  await dialogue("The evening, before the beds.",[
+    {q:"Watch Ysolde (Insight DC 16)",run:async()=>{const id=await pickCrew("Who watches her?");const r=await crewCheck(id,"insight",16);if(r.ok)F().spotted=true;await read(r.ok?"Twice she glances up at the highest turret. Frightened.":"Cold as ever.");}},
+    {q:"Look up into the branches (Perception DC 15)",run:async()=>{const id=await pickCrew("Who looks?");const r=await crewCheck(id,"perception",15);if(r.ok)F().thread=true;await read(r.ok?"A silver thread glints between two branches, high up, where no spider would spin it.":"Lanterns, leaves, ropes.");}},
+    {q:"Saphira listens to the elders",a:"Two elders whisper in Elvish near the stair. Saphira hears every word. What they said is hers to share."},
+    {q:"Katy lets Thorn walk her to the mushrooms",a:"He stops at one red mushroom set a little apart. <q>The year you were born, they wouldn't plant one for you,</q> Thorn says. <q>So I planted it myself, at night. I've weeded around it for twenty-six years.</q> He asks for nothing. He hands her a little carving knife, to cut her own name stone."},
+    {q:"The children and Hans",a:"The Hollow's children give Hans a gourd lantern and a foxglove. He keeps them. He still can't say thank you. He nods a lot."}
+  ],{enough:"Go to bed"});
+}
+
+/* ---- 9. The night ambush ---- */
+async function sAmbush(){
+  storyView("tree");
+  const w=await choose("Beds in separate turrets, “as guests”. Katy gets Elodie's room. Matthew sleeps in the hollow at the roots. Does anyone keep watch?",[{t:"Nobody. We sleep."},{t:"Someone keeps watch"}]);
+  if(w===1)F().watch=true;
+  await read("Katy's pillow still smells, faintly, of her mother's perfume. After midnight there are three soft knocks on the floor under her bed. Lúmeneth grows no warmer.");
+  await read("Deep in the night, the foxglove bells stop ringing. All at once. In the silence you hear a rope creak, and the soft sound of many bows being drawn.",{btn:"Fight"});
+  const out=await battle(AMBUSH);
+  return out;}
+const AMBUSH={key:"ambush",map:"tree",dim:true,
+  intro:"The Grey Man and the Hollow Wardens. Two archers shoot whoever leaves the turrets; Thorn holds the other two off the stair. If he drags Katy to the bell rope, he wins. Stop him.",
+  sc:{talk:0,rope:0},
+  setup(){const U=B.units,f=F();U.push(mkCrew("katy",2,3),mkCrew("stig",10,5),mkCrew("saphira",1,9),mkCrew("hans",10,11));
+    U.push(mkAlly("matthew",6,15,{untarget:true}),mkAlly("thorn",8,14,{untarget:true,ctl:"ai"}));
+    U.push(mkMon("grey",4,1,0,{climber:true}),mkMon("warden",11,2,1),mkMon("warden",10,8,2));
+    const surprise=!(f.elders||f.thread||f.spotted||f.watch);for(const u of U)if(u.crew&&u.key!=="katy"&&surprise)addC(u,"surprised");
+    if(f.drained){const hn=U.find(u=>u.key==="hans");addC(hn,"drained");}
+    if(surprise)log("Everyone but Katy is surprised. Lúmeneth woke her.","r");else log("Nobody is surprised.","g");},
+  thornStill:true,
+  async onRound(r){const S=B.sc;
+    if(r===3){const hn=B.units.find(u=>u.key==="hans");if(hn&&hn.cond.drained){delete hn.cond.drained;log("Round 3: the box in Hans's chest beeps in time. His eyes flare. “Ah. There is the beat.” The gourd lantern lights.","h");fourNotes(false,.2,true);}}
+    if(r===1)log("Thorn stands on the stair, bow lowered, between two wardens and the crew: “You'll go through me. And you've all known me since you were born.” He holds them off all fight.","h");
+    if(r>=8&&!S.letGo){S.letGo=true;S.talkedDown=true;log("The bells won't stay quiet. The wardens lower their bows, and the Grey Man lets go of Katy.","h");}},
+  async check(){const S=B.sc,g=B.units.find(u=>u.key==="grey");if(S.greyFled||!alive(g))return "win";
+    if(!S.valve&&["stig","saphira","hans"].filter(k=>B.units.find(u=>u.key===k).hp<=0).length>=2){S.valve=true;S.talkedDown=true;S.letGo=true;log("Two of you are down. In the root door, Matthew plays the lullaby. The wardens stop. The Grey Man lets go of Katy.","h");fourNotes(false);}
+    if(B.units.filter(u=>u.crew).every(u=>u.hp<=0))return "lose";return null;},
+  sceneActs(u){const S=B.sc,out=[],katy=B.units.find(o=>o.key==="katy");
+    if(!S.talkedDown&&u.lastTalk!==B.round)out.push({n:u.key==="saphira"?"Talk them down (false cant orders)":"Talk them down",sub:`DC 15 · ${S.talk}/2`,ok:true,run:async()=>{u.act--;u.lastTalk=B.round;
+      const sk=u.key==="saphira"?"deception":["persuasion","performance","intimidation"].sort((a,b)=>skillMod(u.key,b)-skillMod(u.key,a))[0];const r=await crewRoll(u.key,cap(sk),skillMod(u.key,sk),15,{u});
+      if(r.ok){S.talk++;log(`The wardens hesitate (${S.talk}/2).`,"g");if(S.talk>=2){S.talkedDown=true;log("The wardens lower their bows. They won't shoot again tonight. The Grey Man doesn't care.","g");}}}});
+    if(katy&&katy.cond.netted&&u!==katy&&dist(u,katy)<=1)out.push({n:"Cut the net",sub:`${katy.cond.netted.hp} left`,ok:true,run:async()=>{u.act--;const n=dice(crewMelee(u).dmg).t;katy.cond.netted.hp-=n;log(`${u.short} hacks at the silver net: ${n}.`);if(katy.cond.netted.hp<=0){delete katy.cond.netted;log("The net parts. Katy is free.","g");}}});
+    return out;},
+  async startTurn(u){if(u.key==="saphira"&&u.cond.called)log("Saphira must go to the Grey Man and attack only him this turn.","r");return false;}};
+
+/* ---- 10. Katy's choice ---- */
+async function sChoice(){
+  storyView("dawn");const S=F();
+  if(S.matthewStabbed)await read("Matthew lies at the foot of the bell rope, stabbed, breathing. Stig is already on his knees beside him.");
+  await read((S.sigilTaken?"Ysolde comes down from her turret, suddenly old. She puts the Sigil of Earth into Katy's hands first. ":"Ysolde comes down, suddenly old. ")+"<q>Twenty-six years ago an envoy came from the court with the princess's word: the Hollow would be safe as long as Elodie and her half-blood child were gone from it. I signed the order. Tonight the queen's man brought her word again: the blight would stop if I gave you to him.</q> She looks at the black roots on the trunk. <q>Elodie chose a human over her own roots. We chose the roots. And the roots rotted anyway.</q>",{spk:"Ysolde"});
+  await dialogue("",[{q:"Read her (Insight DC 12)",run:async()=>{const id=await pickCrew("Who reads her?");const r=await crewCheck(id,"insight",12);await read(r.ok?"She means every word. She's ashamed, and she won't beg.":"Her face gives nothing away.");}}],{enough:"Go on"});
+  await read("Stig, what do you tell her? One line. Say it at the table.",{btn:"Stig has spoken"});
+  await read("Saphira, what do you tell her? One line.",{btn:"Saphira has spoken"});
+  const c=await choose("Then Katy.",[{t:"Forgive"},{t:"Banish the elders"},{t:"Walk away"}]);
+  S.choice=["forgive","banish","walk"][c];saveState();
+  await read(["Hans, quietly, the first thing he's said in hours: <q>Noted. I have filed it under kind.</q>","Hans: <q>Noted. Thorn looks at the empty chair for a long time.</q>","Hans: <q>Noted. Thorn picks up his bow anyway.</q>"][c],{spk:"Hans"});
+  storyView("dawn");
+  await read("Before anyone sleeps, a sparrow lands on Katy's shoulder. A scrap of paper is tied to its leg, written in the cipher she and Finn invented at court.");
+  const R=seeded(31337),gl="ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ";let s="";for(let i=0;i<60;i++)s+=(i%7===6?" ":gl[Math.floor(R()*gl.length)]);
+  clearStory();storyEl.append(h("div",{class:"pl-cipher"},s),h("p",{class:"pl-read"},"Only Katy can read it. Katy, read it to the table, or don't."),h("div",{class:"pl-choices"},h("button",{type:"button",class:"pl-btn pri",onclick:()=>storyEl.__r()},"Fold it away")));
+  await new Promise(r=>{storyEl.__r=r;if(PLAY.auto)setTimeout(r,0);});
+  fourNotes(false,.8);
+  await read("The sparrow doesn't fly away. It sits on the sill until the candle burns out, watching Katy, and it never blinks once.",{btn:"End of session 10"});
+}
+
+const SCENES=[
+  {t:"Overclock",eye:"10:00 · cold open",run:sOverclock},
+  {t:"Thorn at the cave mouth",eye:"10:15",run:sThorn},
+  {t:"The hollow tunnels",eye:"10:40 · fight",run:sTunnels},
+  {t:"The Blight Heart",eye:"11:45 · boss",run:sHeart},
+  {t:"Father and daughter",eye:"12:30",run:sMatthew},
+  {t:"Waking the root road",eye:"13:45",run:sWaystone},
+  {t:"The root road",eye:"13:45 · skill challenge",run:sRoad},
+  {t:"Foxglove Hollow",eye:"14:30",run:sHollow},
+  {t:"The night ambush",eye:"15:00 · deadly",run:sAmbush},
+  {t:"Katy's choice",eye:"15:40 · ending",run:sChoice}
+];
+
+
+/* =================== RUNNING IT: scene order, retries, entry and exit =================== */
+async function runScene(){
+  const my=++PLAY.gen;closeMenu();pulse(false);hide3d();B=null;initEl=null;
+  stage.querySelectorAll(".pl-modal").forEach(m=>m.remove());
+  if(ST.scene>=SCENES.length){storyView("dawn");setTitle("Session 10 · The Black Ash","The end");
+    const i=await choose("That was session 10. "+(ST.flags.choice?"Katy chose to "+{forgive:"forgive",banish:"banish the elders",walk:"walk away"}[ST.flags.choice]+".":""),[{t:"Back to the map"},{t:"Play it again from the start"}]);
+    if(my!==PLAY.gen)return;if(i===0)exitPlay();else{ST=freshState();saveState();runScene();}return;}
+  const s=SCENES[ST.scene];
+  if(!ST.snap)ST.snap=JSON.parse(JSON.stringify({party:ST.party,flags:ST.flags}));else{const sn=JSON.parse(JSON.stringify(ST.snap));ST.party=sn.party;ST.flags=sn.flags;}
+  saveState();setTitle(`Session 10 · ${s.eye}`,`${ST.scene+1}. ${s.t}`);clearLog();sideMode(false);
+  let out;try{out=await s.run();}catch(e){if(e===ABORT||my!==PLAY.gen)return;console.error(e);out=null;}
+  if(my!==PLAY.gen)return;
+  if(out==="lose"){storyView("cave");const i=await choose("The crew has fallen. Hans stands over you, beeping.",[{t:"Try this scene again",sub:"back to how you were at its start"},{t:"Carry on anyway",sub:"Hans drags everyone out with 1 HP"}],{spk:"Hans"});
+    if(my!==PLAY.gen)return;if(i===0){const sn=JSON.parse(JSON.stringify(ST.snap));ST.party=sn.party;ST.flags=sn.flags;saveState();runScene();return;}}
+  for(const id of CREW_IDS){const p=P(id);if(p.hp<=0){p.hp=1;p.dead=false;}}
+  ST.done=[...new Set([...(ST.done||[]),ST.scene])];ST.scene++;ST.snap=null;saveState();runScene();}
+// every pause checks that the scene it belongs to is still the one being played
+function enterPlay(){if(PLAY.on)return;PLAY.on=true;ST=loadState()||freshState();root.hidden=false;document.body.classList.add("playing");closeSheet();
+  if(typeof keepAwake==="function")keepAwake(true);runScene();}
+function exitPlay(){PLAY.gen++;PLAY.on=false;pulse(false);root.hidden=true;document.body.classList.remove("playing");hide3d();B=null;if(typeof hush==="function")hush();if(typeof keepAwake==="function")keepAwake(!!morphTarget);
+  try{const u=new URL(location.href);if(u.searchParams.has("play")){u.searchParams.delete("play");history.replaceState(null,"",u);}}catch(e){}}
+PLAY.enter=enterPlay;PLAY.exit=exitPlay;
+addEventListener("keydown",e=>{if(PLAY.on&&e.key==="Escape"){e.stopImmediatePropagation();if(menuEl)closeMenu();}},true);
+const playBtn=document.getElementById("play-s10");if(playBtn)playBtn.onclick=enterPlay;
+if(/[?&]play(test)?(=|&|$)/.test(location.search)&&!sealed)setTimeout(enterPlay,900);
+if(PLAY.auto)window.__play={st:()=>ST,b:()=>B};
 }
 
 /* =================== FIRST VISIT =================== */
