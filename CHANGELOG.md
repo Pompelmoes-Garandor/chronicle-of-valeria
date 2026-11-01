@@ -6,6 +6,8 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **Changed** A calmer, tidier map. Place names make room for each other: when two would touch, one moves above its pin or fades out until you zoom in, and no name hides under the title plate, the bottom bar or an open card any more. The six little buttons bottom left are now one tools button that opens a short list: hand-painted map and sound first, then the silly modes, each with its name and on or off. Hans only breathes while he waits and comes alive when he talks or decodes. (Sam)
+- **Fixed** "Missed something?" no longer runs into the edge of the bottom bar on computers, and the character picker on Characters no longer lets the section headings show through behind it. (Sam)
 - **Changed** The world looks like an old engraved atlas now: hills and mountains catch the light from the north-west and cast soft violet shadows, steep slopes are drawn in fine ink strokes that appear as you zoom in, and snowy peaks have blue shade. Coasts get one clean ink line with sandy beaches or bare cliffs, pale shallows and deeper bands of sea, pack ice in the far north, and the sun glints on the water. Plains and woods are soft watercolour washes. The globe also draws a little faster. (Sam)
 - **New** The Wind Vault's flying city now casts its shadow on the land below. It swings round with the sun, stretches long at dawn and dusk, and is gone at night. (Sam)
 - **Changed** On computers the globe looks hand-painted: colour lies in soft brush strokes on grainy paper, while coasts, rivers and the route stay crisp ink. A brush button bottom left switches back to the plain map. Phones keep the plain map, and a slow computer drops the paint by itself. (Sam)
