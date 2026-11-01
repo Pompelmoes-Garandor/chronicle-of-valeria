@@ -1426,9 +1426,10 @@ TERR=TERRAIN;
 // the high-res world: relief carved by rain and the rivers that drain it, baked offline (source/world/make-world.py) and served
 // next to the page in world/. It loads after the first frames; until then, or if the file is missing, the live bake above stands in
 const WORLD=(()=>{
-  const W={on:false}, max=renderer.capabilities.maxTextureSize;
+  const W={on:false,file:null}, max=renderer.capabilities.maxTextureSize;
   const url=!SMALL&&max>=8192?"world/relief-8k.webp":max>=4096?"world/relief-4k.webp":null;
   if(!url||/[?&]noworld/.test(location.search)) return W;
+  W.file=url.slice(6);
   // a copy of the new relief at the live bake's size, read back so pins and the route follow it too
   const decode=new THREE.ShaderMaterial({uniforms:{tMap:{value:null}},depthTest:false,depthWrite:false,vertexShader:BAKE.VQ,fragmentShader:`precision highp float; uniform sampler2D tMap; varying vec2 vUv;
 void main(){vec4 b=texture2D(tMap,vUv); float v=min(b.r*255.0+b.g,254.99), hi=floor(v); gl_FragColor=vec4(hi/255.0,v-hi,1.0,1.0);}`});
@@ -2311,7 +2312,7 @@ addEventListener("resize",resize); resize();
 let last=performance.now();
 const res={n:0,sum:0,skip:15,pr:renderer.getPixelRatio()};
 function adaptRes(raw){
-  if(document.hidden||raw>2000) return;            // a real pause (tab switch), not a slow frame
+  if(document.hidden||raw>2000||res.lock) return;  // a real pause (tab switch), not a slow frame; a test can hold the quality still
   raw=Math.min(raw,250); if(res.skip>0){res.skip--;return;}
   res.n++; res.sum+=raw; if(res.n<20) return;
   const avg=res.sum/res.n; res.n=0; res.sum=0;      // 36 ms leaves phones capped at 30 fps alone
@@ -2320,8 +2321,50 @@ function adaptRes(raw){
   if(avg>36&&POST.on&&res.pr<=0.75){POST.on=false;res.skip=10;return;}
   if(avg>36&&res.pr>0.75){res.pr=Math.max(0.75,res.pr*Math.max(0.5,Math.sqrt(28/avg))); renderer.setPixelRatio(res.pr); resize(); res.skip=10;}
 }
+/* =================== MEASURING: ?fps shows how fast the map draws; ?bench also lets tests/visual/check.js steer it =================== */
+// Open the map with ?fps on any device to see frames per second, the time per frame and how much of the lens is on.
+// ?bench adds window.__chron for the test script: set the view and the sun, hold the quality, and time a stretch of frames.
+const BENCH=/[?&]bench(=|&|$)/.test(location.search);
+const meter=(()=>{
+  if(!BENCH&&!/[?&]fps(=|&|$)/.test(location.search)) return null;
+  const gl=renderer.getContext(), dbg=gl.getExtension("WEBGL_debug_renderer_info");
+  const gpu=String((dbg&&gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL))||gl.getParameter(gl.RENDERER)||"?");
+  const el=document.createElement("div"); el.id="fps"; el.setAttribute("aria-hidden","true");
+  el.style.cssText="position:fixed;z-index:7;top:calc(var(--top) + 74px);left:max(12px, env(safe-area-inset-left, 0px));max-width:calc(100vw - 24px);box-sizing:border-box;"+
+    "padding:6px 9px;border-radius:8px;background:#0b0d12d9;border:1px solid #8fd3c833;font:400 11px/1.5 var(--mono);color:var(--steward);white-space:pre;overflow:hidden;text-overflow:ellipsis;pointer-events:none";
+  document.body.appendChild(el);
+  return {el,gpu,ms:[],t0:performance.now(),rec:null};})();
+const lensState=()=>POST.on?(POST.lite?"lite":"full"):"off";
+function frameStats(f){
+  const a=f.slice().sort((x,y)=>x-y), n=a.length; if(!n) return {frames:0};
+  const avg=a.reduce((s,v)=>s+v,0)/n, at=q=>a[Math.min(n-1,Math.floor(q*n))], r=v=>Math.round(v*10)/10;
+  return {frames:n,fps:r(1000/avg),avg:r(avg),median:r(at(.5)),p95:r(at(.95)),worst:r(a[n-1]),slow:f.filter(v=>v>34).length};
+}
+function meterTick(raw,now){
+  const M=meter; if(M.rec) M.rec.push(raw);
+  M.ms.push(raw); if(now-M.t0<500) return;
+  const s=frameStats(M.ms); M.ms.length=0; M.t0=now;
+  M.el.textContent=`${Math.round(s.fps)} fps  ${s.avg} ms  worst ${Math.round(s.worst)}\n`+
+    `lens ${lensState()}  paint ${PAINT.on?"on":"off"}  ${renderer.getPixelRatio().toFixed(2)}x\n`+
+    `world ${WORLD.on?WORLD.file:"live bake"}  ${innerWidth}x${innerHeight}\n${M.gpu.replace(/^ANGLE \(|\)$/g,"").slice(0,44)}`;
+}
+if(BENCH) window.__chron={
+  info:()=>({lens:lensState(),paint:PAINT.on,pr:renderer.getPixelRatio(),dpr:devicePixelRatio||1,w:innerWidth,h:innerHeight,small:SMALL,
+    world:WORLD.on?WORLD.file:"live",worldFile:WORLD.file,gpu:meter.gpu,maxTexture:renderer.capabilities.maxTextureSize,sealed,recap:recapOn}),
+  // clear the screen for a test: no recap, no captions, no open sheet, the whole known world shown
+  quiet(){if(recapOn)endRecap(); store.set("chron-seen",SKEY); cap.hidden=true; document.getElementById("sheet-close")?.click(); reveal.v=reveal.goal=1;},
+  view(o){if(fly)endFly(); tween=null; idleT=Infinity; cam.lon=o.lon; cam.lat=o.lat; cam.zoom=o.zoom; morph=morphTarget=o.table?1:0;
+    if(o.sun!=null) SKY.lon0=o.sun+performance.now()/1000*360/SKY.day;},
+  quality(q){                                     // {lens:"full"|"lite"|"off", paint, pr, lock}; leave a key out to keep it
+    if(q.lens) {POST.on=POST.ok&&q.lens!=="off"; POST.lite=q.lens==="lite";}
+    if(q.paint!=null||q.lens) setPaint(q.paint??PAINT.on,false);
+    if(q.pr) {res.pr=q.pr; renderer.setPixelRatio(q.pr); resize();}
+    if(q.lock!=null) res.lock=!!q.lock;
+    return this.info();},
+  measure:ms=>new Promise(done=>{const f=[]; meter.rec=f; setTimeout(()=>{meter.rec=null; done(frameStats(f));},ms);}),
+};
 function frame(now){
-  const dt=Math.min(.05,(now-last)/1000); adaptRes(now-last); last=now;
+  const raw=now-last, dt=Math.min(.05,raw/1000); adaptRes(raw); if(meter) meterTick(raw,now); last=now;
   uniforms.uTime.value=now/1000; tickSky(now,dt);
   if(morph!==morphTarget){morph+=Math.sign(morphTarget-morph)*Math.min(Math.abs(morphTarget-morph),dt/(reduced?.01:1.4));}
   uniforms.uMorph.value=morph; cloudU.uOpacity.value=1-morph*0.4;

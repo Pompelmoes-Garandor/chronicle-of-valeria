@@ -59,6 +59,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Frame-rate readout (`?fps`) and a visual test script (`tests/visual/check.js`)** · New · Sam · PR #35
 - [x] **High-res world: 8k relief carved by erosion, rivers that follow the valleys** · New · Sam · PR #34
 - [x] **Real relief: mountains stand up, sunlit slopes and shadows, tilted close-ups** · New · Sam · PR #33
 - [x] **Lit planet: atmosphere, golden hour, glow and tilt-shift** · New · Sam · PR #32
