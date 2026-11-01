@@ -6,6 +6,11 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **New** Sound of the world: a speaker button bottom left. Wind over the frozen north, fire and crackle near the Fire Vault and the Fire Sea, birds in Summerwood, a deep rumble near the Dead Valley, and a faint beat leaking from Hans's headphones. It follows where you look, and new ground crackles as it burns open. Off until you turn it on. (Sam)
+- **New** Hans reads aloud: a speaker button on the recap and replay cards. Hans speaks in your phone's own voice, pitched down; the black box goes lower still. It stays on for the next card until you turn it off. (Sam)
+- **New** Postcard from Hans: in the Chronicle, one tap turns the map as it is on your screen into a framed postcard with a line from Hans, ready to send to the group chat or save. (Sam)
+- **New** Table mode keeps your screen from dimming while the phone or tablet lies on the table. (Sam)
+- **Changed** When new ground is decoded, the old chart burns away: a flickering ember line crosses it, the paper behind it is briefly scorched, and ash drifts up and cools to grey. (Sam)
 - **New** Replay the journey: open the Chronicle and tap a session, or "Replay the whole journey", and Hans rewinds the chart to how it stood after that session. The cloud closes back in, later places disappear, and then the session plays forward: new ground clears, the route draws itself in ink and the party walks it. Step back and forth with the arrows, or tap "Back to now". (Sam)
 - **Changed** In the recap, the session's route now draws itself as the fog lifts, with the party walking along it, instead of popping in at once. (Sam)
 - **Changed** The assassin behind the spider button is a woman now: blonde hair under the hood, a long braid that flies as she leaps. (Niels)
