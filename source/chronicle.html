@@ -573,6 +573,7 @@ addEventListener("error",function(e){if(e.target&&e.target.tagName==="LINK")retu
 <button type="button" id="cine-skip" hidden>Skip ▸▸</button>
 <div id="cine" hidden role="status" aria-live="polite"><div class="cn-face"></div><div class="cn-body"><div class="cn-who"></div><p class="cn-txt"></p><div class="cn-foot"><span class="cn-bar"><span></span></span><span class="cn-hint">tap to continue</span></div></div></div>
 <div class="eggs" role="group" aria-label="Sound and silly modes">
+  <button type="button" id="paint" class="snd" aria-pressed="false" title="Hand-painted map" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 4.5l5 5-8.2 8.2c-1 1-2.6 1-3.6 0l-1.4-1.4c-1-1-1-2.6 0-3.6z"/><path d="M6.3 15.1C4 15.6 3.5 17.4 3.5 20.5c3.1 0 4.9-.5 5.4-2.8"/></svg><span>Hand-painted map</span></button>
   <button type="button" id="snd" class="snd" aria-pressed="false" title="Sound of the world"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path class="w1" d="M15.5 9.2a4 4 0 0 1 0 5.6"/><path class="w2" d="M18 6.8a7.4 7.4 0 0 1 0 10.4"/></svg><span>Sound</span></button>
   <button type="button" id="egg-bird" aria-pressed="false" title="Bird mode"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 15c3 0 4-2 5-5 1-3 3-5 6-5 2 0 3.5 1.2 4 3l2 .8-2 .9c0 4-3 8-8 8H6l-2 2z"/><circle cx="15.5" cy="7.6" r=".9" fill="currentColor"/></svg><span>Bird mode</span></button>
   <button type="button" id="egg-moo" title="Moo mode"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7C5 7 3 6 2.5 4.5 4 4.6 5.5 5 7 6M17 7c2 0 4-1 4.5-2.5C20 4.6 18.5 5 17 6"/><path d="M7 6.5h10c1 2 1.4 4.5 1 7-.6 3.6-3 5.5-6 5.5s-5.4-1.9-6-5.5c-.4-2.5 0-5 1-7z"/><path d="M8.5 15.5c1.5 1.2 5.5 1.2 7 0"/><circle cx="10" cy="16.4" r=".6" fill="currentColor"/><circle cx="14" cy="16.4" r=".6" fill="currentColor"/><circle cx="9.5" cy="10.5" r=".8" fill="currentColor"/><circle cx="14.5" cy="10.5" r=".8" fill="currentColor"/></svg><span>Moo mode</span></button>
@@ -1798,6 +1799,50 @@ function thunder(delay){const n=SND.nodes; if(!n) return; const a=n.a, t=a.curre
   for(let i=0;i<d.length;i++){l=(l+0.02*(Math.random()*2-1))/1.02; d[i]=l*4;} s.buffer=b; f.type="lowpass"; f.frequency.value=220;
   g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(.9,t+.05); g.gain.exponentialRampToValueAtTime(.001,t+len); s.connect(f).connect(g).connect(n.out); s.start(t);}
 
+/* =================== HAND-PAINTED MAP: a brush-stroke filter and paper grain over the globe (desktop) =================== */
+// a Kuwahara filter: each pixel takes the calmest of the four corners around it, so colour lies in strokes while edges stay sharp
+const PAINT={on:false,rt:null};
+{const g=new THREE.PlaneGeometry(2,2);
+ PAINT.u={tMap:{value:null},uRes:{value:new THREE.Vector2(1,1)},uTime:uniforms.uTime};
+ PAINT.mat=new THREE.ShaderMaterial({uniforms:PAINT.u,depthTest:false,depthWrite:false,vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.0,1.0);}`,fragmentShader:`
+precision highp float; uniform sampler2D tMap; uniform vec2 uRes; uniform float uTime; varying vec2 vUv;
+float hsh(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}
+void main(){
+  vec2 px=1.6/uRes; vec3 m0=vec3(0.),m1=vec3(0.),m2=vec3(0.),m3=vec3(0.),s0=vec3(0.),s1=vec3(0.),s2=vec3(0.),s3=vec3(0.);
+  for(int j=0;j<=2;j++)for(int i=0;i<=2;i++){
+    vec3 a=texture2D(tMap,vUv+vec2(-i,-j)*px).rgb; m0+=a; s0+=a*a;
+    vec3 b=texture2D(tMap,vUv+vec2( i,-j)*px).rgb; m1+=b; s1+=b*b;
+    vec3 c=texture2D(tMap,vUv+vec2(-i, j)*px).rgb; m2+=c; s2+=c*c;
+    vec3 d=texture2D(tMap,vUv+vec2( i, j)*px).rgb; m3+=d; s3+=d*d;}
+  m0/=9.;m1/=9.;m2/=9.;m3/=9.;
+  float v0=dot(s0/9.-m0*m0,vec3(1.)),v1=dot(s1/9.-m1*m1,vec3(1.)),v2=dot(s2/9.-m2*m2,vec3(1.)),v3=dot(s3/9.-m3*m3,vec3(1.));
+  vec3 col=m0; float v=v0; if(v1<v){v=v1;col=m1;} if(v2<v){v=v2;col=m2;} if(v3<v){v=v3;col=m3;}
+  // ink stays ink: where every corner is busy (a line, a route, a coast) keep the original pixel
+  col=mix(col,texture2D(tMap,vUv).rgb,smoothstep(0.002,0.02,v));
+  // paper: fine grain and long fibres, a little warmth in the light parts
+  vec2 fc=gl_FragCoord.xy; float grain=hsh(floor(fc))-0.5, fib=hsh(floor(fc*vec2(0.05,0.9)))-0.5;
+  col+=(grain*0.035+fib*0.02)*(0.4+0.6*dot(col,vec3(0.33)));
+  col=mix(col,col*vec3(1.04,1.0,0.93),smoothstep(0.3,0.8,dot(col,vec3(0.33))));
+  gl_FragColor=vec4(col,1.0);
+}`});
+ PAINT.scene=new THREE.Scene(); const q=new THREE.Mesh(g,PAINT.mat); q.frustumCulled=false; PAINT.scene.add(q); PAINT.cam=new THREE.Camera();}
+const paintBtn=document.getElementById("paint");
+const paintFits=()=>innerWidth>700&&!reduced;
+function setPaint(on,save){
+  PAINT.on=on&&paintFits(); paintBtn.setAttribute("aria-pressed",String(PAINT.on)); if(save) store.set("chron-paint",on?"1":"0");
+  if(PAINT.on&&!PAINT.rt) PAINT.rt=new THREE.WebGLRenderTarget(1,1,{depthBuffer:true});
+  if(PAINT.rt){const v=renderer.getDrawingBufferSize(new THREE.Vector2()); PAINT.rt.setSize(v.x,v.y); PAINT.u.uRes.value.copy(v);}
+}
+function renderWorld(){
+  if(!PAINT.on){renderer.render(scene,camera);return;}
+  const v=renderer.getDrawingBufferSize(new THREE.Vector2()); if(v.x!==PAINT.rt.width||v.y!==PAINT.rt.height){PAINT.rt.setSize(v.x,v.y);PAINT.u.uRes.value.copy(v);}
+  renderer.setRenderTarget(PAINT.rt); renderer.render(scene,camera); renderer.setRenderTarget(null);
+  PAINT.u.tMap.value=PAINT.rt.texture; renderer.render(PAINT.scene,PAINT.cam);
+}
+paintBtn.onclick=()=>{setPaint(!PAINT.on,true);toast(PAINT.on?"Hand-painted map":"Plain map");};
+function paintSync(){paintBtn.hidden=!paintFits(); setPaint(store.get("chron-paint")!=="0",false);}
+addEventListener("resize",paintSync); paintSync();
+
 /* =================== LOOP =================== */
 let reveal={v:1,goal:1}, vo={x:0,y:0};
 function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
@@ -1809,6 +1854,7 @@ function adaptRes(raw){
   raw=Math.min(raw,250); if(res.skip>0){res.skip--;return;}
   res.n++; res.sum+=raw; if(res.n<20) return;
   const avg=res.sum/res.n; res.n=0; res.sum=0;      // 36 ms leaves phones capped at 30 fps alone
+  if(avg>36&&PAINT.on){setPaint(false,false);res.skip=10;return;}
   if(avg>36&&res.pr>0.75){res.pr=Math.max(0.75,res.pr*Math.max(0.5,Math.sqrt(28/avg))); renderer.setPixelRatio(res.pr); resize(); res.skip=10;}
 }
 function frame(now){
@@ -1839,7 +1885,7 @@ function frame(now){
   const up=sphDir(w.lon,w.lat).lerp(new THREE.Vector3(0,0,1),mm).normalize();
   city.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),up); city.rotateY(now/6000);
   city.scale.setScalar(0.55*(1-0.3*mm));
-  camPose(); updateTrail(); tickCrash(now); renderer.render(scene,camera); updatePins(); soundMix();
+  camPose(); updateTrail(); tickCrash(now); renderWorld(); updatePins(); soundMix();
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(t=>{document.getElementById("loading").remove();last=t;frame(t)});
@@ -2284,7 +2330,7 @@ function postcard(){
   const W=1080,H=1350, cv=document.createElement("canvas"); cv.width=W; cv.height=H; const c=cv.getContext("2d");
   const css=getComputedStyle(document.documentElement), F=k=>css.getPropertyValue(k).trim();
   // the map, exactly as it stands now (read straight after a render, so no preserved buffer is needed)
-  renderer.render(scene,camera); const src=renderer.domElement, sw=src.width, sh=src.height;
+  renderWorld(); const src=renderer.domElement, sw=src.width, sh=src.height;
   const mx=60,my=210,mw=W-120,mh=860, k=Math.max(mw/sw,mh/sh), cw=mw/k, ch=mh/k;
   c.fillStyle="#0a0c10"; c.fillRect(0,0,W,H);
   c.save(); c.beginPath(); c.roundRect(mx,my,mw,mh,18); c.clip();
