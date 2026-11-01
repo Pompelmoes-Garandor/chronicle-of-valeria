@@ -6,6 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **New** A shared backlog in `BACKLOG.md`: the list of what Sam and Niels plan to build next. Every working session now starts from it. (Niels)
 - **Changed** Character sheets read like a classic D&D sheet: Armor Class, Initiative and Speed up top, then hit points, then the six abilities with big modifiers, their scores and saving throws side by side (a teal dot marks a proficient save), plus Proficiency and Passive Perception. On the smallest phones the abilities fold into two rows of three. (Niels)
 - **Changed** The Sheets button in the dock is now called Characters. On small phones the dock labels sit a little tighter so every name fits. (Niels)
 - **New** Places: a small edit button on every place lets you add or remove its tags. Your tags stay on your own device, marked "amended", and "Back to Hans's tags" undoes them. (Niels)

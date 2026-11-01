@@ -2,6 +2,14 @@
 
 Read this first. It is how Sam and Niels (and each of their Claudes) work on this repo together without overwriting each other.
 
+## Start every session with the backlog
+
+`BACKLOG.md` is the leading list of features, changes and fixes. At the start of each session:
+
+1. Read `BACKLOG.md` (and glance at open PRs and issues) before doing anything else.
+2. Open with one question built on it: name the top one to three open items under **Now**, say which needs Sam, and ask which to pick up today. If the person already came with a task, do that, and say where it sits in the backlog (or offer to add it).
+3. When a PR ships an item, move it to **Done** with the PR number in the same PR. New requests that are not done today go into the backlog, in the section Sam or Niels chooses.
+
 ## What this repo is
 
 - A static GitHub Pages site: the campaign map and recap for Sam's D&D table. Pages publishes the repo root of `main`.
@@ -13,6 +21,7 @@ Read this first. It is how Sam and Niels (and each of their Claudes) work on thi
 - All app code and lore live in `source/chronicle.html`. That is the only file you edit to change the app.
 - `index.html`, `manifest.webmanifest`, `version.json`, `README.md` and the icon PNGs in the root are **generated** by `source/build-site.py`. Never hand-edit them. A hand edit is lost on the next build.
 - `CHANGELOG.md` holds the patch notes. It is hand-written, not generated.
+- `BACKLOG.md` holds what is still to do. It is hand-written, not generated.
 - After editing the source, rebuild so the root matches (see "Build" below) and commit the source and the rebuilt files together.
 
 ## Workflow
