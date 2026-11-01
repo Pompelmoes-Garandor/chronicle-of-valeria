@@ -65,7 +65,7 @@ Netlify also builds the site, from `netlify.toml`, into `dist/` (not committed).
 
 ### Proposals from the table
 
-- A signed-in player proposes new tags for a place, or a few lines about a place. Their phone sends Sam a message (WhatsApp, mail) with a link to `#proposals`. Sam opens it, signed in as DM, and taps **Accept all**. That is his only step.
+- A signed-in player proposes new tags for a place, a few lines about a place, or the sections they amended on a character sheet ("Send to Sam" next to "Pass it round"; signed out, it offers to sign in). Their phone sends Sam a message (WhatsApp, mail) with a link to `#proposals`. Sam opens it, signed in as DM, and taps **Accept all**. That is his only step.
 - Accepted changes show on the site at once, for everyone: the page reads `/api/accepted` (public, because accepted changes are lore) and lays them over the lore built into `chronicle.html`. Tags marked "from the table", notes under "From the table · accepted by Sam" on the place.
 - Code: `netlify/lib/proposals.mts` (logic, tested in `tests/proposals.test.mjs`), `netlify/functions/proposals.mts` (Sam's inbox and decide), `netlify/functions/accepted.mts` (the public list).
 
@@ -75,7 +75,7 @@ Accepted proposals live in the database until a Claude writes them into the lore
 
 1. Get the accepted list: `git fetch origin table-proposals && git show origin/table-proposals:accepted-proposals.json`. Netlify mirrors it there when Sam accepts (needs the `GITHUB_TOKEN` variable in Netlify). If the branch isn't there, ask Sam to open `/api/accepted` on the live Netlify site and paste it.
 2. Skip every entry whose `key` is already in `FILED` in `chronicle.html`.
-3. For each new one: `kind: "tags"` replaces the tags of that place in `PLACE_DB` (or `SPOTS`). `kind: "note"` becomes part of the place's text, in Hans's voice; keep the facts, credit nothing, and ask Sam when it contradicts the lore.
+3. For each new one: `kind: "tags"` replaces the tags of that place in `PLACE_DB` (or `SPOTS`). `kind: "note"` becomes part of the place's text, in Hans's voice; keep the facts, credit nothing, and ask Sam when it contradicts the lore. `kind: "sheet"` replaces the sections in `edits` (each `{v: …}`) on `SHEETS[sheet]`, in the shape that section already has.
 4. Add each key to `FILED`, rebuild, add a **Lore** line to `CHANGELOG.md` ("Hans wrote down what the table told him: …"), and open one PR "File accepted proposals" that lists the keys.
 5. Never change an entry's meaning. Never file a rejected one. The mirror branch is written by Netlify only; never push to it.
 

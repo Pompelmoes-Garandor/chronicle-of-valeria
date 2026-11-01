@@ -51,13 +51,24 @@ function validNote(n: unknown): boolean {
 
 export const MAX_PROPOSALS = 50;
 
-/** One proposed change: new tags for a place, or a few lines about a place. */
+/** The sections of a character sheet a player may amend (EDIT_KEYS in chronicle.html). */
+export const SHEET_KEYS = ["line", "alias", "lvl6", "vit", "ab", "saves", "skills", "passive", "attacks", "magic", "feats", "items", "gear", "loot", "langs", "flavor"];
+
+/** One proposed change: new tags for a place, a few lines about a place, or amended sections of a character sheet. */
 export function validProposal(p: unknown): boolean {
   if (!p || typeof p !== "object" || Array.isArray(p)) return false;
-  const { id, kind, place, tags, text, at } = p as Record<string, unknown>;
+  const { id, kind, place, sheet, edits, tags, text, at } = p as Record<string, unknown>;
   if (typeof id !== "string" || !/^[a-z0-9]{1,16}$/.test(id)) return false;
-  if (typeof place !== "string" || !/^[A-Za-z0-9_-]{1,40}$/.test(place)) return false;
   if (typeof at !== "number" || !Number.isFinite(at)) return false;
+  if (kind === "sheet") {
+    if (typeof sheet !== "string" || !/^[a-z]{1,24}$/.test(sheet)) return false;
+    if (!edits || typeof edits !== "object" || Array.isArray(edits)) return false;
+    const keys = Object.keys(edits);
+    if (!keys.length || !keys.every((k) => SHEET_KEYS.includes(k))) return false;
+    if (!Object.values(edits).every((x) => x && typeof x === "object" && "v" in (x as object))) return false;
+    return JSON.stringify(edits).length <= 16000;
+  }
+  if (typeof place !== "string" || !/^[A-Za-z0-9_-]{1,40}$/.test(place)) return false;
   if (kind === "tags")
     return Array.isArray(tags) && tags.length <= 14 && tags.every((t) => typeof t === "string" && t.length > 0 && t.length <= 24);
   if (kind === "note") return typeof text === "string" && text.trim().length > 0 && text.length <= 1000;

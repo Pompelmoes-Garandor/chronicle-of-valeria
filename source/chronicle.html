@@ -3090,7 +3090,8 @@ function saveEdits(){store.set("chron-sheet-edits",JSON.stringify(sheetEdits));}
 const EDIT_KEYS=new Set(["line","alias","lvl6","vit","ab","saves","skills","passive","attacks","magic","feats","items","gear","loot","langs","flavor"]);
 function setEdit(id,key,v){(sheetEdits[id]||(sheetEdits[id]={}))[key]={v,ts:Date.now(),by:myPick||"",b:AS_OF};saveEdits();}
 function dropEdit(id,key){if(sheetEdits[id]){delete sheetEdits[id][key];if(!Object.keys(sheetEdits[id]).length)delete sheetEdits[id];saveEdits();}}
-function liveSheet(id){const b=SHEETS[id],e=sheetEdits[id]||{},o={...b};for(const [k,x] of Object.entries(e))o[k]=x.v;return o;}
+let acceptedSheets={};   // sheet sections Sam accepted from the table (Netlify edition), not yet in SHEETS itself
+function liveSheet(id){const b=SHEETS[id],a=acceptedSheets[id]||{},e=sheetEdits[id]||{},o={...b};for(const [k,x] of Object.entries(a))o[k]=x.v;for(const [k,x] of Object.entries(e))o[k]=x.v;return o;}
 function mergeEdits(id,inc){const got=[];if(!SHEETS[id]||!inc||typeof inc!=="object")return got;const mine=sheetEdits[id]||(sheetEdits[id]={});
   for(const [k,x] of Object.entries(inc)){if(!EDIT_KEYS.has(k)||!x||typeof x!=="object"||!("v" in x))continue;if(!mine[k]||(x.ts||0)>(mine[k].ts||0)){mine[k]={v:x.v,ts:+x.ts||Date.now(),by:String(x.by||"").slice(0,24),b:+x.b||AS_OF};got.push(k);}}
   if(!Object.keys(mine).length)delete sheetEdits[id];saveEdits();return got;}
@@ -3183,7 +3184,7 @@ function showSheets(keep){
   const isEd=key=>editing&&editing.id===cur&&editing.key===key;
   const mark=key=>{const k=key==="head"?"line":key,x=e[k];
     if(sheetFresh&&sheetFresh.id===cur&&sheetFresh.keys.includes(k))return h("span",{class:"cs-amend new"},"new");
-    if(!x)return null;const old=x.b&&x.b<AS_OF;return h("span",{class:"cs-amend"+(old?" old":"")},old?"amended · s"+x.b:"amended");};
+    if(!x)return acceptedSheets[cur]?.[k]?h("span",{class:"cs-amend"},"from the table"):null;const old=x.b&&x.b<AS_OF;return h("span",{class:"cs-amend"+(old?" old":"")},old?"amended · s"+x.b:"amended");};
   const head=(key,title)=>h(key==="head"?"div":"summary",{class:"cs-eb"},key==="head"?null:h("span",{class:"tri"}),h("p",{class:"eyebrow"},title),mark(key),
       h("button",{class:"cs-edit",type:"button","aria-label":"Edit "+(title||"name"),onclick:ev=>{ev.preventDefault();ev.stopPropagation();editing={id:cur,key};showSheets(true);}},"edit"));
   const sec=(key,title,...kids)=>{const body=isEd(key)?[editorNode(s,key)]:kids;
@@ -3274,9 +3275,11 @@ function showSheets(keep){
     sec("langs","LANGUAGES",s.langs?h("p",{class:"small"},s.langs):empty()),
     sec("flavor","FLAVOR",s.flavor?h("p",{class:"cs-flavor"},s.flavor):empty("Scars, promises, habits, grudges. Tap edit.")),
     h("div",{class:"row"},
-      h("button",{class:"btn",type:"button",onclick:ev=>shareSheet(cur,ev.currentTarget)},"Pass it round"),
+      sendSheetNode(cur,nEd),
+      h("button",{class:"btn"+(NETLIFY?" ghost":""),type:"button",onclick:ev=>shareSheet(cur,ev.currentTarget)},"Pass it round"),
       nEd?h("button",{class:"btn ghost",type:"button",onclick:()=>{if(confirm("Drop every amendment to "+s.name+"'s sheet on this device?")){delete sheetEdits[cur];saveEdits();editing=null;showSheets(true);}}},"Back to Hans's copy"):null),
-    h("p",{class:"note"},nEd?`Amended${by.length?" by "+by.join(", "):""} · ${nEd} section${nEd>1?"s":""}. Pass it round, and the crew's copies catch up. Nothing is stored online.`:"Pass it round sends a link to the group chat. Whoever opens it gets the amended sections. Nothing is stored online.")
+    h("p",{class:"note"},NETLIFY?(nEd?`Amended${by.length?" by "+by.join(", "):""} · ${nEd} section${nEd>1?"s":""}. Send to Sam stores it online: one tap from him and everyone's copy has it. Pass it round still sends a link to the group chat.`:"Amend a section, then send it to Sam. Pass it round sends a link to the group chat instead.")
+      :nEd?`Amended${by.length?" by "+by.join(", "):""} · ${nEd} section${nEd>1?"s":""}. Pass it round, and the crew's copies catch up. Nothing is stored online.`:"Pass it round sends a link to the group chat. Whoever opens it gets the amended sections. Nothing is stored online.")
   ].filter(Boolean);
   openSheet("Character sheets",nodes,"sheets");
   if(keep) sBody.scrollTop=top;
@@ -3397,28 +3400,36 @@ const byName=b=>b==="dm"?"Sam (DM)":(CH[b]?.name||"Someone at the table");
 async function loadAccepted(){
   if(!NETLIFY)return;
   try{const r=await fetch("/api/accepted",{cache:"no-store"});if(!r.ok)return;accepted=(await r.json()).accepted||[];}catch(e){return;}
-  tableNotes={};
+  tableNotes={}; acceptedSheets={};
   for(const a of accepted){ if(FILED.has(a.key))continue;
+    if(a.kind==="sheet"&&SHEETS[a.sheet]){const t=acceptedSheets[a.sheet]||(acceptedSheets[a.sheet]={});
+      for(const [k,x] of Object.entries(a.edits||{})){if(!EDIT_KEYS.has(k)||!x)continue;t[k]=x;
+        const mine=sheetEdits[a.sheet]?.[k];if(mine&&JSON.stringify(mine.v)===JSON.stringify(x.v))dropEdit(a.sheet,k);}continue;}
     if(a.kind==="tags"&&gazById[a.place]){const e=gazById[a.place];e.base=[...new Set((a.tags||[]).map(cleanTag).filter(Boolean))];e.fromTable=true;
       if(Array.isArray(tagEdits[e.id])&&tagEdits[e.id].join("|")===e.base.join("|")){delete tagEdits[e.id];store.set("chron-place-tags",JSON.stringify(tagEdits));}gzRetag(e);}
     if(a.kind==="note")(tableNotes[a.place]=tableNotes[a.place]||[]).push(a);}
-  if(tab==="places")showPlaces(true);
+  if(tab==="places")showPlaces(true); if(tab==="sheets")showSheets(true);
 }
 const openFor=(place,kind)=>myProps.find(p=>p.place===place&&p.kind===kind&&!decidedMap[account.id+"."+p.id]);
 const openCount=()=>Object.entries(allProps).reduce((n,[acc,d])=>n+(d?.list||[]).filter(p=>!decidedMap[acc+"."+p.id]).length,0);
-function proposalLine(p){return p.kind==="tags"?placeName(p.place)+": tags "+(p.tags||[]).map(t=>"#"+t).join(" "):placeName(p.place)+": "+p.text;}
+const sheetLabels=e=>[...new Set(Object.keys(e||{}).filter(k=>k!=="alias").map(k=>k==="line"?"name line":EDITORS[k]?EDITORS[k].label.toLowerCase():k))].join(", ");
+function sheetPreview(v){if(v==null)return "";if(typeof v==="string")return v;if(Array.isArray(v))return v.map(x=>Array.isArray(x)?x.filter(Boolean).join(" "):typeof x==="object"?Object.values(x).join(" "):String(x)).join(" · ");
+  if(typeof v==="object")return Object.entries(v).map(([k,x])=>k+" "+x).join(" · ");return String(v);}
+function proposalLine(p){if(p.kind==="sheet")return (SHEETS[p.sheet]?.name||p.sheet)+"'s sheet: "+sheetLabels(p.edits);return p.kind==="tags"?placeName(p.place)+": tags "+(p.tags||[]).map(t=>"#"+t).join(" "):placeName(p.place)+": "+p.text;}
 async function propose(p){
-  if(!netdb||!account){showSignIn();return;}
+  if(!netdb||!account){showSignIn();return false;}
+  if(!account.isDm&&!myChar){toast("First tell Hans who you are playing");showMissed();return false;}   // Sam sees a name, not "someone"
   p={id:Math.random().toString(36).slice(2,10),at:Date.now(),...p};
-  const keep=myProps.filter(x=>!decidedMap[account.id+"."+x.id]&&!(x.place===p.place&&x.kind===p.kind&&p.kind==="tags"));
+  const keep=myProps.filter(x=>!decidedMap[account.id+"."+x.id]&&!(x.kind===p.kind&&p.kind!=="note"&&(x.place||x.sheet)===(p.place||p.sheet)));
   try{await netdb.doc("proposals/"+account.id).set({list:[...keep,p].slice(-50)});}
-  catch(e){toast("Couldn't save the proposal: "+(e.message||"try again"));return;}
+  catch(e){toast("Couldn't save the proposal: "+(e.message||"try again"));return false;}
   myProps=[...keep,p];
-  if(account.isDm){await decideProposals("accepted",[account.id+"."+p.id]);return;}
+  if(account.isDm){await decideProposals("accepted",[account.id+"."+p.id]);return true;}
   const c=CH[myChar];
   const msg=["📜 The Chronicle of Valeria · a proposal for Sam",c?"From: "+c.name:null,"",proposalLine(p),"",
     "One tap to accept: "+location.origin+location.pathname+"#proposals"].filter(x=>x!=null).join("\n");
   shareToSam(msg,"Proposed. Sam gets the message; one tap and everyone sees it.");
+  return true;
 }
 async function shareToSam(msg,done){
   if(navigator.share){try{await navigator.share({text:msg});toast(done);return;}catch(err){if(err&&(err.name==="AbortError"||err.name==="InvalidStateError")){toast("Saved. Send Sam the link when you like.");return;}}}
@@ -3441,6 +3452,7 @@ async function showProposals(){
     open.length?h("div",{class:"row"},h("button",{class:"btn",type:"button",onclick:e=>{e.currentTarget.disabled=true;decideProposals("accepted",null);}},open.length===1?"Accept it":`Accept all ${open.length}`)):null,
     ...open.map(o=>h("div",{class:"card"},h("div",{class:"who",style:`--c:${(CH[o.by]||CH.dm).hex}`},h("i"),byName(o.by)),
       h("p",{},proposalLine(o)),
+      o.kind==="sheet"?h("ul",{class:"small"},Object.entries(o.edits||{}).filter(([k])=>EDIT_KEYS.has(k)).map(([k,x])=>h("li",{},h("b",{},(k==="line"?"Name line":EDITORS[k]?.label||k)+": "),sheetPreview(x.v).slice(0,280)))):null,
       h("div",{class:"row"},h("button",{class:"btn ghost",type:"button",onclick:()=>decideProposals("accepted",[o.key])},"Accept"),
         h("button",{class:"btn ghost",type:"button",onclick:()=>decideProposals("rejected",[o.key])},"Reject")))),
     waiting?h("p",{class:"note"},`${waiting} accepted change${waiting>1?"s":""} not yet in Hans's own copy. Your Claude writes them in at your next session.`):null
@@ -3455,7 +3467,7 @@ function proposeNoteNodes(id){
   const pend=myProps.filter(p=>p.place===id&&p.kind==="note"&&!decidedMap[account.id+"."+p.id]);
   const ta=h("textarea",{rows:"3",maxlength:"1000",placeholder:"Something the Chronicle should say about "+placeName(id)+"…"});
   const box=h("div",{class:"q",hidden:true},ta,h("div",{class:"row"},h("button",{class:"btn",type:"button",onclick:async e=>{const t=ta.value.trim();if(!t){toast("Write something first");return;}
-    e.currentTarget.disabled=true;await propose({kind:"note",place:id,text:t.slice(0,1000)});openPlace(id,true);}},account.isDm?"Add it":"Propose to Sam")));
+    e.currentTarget.disabled=true;if(await propose({kind:"note",place:id,text:t.slice(0,1000)}))openPlace(id,true);}},account.isDm?"Add it":"Propose to Sam")));
   return [...pend.map(p=>h("p",{class:"note"},"You proposed: “"+p.text+"” · waiting for Sam")),
     h("div",{class:"row"},h("button",{class:"btn ghost",type:"button",onclick:e=>{box.hidden=false;e.currentTarget.remove();ta.focus();}},account.isDm?"Add to this place":"Propose something for this place")),box];
 }
@@ -3464,8 +3476,15 @@ function proposeTagsNode(e){
   const pend=openFor(e.id,"tags");
   if(pend&&pend.tags.join("|")===e.tags.join("|"))return h("p",{class:"note"},"Proposed to Sam · waiting for his yes.");
   if(!e.amended)return h("p",{class:"note"},account.isDm?"Change the tags, then make them everyone's.":"Change the tags, then propose them to Sam. One tap from him and everyone sees them.");
-  return h("div",{class:"row"},h("button",{class:"btn",type:"button",onclick:async ev=>{ev.currentTarget.disabled=true;await propose({kind:"tags",place:e.id,tags:e.tags});
-      showPlaces(true);}},account.isDm?"Make these everyone's tags":"Propose these tags to Sam"));
+  return h("div",{class:"row"},h("button",{class:"btn",type:"button",onclick:async ev=>{ev.currentTarget.disabled=true;if(await propose({kind:"tags",place:e.id,tags:e.tags}))showPlaces(true);}},account.isDm?"Make these everyone's tags":"Propose these tags to Sam"));
+}
+function sendSheetNode(id,nEd){
+  if(!NETLIFY)return null;
+  if(!account)return nEd?h("button",{class:"btn",type:"button",onclick:()=>showSignIn(showSheets)},"Sign in to send it to Sam"):null;
+  const mine=sheetEdits[id]||{}, pend=myProps.find(p=>p.kind==="sheet"&&p.sheet===id&&!decidedMap[account.id+"."+p.id]);
+  if(pend&&JSON.stringify(pend.edits)===JSON.stringify(mine))return h("span",{class:"note"},"Sent to Sam · waiting for his yes");
+  if(!nEd)return null;
+  return h("button",{class:"btn",type:"button",onclick:async ev=>{ev.currentTarget.disabled=true;if(await propose({kind:"sheet",sheet:id,edits:mine}))showSheets(true);}},account.isDm?"Make it everyone's":"Send to Sam");
 }
 function openPendingInbox(){if(store.get("chron-inbox")==="1"&&account){store.set("chron-inbox","");if(account.isDm){showProposals();return true;}toast("That link is for Sam: only the DM can accept proposals.");}return false;}
 function proposalsLine(){
@@ -3487,12 +3506,13 @@ function signInNote(){
   return h("div",{class:"row"},h("p",{class:"note"},"At Sam's table? Sign in and your notes go straight to Sam, and the party sees your pins."),
     h("button",{class:"btn ghost",type:"button",onclick:showSignIn},"Sign in"));
 }
-function showSignIn(){
+let signInAfter=null;
+function showSignIn(after){signInAfter=typeof after==="function"?after:null;
   const email=h("input",{type:"email",autocomplete:"username",required:true,placeholder:"you@example.com"});
   const pw=h("input",{type:"password",autocomplete:"current-password",required:true,placeholder:"Password"});
   const go=h("button",{class:"btn",type:"submit"},"Sign in");
   const form=h("form",{class:"q",onsubmit:async e=>{e.preventDefault();go.disabled=true;
-    try{await (await identity()).login(email.value.trim(),pw.value);if(await loadAccount()){toast("Welcome back");if(!openPendingInbox())showMissed();}else toast("Signed in, but the table data didn't answer. Try again.");}
+    try{await (await identity()).login(email.value.trim(),pw.value);if(await loadAccount()){toast("Welcome back");if(!openPendingInbox())(signInAfter||showMissed)();signInAfter=null;}else toast("Signed in, but the table data didn't answer. Try again.");}
     catch(err){toast("That didn't work. Check your email and password.");}
     go.disabled=false;}},
     h("label",{class:"q"},h("span",{class:"eyebrow"},"EMAIL"),email),h("label",{class:"q"},h("span",{class:"eyebrow"},"PASSWORD"),pw),h("div",{class:"row"},go));
