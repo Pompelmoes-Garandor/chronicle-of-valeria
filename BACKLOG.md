@@ -59,6 +59,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Spider button: an assassin drops from the ceiling and slashes the screen** · New · Niels · PR #16
 - [x] **Tags revised to a short fixed set (Sam and Niels to keep to it)** · Changed · Niels · PR #15
 - [x] **Fraas-Den and Myratma, Stig's homeland; Grisshaven a harbour on the coast** · Lore · Niels · PR #11
 - [x] **Grisshaven: a small rumoured continent with the Lighthouse tavern** · Lore · Niels · PR #10
