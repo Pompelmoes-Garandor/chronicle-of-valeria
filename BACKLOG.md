@@ -66,8 +66,8 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
-- [x] **Sound of the world, and Hans reads aloud** · New · Sam · PR #NEXT
-- [x] **Fog that burns away, screen stays awake in Table mode, Postcard from Hans** · New · Sam · PR #NEXT
+- [x] **Sound of the world, and Hans reads aloud** · New · Sam · PR #21
+- [x] **Fog that burns away, screen stays awake in Table mode, Postcard from Hans** · New · Sam · PR #21
 - [x] **Replay the journey: rewind the chart session by session, route drawn live** · New · Sam · PR #19
 - [x] **Spider button: an assassin drops from the ceiling and slashes the screen** · New · Niels · PR #16
 - [x] **Tags revised to a short fixed set (Sam and Niels to keep to it)** · Changed · Niels · PR #15
