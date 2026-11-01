@@ -6,6 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **New** Living sky: a slow day and night passes over the globe (one day every eight minutes). After dark the towns the crew knows light their lamps, thin weather drifts over the ground you have seen, and now and then lightning flashes inside a cloud, with thunder if sound is on. (Sam)
 - **New** Sound of the world: a speaker button bottom left. Wind over the frozen north, fire and crackle near the Fire Vault and the Fire Sea, birds in Summerwood, a deep rumble near the Dead Valley, and a faint beat leaking from Hans's headphones. It follows where you look, and new ground crackles as it burns open. Off until you turn it on. (Sam)
 - **New** Hans reads aloud: a speaker button on the recap and replay cards. Hans speaks in your phone's own voice, pitched down; the black box goes lower still. It stays on for the next card until you turn it off. (Sam)
 - **New** Postcard from Hans: in the Chronicle, one tap turns the map as it is on your screen into a framed postcard with a line from Hans, ready to send to the group chat or save. (Sam)
