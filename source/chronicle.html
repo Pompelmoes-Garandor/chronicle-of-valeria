@@ -607,6 +607,8 @@ const PLACES = [
     body:"<p>The elven realm where the bard grew up, across the Fire Sea. The Foxglove Woods and the court of Valethorn lie inside it. The chart here is still mostly cloud.</p>"}),
   P("valethorn","Valethorn",{lon:99,lat:30},{voice:"fragment",state:"rumour",sessions:[],
     body:"<p>The High Elf court where the bard was raised and where her mother served. The bard sang a song there once. It started a revolution. I would like to hear it.</p>"}),
+  P("grisshaven","Grisshaven",{lon:53,lat:-29},{voice:"fragment",state:"rumour",sessions:[],
+    body:"<p>A town on a small continent the chart has barely touched. Rumoured, not seen. The rest of that land is still cloud.</p>"}),
   P("deadvalley","The Dead Valley",{lon:-20,lat:-24},{voice:"fragment",state:"rumour",major:true,sessions:[6],
     body:"<p>Not from the box. From Saphira's vision: the Pit of Aggron, where an army gathers.</p>"}),
   P("cathedral","Black-sand cathedral",{lon:-6,lat:-31},{voice:"fragment",state:"rumour",sessions:[6],
@@ -618,7 +620,7 @@ const TELEPORT = "waystone>forest";
 const ROUTE_NEW_FROM = 8;
 const FOG = { // [lon,lat,radiusDeg,value 0..1]
   old:[ ["valeria",5,1],["icy",3.5,1],["hills",5,1],["v-fire",4,1],["ship",3.5,1],["orda",5,1],["crash",3.5,1],["ravine",3,1],["v-earth",3.5,1],["v-water",3.5,1] ],
-  rumour:[ [-14,24,26,.5],[-20,27,6,.55],[44,20,16,.42],[92,24,17,.45],[-14,-27,13,.42] ],
+  rumour:[ [-14,24,26,.5],[-20,27,6,.55],[44,20,16,.42],[92,24,17,.45],[-14,-27,13,.42],[53,-29,5,.42] ],
   fresh:[ ["waystone",2.2,1],["forest",6,1] ]
 };
 const RECAP = [
@@ -758,6 +760,7 @@ const PLACE_DB = {
   firesea:   {kind:"water",      tags:["travel","sea"]},
   summerwood:{kind:"region",     tags:["elves","foxglove woods","valethorn"]},
   valethorn: {kind:"castle",     tags:["elves","court","high elves"]},
+  grisshaven:{kind:"settlement", tags:[]},
   deadvalley:{kind:"region",     tags:["vision","army","aggron","danger"]},
   cathedral: {kind:"temple",     tags:["vision","desert","black sand"]},
 };
@@ -771,6 +774,9 @@ const SPOTS = [
   {id:"foxglove",name:"The Foxglove Woods",in:"summerwood", kind:"forest", voice:"fragment",state:"rumour",   sessions:[],
    tags:["elves"],
    body:"<p>Inside Summerwood. A name on the chart, nothing more yet.</p>"},
+  {id:"lighthouse",name:"The Lighthouse",in:"grisshaven",kind:"inn",    voice:"fragment",state:"rumour",   sessions:[],
+   tags:[],
+   body:"<p>A tavern in Grisshaven. A name on the chart, nothing more yet.</p>"},
   {id:"aggron",  name:"The Pit of Aggron",in:"deadvalley", kind:"cave",   voice:"fragment",state:"rumour",   sessions:[6],
    tags:["vision","army"],
    body:"<p>Not from the box. From Saphira's vision: a pit in the Dead Valley where an army gathers.</p>"},
@@ -866,6 +872,7 @@ float height(vec3 p){
   h+=0.45*smoothstep(0.0,0.6,blob(p,dir(-14.0,-27.0),20.0));
   h+=0.35*smoothstep(0.0,0.6,blob(p,dir(-120.0,-10.0),30.0));
   h+=0.30*smoothstep(0.0,0.6,blob(p,dir(150.0,40.0),24.0));
+  h+=0.50*smoothstep(0.0,0.6,blob(p,dir(55.0,-32.0),13.0)); // the small continent of Grisshaven, still mostly cloud
   h-=0.55*smoothstep(0.0,0.5,blob(p,dir(44.0,20.0),17.0));
   h-=0.30*smoothstep(0.2,1.0,blob(p,dir(-33.6,6.8),3.0));
   return h;

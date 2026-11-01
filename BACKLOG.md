@@ -59,6 +59,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Grisshaven: a small rumoured continent with the Lighthouse tavern** · Lore · Niels · PR #10
 - [x] **Character sheets as a classic D&D stat block** · Changed · Niels · PR #7
 - [x] **Sheets button renamed to Characters** · Changed · Niels · PR #6
 - [x] **Edit a place's tags from the Places list** · New · Niels · PR #5
