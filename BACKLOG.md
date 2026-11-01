@@ -25,6 +25,7 @@ Things that are wrong on the live site today. Check this list before **Now**: a 
 - [ ] **Saphira's Passive Perception doesn't add up** · cosmetic · Characters, Saphira · Her paper says Passive Perception 15, but her Perception skill is +4, which gives 14. The sheet shows the paper's 15. Lore question for Sam: which number is right?
 - [ ] **Section headings show through behind the character picker** · cosmetic · Characters, phone and desktop · Scroll down a sheet: the heading of the section under the Katy · Saphira · Hans · Stig row stays faintly visible through it.
 - [ ] **Map labels can sit under the header on phones** · cosmetic · Globe, phone · Open a place in the top part of the map (Fire Vault, Earth Vault): the camera flies there and its label can end up behind the title plate.
+- [ ] **"Missed something?" runs into the edge of the dock on desktop** · cosmetic · Dock, desktop (1440 wide) · The last label in the bottom bar touches the dock's right border; the other labels have room.
 
 ## Now
 
