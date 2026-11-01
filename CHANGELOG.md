@@ -6,6 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **Changed** On computers the globe looks hand-painted: colour lies in soft brush strokes on grainy paper, while coasts, rivers and the route stay crisp ink. A brush button bottom left switches back to the plain map. Phones keep the plain map, and a slow computer drops the paint by itself. (Sam)
 - **Changed** The recap opens like a chapter in Hans's book: chapter number, the session's name and its line from the Chronicle, then the stops. Hans's lines start with a brass drop cap. (Sam)
 - **Changed** Tapping a place on the map unfolds it: the pin's name flies up into the card's title. Phones and browsers without this effect simply open the card. (Sam)
 - **New** Fly the route: on a replay card ("Fly it") or at the end of the recap ("Fly the route"), the camera follows that session's road in letterbox while the ink draws it and the party walks along. Tap anywhere or Skip to stop. (Sam)

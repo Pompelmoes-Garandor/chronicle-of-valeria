@@ -37,8 +37,6 @@ Top of the list is what to work on next.
 
 ## Next
 
-- [ ] **Hand-painted globe** · Changed · either · Painterly filter and paper grain over the globe, desktop and Table mode only.
-- [ ] **Works with no signal** · New · either · Service worker so the map loads at the table without wifi.
 - [ ] **People directory** · New · either · Needs Sam. A list of the people the crew has met (Gerda, Thorn, Pieter-Bas, Teenoog, Calysta...), next to Places. Each player keeps how they feel about them (−10 to +10) and a note, saved on their own device like sheet edits.
 - [ ] **Get tag edits to everyone** · New · either · Start with a "Send to Sam" button that opens a GitHub issue or copies the edits for the group chat. Sam or Niels folds them into the places database.
 - [ ] **Richer place records** · New · either · Needs Sam. Add region and controlling faction to the places database (Order of the Seal for Orda and the Crow's Nest), and a "Mentioned in" list on each place: sessions, people and places that refer to it.
@@ -55,12 +53,14 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 - **GM secrets in the site:** the repo is public, so players could read them.
 - **Grid battle maps with tokens:** needs artwork for every scene.
+- **Offline mode (service worker):** Sam chose to skip it (2026-11-01). It would add a second file to the one-file site and risks players seeing an old map.
 - **Making the repo private:** GitHub Pages would stop on the free plan, and the table wants the site open to everyone with the link.
 
 ## Done
 
 Newest first, with the PR that shipped it.
 
+- [x] **Hand-painted globe on computers** · Changed · Sam · PR #25
 - [x] **Recap as chapters, and place cards that unfold** · Changed · Sam · PR #24
 - [x] **Fly the route: camera follows a session's road** · New · Sam · PR #23
 - [x] **Tap to roll from the sheet: 3D dice for skills, abilities, saves and attacks** · New · Sam · PR #22
