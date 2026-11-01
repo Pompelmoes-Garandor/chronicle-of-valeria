@@ -59,6 +59,14 @@ Netlify also builds the site, from `netlify.toml`, into `dist/` (not committed).
 - Always open Blobs through `netlify/lib/store.mts`: it fixes the region and gives every deploy preview its own store, so a preview never touches the real table data.
 - Sign-in doesn't run locally. Test it on the pull request's deploy preview.
 - Never commit Identity, Blobs or Netlify tokens.
+- Publishing on Netlify is a human step. Auto publishing is locked (each publish costs 15 of the free plan's 300 monthly credits), so a merge to `main` updates GitHub Pages at once but reaches the Netlify site only when Sam or Niels publishes it, about once per session. A Claude never unlocks or publishes.
+- Lore IDs are only ever added, never renamed or removed: players' data points at places, characters and sessions by ID (`inn`, `katy`, a session number).
+
+### Backups of the player data
+
+- `backup-weekly` copies the whole `table` store into `table-backups` every Monday at 03:17 UTC and keeps the newest 8. It only runs on the published production deploy.
+- Sam's DM view has "Download a backup": a fresh copy as a JSON file (`/api/backup`, DM only). `/api/backup?list` lists the weekly copies, `/api/backup?key=2026-11-02.json` downloads one.
+- Restoring is never automatic, because it overwrites everyone's data. Only Sam or Niels decides to restore, from the Netlify dashboard or with `netlify blobs:set table <key> …` per record from a backup file. A Claude only prepares it and asks first.
 
 ### The high-res world
 

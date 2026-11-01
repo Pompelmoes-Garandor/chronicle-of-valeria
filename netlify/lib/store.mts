@@ -7,8 +7,14 @@ import type { Context } from "@netlify/functions";
 
 const REGION = "eu-central-1";
 
-export function tableStore(context: Context) {
+function open(base: string, context: Context) {
   const where = context.deploy?.context || "dev";
-  const name = where === "production" ? "table" : `table-${where}`;
+  const name = where === "production" ? base : `${base}-${where}`;
   return getStore({ name, region: REGION, consistency: "strong" });
 }
+
+/** The players' data: claims, pins, votes, answers and what comes next. */
+export const tableStore = (context: Context) => open("table", context);
+
+/** Weekly copies of the table store, one JSON document per backup (see netlify/lib/backup.mts). */
+export const backupStore = (context: Context) => open("table-backups", context);
