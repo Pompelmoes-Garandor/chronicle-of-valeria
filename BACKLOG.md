@@ -13,6 +13,19 @@ Sam and Niels own this file together. A Claude may add, reorder and tick off ite
 - **Needs Sam**: the item touches lore or the house rules, so Sam agrees before it is built.
 - Keep each item one PR big. Split anything larger.
 
+## Known bugs
+
+Things that are wrong on the live site today. Check this list before **Now**: a bug that breaks play at the table jumps the queue.
+
+`- [ ] **What goes wrong** · severity · where (device, screen) · how to see it`
+
+- **Severity**: **blocker** (the table can't use the site), **annoying** (works, but gets in the way), **cosmetic** (looks off).
+- Anyone at the table can report a bug to Sam or Niels; whoever hears it adds it here. Fixing one is a **Fixed** line in the patch notes, and the bug moves to **Done**.
+
+- [ ] **Saphira's Passive Perception doesn't add up** · cosmetic · Characters, Saphira · Her paper says Passive Perception 15, but her Perception skill is +4, which gives 14. The sheet shows the paper's 15. Lore question for Sam: which number is right?
+- [ ] **Section headings show through behind the character picker** · cosmetic · Characters, phone and desktop · Scroll down a sheet: the heading of the section under the Katy · Saphira · Hans · Stig row stays faintly visible through it.
+- [ ] **Map labels can sit under the header on phones** · cosmetic · Globe, phone · Open a place in the top part of the map (Fire Vault, Earth Vault): the camera flies there and its label can end up behind the title plate.
+
 ## Now
 
 Top of the list is what to work on next.
