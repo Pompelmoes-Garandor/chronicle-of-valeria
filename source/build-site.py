@@ -115,4 +115,11 @@ if a.assets:
     icon = Image.open(os.path.join(a.assets, "icon-512.png")).convert("RGB")
     for n, px in [("icon-512.png", 512), ("icon-192.png", 192), ("apple-touch-icon.png", 180), ("icon-32.png", 32)]:
         icon.resize((px, px), Image.LANCZOS).save(os.path.join(a.out, n), optimize=True)
+# the high-res world (relief and rivers, baked by world/make-world.py): copied as is into the site's world/ folder
+world = os.path.join(os.path.dirname(os.path.abspath(a.src)), "world")
+if os.path.isdir(world):
+    os.makedirs(os.path.join(a.out, "world"), exist_ok=True)
+    for n in sorted(os.listdir(world)):
+        if n.endswith(".webp"):
+            shutil.copy(os.path.join(world, n), os.path.join(a.out, "world", n))
 print("built", a.out, "session", as_of, "base", base)

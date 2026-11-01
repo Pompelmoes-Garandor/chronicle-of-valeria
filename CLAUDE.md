@@ -19,7 +19,7 @@ Read this first. It is how Sam and Niels (and each of their Claudes) work on thi
 ## The one rule: edit the source, never the build
 
 - All app code and lore live in `source/chronicle.html`. That is the only file you edit to change the app.
-- `index.html`, `manifest.webmanifest`, `version.json`, `README.md` and the icon PNGs in the root are **generated** by `source/build-site.py`. Never hand-edit them. A hand edit is lost on the next build.
+- `index.html`, `manifest.webmanifest`, `version.json`, `README.md`, the icon PNGs and the `world/` folder in the root are **generated** by `source/build-site.py`. Never hand-edit them. A hand edit is lost on the next build.
 - `CHANGELOG.md` holds the patch notes. It is hand-written, not generated.
 - `BACKLOG.md` holds what is still to do. It is hand-written, not generated.
 - After editing the source, rebuild so the root matches (see "Build" below) and commit the source and the rebuilt files together.
@@ -60,6 +60,10 @@ Netlify also builds the site, from `netlify.toml`, into `dist/` (not committed).
 - Sign-in doesn't run locally. Test it on the pull request's deploy preview.
 - Never commit Identity, Blobs or Netlify tokens.
 
+### The high-res world
+
+`source/world/relief-8k.webp` and `relief-4k.webp` hold the relief carved by erosion and the rivers. `source/world/make-world.py` bakes them from the shapes in `chronicle.html` (needs Node with Playwright, a C compiler, numpy and Pillow). Run it again only when `HEIGHT` or `RELIEF_BAKE` changes. `build-site.py` copies them into the site's `world/` folder, so the root `world/` is generated too: never edit it by hand. Without the files, the page falls back to its live bake.
+
 Without `--assets`, the icons are not regenerated. That is fine for code-only changes. Only regenerate `og.jpg` and icons (`source/render-assets.js`, needs Playwright and a local Three.js) when the look of Hans or the preview should change.
 
 ## Check
@@ -67,7 +71,7 @@ Without `--assets`, the icons are not regenerated. That is fine for code-only ch
 - Open the built `index.html` through a local server (`python3 -m http.server` in the root, then http://localhost:8000/) on a phone-sized and a desktop viewport.
 - No console errors. The map renders, the dock works, the sheets open.
 - Follow `source/design-spec.md` for anything visual (colours, type roles, layout).
-- Dependencies: Three.js 0.160.0 from jsDelivr and Google Fonts only, plus `@netlify/identity` from jsDelivr in the Netlify edition. Don't add libraries, a bundler or npm to the page without Sam and Niels agreeing first. Keep it one self-contained HTML file. `package.json` is only for the server side in `netlify/functions/`.
+- Dependencies: Three.js 0.160.0 from jsDelivr and Google Fonts only, plus `@netlify/identity` from jsDelivr in the Netlify edition. Don't add libraries, a bundler or npm to the page without Sam and Niels agreeing first. Keep it one self-contained HTML file, plus the baked `world/` textures (Sam agreed on 2026-11-01). `package.json` is only for the server side in `netlify/functions/`.
 
 ## Lore and secrets
 
