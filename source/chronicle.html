@@ -4076,41 +4076,216 @@ function t3dressCavern(Vb){const mp=Vb.mp,S=seeded(707),rr=(a,b)=>a+(b-a)*S();if
   const gl=new THREE.PointLight(0x7fd36a,26,10,1.6);gl.position.set(c.x,1.6,c.z+1);Vb.scene.add(gl);
   Vb.ticks.push((dt,tt)=>{gl.intensity=22+10*Math.max(0,Math.sin(tt*4.2));});}
 
-function t3tree(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,S=seeded(4242),rr=(a,b)=>a+(b-a)*S(),pk=a=>a[Math.floor(S()*a.length)];
-  const wood=[],bark=[],leaf=[],glow=[],rope=[],earth=[];
-  const fy=y=>(H-1-y)-H/2+.5,cx=x=>x+.5-W/2;  // floor height of a row, centre of a column
-  // the Hollowmother's trunk and crown
-  const tx=cx(6)+.15;bark.push(t3at(t3tint(new THREE.CylinderGeometry(.95,1.4,H+7,14,10),"#2c2017"),tx,fy(H-1)+(H+7)/2-1.5,-1.05));
-  for(let i=0;i<26;i++){const a=rr(-1.4,1.4)+Math.PI/2,y0=rr(fy(H-1),fy(0)),pts=[];for(let k=0;k<5;k++)pts.push(new THREE.Vector3(tx+Math.cos(a)*(1+k*.02),y0-k*.6+rr(-.1,.1),-1.05+Math.sin(a)*(.95+k*.03)));bark.push(t3tint(t3tube(pts,rr(.05,.12)),pk(["#3a2b1f","#1a130d","#24190f"])));}
-  for(let i=0;i<9;i++){const a=rr(0,Math.PI*2);leaf.push(t3at(t3tint(t3rock(rr(1.8,2.8),i+50),pk(["#1d2a22","#2a2236","#1b261f","#3b2440"])),tx+Math.cos(a)*rr(1,5),fy(0)+rr(1.6,4),-1.5+Math.sin(a)*rr(.5,2.5),{sy:.7}));}
-  for(const side of[-1,1])for(let i=0;i<3;i++){const y0=fy(rr(2,13)),pts=[new THREE.Vector3(tx,y0,-1),new THREE.Vector3(tx+side*rr(2,4),y0+rr(.4,1.2),-1.3),new THREE.Vector3(tx+side*rr(5,7.5),y0+rr(1,2.2),-1.6)];bark.push(t3tint(t3tube(pts,rr(.12,.2),6),"#2a1e15"));}
-  // platforms, steps, ropes, ground
-  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const ch=mp.c(x,y),X=cx(x),Y=fy(y);
-    if(ch==="="||ch==="T"||ch==="B"){wood.push(t3at(t3tint(new THREE.BoxGeometry(1.0,.14,1.25),ch==="B"?"#6b4a2b":pk(["#4a3420","#52391f","#45301c"])),X,Y-.07,0));
-      for(const zz of[-.45,0,.45])wood.push(t3at(t3tint(new THREE.BoxGeometry(1.02,.02,.02),"#1a120a"),X,Y+.005,zz));
-      if(x%2===0&&ch!=="T")wood.push(t3at(t3tint(new THREE.CylinderGeometry(.04,.04,.9,5),"#2a1d12"),X+(X<tx?.3:-.3),Y-.45,-.3,{rz:(X<tx?-1:1)*.8}));}
-    if(ch==="B"&&mp.c(x-1,y)!=="B"){for(let i=0;i<=12;i++){const t=i/12,ax=X-.5+t*3,ay=Y+Math.sin(t*Math.PI)*1.3;wood.push(t3at(t3tint(new THREE.SphereGeometry(.09,6,4),"#3b2a1c"),ax,ay,-.5));
-      if(i%2===0)glow.push(t3at(t3tint(new THREE.ConeGeometry(.08,.22,6,1,true),pk(["#8a5ba0","#b06fc4","#c2557a"])),ax,ay-.18,-.5,{rx:Math.PI}));}}
-    if(ch==="s")wood.push(t3at(t3tint(new THREE.BoxGeometry(.85,.1,.55),"#5a4128"),X,Y-.05,.15,{ry:rr(-.2,.2)}));
-    if(ch==="R")rope.push(t3at(t3tint(new THREE.CylinderGeometry(.025,.025,1,5),"#c9b48a"),X,Y+.5,.1));
-    if(ch==="g"||ch==="D"){earth.push(t3at(t3tint(new THREE.BoxGeometry(1.0,.9,9),pk(["#1b1510","#211912","#191410"])),X,Y-.45,-2.5));
-      for(let i=0;i<4;i++)leaf.push(t3at(t3tint(new THREE.ConeGeometry(.05,rr(.15,.3),4),pk(["#1d2a22","#26362a"])),X+rr(-.45,.45),Y+.08,rr(-.6,.6)));
-      if(S()<.55){const fx=X+rr(-.4,.4),fz=rr(-.55,.55),hh=rr(.6,1.1);bark.push(t3at(t3tint(new THREE.CylinderGeometry(.015,.02,hh,4),"#26362a"),fx,Y+hh/2,fz));
-        for(let k=0;k<5;k++)glow.push(t3at(t3tint(new THREE.ConeGeometry(.045,.11,6,1,true),pk(["#b8402a","#c2557a","#8a5ba0"])),fx+.03,Y+hh-.08-k*.1,fz,{rx:Math.PI,rz:.3}));}}
-    if(ch==="D"){const d=t3mesh(new THREE.CircleGeometry(.5,16,0,Math.PI),new THREE.MeshBasicMaterial({color:0x020101}));d.position.set(X,Y,-.05);Vb.root.add(d);}
-  }
-  for(let x=-8;x<W+8;x++){if(x>=0&&x<W)continue;earth.push(t3at(t3tint(new THREE.BoxGeometry(1.0,.9,9),"#191410"),cx(x),fy(H-1)-.45,-2.5));}
-  // the turrets
-  for(const [id,x0,y0,w,lab] of mp.def.turrets){const X=cx(x0)-.5+w/2,Y=fy(y0),lit=id!=="elodie",wc=lit?"#3b2a1c":"#1d150e";
-    wood.push(t3at(t3tint(new THREE.BoxGeometry(w+.1,1.75,.12),wc),X,Y+.87,-.6),t3at(t3tint(new THREE.BoxGeometry(.12,1.75,1.25),wc),X-w/2,Y+.87,0),t3at(t3tint(new THREE.BoxGeometry(.12,1.75,1.25),wc),X+w/2,Y+.87,0));
-    wood.push(t3at(t3tint(new THREE.BoxGeometry(w+.3,.12,1.45),"#2a1d12"),X,Y+1.8,0));
-    leaf.push(t3at(t3tint(new THREE.ConeGeometry(w*.78,1.3,4),lit?"#5e3a5c":"#1a120c"),X,Y+2.5,0,{ry:Math.PI/4,sz:.55}));
-    if(lit){glow.push(t3at(t3tint(new THREE.PlaneGeometry(.42,.55),"#f0b85a"),X,Y+1.0,-.53));if(!SMALL||id==="ysolde"){const l=new THREE.PointLight(0xf0b85a,5,4.5,1.6);l.position.set(X,Y+1.1,-.2);Vb.scene.add(l);Vb.flicker.push(l);}}
-    const s=t3label(lab+(lab.endsWith("'s")?" turret":" turret"),"#c9a35c",30);s.position.set(X,Y+3.4,0);Vb.root.add(s);}
-  Vb.root.add(t3mesh(t3merge(wood),t3surf("wood",Vb),{cast:true,recv:true}),t3mesh(t3merge(bark),t3surf("bark",Vb),{cast:true,recv:true}),t3mesh(t3merge(leaf),t3surf("leaf",Vb),{cast:true}),
+function t3tree(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,S=seeded(4242),rr=(a,b)=>a+(b-a)*S(),pk=a=>a[Math.floor(S()*a.length)],hi=T3Q.hi,qn=n=>Math.max(2,Math.round(hi?n:n*.5));
+  const wood=[],bark=[],leaf=[],glow=[],rope=[],earth=[],halo=[];
+  const fy=y=>(H-1-y)-H/2+.5,cx=x=>x+.5-W/2,at=(x,y)=>(x<0||y<0||x>=W||y>=H)?"-":mp.c(x,y),deck=c=>"=TB".includes(c),flr=c=>"=TBsgD".includes(c);
+  const V3=(x,y,z)=>new THREE.Vector3(x,y,z),gY=fy(H-1),PI=Math.PI;
+  const box=(w,h,d,col,x,y,z,ry=0,rx=0,rz=0,j=.16)=>t3t_at(t3t_tint(new THREE.BoxGeometry(w,h,d),col,j,x*7+y),x,y,z,ry,rx,rz);
+  const cyl=(r0,r1,h,n,col,x,y,z,ry=0,rx=0,rz=0)=>t3t_at(t3t_tint(new THREE.CylinderGeometry(r0,r1,h,n),col,.15,x+y*3),x,y,z,ry,rx,rz);
+  const blob=(r,col,x,y,z,sx=1,sy=1,sz=1,d=1)=>t3at(t3t_tint(t3rock(r,Math.round(x*13+y*7+z*3),d),col,.22),x,y,z,{ry:rr(0,6),sx,sy,sz});
+  const WOOD=["#5a3e25","#4e3520","#634529","#47301b","#563a22"],LEAF=["#1d2a22","#22301f","#1b261f","#2a2236","#3b2440","#26341f"],BELL=["#8a4fa0","#a35bb8","#b8507c","#7b4593","#c46a9a"];
+  const halo3=(x,y,z,c)=>halo.push(x,y,z,c);
+  // a lantern on a chain: dark cap, warm core, a soft halo
+  const lantern=(x,ytop,y,z,lit=true)=>{rope.push(cyl(.012,.012,ytop-y-.12,4,"#2a2420",x,(ytop+y+.12)/2,z));wood.push(cyl(.02,.1,.09,6,"#241a12",x,y+.12,z),cyl(.07,.05,.04,6,"#241a12",x,y-.09,z));
+    for(const a of[0,PI/2,PI,PI*1.5])wood.push(box(.018,.18,.018,"#241a12",x+Math.cos(a)*.065,y,z+Math.sin(a)*.065,0,0,0,0));
+    if(lit){glow.push(cyl(.05,.05,.15,6,"#ffc46a",x,y,z));halo3(x,y,z,0xffb45a);}else wood.push(cyl(.05,.05,.15,6,"#15171a",x,y,z));};
+  const vine=(pts,leafy=1)=>{bark.push(t3t_tube(pts,.026,.01,"#26361f",{rad:4,bump:.05}));const cu=new THREE.CatmullRomCurve3(pts),n=Math.round(cu.getLength()*7*leafy);
+    for(let i=0;i<n;i++){const p=cu.getPointAt((i+.5)/n);leaf.push(t3t_at(t3t_tint(new THREE.OctahedronGeometry(.07,0),pk(["#2c4426","#24381f","#335028","#3a3a2a"]),.2),p.x+rr(-.04,.04),p.y,p.z+rr(0,.05),rr(0,6),rr(-.5,.5),0,1,.35,1.6));}};
+  const foxglove=(x,y,z,h,lean=0)=>{const s=Math.max(.6,h*.55),pts=[V3(x,y,z),V3(x+lean*.3+rr(-.05,.05),y+h*.5,z),V3(x+lean+rr(-.08,.08),y+h,z+rr(-.05,.05))],cu=new THREE.CatmullRomCurve3(pts);
+    leaf.push(t3t_tube(pts,.028*s,.007,"#2a3a22",{rad:4,bump:0,seg:8}));const n=qn(14),bc=pk(BELL);
+    for(let i=0;i<n;i++){const t=.4+.56*i/n,p=cu.getPointAt(t),a=i*2.4,k=(1-t*.55)*s;glow.push(t3t_at(t3t_tint(new THREE.ConeGeometry(.055*k,.15*k,7,1,true),i%5===4?pk(BELL):bc,.25),p.x+Math.cos(a)*.05*k,p.y-.06*k,p.z+Math.sin(a)*.05*k,a,Math.sin(a)*.35,Math.cos(a)*.35));}
+    for(let i=0;i<3;i++){const p=cu.getPointAt(.97+i*.01);leaf.push(t3t_at(t3t_tint(new THREE.OctahedronGeometry(.025*s,0),"#3a5a2a"),p.x,p.y+i*.03,p.z));}
+    for(let i=0;i<5;i++){const a=i*1.26+rr(0,.5);leaf.push(t3t_at(t3t_tint(new THREE.OctahedronGeometry(.14*s,0),pk(["#2c4426","#24381f","#30482a"]),.2),x+Math.cos(a)*.14*s,y+.03,z+Math.sin(a)*.14*s,-a,-.25,0,.5,.12,1.4));}};
+  const fern=(x,y,z,s)=>{const P=[],C=[],base=new THREE.Color(pk(["#24391f","#2c4426","#1f331d","#33482a"])),n=hi?8:5,seg=hi?7:4;
+    for(let f=0;f<n;f++){const a=f/n*PI*2+rr(-.3,.3),L=s*rr(.7,1.1),dx=Math.cos(a),dz=Math.sin(a),lift=rr(.35,.6),tw=rr(.8,1.1);
+      const pt=t=>[x+dx*L*t,y+L*(lift*Math.sin(t*PI*.8)-.18*t),z+dz*L*t];
+      for(let i=0;i<seg;i++){const t0=i/seg,t1=(i+1)/seg,tm=(t0+t1)/2+.35/seg,s0=pt(t0),s1=pt(t1),pm=pt(Math.min(1,tm)),w=L*.17*Math.sin(PI*Math.min(1,t0*1.05+.08)),k=(.7+.5*t0)*tw;
+        const tl=[pm[0]-dz*w,pm[1],pm[2]+dx*w],tr=[pm[0]+dz*w,pm[1],pm[2]-dx*w];t3t_tri(P,C,s0,tl,s1,base,k);t3t_tri(P,C,s0,s1,tr,base,k*.92);}}
+    leaf.push(t3t_geo(P,C,null));};
+  const grass=(P,C,x,y,z,h)=>{const a=rr(0,PI),w=.025,c=new THREE.Color(pk(["#2c4426","#33482a","#3d4a2a","#4a4a30"]));t3t_tri(P,C,[x-Math.cos(a)*w,y,z-Math.sin(a)*w],[x+Math.cos(a)*w,y,z+Math.sin(a)*w],[x+rr(-.06,.06),y+h,z+rr(-.06,.06)],c,rr(.7,1.1));};
+
+  /* ---- the Hollowmother: one great gnarled trunk, ridged bark, buttresses flowing into roots ---- */
+  let tc=0,best=-1;for(let x=0;x<W;x++){let n=0;for(let y=0;y<H;y++)if(at(x,y)==="|")n++;if(n>best){best=n;tc=x;}}
+  const tx=cx(tc),TZ=-2.25,top=fy(0)+4.6;
+  const tcx=y=>tx+.28*Math.sin((y-gY)*.21)+.1*Math.sin((y-gY)*.57),tcz=y=>TZ+.08*Math.sin(y*.33);
+  const trR=(y,a)=>{const f=Math.exp(-(y-gY+.2)/1.1),fr=Math.max(0,Math.sin(a)),R=1.58-.026*(y-gY),lobe=f*.75*Math.pow(Math.max(0,Math.cos(a*5+.6)),2)*(1-fr*fr),
+      rid=Math.pow(Math.abs(Math.sin(a*7+y*.16+1.4*Math.sin(y*.31+a*2))),.5),gn=.09*Math.sin(a*3+y*.45)*Math.sin(y*.23+1)+.04*Math.sin(a*13+y*.9),m=1+.13*(rid-.7)+gn;
+    return {rx:(R+1.9*f*(1-fr*.7)+lobe)*m,rz:(R*.95+.5*f*(1-fr*.9)+lobe)*m,rid};};
+  const tfront=(x,y)=>{const {rx,rz}=trR(y,PI/2),u=(x-tcx(y))/rx;return tcz(y)+rz*Math.sqrt(Math.max(0,1-u*u));};
+  {const ny=hi?72:34,nr=hi?56:26,y0=gY-1.4,P=[],C=[],I=[],cb=new THREE.Color("#34271c"),cm=new THREE.Color("#2b3a23"),cl=new THREE.Color("#7a7560");
+    for(let i=0;i<=ny;i++){const y=y0+(top-y0)*i/ny,ox=tcx(y),oz=tcz(y);for(let k=0;k<=nr;k++){const a=k/nr*PI*2,{rx,rz,rid}=trR(y,a);P.push(ox+Math.cos(a)*rx,y,oz+Math.sin(a)*rz);
+      const h=t3hash(k%nr,i,5),moss=Math.max(0,Math.sin(y*.55+a*2)*.55-Math.sin(a)*.45+(y<gY+1.4?.55:0)-.35+h*.3),s=.32+.95*rid*(.8+h*.4);
+      t3c.copy(cb).lerp(cm,Math.min(1,moss)).multiplyScalar(s);if(rid>.93&&h>.6)t3c.lerp(cl,.25);C.push(t3c.r,t3c.g,t3c.b);}}
+    for(let i=0;i<ny;i++)for(let k=0;k<nr;k++){const a=i*(nr+1)+k,b=a+nr+1;I.push(a,b,a+1,b,b+1,a+1);}bark.push(t3t_geo(P,C,I));}
+  // gnarled ribs that twist up the trunk's flanks
+  for(const a0 of hi?[.25,.75,PI-.3,PI-.8,-.6,-2.4]:[.3,PI-.3,-.6]){const pts=[];for(let k=0;k<=10;k++){const y=gY+.3+k*(top-gY-2)/10,aa=a0+Math.sin(k*.7+a0)*.35,{rx,rz}=trR(y,aa);pts.push(V3(tcx(y)+Math.cos(aa)*(rx-.02),y,tcz(y)+Math.sin(aa)*(rz-.02)));}
+    bark.push(t3t_tube(pts,rr(.2,.28),.08,"#2e2219",{rad:hi?7:5,seg:hi?40:20,bump:.2,j:.3}));}
+  // buttress roots spread to the sides and back, never across the squares in front
+  for(const a of hi?[.18,-.25,-.7,-1.1,-1.57,-2.05,-2.45,-2.9,PI-.18]:[.18,-.7,-1.57,-2.45,PI-.18]){const y1=gY+1.6,{rx,rz}=trR(gY+.6,a),r=Math.hypot(Math.cos(a)*rx,Math.sin(a)*rz),dx=Math.cos(a),dz=Math.sin(a),ox=tcx(gY),oz=tcz(gY),w=rr(-.3,.3);
+    const pts=[V3(ox+dx*r*.45,y1,oz+dz*r*.45),V3(ox+dx*(r+.1),gY+.85,oz+dz*(r+.1)),V3(ox+dx*(r+1.1)-dz*w,gY+.28,oz+dz*(r+1.1)+dx*w),V3(ox+dx*(r+2.3)+dz*w,gY+.04,oz+dz*(r+2.3)-dx*w),V3(ox+dx*(r+3.3),gY-.4,oz+dz*(r+3.3))];
+    bark.push(t3t_tube(pts,rr(.5,.62),.06,"#2f2319",{rad:hi?9:6,seg:hi?22:12,bump:.18,j:.3}));
+    if(hi)for(let i=0;i<3;i++){const p=pts[1+i];leaf.push(blob(rr(.12,.22),pk(["#2b3d22","#33482a"]),p.x,p.y+.18,p.z,1.4,.35,1.2,0));}}
+  // handholds up the climbable trunk
+  for(let y=0;y<H;y++)if(at(tc,y)==="|"){const Y=fy(y);for(const s of[-1,1]){const xx=tx+s*.26,fz=tfront(xx,Y+.5);wood.push(cyl(.04,.05,.4,6,"#5a4029",xx,Y+(s>0?.3:.7),fz-.06,0,PI/2,0));}
+    if(S()<.5)leaf.push(blob(.1,"#2f4426",tx+rr(-.4,.4),Y+rr(.1,.9),tfront(tx,Y+.5)-.02,1.3,.5,.4,0));}
+  // burls, a knot hole with pale mushrooms, ivy up the flanks
+  for(let i=0;i<(hi?10:5);i++){const y=rr(gY+2,fy(1)),a=pk([rr(.15,.9),rr(PI-.9,PI-.15)]),{rx,rz}=trR(y,a);bark.push(blob(rr(.2,.38),"#2a2018",tcx(y)+Math.cos(a)*rx*.95,y,tcz(y)+Math.sin(a)*rz*.95,1,1.3,.8));}
+  {const ky=fy(4)+.4,kx=tx-.62,kz=tfront(kx,ky)+.02;wood.push(t3t_at(t3t_tint(new THREE.CircleGeometry(.24,12),"#060403",0),kx,ky,kz,-.45,0,0,1,1.35,1));bark.push(t3t_at(t3t_tint(new THREE.TorusGeometry(.26,.08,5,14),"#3a2b1e",.3),kx,ky,kz,-.45,0,0,1,1.35,1));
+    for(let i=0;i<3;i++)glow.push(cyl(.05-i*.01,.02,.04,7,"#7fc4b4",kx+(i-1)*.09,ky-.22+i*.03,kz+.06));}
+  if(hi)for(const a of[.35,PI-.35,.6]){const pts=[];for(let k=0;k<9;k++){const y=gY+.8+k*1.6,aa=a+Math.sin(k*1.3)*.25,{rx,rz}=trR(y,aa);pts.push(V3(tcx(y)+Math.cos(aa)*(rx+.03),y,tcz(y)+Math.sin(aa)*(rz+.03)));}vine(pts,1.2);}
+  // the door at the foot of the trunk: carved arch, plank door, a light in the crack
+  {let dx=null;for(let x=0;x<W;x++)if(at(x,H-1)==="D")dx=x;if(dx!==null){const X=cx(dx),Y=gY,z=tfront(X,Y+.5)+.06,sh=new THREE.Shape();sh.moveTo(-.36,0);sh.lineTo(-.36,.78);sh.absarc(0,.78,.36,PI,0,true);sh.lineTo(.36,0);sh.lineTo(-.36,0);
+    wood.push(t3t_at(t3t_tint(new THREE.ShapeGeometry(sh,8),"#050302",0),X,Y,z-.02));
+    for(let i=0;i<4;i++)wood.push(box(.16,i%3?1.06:.95,.05,pk(WOOD),X-.27+i*.18,Y+(i%3?.53:.48),z+.01));
+    wood.push(box(.7,.06,.06,"#2a1b10",X,Y+.3,z+.04),box(.7,.06,.06,"#2a1b10",X,Y+.85,z+.04));glow.push(box(.04,.9,.02,"#ffb04a",X+.37,Y+.48,z+.02,0,0,0,0),cyl(.05,.05,.02,10,"#ffc26a",X+.12,Y+.95,z+.04,0,PI/2,0));
+    const ap=[];for(let i=0;i<=12;i++){const t=i/12;let p;if(t<.25)p=[-.4,t/.25*.78];else if(t>.75)p=[.4,(1-t)/.25*.78];else{const a=PI-(t-.25)/.5*PI;p=[Math.cos(a)*.4,.78+Math.sin(a)*.4];}ap.push(V3(X+p[0],Y+p[1],z+.04));}
+    wood.push(t3t_tube(ap,.07,.07,"#5a3f27",{rad:6,bump:.1}));lantern(X+.72,Y+1.6,Y+1.05,z+.12);wood.push(box(.05,.05,.3,"#2a1b10",X+.72,Y+1.6,z-.03));
+    if(hi){const l=new THREE.PointLight(0xffb45a,4,4,1.6);l.position.set(X+.6,Y+1.1,z+.6);Vb.scene.add(l);Vb.flicker.push(l);}}}
+
+  /* ---- the crown: great limbs, heavy leaf, and long arms reaching out behind the village ---- */
+  const limb=(pts,r0,r1,cols)=>{bark.push(t3t_tube(pts,r0,r1,cols||"#2e2219",{rad:hi?8:5,seg:hi?20:10,bump:.16,j:.28}));};
+  const crown=hi?6:4;for(let i=0;i<crown;i++){const sd=i%2?1:-1,y0=top-rr(1.4,3),ex=tx+sd*rr(2.5,6.5),ey=top+rr(.5,2.5),ez=TZ+rr(-1.4,.4);
+    limb([V3(tcx(y0),y0,TZ),V3((tcx(y0)+ex)/2,(y0+ey)/2+.6,(TZ+ez)/2),V3(ex,ey,ez)],rr(.45,.6),.12);
+    for(let k=0;k<(hi?3:2);k++)leaf.push(blob(rr(1.3,2.2),pk(LEAF),ex+rr(-1.2,1.2),ey+rr(-.2,1.2),ez+rr(-.6,.4),1.2,.62,1,hi?1:0));}
+  for(let i=0;i<(hi?7:4);i++)leaf.push(blob(rr(1.6,2.6),pk(LEAF),tx+rr(-2.5,2.5),top+rr(-.4,1.5),TZ+rr(-1.2,.2),1.25,.6,1,hi?1:0));
+  for(let i=0;i<(hi?6:3);i++){const sd=i%2?1:-1,y0=rr(gY+3,fy(1)),ex=tx+sd*rr(6.5,9.5),ey=y0+rr(.8,2.6),ez=rr(-3.6,-2.9);
+    limb([V3(tcx(y0),y0,TZ-.2),V3(tx+sd*2.6,y0+.5,ez+.4),V3(ex-sd*1.5,ey-.3,ez),V3(ex,ey,ez-.2)],rr(.3,.4),.07);
+    for(let k=0;k<(hi?3:1);k++)leaf.push(blob(rr(.8,1.4),pk(LEAF),ex+rr(-1,1),ey+rr(-.2,.6),ez+rr(-.8,.2),1.2,.6,1,hi?1:0));
+    if(hi)vine([V3(ex-sd*1.6,ey-.3,ez+.2),V3(ex-sd*1.7+rr(-.2,.2),ey-1.2,ez+.25),V3(ex-sd*1.6,ey-rr(2,3),ez+.2)]);}
+
+  /* ---- the forest floor: mossy earth, a cut edge like a diorama, ferns, foxgloves, grass ---- */
+  {const x0=-W/2-9,x1=W/2+9,z0=-9,z1=2.3,nx=hi?84:42,nz=hi?44:22,P=[],C=[],I=[],ce=new THREE.Color("#2a2016"),cm=new THREE.Color("#2a3a21"),cl=new THREE.Color("#3d2c1b");
+    const hgt=(x,z)=>{const n=Math.sin(x*.9+z*.4)*.5+Math.sin(x*.37-z*1.3+1)*.5+Math.sin(x*2.1+z*1.7)*.2;if(z<-.8)return Math.min(1,(-z-.8)/2.5)*(.25+.22*n)+(t3hash(Math.round(x*3),Math.round(z*3),1)-.5)*.04;if(z>.8)return Math.max(-.06,.03*n);return 0;};
+    for(let j=0;j<=nz;j++)for(let i=0;i<=nx;i++){const x=x0+(x1-x0)*i/nx,z=z0+(z1-z0)*j/nz,n=t3hash(i,j,9),m=.5+.5*Math.sin(x*.7+z*1.1+Math.sin(z*.5)*2);P.push(x,gY+hgt(x,z),z);
+      t3c.copy(ce).lerp(cm,m*.85*(Math.abs(z)<.8?.45:1)).lerp(cl,n*.4).multiplyScalar(.8+n*.35);C.push(t3c.r,t3c.g,t3c.b);}
+    for(let j=0;j<nz;j++)for(let i=0;i<nx;i++){const a=j*(nx+1)+i,b=a+nx+1;I.push(a,b,a+1,b,b+1,a+1);}earth.push(t3t_geo(P,C,I));
+    // the cut edge: loam, clay, stones
+    const P2=[],C2=[],I2=[],lay=[0,.18,.5,.9,1.7],lc=["#241a12","#2e2116","#3a2a1c","#2a1f17","#1a1410"];
+    for(let r=0;r<lay.length;r++)for(let i=0;i<=nx;i++){const x=x0+(x1-x0)*i/nx,n=t3hash(i,r,4);P2.push(x,r?gY-lay[r]+(n-.5)*.08:gY+hgt(x,z1),z1+(r?(n-.5)*.04:0));t3c.set(lc[r]).multiplyScalar(.85+n*.3);C2.push(t3c.r,t3c.g,t3c.b);}
+    for(let r=0;r<lay.length-1;r++)for(let i=0;i<nx;i++){const a=r*(nx+1)+i,b=a+nx+1;I2.push(a,b,a+1,b,b+1,a+1);}earth.push(t3t_geo(P2,C2,I2));
+    for(let i=0;i<(hi?26:12);i++)earth.push(blob(rr(.06,.13),pk(["#4a443c","#3a352e","#55503f"]),rr(x0,x1),gY-rr(.3,1.4),z1+.02,1.3,.9,.4,0));
+    for(let i=0;i<(hi?8:4);i++){const x=rr(x0+2,x1-2),pts=[V3(x,gY-.05,z1-.1),V3(x+rr(-.3,.3),gY-.5,z1+.03),V3(x+rr(-.5,.5),gY-1.2,z1+.02)];bark.push(t3t_tube(pts,.05,.015,"#3a2b1e",{rad:4}));}
+    // grass: short in front of the squares, taller behind
+    const GP=[],GC=[];for(let i=0;i<(hi?900:320);i++){const front=S()<.5,x=rr(x0+1,x1-1),z=front?rr(.82,2.2):rr(-6,-.85);grass(GP,GC,x,gY+(front?0:hgt(x,z))-.01,z,front?rr(.05,.14):rr(.12,.38));}leaf.push(t3t_geo(GP,GC,null));
+    for(let i=0;i<(hi?40:16);i++){const front=S()<.4,x=rr(x0+1,x1-1),z=front?rr(.85,2.1):rr(-5,-.9);earth.push(blob(rr(.06,.2),pk(["#4a463e","#3c3830","#56524a","#3a4030"]),x,gY+(front?0:hgt(x,z)),z,1.2,.5,1,0));}
+    {const LP=[],LC=[];for(let i=0;i<(hi?260:90);i++){const x=rr(x0+1,x1-1),z=rr(-3,2.2),y=gY+(z<-.8?hgt(x,z):0)+.012,a=rr(0,6.3),l=rr(.05,.09),c=new THREE.Color(pk(["#4a2e1c","#5a3a20","#3b2440","#6a4a24","#2c3a22"]));
+      t3t_tri(LP,LC,[x+Math.cos(a)*l,y,z+Math.sin(a)*l],[x-Math.sin(a)*l*.45,y,z+Math.cos(a)*l*.45],[x-Math.cos(a)*l,y,z-Math.sin(a)*l],c,rr(.7,1.1));}leaf.push(t3t_geo(LP,LC,null));}
+    for(let i=0;i<(hi?12:5);i++){const x=rr(x0+2,x1-2),z=rr(.9,2.0);for(let k=0;k<3;k++){const mx=x+rr(-.1,.1),mz=z+rr(-.1,.1),h=rr(.03,.07);earth.push(cyl(.008,.012,h,4,"#cfc7b0",mx,gY+h/2,mz));glow.push(cyl(.01,.035,.02,7,pk(["#7fc4b4","#9fd0a0"]),mx,gY+h+.005,mz));}}
+    for(let i=0;i<(hi?46:20);i++){const x=rr(x0+1,x1-1),z=rr(-5.5,-1.55);fern(x,gY+hgt(x,z)-.02,z,rr(.5,.9)*(1+(-z-1.5)*.15));}
+    for(let i=0;i<(hi?28:12);i++){const x=rr(x0+1,x1-1),z=rr(-5,-1.1);foxglove(x,gY+hgt(x,z),z,rr(.9,1.7)*(1+(-z-1)*.18),rr(-.15,.15));}
+    for(let i=0;i<(hi?14:6);i++){const a=rr(-PI+.2,-.1),r=rr(1.6,3.2),x=tcx(gY)+Math.cos(a)*r*1.4,z=TZ+Math.sin(a)*r*.6;if(z>-.9)continue;for(let k=0;k<3;k++){const mx=x+rr(-.12,.12),mz=z+rr(-.12,.12),h=rr(.05,.13),my=gY+hgt(mx,mz)-.01;earth.push(cyl(.012,.016,h,4,"#cfc7b0",mx,my+h/2,mz));glow.push(cyl(.015,.05,.03,7,"#7fc4b4",mx,my+h+.01,mz));}}}
+
+  /* ---- platforms: plank decks on limbs, rope bridges, the bloom balcony ---- */
+  const run=(y,xa,xb)=>{const Y=fy(y),cells=[];for(let x=xa;x<=xb;x++)cells.push(at(x,y));const hasT=cells.includes("T"),hasB=cells.includes("B"),isDeck=!hasT&&!hasB;
+    const eL=cx(xa)-.5,eR=cx(xb)+.5,sd=(eL+eR)/2<tx?-1:1,inner=sd>0?eL:eR,outer=sd>0?eR:eL;
+    for(let x=xa;x<=xb;x++){const k=at(x,y),X=cx(x);
+      if(k==="="&&!isDeck){for(let i=0;i<4;i++)wood.push(box(.2,.08,1.16+rr(-.06,.04),pk(["#6a5034","#5e472e","#735738"]),X-.375+i*.25+rr(-.01,.01),Y-.04,rr(-.02,.02),rr(-.03,.03)));
+        rope.push(box(1,.03,.03,"#b9a27a",X,Y-.07,.55,0,0,0,.05),box(1,.03,.03,"#b9a27a",X,Y-.07,-.55,0,0,0,.05));}
+      else{const nb=hi?5:3,bw=1/nb;for(let i=0;i<nb;i++)wood.push(box(bw-.014,.12,1.26+rr(-.05,.03),k==="B"?pk(["#7a5a38","#6b4a2b","#82603c"]):pk(WOOD),X-.5+bw*(i+.5),Y-.06,rr(-.015,.015)));
+        wood.push(box(1,.1,.08,"#2a1c11",X,Y-.16,.6),box(1,.08,.1,"#2a1c11",X,Y-.17,-.42),box(1,.08,.1,"#2a1c11",X,Y-.17,.36));}}
+    // rope handrails over each bridge stretch
+    if(!isDeck){let x=xa;while(x<=xb){if(at(x,y)!=="="){x++;continue;}const a=x;while(x<=xb&&at(x,y)==="=")x++;const L=cx(a)-.5,R=cx(x-1)+.5;
+      for(const z of[-.58,.58]){for(const px of[L,R])wood.push(cyl(.04,.05,.82,6,"#3a2a1c",px,Y+.33,z));const pts=[];for(let i=0;i<=8;i++){const t=i/8;pts.push(V3(L+(R-L)*t,Y+.72-Math.sin(t*PI)*.22,z));}rope.push(t3t_tube(pts,.018,.018,"#c2ab80",{rad:4,bump:0}));
+        if(hi)for(let i=1;i<8;i++){const p=pts[i];rope.push(cyl(.008,.008,.62-Math.sin(i/8*PI)*.22,3,"#a8916a",p.x,Y+.36-Math.sin(i/8*PI)*.11,z));}}}}
+    // railings: across the far end, and along the back of open decks
+    const rail=(x0,z0,x1,z1)=>{const L=Math.hypot(x1-x0,z1-z0),ry=Math.atan2(x1-x0,z1-z0);for(const h of[.78,.42])wood.push(box(.05,.06,L,"#4a3320",(x0+x1)/2,Y+h,(z0+z1)/2,ry));};
+    if(!(at(outer>tx?xb+1:xa-1,y)!=="-")){const px=outer-sd*.05;for(const z of[-.56,.56])wood.push(cyl(.045,.055,.86,6,"#3a2a1c",px,Y+.43,z),cyl(0,.06,.12,6,"#4a3320",px,Y+.92,z));rail(px,-.56,px,.56);}
+    if(isDeck){for(let x=xa;x<=xb+1;x++){const px=cx(x)-.5;wood.push(cyl(.04,.05,.86,6,"#3a2a1c",px,Y+.43,-.58),blob(.06,"#4a3320",px,Y+.9,-.58,1,1,1,0));}rail(eL,-.58,eR,-.58);
+      lantern(outer-sd*.05,Y+1.25,Y+.95,-.58);wood.push(cyl(.035,.035,.45,5,"#3a2a1c",outer-sd*.05,Y+1.05,-.58),box(.05,.05,.3,"#3a2a1c",outer-sd*.05,Y+1.25,-.45));}
+    // the limb that carries it
+    const zL=hasT||sd>0?-1.5:-1.15,y0=Y-2.0,p=[V3(tcx(y0)+sd*.3,y0,TZ),V3(tx+sd*1.6,Y-1.1,zL-.15),V3(inner+(outer-inner)*.45,Y-.44,zL),V3(outer-sd*.1,Y-.32,zL+.05),V3(outer+sd*.55,Y-.14,zL-.12),V3(outer+sd*.95,Y+.35,zL-.35)];
+    limb(p,.3,.05);for(let x=xa;x<=xb;x++){const X=cx(x),t=Math.min(1,Math.max(0,(X-p[1].x)/(p[3].x-p[1].x))),yl=p[1].y+(p[3].y-p[1].y)*Math.sqrt(t);wood.push(t3t_strut(V3(X,Y-.2,-.42),V3(X-sd*.25,yl+.12,zL+.12),.04,"#2a1c11"));}
+    for(let i=2;i<5;i++)leaf.push(blob(rr(.12,.2),pk(["#2b3d22","#33482a","#3a4a2c"]),p[i].x,p[i].y+.2,p[i].z,1.6,.35,1.1,0));
+    for(let k=0;k<(hi?4:2);k++)leaf.push(blob(rr(.3,.55),pk(LEAF),p[5].x+rr(-.4,.4),p[5].y+rr(0,.5),p[5].z+rr(-.4,.1),1.2,.7,1,hi?1:0));
+    lantern(p[4].x,p[4].y-.1,p[4].y-.75,p[4].z+.05);
+    if(hi)for(let k=0;k<2;k++){const vx=rr(eL+.2,eR-.2),vz=rr(-.95,-.7),L=rr(.8,2.2);vine([V3(vx,Y-.18,vz),V3(vx+rr(-.15,.15),Y-.18-L*.5,vz-.05),V3(vx+rr(-.2,.2),Y-.18-L,vz)]);}
+    // the bloom balcony: flower boxes and an arbour hung with foxglove bells
+    if(hasB){let ba=xa;while(at(ba,y)!=="B")ba++;let bb=ba;while(at(bb+1,y)==="B")bb++;const L=cx(ba)-.5,R=cx(bb)+.5,M=(L+R)/2;
+      for(let x=ba;x<=bb;x++){const X=cx(x);wood.push(box(.84,.2,.16,"#3a2616",X,Y+.1,-.55));leaf.push(blob(.12,"#2c4426",X-.2,Y+.22,-.55,2.4,.5,.6,0));for(const o of[-.22,.18])foxglove(X+o,Y+.2,-.56,rr(.55,.85));}
+      for(const [z,hh] of[[-.62,1.9],[-.95,1.75]]){const ap=[V3(L,Y,z),V3(L+.08,Y+hh*.62,z),V3(M,Y+hh,z),V3(R-.08,Y+hh*.62,z),V3(R,Y,z)];bark.push(t3t_tube(ap,.07,.05,"#3a2b1e",{rad:hi?6:4,bump:.2}));
+        if(z>-.7){const cu=new THREE.CatmullRomCurve3(ap),n=qn(11);for(let i=0;i<n;i++){const q=cu.getPointAt(.18+.64*i/(n-1)),L2=rr(.22,.5),bc=pk(BELL);leaf.push(cyl(.008,.008,L2,3,"#2a3a22",q.x,q.y-L2/2,q.z));
+          for(let k=0;k<4;k++){const yy=q.y-L2*(.4+k*.2),a=k*2.1;glow.push(t3t_at(t3t_tint(new THREE.ConeGeometry(.05-k*.006,.13-k*.012,7,1,true),bc,.25),q.x+Math.cos(a)*.03,yy,q.z+Math.sin(a)*.03,a,.2,0));}
+          leaf.push(t3t_at(t3t_tint(new THREE.OctahedronGeometry(.07,0),"#2c4426"),q.x,q.y-.05,q.z+.02,rr(0,6),0,0,1.6,.4,1));}}}
+      for(let i=0;i<5;i++){const t=rr(.1,.9),q=V3(L+(R-L)*t,Y+1.2+Math.sin(t*PI)*.6,-.78);bark.push(t3t_tube([V3(q.x,q.y,-.62),q,V3(q.x+rr(-.1,.1),q.y+rr(-.1,.1),-.95)],.025,.02,"#3a2b1e",{rad:4}));}
+      if(hi){const l=new THREE.PointLight(0xc58ae0,2.4,3.6,1.6);l.position.set(M,Y+1.3,-.2);Vb.scene.add(l);}}};
+  for(let y=0;y<H;y++){let x=0;while(x<W){if(!deck(at(x,y))){x++;continue;}const xa=x;while(x<W&&deck(at(x,y)))x++;run(y,xa,x-1);}}
+
+  /* ---- the stairs carved round the trunk, with a rope handrail strung with glow-beads ---- */
+  {const st=[];for(let y=H-1;y>=0;y--)for(let x=0;x<W;x++)if(at(x,y)==="s")st.push([x,y]);const rail=[];
+    for(const [x,y] of st){const X=cx(x),Y=fy(y),sd=X>=tx?1:-1;wood.push(box(.94,.13,1.98,pk(["#5f4329","#674a2d","#5a3f26"]),X,Y-.065,-.43),cyl(.065,.065,.94,8,"#4e3622",X,Y-.07,.52,0,0,PI/2));
+      bark.push(t3t_tube([V3(X,Y-.14,.3),V3(X-sd*.12,Y-.5,-.5),V3(tx+sd*.75,Y-1.05,TZ+.55)],.1,.05,"#2e2219",{rad:5,seg:8,bump:.1}));
+      const px=X+sd*.38;wood.push(cyl(.035,.045,.84,5,"#3a2a1c",px,Y+.42,-.6));rail.push(V3(px,Y+.84,-.6));}
+    if(rail.length>1){rope.push(t3t_tube(rail,.02,.02,"#c2ab80",{rad:4,bump:0,seg:rail.length*6}));if(hi){const cu=new THREE.CatmullRomCurve3(rail),n=rail.length*3;for(let i=0;i<n;i++){const p=cu.getPointAt((i+.5)/n);glow.push(t3t_at(t3t_tint(new THREE.IcosahedronGeometry(.025,0),pk(["#ffd27a","#ffe0a0","#c8f0b0"]),0),p.x,p.y-.04,p.z));}}}}
+
+  /* ---- rope ladders down to the next floor ---- */
+  for(let x=0;x<W;x++){const spans=[];for(let y=0;y<H;y++)if(at(x,y)==="R"){let t=y-1;while(t>=0&&!flr(at(x,t)))t--;let b=y+1;while(b<H&&!flr(at(x,b)))b++;const top=t>=0?fy(t)-.12:fy(y)+1,bot=b<H?fy(b):fy(y)-1;if(!spans.some(s=>s[0]===top))spans.push([top,bot]);}
+    for(const [top,bot] of spans){const X=cx(x),z=-.28,sw=rr(-.06,.06);for(const s of[-.2,.2])rope.push(t3t_tube([V3(X+s,top,z),V3(X+s+sw,(top+bot)/2,z),V3(X+s,bot+.02,z)],.022,.022,"#c2ab80",{rad:4,bump:0,seg:10}));
+      for(let yy=top-.3;yy>bot+.1;yy-=.32)wood.push(box(.46,.04,.05,pk(["#6a5034","#5e472e"]),X+sw*Math.sin(PI*(top-yy)/(top-bot)),yy,z));}}
+
+  /* ---- the turrets: round huts with curved shingle roofs, round windows. Elodie's is dark and overgrown ---- */
+  for(const [id,x0,y0,w,lab] of mp.def.turrets){const Y=fy(y0),lit=id!=="elodie",X0=cx(x0)-.5+w/2,cz=-1.72,hw=1.3,rz0=.84;
+    const blk=x=>{const c=Math.floor(x+W/2);if(c<0||c>=W)return 1e9;for(let y=y0-1;y>=0;y--){const k=at(c,y);if(deck(k)||k==="s")return fy(y)-.55;}return 1e9;};
+    // fit the hut: stay clear of the trunk and keep the roof under the floors above
+    let fit=null;for(const s of[0,.2,-.2,.4,-.4,.6,-.6,.8,-.8,1,-1])for(const kk of[1,.9,.8]){const rx=(w/2-.2)*kk,X=X0+s,R=rx+.3;if(Math.abs(X-tx)-rx<.9)continue;let hr=1.9;
+      for(;hr>=.6;hr-=.1){let ok=true;for(let d=0;d<=R+.05&&ok;d+=.1){const yy=Y+hw+hr*Math.pow(Math.max(0,1-d/R),1.5);if(yy>blk(X-d)-.05||yy>blk(X+d)-.05)ok=false;}if(ok)break;}
+      if(hr<.6)continue;const sc=Math.min(hr,1.6)-.9*Math.abs(s)-2*(1-kk);if(!fit||sc>fit.sc)fit={sc,X,rx,R,hr};}
+    if(!fit)fit={X:X0,rx:w/2-.2,R:w/2+.1,hr:.6};const {X,rx,R,hr}=fit,rz=rz0*rx/(w/2-.2),wallC=lit?["#4a3220","#523823","#45301c","#5a3d25"]:["#211810","#1c150e","#261c13"];
+    // floor behind the porch, under the hut
+    wood.push(box(2*rx+.5,.12,Math.abs(cz-rz-.3+.62),lit?"#3a2818":"#1f160e",X,Y-.07,(cz-rz-.3-.62)/2));
+    const NB=qn(30),per=2*PI*Math.sqrt((rx*rx+rz*rz)/2);
+    for(let i=0;i<NB;i++){const a=i/NB*PI*2,nx=Math.cos(a)/rx,nz=Math.sin(a)/rz,nl=Math.hypot(nx,nz);wood.push(box(per/NB*1.06,hw+rr(-.03,.03),.07,pk(wallC),X+Math.cos(a)*rx,Y+hw/2,cz+Math.sin(a)*rz,Math.atan2(nx/nl,nz/nl),0,0,.2));}
+    for(const h of[.06,hw-.04,hw*.55])wood.push(t3at(t3t_tint(new THREE.TorusGeometry(1,.04,4,qn(36)),lit?"#2a1b10":"#140e09",.1),X,Y+h,cz,{rx:PI/2,sx:rx+.04,sy:rz+.04,sz:1}));
+    const onW=(a,off)=>{const nx=Math.cos(a)/rx,nz=Math.sin(a)/rz,nl=Math.hypot(nx,nz);return {x:X+Math.cos(a)*rx+nx/nl*off,z:cz+Math.sin(a)*rz+nz/nl*off,ry:Math.atan2(nx/nl,nz/nl)};};
+    for(const a of[PI/2-1.05,PI/2+1.05,PI/2-.32,PI/2+.32]){const o=onW(a,.05);wood.push(box(.09,hw,.06,lit?"#2a1b10":"#140e09",o.x,Y+hw/2,o.z,o.ry));}
+    // round windows and the door
+    for(const a of[PI/2-.68,PI/2+.68]){const o=onW(a,.05),yy=Y+.82;if(lit){glow.push(t3t_at(t3t_tint(new THREE.CircleGeometry(.17,qn(16)),"#f4b257",.1),o.x,yy,o.z,o.ry));halo3(o.x+Math.sin(o.ry)*.15,yy,o.z+Math.cos(o.ry)*.15,0xffa94a);}
+      else wood.push(t3t_at(t3t_tint(new THREE.CircleGeometry(.17,qn(16)),"#0c0f15",0),o.x,yy,o.z,o.ry));
+      const o2=onW(a,.08);wood.push(t3t_at(t3t_tint(new THREE.TorusGeometry(.18,.035,4,qn(16)),"#2a1b10"),o2.x,yy,o2.z,o2.ry),box(.34,.025,.02,"#2a1b10",o2.x,yy,o2.z,o2.ry),box(.025,.34,.02,"#2a1b10",o2.x,yy,o2.z,o2.ry));}
+    {const o=onW(PI/2,.05),sh=new THREE.Shape();sh.moveTo(-.25,0);sh.lineTo(-.25,.62);sh.absarc(0,.62,.25,PI,0,true);sh.lineTo(.25,0);sh.lineTo(-.25,0);
+      wood.push(t3t_at(t3t_tint(new THREE.ShapeGeometry(sh,6),lit?"#3a2414":"#160f0a",.1),o.x,Y,o.z,o.ry));const o2=onW(PI/2,.08);const ap=[];for(let i=0;i<=10;i++){const t=i/10;let p;if(t<.25)p=[-.28,t/.25*.62];else if(t>.75)p=[.28,(1-t)/.25*.62];else{const a=PI-(t-.25)/.5*PI;p=[Math.cos(a)*.28,.62+Math.sin(a)*.28];}ap.push(V3(o2.x+p[0],Y+p[1],o2.z));}
+      wood.push(t3t_tube(ap,.04,.04,lit?"#5a3f27":"#2a1d12",{rad:5,bump:.1}));
+      if(lit)glow.push(box(.38,.025,.02,"#ffb04a",o2.x,Y+.02,o2.z,0,0,0,0),t3t_at(t3t_tint(new THREE.CircleGeometry(.05,8),"#ffc26a",0),o2.x,Y+.62,o2.z+.005));
+      else wood.push(box(.62,.07,.04,"#3a2a1c",o2.x,Y+.45,o2.z+.03,0,0,.6),box(.62,.07,.04,"#3a2a1c",o2.x,Y+.4,o2.z+.04,0,0,-.55));}
+    // the roof: rings of overlapping shingles on a concave cone
+    const M=new THREE.Matrix4().compose(V3(X,Y+hw,cz),new THREE.Quaternion(),V3(1,1,rz/rx)),K=qn(7),RC=lit?["#4a2f4a","#55344f","#3f2a42","#5d3a55","#4b3048"]:["#2a2520","#24201b","#30291f","#28301f"];
+    const rof=(k)=>[R*(1-k/K),hr*Math.pow(k/K,1.5)];{const prof=[];for(let k=0;k<=K;k++){const [r,yy]=rof(k);prof.push([Math.max(.01,r-.04),yy-.03]);}const g=t3t_lathe(prof,qn(24),lit?"#2a1a28":"#18140f");g.applyMatrix4(M);wood.push(g);}
+    for(let k=0;k<K;k++){const [r0,y0r]=rof(k),[r1,y1r]=rof(k+1),rm=(r0+r1)/2,ym=(y0r+y1r)/2,Ls=Math.hypot(r0-r1,y1r-y0r)*1.45,ph=Math.atan2(y1r-y0r,r0-r1),n=Math.max(6,Math.round(qn(24)*rm/R+3));
+      for(let j=0;j<n;j++){if(!lit&&S()<.16)continue;const a=(j+(k%2)*.5)/n*PI*2,g=t3t_tint(new THREE.BoxGeometry(2*PI*rm/n*1.12,.035,Ls),pk(RC),.2);t3t_at(g,Math.cos(a)*rm,ym+.025,Math.sin(a)*rm,Math.atan2(Math.cos(a),Math.sin(a)),ph+(lit?0:rr(-.12,.12)),0);g.applyMatrix4(M);wood.push(g);}}
+    wood.push(cyl(.03,.07,.5,6,"#2a1b10",X,Y+hw+hr+.15,cz),blob(.08,lit?"#c9a35c":"#3a3228",X,Y+hw+hr+.42,cz,1,1.4,1,0));
+    // a lantern under the eave
+    {const o=onW(PI/2-.95,.32);lantern(o.x,Y+hw+.02,Y+hw-.45,o.z,lit);}
+    if(lit){if(hi||id==="ysolde"){const l=new THREE.PointLight(0xf0b85a,5,4.5,1.6);l.position.set(X,Y+1.1,-.2);Vb.scene.add(l);Vb.flicker.push(l);}}
+    else{// ivy over the walls, moss on the roof
+      for(let i=0;i<qn(10);i++){const a=rr(.15,.85)*PI,o=onW(a,.06),o2=onW(a+rr(-.15,.15),.06),y1=Y+rr(.05,.7);vine([V3(o.x,Y+hw+.08,o.z),V3((o.x+o2.x)/2+rr(-.08,.08),(Y+hw+y1)/2,(o.z+o2.z)/2),V3(o2.x,y1,o2.z)],1.6);}
+      for(let i=0;i<qn(8);i++){const a=rr(.1,.9)*PI,k=rr(.1,.7),[r,yy]=[R*(1-k),hr*Math.pow(k,1.5)],g=t3t_tint(t3rock(rr(.12,.22),i*7,0),pk(["#2b3d22","#33482a"]),.2);t3at(g,Math.cos(a)*r,yy+.05,Math.sin(a)*r,{sx:1.5,sy:.4,sz:1.5});g.applyMatrix4(M);leaf.push(g);}
+      leaf.push(blob(.45,"#22301f",X-rx*.7,Y+hw+.3,cz+.3,1.3,.7,1,hi?1:0));}
+    const s=t3label(lab+" turret","#c9a35c",30);s.position.set(X0,Y+hw+.3,.05);Vb.root.add(s);}
+
+  Vb.root.add(t3mesh(t3merge(wood),t3surf("wood",Vb),{cast:true,recv:true}),t3mesh(t3merge(bark),t3surf("bark",Vb),{cast:true,recv:true}),t3mesh(t3merge(leaf),t3surf("leaf",Vb),{cast:hi,recv:true}),
     t3mesh(t3merge(earth),t3surf("earth",Vb),{recv:true}),t3mesh(t3merge(glow),t3surf("glowTree",Vb)));
-  if(rope.length)Vb.root.add(t3mesh(t3merge(rope),t3surf("rope",Vb)));
+  if(rope.length)Vb.root.add(t3mesh(t3merge(rope),t3surf("rope",Vb),{cast:hi}));
+  // warm halos round every lit window and lantern (one draw call)
+  if(halo.length){const n=halo.length/4,P=new Float32Array(n*3),C=new Float32Array(n*3);for(let i=0;i<n;i++){P.set(halo.slice(i*4,i*4+3),i*3);t3c.set(halo[i*4+3]);C[i*3]=t3c.r;C[i*3+1]=t3c.g;C[i*3+2]=t3c.b;}
+    const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.BufferAttribute(P,3));g.setAttribute("color",new THREE.BufferAttribute(C,3));
+    const pts=new THREE.Points(g,new THREE.PointsMaterial({map:t3dotTex(),size:.85,vertexColors:true,transparent:true,opacity:.5,depthWrite:false,blending:THREE.AdditiveBlending}));pts.renderOrder=2;Vb.root.add(pts);}
   t3sky(Vb);}
+/* tree kit (t3t_): tapered bark tubes, lathes, raw triangles, yaw-then-pitch placing */
+const t3t_e=new THREE.Euler(0,0,0,"YXZ");
+function t3t_at(g,x,y,z,ry=0,rx=0,rz=0,sx=1,sy=1,sz=1){t3t_e.set(rx,ry,rz,"YXZ");t3m4.compose(t3v.set(x,y,z),t3q.setFromEuler(t3t_e),t3s.set(sx,sy,sz));g.applyMatrix4(t3m4);return g;}
+function t3t_tint(g,col,j=.18,seed=0){g=t3tint(g,col);const c=g.attributes.color.array,n=c.length/9;for(let i=0;i<n;i++){const k=1-j*t3hash(i,seed,7);for(let v=0;v<9;v++)c[i*9+v]*=k;}return g;}
+function t3t_geo(P,C,I){const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.Float32BufferAttribute(P,3));g.setAttribute("color",new THREE.Float32BufferAttribute(C,3));
+  if(!I){g.computeVertexNormals();return g;}g.setIndex(I);g.computeVertexNormals();const o=g.toNonIndexed();g.dispose();return o;}
+// a triangle seen from both sides
+function t3t_tri(P,C,a,b,c,col,k=1){P.push(...a,...b,...c,...a,...c,...b);for(let i=0;i<6;i++)C.push(col.r*k,col.g*k,col.b*k);}
+function t3t_tube(pts,r0,r1,col,{seg=0,rad=6,bump=.12,j=.2}={}){const cu=new THREE.CatmullRomCurve3(pts);seg=seg||Math.max(6,pts.length*4);const fr=cu.computeFrenetFrames(seg,false),P=[],C=[],I=[],b0=new THREE.Color(col);
+  for(let i=0;i<=seg;i++){const t=i/seg,p=cu.getPointAt(t),N=fr.normals[i],Bn=fr.binormals[i],r=r0+(r1-r0)*Math.pow(t,.85);
+    for(let k=0;k<=rad;k++){const a=k/rad*Math.PI*2,kk=k%rad,b=1+bump*(t3hash(i*.37,kk,r0*97)-.5)*2,cs=Math.cos(a)*r*b,sn=Math.sin(a)*r*b,s=1-j*t3hash(i,kk,3);
+      P.push(p.x+N.x*cs+Bn.x*sn,p.y+N.y*cs+Bn.y*sn,p.z+N.z*cs+Bn.z*sn);C.push(b0.r*s,b0.g*s,b0.b*s);}}
+  for(let i=0;i<seg;i++)for(let k=0;k<rad;k++){const a=i*(rad+1)+k,b=a+rad+1;I.push(a,b,a+1,b,b+1,a+1);}return t3t_geo(P,C,I);}
+// a surface of revolution round y from [r,y] pairs, bottom to top
+function t3t_lathe(prof,nr,col){const P=[],C=[],I=[],b0=new THREE.Color(col);for(let i=0;i<prof.length;i++)for(let k=0;k<=nr;k++){const a=k/nr*Math.PI*2;P.push(Math.cos(a)*prof[i][0],prof[i][1],Math.sin(a)*prof[i][0]);const s=.85+.15*t3hash(i,k%nr,2);C.push(b0.r*s,b0.g*s,b0.b*s);}
+  for(let i=0;i<prof.length-1;i++)for(let k=0;k<nr;k++){const a=i*(nr+1)+k,b=a+nr+1;I.push(a,b,a+1,b,b+1,a+1);}return t3t_geo(P,C,I);}
+function t3t_strut(a,b,r,col){const d=b.clone().sub(a),L=d.length(),g=t3t_tint(new THREE.CylinderGeometry(r,r,L,5),col,.15);g.applyQuaternion(t3q.setFromUnitVectors(t3s.set(0,1,0),d.normalize()));g.translate((a.x+b.x)/2,(a.y+b.y)/2,(a.z+b.z)/2);return g;}
 
 /* ---- OWNER: night sky + atmosphere at the tree. Sky, stars, moon, the far wood, mist, fireflies ---- */
 function t3sky(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,S=seeded(4243),rr=(a,b)=>a+(b-a)*S(),pk=a=>a[Math.floor(S()*a.length)],bark=[],leaf=[];
