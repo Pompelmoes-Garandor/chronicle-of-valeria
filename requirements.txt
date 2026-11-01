@@ -1,0 +1,2 @@
+# Netlify installs this before the build. Pillow resizes the icons in source/assets.
+pillow

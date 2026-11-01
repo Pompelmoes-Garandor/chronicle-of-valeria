@@ -1,0 +1,22 @@
+# Netlify builds the site from source/ on every deploy. Nothing in dist/ is committed.
+# Production deploys from main; every pull request gets a deploy preview with its own link.
+# The seal flag (--sealed) is the same as the GitHub Pages build uses today.
+
+[build]
+  publish = "dist"
+  command = "python3 source/build-site.py source/chronicle.html dist --sealed --netlify --base \"$URL/\" --assets source/assets"
+
+# Previews point their link-preview tags at their own address, not at production.
+[context.deploy-preview]
+  command = "python3 source/build-site.py source/chronicle.html dist --sealed --netlify --base \"$DEPLOY_PRIME_URL/\" --assets source/assets"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive"
+
+# version.json is polled by open copies to notice a new recap; never cache it.
+[[headers]]
+  for = "/version.json"
+  [headers.values]
+    Cache-Control = "no-store"

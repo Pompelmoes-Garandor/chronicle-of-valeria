@@ -47,6 +47,19 @@ python3 source/build-site.py source/chronicle.html . --sealed --base https://pom
 - `--open`: writes the remote unlock into `version.json`, which opens the seal on every player's device. **Only Sam or Niels does this, on purpose, at the table.** A Claude never adds it on its own.
 - The session number comes from `const AS_OF = …, NEXT = …, SKEY = …` in `chronicle.html`. Bumping it tells every open copy a new recap is out, so only bump it as part of a session update Sam or Niels asked for.
 
+### Netlify
+
+Netlify also builds the site, from `netlify.toml`, into `dist/` (not committed). It runs the same `build-site.py` with its own `--base` and `--netlify`. Every pull request gets a deploy preview link from Netlify; `main` deploys to production. Until Sam and Niels switch over, GitHub Pages keeps serving the root of `main`, so keep committing the rebuilt root files (built without `--netlify`) as before. Never edit `dist/`.
+
+### Netlify sign-in and table data
+
+- `--netlify` marks the Netlify edition. There, players invited by Sam sign in with Netlify Identity (invite-only), and the app's online mode (character claims, pins, votes, answers, the DM view) runs on `netlify/functions/` instead of claude.ai. Signed out, it is the public edition. GitHub Pages never gets `--netlify`.
+- Roles: `dm` (Sam) and `player`, set in the Netlify dashboard under Identity. Niels is a `player`. A role change takes effect at the person's next sign-in, not at once.
+- The access rules live in `netlify/lib/rules.mts`, and the functions check them on the server; the page only hides buttons. Change a rule there, add a test in `tests/`, and run `npm test` (Node 22.18+).
+- Always open Blobs through `netlify/lib/store.mts`: it fixes the region and gives every deploy preview its own store, so a preview never touches the real table data.
+- Sign-in doesn't run locally. Test it on the pull request's deploy preview.
+- Never commit Identity, Blobs or Netlify tokens.
+
 Without `--assets`, the icons are not regenerated. That is fine for code-only changes. Only regenerate `og.jpg` and icons (`source/render-assets.js`, needs Playwright and a local Three.js) when the look of Hans or the preview should change.
 
 ## Check
@@ -54,14 +67,14 @@ Without `--assets`, the icons are not regenerated. That is fine for code-only ch
 - Open the built `index.html` through a local server (`python3 -m http.server` in the root, then http://localhost:8000/) on a phone-sized and a desktop viewport.
 - No console errors. The map renders, the dock works, the sheets open.
 - Follow `source/design-spec.md` for anything visual (colours, type roles, layout).
-- Dependencies: Three.js 0.160.0 from jsDelivr and Google Fonts only. Don't add libraries, a bundler or npm without Sam and Niels agreeing first. Keep it one self-contained HTML file.
+- Dependencies: Three.js 0.160.0 from jsDelivr and Google Fonts only, plus `@netlify/identity` from jsDelivr in the Netlify edition. Don't add libraries, a bundler or npm to the page without Sam and Niels agreeing first. Keep it one self-contained HTML file. `package.json` is only for the server side in `netlify/functions/`.
 
 ## Lore and secrets
 
 - Lore (places, the recap, the Chronicle, character sheets) comes from the table. Sam is the DM, so a Claude doesn't invent new canon on its own. If something is missing or unclear, ask in the PR or an issue and mark it as a question. Fixing typos and obvious contradictions is fine; say so in the PR.
 - Never write future plot, unrevealed twists or DM notes into this repo. It is public and players read it.
 - Never commit unlock words, passphrases, keys or tokens, in code, comments, commit messages or PR text. If you come across one, don't repeat it; tell Sam or Niels.
-- Don't add trackers, analytics or anything that sends player data off the device. Player state stays in `localStorage`.
+- Don't add trackers, analytics or anything that sends player data off the device. Player state stays in `localStorage`, except what a signed-in player sends to the table data on Netlify (`/api/db`), which only the table can read.
 
 ## Pull request description
 
