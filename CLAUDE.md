@@ -47,6 +47,10 @@ python3 source/build-site.py source/chronicle.html . --sealed --base https://pom
 - `--open`: writes the remote unlock into `version.json`, which opens the seal on every player's device. **Only Sam or Niels does this, on purpose, at the table.** A Claude never adds it on its own.
 - The session number comes from `const AS_OF = …, NEXT = …, SKEY = …` in `chronicle.html`. Bumping it tells every open copy a new recap is out, so only bump it as part of a session update Sam or Niels asked for.
 
+### Netlify
+
+Netlify also builds the site, from `netlify.toml`, into `dist/` (not committed). It runs the same `build-site.py` with its own `--base`. Every pull request gets a deploy preview link from Netlify; `main` deploys to production. Until Sam and Niels switch over, GitHub Pages keeps serving the root of `main`, so keep committing the rebuilt root files as before. Never edit `dist/`.
+
 Without `--assets`, the icons are not regenerated. That is fine for code-only changes. Only regenerate `og.jpg` and icons (`source/render-assets.js`, needs Playwright and a local Three.js) when the look of Hans or the preview should change.
 
 ## Check
