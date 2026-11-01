@@ -932,22 +932,18 @@ float blob(vec3 p,vec3 c,float r){return max(0.0,1.0-acos(clamp(dot(p,c),-1.0,1.
 `;
 const VERT = `
 uniform float uMorph; uniform vec2 uCenter; uniform float uLift;
-varying vec2 vUv; varying vec3 vSph;
+varying vec2 vUv; varying vec3 vSph; varying vec3 vWorld;
 void main(){
   vUv=uv; float lon=(uv.x-0.5)*6.2831853; float lat=(uv.y-0.5)*3.1415927;
   vec3 s=vec3(cos(lat)*sin(lon),sin(lat),cos(lat)*cos(lon)); vSph=s;
   vec3 f=vec3(lon-uCenter.x,lat-uCenter.y,uLift);
   float m=uMorph<0.5?2.0*uMorph*uMorph:1.0-pow(-2.0*uMorph+2.0,2.0)/2.0;
   vec3 p=mix(s*(1.0+uLift),f,m);
+  vWorld=(modelMatrix*vec4(p,1.0)).xyz;
   gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);
 }`;
-const WORLD_FRAG = `
-precision highp float;
-uniform sampler2D uMask; uniform float uTime; uniform float uReveal; uniform vec3 uSun; uniform vec4 uLights[8]; uniform vec4 uShade; uniform vec4 uShadeAx;
-varying vec2 vUv; varying vec3 vSph;
-${NOISE}
-float fbm3(vec3 p){float a=0.0,w=0.5;for(int i=0;i<3;i++){a+=w*gn(p);p=p*2.03+vec3(1.7,9.2,3.1);w*=0.5;}return a;}
-vec3 hash3(vec2 i){return fract(sin(vec3(dot(i,vec2(127.1,311.7)),dot(i,vec2(269.5,183.3)),dot(i,vec2(419.2,371.9))))*43758.5453);}
+// the shape of the world: continents, the Hills, Summerwood, the Fire Sea basin. Baked once into a texture at load (see bakeWorld)
+const HEIGHT = `
 float height(vec3 p){
   float h=0.5*fbm(p*2.4)+0.18*fbm(p*7.0)-0.36;
   h+=0.62*smoothstep(0.0,0.55,blob(p,dir(-14.0,23.0),34.0));
@@ -960,6 +956,49 @@ float height(vec3 p){
   h-=0.55*smoothstep(0.0,0.5,blob(p,dir(44.0,20.0),17.0));
   h-=0.30*smoothstep(0.2,1.0,blob(p,dir(-33.6,6.8),3.0));
   return h;
+}`;
+// bake: R+G = height (two bytes, so it filters smoothly), B = where forest grows, A = moisture
+const BAKE_FRAG = `
+precision highp float; varying vec2 vUv;
+${NOISE}
+${HEIGHT}
+void main(){
+  float lon=(vUv.x-0.5)*6.2831853, lat=(vUv.y-0.5)*3.1415927;
+  vec3 p=vec3(cos(lat)*sin(lon),sin(lat),cos(lat)*cos(lon));
+  float v=min(clamp((height(p)+0.7)/1.7,0.0,1.0)*255.0,254.99), hi=floor(v);
+  gl_FragColor=vec4(hi/255.0,v-hi,clamp(fbm(p*14.0+3.0)*0.8+0.5,0.0,1.0),clamp(gn(p*5.3-4.0)*0.6+0.5,0.0,1.0));
+}`;
+const WORLD_FRAG = `
+precision highp float;
+uniform sampler2D uMask; uniform sampler2D uBake; uniform vec2 uBakeTx; uniform float uTime; uniform float uReveal; uniform float uMorph; uniform vec3 uSun; uniform vec4 uLights[8]; uniform vec4 uShade; uniform vec4 uShadeAx;
+varying vec2 vUv; varying vec3 vSph; varying vec3 vWorld;
+${NOISE}
+float fbm3(vec3 p){float a=0.0,w=0.5;for(int i=0;i<3;i++){a+=w*gn(p);p=p*2.03+vec3(1.7,9.2,3.1);w*=0.5;}return a;}
+vec3 hash3(vec2 i){return fract(sin(vec3(dot(i,vec2(127.1,311.7)),dot(i,vec2(269.5,183.3)),dot(i,vec2(419.2,371.9))))*43758.5453);}
+float bH(vec4 b){return (b.r*255.0+b.g)/255.0*1.7-0.7;}
+float bHat(vec2 uv){return bH(texture2D(uBake,uv));}
+// a watercolour wash: x = how much pigment lies here, y = the darker rim where the wash dried
+vec2 wash(float v,float th,float soft){
+  float f=smoothstep(th,th+soft,v);
+  float e=smoothstep(th-soft*0.15,th+soft*0.2,v)*(1.0-smoothstep(th+soft*0.2,th+soft*1.1,v));
+  return vec2(f,e);
+}
+// hachures: short ink strokes running downhill, broken into rows by the contours, like an old engraved atlas.
+// Each cell draws its strokes from its own centre; the four nearest cells are blended so no seams show
+float hachure(vec2 ll,vec2 g,float h,float sp,float px,float steep){
+  vec2 t=vec2(-g.y,g.x);
+  float C=sp*5.0, rows=0.45/sp, hr=h*rows, row=floor(hr), fr=hr-row;
+  float w=max(sp*(0.06+0.12*steep),px*0.55);
+  vec2 q=ll/C-0.5, i0=floor(q), f=q-i0; f=f*f*(3.0-2.0*f);
+  float acc=0.0;
+  for(int k=0;k<4;k++){
+    vec2 o=vec2(float(k-2*(k/2)),float(k/2)), cell=i0+o;
+    float wt=mix(1.0-f.x,f.x,o.x)*mix(1.0-f.y,f.y,o.y);
+    float r=fract(sin(dot(cell,vec2(12.9898,78.233))+row*7.13)*43758.5453);
+    float d=abs(fract(dot(ll-(cell+1.0)*C,t)/sp+r)-0.5)*sp;
+    acc+=wt*(1.0-smoothstep(w-px*0.6,w+px*0.6,d));
+  }
+  return smoothstep(0.15,0.75,acc)*smoothstep(0.04,0.2,fr)*(1.0-smoothstep(0.8,0.96,fr));
 }
 // one ink tree per cell (density read at the cell centre so glyphs are never clipped): conifer when cold, round crown when warm; sways in the wind
 vec2 treeGlyph(vec2 ll,float cell,float aa,float thr,float conif,float t){
@@ -979,11 +1018,39 @@ vec2 treeGlyph(vec2 ll,float cell,float aa,float thr,float conif,float t){
 }
 void main(){
   vec3 p=normalize(vSph);
-  float h=height(p);
-  float fw=fwidth(h)*1.3+1e-4;
   float t=uTime;
   float lat=degrees(asin(clamp(p.y,-1.0,1.0)));
+  float cl=max(cos(radians(lat)),0.05);
+  vec2 ll=vec2((vUv.x-0.5)*360.0*cl,(vUv.y-0.5)*180.0);   // ground degrees, east and north
+  float px=fwidth(ll.y)+1e-5;                              // degrees of ground under one pixel
   vec3 ink=vec3(0.23,0.17,0.10);
+  vec4 mk0=texture2D(uMask,vUv);
+  float vis=max(mk0.r,mk0.g), dv=smoothstep(0.01,0.12,vis);
+  // fine detail (lakes, rivers, tree glyphs, hachures) only where the party has actually been; rumoured land keeps just its colour
+  float detail=smoothstep(0.55,0.9,max(mk0.r,mk0.g*uReveal));
+  // ---- the shape of the land, from the baked field plus finer relief that grows in as you zoom ----
+  vec4 B=texture2D(uBake,vUv);
+  float h=bH(B);
+  vec2 tx=uBakeTx;
+  vec2 G=vec2((bHat(vUv+vec2(tx.x,0.0))-bHat(vUv-vec2(tx.x,0.0)))/(2.0*tx.x*360.0*cl),
+              (bHat(vUv+vec2(0.0,tx.y))-bHat(vUv-vec2(0.0,tx.y)))/(2.0*tx.y*180.0));
+  float mtn0=smoothstep(0.26,0.42,h);
+  float o1=smoothstep(2.0,6.0,0.6/px)*dv, o2=smoothstep(2.0,6.0,0.26/px)*dv, o3=smoothstep(2.0,6.0,0.11/px)*dv;
+  float hd=0.0; vec2 Gd=vec2(0.0);
+  if(o1>0.0){
+    float rug=0.55+1.3*mtn0;
+    hd=o1*0.026*rug*gn(p*95.0+2.0);
+    if(o2>0.0) hd+=o2*0.012*rug*gn(p*220.0+5.0);
+    if(o3>0.0) hd+=o3*0.006*rug*gn(p*520.0+9.0);
+    vec2 dx=dFdx(ll), dy=dFdy(ll); float det=dx.x*dy.y-dx.y*dy.x;
+    if(abs(det)>1e-12){vec2 dh=vec2(dFdx(hd),dFdy(hd)); Gd=vec2(dh.x*dy.y-dh.y*dx.y,dh.y*dx.x-dh.x*dy.x)/det;}
+  }
+  h+=hd;
+  float fw=fwidth(h)*1.1+1e-5;
+  float slope=length(G);                                   // the big landforms, from the bake
+  vec2 Gs=G+Gd*0.3*(0.4+0.6*mtn0);                          // fine relief only lightly in the shading, mostly in the mountains
+  vec3 nrm=normalize(vec3(-Gs*9.0,1.0)), Lm=normalize(vec3(-0.55,0.62,0.6));
+  float hs=dot(nrm,Lm)/Lm.z;                                // 1 on flat ground, more on slopes facing the light
   // ---- climate: cold poles / warm equator, bent by the story ----
   float nT=gn(p*3.1+7.0);
   float fireN=smoothstep(0.2,1.0,blob(p,dir(-30.5,31.6),6.0));
@@ -992,95 +1059,130 @@ void main(){
   float fsea=smoothstep(0.0,0.9,blob(p,dir(44.0,20.0),22.0));
   float summer=smoothstep(0.0,0.7,blob(p,dir(93.0,23.0),17.0));
   float dead=smoothstep(0.0,0.8,blob(p,dir(-15.0,-27.0),13.0));
+  float blight=smoothstep(0.0,1.0,blob(p,dir(86.0,16.0),6.0));
   float mtn=smoothstep(0.30,0.42,h);
   float temp=1.28-abs(lat)/37.0+0.14*nT-0.35*mtn;
   temp=clamp(temp+0.32*thaw+0.8*fireN+0.45*fsea+0.3*summer,0.0,1.0);
-  float moist=clamp(0.5+0.75*gn(p*5.3-4.0)+0.35*thaw-0.6*dead,0.0,1.0);
+  float moist=clamp(0.5+1.25*(B.a-0.5)+0.35*thaw-0.6*dead,0.0,1.0);
   float cold=1.0-smoothstep(0.2,0.6,temp);
-  // fine detail (lakes, rivers, tree glyphs) only where the party has actually been; rumoured land keeps just its colour
-  vec4 mk0=texture2D(uMask,vUv); float detail=smoothstep(0.55,0.9,max(mk0.r,mk0.g*uReveal));
-  // under deep fog only a faint hint of the land shows, so the costly fine detail is skipped there
-  float vis=max(mk0.r,mk0.g), dv=smoothstep(0.01,0.12,vis);
-  // ---- sea: icy in the north, teal in the warm south, ember-red in the Fire Sea ----
-  vec3 seaS=mix(vec3(0.53,0.67,0.66),vec3(0.67,0.75,0.78),cold);
-  vec3 seaD=mix(vec3(0.36,0.49,0.53),vec3(0.46,0.54,0.61),cold);
-  seaS=mix(seaS,vec3(0.76,0.52,0.38),fsea*0.8); seaD=mix(seaD,vec3(0.50,0.27,0.21),fsea*0.8);
-  vec3 col=mix(seaD,seaS,smoothstep(-0.35,0.0,h));
-  float wv=gn(p*42.0+vec3(t*0.05,-t*0.035,t*0.04));
-  col+=vec3(0.06,0.06,0.05)*smoothstep(0.22,0.45,wv)*(1.0-fsea);
-  col+=vec3(1.0,0.42,0.12)*fsea*smoothstep(0.18,0.45,wv)*(0.22+0.12*sin(t*1.6+wv*6.0));
   float grain=0.0; if(vis>0.01) grain=fbm3(p*40.0)*dv;
-  float floe=smoothstep(54.0,64.0,abs(lat))*smoothstep(0.02,0.08,grain);
-  col=mix(col,vec3(0.92,0.94,0.95),0.8*floe);
-  float hatch=smoothstep(0.55,1.0,sin(vUv.y*2600.0))*(1.0-smoothstep(0.0,0.003,fwidth(vUv.y)));
-  col=mix(col,ink,0.10*hatch);
-  // coast ripples: drawn lines that slowly travel out from the shore and fade
-  float ph=fract(t*0.05);
-  for(int k=0;k<3;k++){float kk=float(k)+ph;float th=-0.035*kk-0.004;
-    float a=(0.30-0.08*kk)*smoothstep(0.0,0.5,kk);
-    col=mix(col,ink,a*(1.0-smoothstep(0.0,fw,abs(h-th))));}
-  float foam=1.0-smoothstep(0.0,fw*2.2,abs(h+0.011+0.004*sin(t*1.1+wv*5.0)));
-  col=mix(col,vec3(0.97,0.95,0.90),0.55*foam*(1.0-fsea*0.6));
-  // ---- land: parchment with watercolour washes ----
+  float wv=0.0; if(vis>0.01) wv=gn(p*42.0+vec3(t*0.05,-t*0.035,t*0.04));
+  // ---- sea: pale shelves by the shore, deeper bands further out; icy north, ember-red Fire Sea ----
+  float dpt=-h;
+  vec3 shelf=mix(vec3(0.66,0.82,0.76),vec3(0.76,0.85,0.86),cold);
+  vec3 midW =mix(vec3(0.45,0.63,0.66),vec3(0.56,0.66,0.72),cold);
+  vec3 deepW=mix(vec3(0.30,0.43,0.52),vec3(0.40,0.48,0.58),cold);
+  shelf=mix(shelf,vec3(0.86,0.62,0.44),fsea*0.8); midW=mix(midW,vec3(0.68,0.38,0.27),fsea*0.8); deepW=mix(deepW,vec3(0.46,0.22,0.18),fsea*0.8);
+  vec3 col=mix(shelf,midW,smoothstep(0.035,0.09,dpt));
+  col=mix(col,deepW,smoothstep(0.16,0.42,dpt));
+  // pigment pooled where each band dried, and a soft granulation in the deep
+  col=mix(col,midW*0.86,0.30*wash(dpt,0.055,0.03).y);
+  col=mix(col,deepW*0.9,0.22*wash(dpt,0.17,0.06).y);
+  col*=0.97+0.06*grain;
+  col+=vec3(0.035)*smoothstep(0.25,0.5,wv)*(1.0-fsea)*smoothstep(0.03,0.1,dpt);
+  // the Fire Sea: a slow glow rolling under the surface
+  if(fsea>0.0){float fl=fbm3(p*7.0+vec3(t*0.04,-t*0.03,t*0.02)); col+=vec3(1.0,0.45,0.15)*fsea*fsea*smoothstep(-0.1,0.45,fl)*(0.16+0.06*sin(t*0.9+fl*4.0));}
+  // pack ice: floes with a thin blue rim, closing up towards the pole
+  float iceZ=smoothstep(52.0,70.0,abs(lat));
+  if(iceZ>0.0&&vis>0.01){float fn=gn(p*17.0+vec3(0.0,t*0.003,0.0))+0.35*gn(p*41.0), th=0.32-0.6*iceZ, ffw=fwidth(fn)+1e-4;
+    float floe=smoothstep(th-ffw,th+ffw,fn)*smoothstep(0.0,0.15,iceZ);
+    col=mix(col,vec3(0.93,0.95,0.96)*(0.97+0.04*grain),0.9*floe);
+    col=mix(col,vec3(0.52,0.64,0.74),0.5*smoothstep(0.0,0.15,iceZ)*(1.0-smoothstep(0.0,ffw*1.5,abs(fn-th))));}
+  // one slow ripple line travelling out from the shore, and the foam line
+  float ph=fract(t*0.04);
+  {float th=-0.012-0.05*ph; float a=0.22*smoothstep(0.0,0.2,ph)*(1.0-ph)*dv;
+   col=mix(col,ink,a*(1.0-smoothstep(0.0,fw,abs(h-th))));}
+  float foam=1.0-smoothstep(0.0,fw*2.0,abs(h+0.009+0.003*sin(t*1.1+wv*5.0)));
+  col=mix(col,vec3(0.98,0.97,0.93),0.6*foam*(1.0-fsea*0.6));
+  // sun glint: the sea catches the sun where it faces it
+  float mm=uMorph<0.5?2.0*uMorph*uMorph:1.0-pow(-2.0*uMorph+2.0,2.0)/2.0;
+  float sd=dot(p,uSun), day=smoothstep(-0.42,0.02,sd);
+  if(vis>0.01&&h<0.0){
+    vec3 N=normalize(mix(p,vec3(0.0,0.0,1.0),mm)), V=normalize(cameraPosition-vWorld), Ls=normalize(mix(uSun,vec3(-0.35,0.45,0.82),mm));
+    float nh=max(dot(N,normalize(Ls+V)),0.0);
+    float spk=smoothstep(0.35,0.6,gn(p*320.0+vec3(t*0.4,-t*0.3,t*0.2)))*smoothstep(1.0,3.0,0.05/px);
+    float spec=0.10*pow(nh,14.0)+0.35*pow(nh,260.0)+0.6*pow(nh,50.0)*spk;
+    col+=vec3(1.0,0.95,0.82)*spec*day*dv*(1.0-fsea*0.5)*smoothstep(0.0,0.02,dpt);
+  }
+  // ---- land: parchment, then watercolour washes ----
   vec3 parch=vec3(0.918,0.851,0.706);
-  vec3 land=parch*(0.95+0.07*grain)-0.10*smoothstep(0.1,0.6,h);
-  vec3 heath=vec3(0.84,0.76,0.56), meadow=vec3(0.66,0.73,0.48), steppe=vec3(0.90,0.72,0.44), lush=vec3(0.50,0.66,0.38);
-  vec3 bio=mix(mix(heath,meadow,smoothstep(0.35,0.7,moist)),mix(steppe,lush,smoothstep(0.4,0.8,moist)),smoothstep(0.55,0.9,temp));
+  vec3 land=parch*(0.95+0.07*grain);
+  vec3 heath=vec3(0.84,0.76,0.56), meadow=vec3(0.66,0.74,0.48), steppe=vec3(0.90,0.73,0.46), lush=vec3(0.50,0.67,0.40);
+  vec2 wm=wash(moist,0.42,0.22), wt=wash(temp,0.6,0.25);
+  vec3 bio=mix(mix(heath,meadow,wm.x),mix(steppe,lush,wm.x),wt.x);
   bio=mix(bio,vec3(0.80,0.86,0.89),cold);
   bio=mix(bio,mix(vec3(0.52,0.66,0.36),vec3(0.87,0.62,0.30),smoothstep(-0.15,0.25,nT)),summer*0.85);
   bio=mix(bio,vec3(0.47,0.64,0.47),thaw*(1.0-scar)*0.7);
   bio=mix(bio,vec3(0.60,0.54,0.47),dead);
-  float blight=smoothstep(0.0,1.0,blob(p,dir(86.0,16.0),6.0));
   bio=mix(bio,vec3(0.66,0.62,0.66),blight*0.8);
-  land=mix(land,bio*(0.94+0.1*grain),0.6);
+  land=mix(land,bio*(0.94+0.1*grain),0.62);
+  land*=1.0-0.07*max(wm.y,wt.y)*(1.0-cold);                // the drying rim between two washes
+  // beaches on gentle shores, bare rock where the coast is steep
+  float shore=1.0-smoothstep(0.004,0.02+fw,h);
+  float cliff=smoothstep(0.03,0.08,slope);
+  land=mix(land,mix(vec3(0.93,0.87,0.70),vec3(0.86,0.88,0.88),cold),shore*(1.0-cliff)*0.8);
+  land=mix(land,vec3(0.52,0.46,0.40),shore*cliff*0.55);
   if(detail>0.0){
     // lakes: frozen in the north, meltwater around the thawing hills
     float ln=gn(p*26.0+11.0);
     float lake=smoothstep(0.30,0.33,ln)*smoothstep(0.04,0.09,h)*(1.0-mtn)*max(cold,thaw)*detail;
     float lfw=fwidth(ln)*1.5+1e-4;
-    vec3 lakeC=mix(vec3(0.76,0.87,0.93)+0.08*smoothstep(0.36,0.42,ln),vec3(0.42,0.60,0.64),thaw);
+    vec3 lakeC=mix(vec3(0.76,0.87,0.93)+0.08*smoothstep(0.36,0.42,ln),vec3(0.48,0.68,0.70),thaw);
     land=mix(land,lakeC,lake);
-    land=mix(land,mix(ink,vec3(0.25,0.36,0.46),cold),0.6*detail*max(cold,thaw)*smoothstep(0.04,0.09,h)*(1.0-mtn)*(1.0-smoothstep(0.0,lfw,abs(ln-0.315))));
+    land=mix(land,mix(ink,vec3(0.25,0.36,0.46),cold),0.55*detail*max(cold,thaw)*smoothstep(0.04,0.09,h)*(1.0-mtn)*(1.0-smoothstep(0.0,lfw,abs(ln-0.315))));
     // rivers: thin ink-blue lines, strongest in the meltwater country
     float rv=gn(p*15.0+vec3(3.0,1.0,7.0));
     float riv=(1.0-smoothstep(0.0,fwidth(rv)*1.2+0.003,abs(rv)))*smoothstep(0.03,0.08,h)*(1.0-smoothstep(0.24,0.32,h));
     riv*=smoothstep(0.62,0.85,moist+0.3*thaw)*(1.0-cold*0.7)*detail;
     land=mix(land,mix(vec3(0.30,0.45,0.55),vec3(0.36,0.62,0.66),thaw),0.65*riv);
   }
-  // snow fields and glacier blue in the cold north
+  // snow fields in the cold north
   float snow=(1.0-smoothstep(0.08,0.24,temp))*(1.0-thaw);
   land=mix(land,vec3(0.95,0.96,0.97)*(0.97+0.05*grain),0.8*snow);
-  // forest
-  float fr=0.0; if(vis>0.01) fr=fbm(p*14.0+3.0);
+  // forest: a green wash with a darker rim, ink trees on top once you are close
+  float fr=(B.b-0.5)/0.8;
   float fth=0.12-0.22*summer-0.3*blight;
-  float forest=smoothstep(fth,fth+0.1,fr)*smoothstep(0.02,0.1,h)*(1.0-smoothstep(0.32,0.4,h))*(1.0-scar)*dv;
-  float stip=0.5; if(vis>0.01) stip=smoothstep(0.3,0.9,gn(p*900.0));
+  float onLand=smoothstep(0.02,0.1,h)*(1.0-smoothstep(0.32,0.4,h))*(1.0-scar);
+  vec2 wf=wash(fr,fth,0.1);
+  float forest=wf.x*onLand*dv;
+  float stip=0.5; if(vis>0.01) stip=mix(0.5,smoothstep(0.3,0.9,gn(p*900.0)),smoothstep(1.0,3.0,0.04/px));
   float g30=0.0; if(summer>0.0&&vis>0.01) g30=gn(p*30.0);
-  vec3 green=mix(vec3(0.40,0.48,0.25),vec3(0.27,0.40,0.34),cold);
+  vec3 green=mix(vec3(0.40,0.49,0.26),vec3(0.27,0.40,0.34),cold);
   green=mix(green,mix(vec3(0.33,0.50,0.22),vec3(0.84,0.55,0.18),smoothstep(-0.1,0.2,nT+0.35*g30)),summer);
   green=mix(green,vec3(0.50,0.44,0.52),blight);
   float conif=smoothstep(0.35,0.6,cold+0.2*(1.0-summer)*step(0.0,nT));
-  vec2 ll=vec2((vUv.x-0.5)*360.0*cos(radians(lat)),(vUv.y-0.5)*180.0);
-  float px=fwidth(ll.y)+1e-5;
   float vB=smoothstep(14.0,24.0,0.5/px)*detail, vA=smoothstep(14.0,24.0,1.4/px)*detail*(1.0-vB);
-  float thr=fth, onLand=smoothstep(0.02,0.1,h)*(1.0-smoothstep(0.32,0.4,h))*(1.0-scar);
   vec2 gA=vec2(0.0), gB=vec2(0.0);
-  if(vA*onLand>0.001) gA=treeGlyph(ll,1.4,px/1.4*1.2,thr,conif,t)*vA*onLand;
-  if(vB*onLand>0.001) gB=treeGlyph(ll,0.5,px/0.5*1.2,thr,conif,t)*vB*onLand;
+  if(vA*onLand>0.001) gA=treeGlyph(ll,1.4,px/1.4*1.2,fth,conif,t)*vA*onLand;
+  if(vB*onLand>0.001) gB=treeGlyph(ll,0.5,px/0.5*1.2,fth,conif,t)*vB*onLand;
   float glyph=max(vA,vB);
-  land=mix(land,green,forest*(0.35+0.4*stip)*(1.0-0.45*glyph));
+  land=mix(land,green,forest*(0.42+0.3*stip)*(1.0-0.45*glyph));
+  land=mix(land,green*0.72,0.35*wf.y*onLand*dv*(1.0-glyph));
   vec2 gt=max(gA,gB);
   land=mix(land,green*0.85,0.75*gt.x);
   land=mix(land,mix(ink,vec3(0.30,0.22,0.32),blight),0.75*gt.y);
   // blight: grey-violet rot with faintly pulsing veins
   float vein=0.0; if(blight>0.0&&vis>0.01){float vn=gn(p*110.0+5.0); vein=1.0-smoothstep(0.0,0.02+fwidth(vn),abs(vn));}
   land=mix(land,vec3(0.50,0.32,0.58),blight*blight*vein*(0.22+0.12*sin(t*1.3))*smoothstep(0.02,0.1,h));
-  // mountains: ink ridges, snow-capped where it is cold, wet and dark where it thawed
-  float ridge=1.0-smoothstep(0.0,0.05,abs(fract(h*14.0)-0.5)-0.40);
+  // mountains: a darker wash, snow-capped where it is cold, wet and dark where it thawed
   float cap=mtn*(1.0-smoothstep(0.35,0.62,temp))*(1.0-0.75*thaw);
-  land=mix(land,vec3(0.96,0.97,0.98),0.85*cap*smoothstep(0.34,0.44,h));
-  land=mix(land,vec3(0.55,0.66,0.74),0.35*cap*ridge);
-  land=mix(land,vec3(0.35,0.25,0.15),mtn*0.35*ridge*(1.0-0.4*cap));
+  land=mix(land,vec3(0.66,0.58,0.47),mtn*0.35*(1.0-cap));
+  land=mix(land,vec3(0.97,0.97,0.98),0.88*cap*smoothstep(0.34,0.44,h));
+  // relief: the light comes from the north-west like on an old atlas; shadows are a cool violet wash, snow shadows blue
+  float k=clamp(hs-1.0,-1.0,0.8)*smoothstep(0.0,0.03,h);
+  vec3 shadeC=mix(vec3(0.58,0.52,0.64),vec3(0.62,0.72,0.86),cap);
+  land=mix(land,land*shadeC,clamp(-k,0.0,1.0)*0.85);
+  land=mix(land,land*1.08+vec3(0.02),clamp(k,0.0,1.0)*0.6);
+  // hachures on steep ground, darker on the shadow side; one coarse set far out, a fine set up close
+  if(detail>0.0&&slope>0.025&&h>0.01){
+    vec2 g=G/slope; float steep=smoothstep(0.02,0.12,slope);
+    float v1=smoothstep(3.0,6.0,1.1/px)*(1.0-smoothstep(5.0,9.0,0.3/px)), v2=smoothstep(5.0,9.0,0.3/px);
+    float hh=0.0;
+    if(v1>0.0) hh+=v1*hachure(ll,g,h,1.1,px,steep);
+    if(v2>0.0) hh+=v2*hachure(ll,g,h,0.3,px,steep);
+    float a=hh*smoothstep(0.025,0.07,slope)*detail*(0.35+0.4*clamp(1.0-hs,0.0,1.0))*(1.0-0.5*cap);
+    land=mix(land,mix(vec3(0.33,0.24,0.15),vec3(0.40,0.50,0.62),cap),a);
+  }
   // the Fire Vault: a hot scar of cooled lava with glowing cracks
   land=mix(land,vec3(0.80,0.47,0.30),fireN*(1.0-scar)*0.45);
   land=mix(land,vec3(0.27,0.21,0.19)*(0.9+0.2*grain),scar*0.85);
@@ -1094,13 +1196,14 @@ void main(){
   // drifting cloud shadows
   float cs=0.0; if(vis>0.01) cs=gn(p*3.6+vec3(t*0.012,0.0,t*0.009));
   land*=1.0-0.08*dv*smoothstep(0.05,0.35,cs);
-  col=mix(col,land,smoothstep(-fw,fw,h));
-  col=mix(col,ink,0.85*(1.0-smoothstep(0.0,fw*1.2,abs(h))));
+  col=mix(col,land,smoothstep(-fw*0.5,fw*0.5,h));
+  // one clean ink coastline
+  col=mix(col,ink,0.8*(1.0-smoothstep(0.0,fw*1.1,abs(h))));
   // living sky: a slow day and night; the towns the crew knows light their lamps after dark
-  float sd=dot(p,uSun), day=smoothstep(-0.42,0.02,sd), dusk=1.0-smoothstep(0.0,0.16,abs(sd+0.2));
+  float dusk=1.0-smoothstep(0.0,0.16,abs(sd+0.2));
   float lamp=0.0; for(int i=0;i<8;i++){vec4 L=uLights[i]; if(L.w>0.0){float a=acos(clamp(dot(p,L.xyz),-1.0,1.0))*57.2958; lamp+=L.w*(exp(-a*a/0.5)+0.35*exp(-a*a/7.0))*(0.85+0.15*sin(t*3.0+float(i)*1.7));}}
   // fog of war
-  vec4 mk=texture2D(uMask,vUv);
+  vec4 mk=mk0;
   float old=mk.r, fresh=mk.g;
   float rn=0.5; if(fresh>0.0) rn=fbm(p*9.0)*0.5+0.5;
   float rev=fresh*smoothstep(rn-0.06,rn+0.06,uReveal*1.15-0.05);
@@ -1148,10 +1251,20 @@ void main(){
   cc+=vec3(0.75,0.85,1.0)*fl*1.6;
   gl_FragColor=vec4(cc,(max(a,wa)+fl*0.5*smoothstep(0.5,0.7,wx))*uOpacity);
 }`;
-const uniforms = {uMask:{value:maskTex},uTime:{value:0},uReveal:{value:1},uSun:{value:new THREE.Vector3(0,0,1)},uLights:{value:Array.from({length:8},()=>new THREE.Vector4())},uShade:{value:new THREE.Vector4(0,0,1,0.03)},uShadeAx:{value:new THREE.Vector4(1,0,0,0)},uFlash:{value:new THREE.Vector4(0,0,1,0)},uMorph:{value:0},uCenter:{value:new THREE.Vector2(CENTER.lon,CENTER.lat)},uLift:{value:0}};
+const uniforms = {uMask:{value:maskTex},uTime:{value:0},uReveal:{value:1},uSun:{value:new THREE.Vector3(0,0,1)},uLights:{value:Array.from({length:8},()=>new THREE.Vector4())},uShade:{value:new THREE.Vector4(0,0,1,0.03)},uShadeAx:{value:new THREE.Vector4(1,0,0,0)},uFlash:{value:new THREE.Vector4(0,0,1,0)},uBake:{value:null},uBakeTx:{value:new THREE.Vector2(1/2048,1/1024)},uMorph:{value:0},uCenter:{value:new THREE.Vector2(CENTER.lon,CENTER.lat)},uLift:{value:0}};
 const geo = new THREE.PlaneGeometry(1,1,256,128);
 const world = new THREE.Mesh(geo,new THREE.ShaderMaterial({uniforms,vertexShader:VERT,fragmentShader:WORLD_FRAG,side:THREE.DoubleSide,extensions:{derivatives:true}}));
 world.frustumCulled=false; scene.add(world);
+// bake the land once: the world shader reads its height, forest and moisture from this texture instead of working them out every frame
+const BAKE=(()=>{const big=renderer.capabilities.maxTextureSize>=4096, w=big?2048:1024, h=w/2;
+  const rt=new THREE.WebGLRenderTarget(w,h,{depthBuffer:false,generateMipmaps:true,minFilter:THREE.LinearMipmapLinearFilter,magFilter:THREE.LinearFilter,wrapS:THREE.RepeatWrapping,wrapT:THREE.ClampToEdgeWrapping});
+  const sc=new THREE.Scene(), cm=new THREE.Camera();
+  const q=new THREE.Mesh(new THREE.PlaneGeometry(2,2),new THREE.ShaderMaterial({depthTest:false,depthWrite:false,vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.0,1.0);}`,fragmentShader:BAKE_FRAG}));
+  q.frustumCulled=false; sc.add(q);
+  function run(){const was=renderer.getRenderTarget(); renderer.setRenderTarget(rt); renderer.render(sc,cm); renderer.setRenderTarget(was);}
+  run(); uniforms.uBake.value=rt.texture; uniforms.uBakeTx.value.set(1/w,1/h);
+  renderer.domElement.addEventListener("webglcontextrestored",()=>setTimeout(run,0));
+  return {run};})();
 const cloudU = {...uniforms,uLift:{value:0.02},uOpacity:{value:1}};
 const clouds = new THREE.Mesh(geo,new THREE.ShaderMaterial({uniforms:cloudU,vertexShader:VERT,fragmentShader:CLOUD_FRAG,transparent:true,depthWrite:false,side:THREE.DoubleSide}));
 clouds.frustumCulled=false; scene.add(clouds);
@@ -1823,7 +1936,7 @@ const PAINT={on:false,rt:null};
 precision highp float; uniform sampler2D tMap; uniform vec2 uRes; uniform float uTime; varying vec2 vUv;
 float hsh(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}
 void main(){
-  vec2 px=1.6/uRes; vec3 m0=vec3(0.),m1=vec3(0.),m2=vec3(0.),m3=vec3(0.),s0=vec3(0.),s1=vec3(0.),s2=vec3(0.),s3=vec3(0.);
+  vec2 px=1.25/uRes; vec3 m0=vec3(0.),m1=vec3(0.),m2=vec3(0.),m3=vec3(0.),s0=vec3(0.),s1=vec3(0.),s2=vec3(0.),s3=vec3(0.);
   for(int j=0;j<=2;j++)for(int i=0;i<=2;i++){
     vec3 a=texture2D(tMap,vUv+vec2(-i,-j)*px).rgb; m0+=a; s0+=a*a;
     vec3 b=texture2D(tMap,vUv+vec2( i,-j)*px).rgb; m1+=b; s1+=b*b;
@@ -1833,7 +1946,7 @@ void main(){
   float v0=dot(s0/9.-m0*m0,vec3(1.)),v1=dot(s1/9.-m1*m1,vec3(1.)),v2=dot(s2/9.-m2*m2,vec3(1.)),v3=dot(s3/9.-m3*m3,vec3(1.));
   vec3 col=m0; float v=v0; if(v1<v){v=v1;col=m1;} if(v2<v){v=v2;col=m2;} if(v3<v){v=v3;col=m3;}
   // ink stays ink: where every corner is busy (a line, a route, a coast) keep the original pixel
-  col=mix(col,texture2D(tMap,vUv).rgb,smoothstep(0.002,0.02,v));
+  col=mix(col,texture2D(tMap,vUv).rgb,smoothstep(0.0003,0.003,v));
   // paper: fine grain and long fibres, a little warmth in the light parts
   vec2 fc=gl_FragCoord.xy; float grain=hsh(floor(fc))-0.5, fib=hsh(floor(fc*vec2(0.05,0.9)))-0.5;
   col+=(grain*0.035+fib*0.02)*(0.4+0.6*dot(col,vec3(0.33)));
