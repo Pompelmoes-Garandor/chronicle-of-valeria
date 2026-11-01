@@ -39,7 +39,6 @@ Top of the list is what to work on next.
 ## Next
 
 - [ ] **People directory** · New · either · Needs Sam. A list of the people the crew has met (Gerda, Thorn, Pieter-Bas, Teenoog, Calysta...), next to Places. Each player keeps how they feel about them (−10 to +10) and a note, saved on their own device like sheet edits.
-- [ ] **Get tag edits to everyone** · New · either · Start with a "Send to Sam" button that opens a GitHub issue or copies the edits for the group chat. Sam or Niels folds them into the places database.
 - [ ] **Richer place records** · New · either · Needs Sam. Add region and controlling faction to the places database (Order of the Seal for Orda and the Crow's Nest), and a "Mentioned in" list on each place: sessions, people and places that refer to it.
 - [ ] **Spell slots and resources as tappable dots** · New · either · On the character sheets: slots per level, sorcery points, Bardic Inspiration, plus an exhaustion counter. Saved on the device like HP.
 
@@ -60,6 +59,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Get tag edits to everyone:** players propose tags and notes, Sam accepts with one tap · New · Niels · PR #43
 - [x] **Play session 10 on a 3D table: lit dioramas, painted minis, a camera you can turn and zoom** · New · Sam · PR #41
 - [x] **Play session 10: scenes, grid battles and the monsters from the script** · New · Sam · PR #37
 - [x] **Smooth first on computers: auto quality aims for 60 fps by softening the 3D map a little, and sharpens again** · Changed · Sam · PR #40
