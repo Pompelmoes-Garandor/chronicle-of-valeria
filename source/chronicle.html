@@ -4069,12 +4069,81 @@ function t3cave(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,S=seeded(mp.key.length*977+31),
 function t3dressTunnel(Vb){}
 
 /* ---- OWNER: cavern + heart. The Blight Heart's chamber: veins, glow light, its pulse ---- */
-function t3dressCavern(Vb){const mp=Vb.mp,S=seeded(707),rr=(a,b)=>a+(b-a)*S();if(!mp.def.glow)return;const [gx,gy]=mp.def.glow,c=Vb.cell(gx,gy),roots=[],glow=[];
-  for(let i=0;i<22;i++){const a=i/22*Math.PI*2+rr(-.1,.1),len=rr(2.5,6),pts=[];for(let k=0;k<=6;k++){const t=k/6;pts.push(new THREE.Vector3(c.x+Math.cos(a+Math.sin(k)*.15)*(1.2+t*len),.04+Math.sin(t*3)*.05,c.z+Math.sin(a+Math.sin(k)*.15)*(1.2+t*len)));}
-    (i%3?roots:glow).push(t3tint(t3tube(pts,i%3?rr(.06,.12):.03),i%3?"#140f0b":"#7fd36a"));}
-  Vb.root.add(t3mesh(t3merge(roots),t3surf("root",Vb),{cast:true,recv:true}),t3mesh(t3merge(glow),t3surf("glow",Vb)));
-  const gl=new THREE.PointLight(0x7fd36a,26,10,1.6);gl.position.set(c.x,1.6,c.z+1);Vb.scene.add(gl);
-  Vb.ticks.push((dt,tt)=>{gl.intensity=22+10*Math.max(0,Math.sin(tt*4.2));});}
+function t3dressCavern(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,S=seeded(707),rr=(a,b)=>a+(b-a)*S(),pk=a=>a[Math.floor(S()*a.length)],hi=T3Q.hi;if(!mp.def.glow)return;
+  const [gx,gy]=mp.def.glow,c=Vb.cell(gx,gy),roots=[],veins=[],ribs=[];
+  const wallAt=(x,z)=>{const cx=Math.floor(x+W/2),cy=Math.floor(z+H/2);return cx<0||cy<0||cx>=W||cy>=H||mp.c(cx,cy)==="#";};
+  // thick roots crawl out from under the heart across the floor, then climb the walls they reach
+  const nR=hi?18:11;
+  for(let i=0;i<nR;i++){const a0=i/nR*Math.PI*2+rr(-.12,.12),thick=rr(.1,.17);let a=a0,x=c.x+Math.cos(a)*.9,z=c.z+Math.sin(a)*.9,d=0;const pts=[new THREE.Vector3(c.x+Math.cos(a)*.55,.55,c.z+Math.sin(a)*.55)],ds=[0];
+    for(let k=0;k<40;k++){a+=rr(-.22,.22)+(a0-a)*.15;const nx=x+Math.cos(a)*.42,nz=z+Math.sin(a)*.42;d+=.42;
+      if(wallAt(nx,nz)){// climb: hug the wall face and rise
+        const hx=x+Math.cos(a)*.18,hz=z+Math.sin(a)*.18,top=rr(2,3.3);for(let j=1;j<=4;j++){pts.push(new THREE.Vector3(hx+rr(-.12,.12),j/4*top,hz+rr(-.12,.12)));}break;}
+      x=nx;z=nz;pts.push(new THREE.Vector3(x,thick*.55+Math.sin(k*1.7+i)*.025,z));
+      if(k>4&&S()<.18&&hi){const b=a+(S()<.5?1:-1)*rr(.5,1.1),bp=[pts[pts.length-1].clone()];let bx=x,bz=z;for(let j=0;j<5;j++){bx+=Math.cos(b+rr(-.3,.3))*.32;bz+=Math.sin(b+rr(-.3,.3))*.32;if(wallAt(bx,bz))break;bp.push(new THREE.Vector3(bx,.03+thick*.2,bz));}
+        if(bp.length>2)roots.push(t3tint(t3hTube(bp,thick*.5,.012,hi),pk(["#140f0b","#1c1510","#100c09"])));}
+      if(d>rr(4,9)&&S()<.3)break;}
+    if(pts.length<3)continue;
+    roots.push(t3tint(t3hTube(pts,thick,.025,hi),pk(["#160f0b","#1d1510","#120d0a"])));
+    // a glowing vein rides on top of most roots; its pulse runs outward from the heart
+    if(i%3!==1){const vp=pts.map((p,j)=>p.clone().add(new THREE.Vector3(0,j?thick*.5:0,0)));veins.push(t3hTube(vp,.022,.008,hi,4,true));}}
+  // ribs of root arching over the back of the chamber (behind the heart, so the board stays clear)
+  for(const [ax,az,bx,bz,hgt] of [[-1.6,-.4,-2.6,-3.6,3],[.2,-.6,.6,-3.9,3.4],[1.6,-.3,3.1,-3.3,2.8]].slice(0,hi?3:2)){
+    const p0=new THREE.Vector3(c.x+ax,.9,c.z+az),p1=new THREE.Vector3(c.x+bx,1.6,c.z+bz),pts=[];
+    for(let k=0;k<=8;k++){const t=k/8;pts.push(new THREE.Vector3().lerpVectors(p0,p1,t).add(new THREE.Vector3(rr(-.06,.06),Math.sin(t*Math.PI)*(hgt-1.2)+t*.9,rr(-.06,.06))));}
+    pts.push(new THREE.Vector3(c.x+bx*1.15,3.3,c.z+bz*1.08));ribs.push(t3tint(t3hTube(pts,.2,.08,hi),"#18110c"));}
+  const rm=t3surf("root",Vb);Vb.root.add(t3mesh(t3merge(roots),rm,{cast:true,recv:true}));if(ribs.length)Vb.root.add(t3mesh(t3merge(ribs),rm,{cast:true,recv:true}));
+  const U=Vb.t3h={ph:{value:0},beat:{value:0},life:{value:1}};
+  if(veins.length){const vm=new THREE.MeshStandardMaterial({color:0x2c3f1c,roughness:.35,emissive:0x9cf06a,emissiveIntensity:1});
+    vm.onBeforeCompile=sh=>{Object.assign(sh.uniforms,{uPh:U.ph,uBeat:U.beat,uLife:U.life});
+      sh.vertexShader="attribute float aD;varying float vD;\n"+sh.vertexShader.replace("#include <begin_vertex>","#include <begin_vertex>\nvD=aD;");
+      sh.fragmentShader="uniform float uPh,uBeat,uLife;varying float vD;\n"+sh.fragmentShader.replace("#include <emissivemap_fragment>","#include <emissivemap_fragment>\nfloat wv=exp(-pow((vD-uPh*6.5)*1.1,2.));totalEmissiveRadiance*=((.1+.22*uBeat)*(1.-smoothstep(3.,9.,vD))+1.5*wv)*uLife+.01;");};
+    Vb.root.add(t3mesh(t3hMerge(veins),vm));}
+  // the sick green breath on the floor around it
+  const gc=document.createElement("canvas");gc.width=gc.height=256;const g2=gc.getContext("2d"),gr=g2.createRadialGradient(128,128,0,128,128,128);gr.addColorStop(0,"#9cf06aff");gr.addColorStop(.3,"#6ec24a88");gr.addColorStop(.65,"#3f7a2a22");gr.addColorStop(1,"#0000");
+  g2.fillStyle=gr;g2.fillRect(0,0,256,256);g2.globalCompositeOperation="destination-out";for(let i=0;i<70;i++){g2.globalAlpha=rr(.1,.45);g2.beginPath();g2.arc(rr(0,256),rr(0,256),rr(6,26),0,7);g2.fill();}
+  const gt=new THREE.CanvasTexture(gc);gt.colorSpace=THREE.SRGBColorSpace;
+  const gp=new THREE.Mesh(new THREE.PlaneGeometry(8,8),new THREE.MeshBasicMaterial({map:gt,color:0x7fd36a,transparent:true,opacity:.5,depthWrite:false,blending:THREE.AdditiveBlending}));gp.rotation.x=-Math.PI/2;gp.position.set(c.x,.06,c.z);gp.renderOrder=1;Vb.root.add(gp);
+  // spores rising off the heart, drifting up into the dark (all motion in the shader)
+  const nS=hi?150:50,sp=new Float32Array(nS*3),sa=new Float32Array(nS*2);
+  for(let i=0;i<nS;i++){const a=rr(0,6.283),r=Math.pow(S(),1.6)*5+.4;sp[i*3]=c.x+Math.cos(a)*r;sp[i*3+1]=rr(0,3.4);sp[i*3+2]=c.z+Math.sin(a)*r;sa[i*2]=rr(.12,.35);sa[i*2+1]=rr(0,60);}
+  const sg=new THREE.BufferGeometry();sg.setAttribute("position",new THREE.BufferAttribute(sp,3));sg.setAttribute("aP",new THREE.BufferAttribute(sa,2));
+  const SU={uT:{value:0},uS:{value:400},uLife:U.life,uBeat:U.beat};
+  const spm=new THREE.ShaderMaterial({uniforms:SU,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
+    vertexShader:"attribute vec2 aP;uniform float uT,uS,uLife,uBeat;varying float vA;void main(){vec3 p=position;float h=mod(p.y+uT*aP.x,3.4);p.y=h+.05;float sw=.15+h*.12;p.x+=sin(uT*.6+aP.y)*sw;p.z+=cos(uT*.47+aP.y*1.3)*sw;vec4 mv=modelViewMatrix*vec4(p,1.);gl_Position=projectionMatrix*mv;gl_PointSize=uS*(.06+.05*fract(aP.y*7.13))/-mv.z;vA=smoothstep(0.,.6,h)*(1.-smoothstep(2.,3.4,h))*(.55+.45*sin(uT*2.+aP.y))*(.25+.75*uLife)*(1.+uBeat*.5);}",
+    fragmentShader:"varying float vA;void main(){float d=length(gl_PointCoord-.5);float a=smoothstep(.5,.0,d);a*=a;gl_FragColor=vec4(vec3(.62,.95,.38)*a*vA,a*vA);}"});
+  const spp=new THREE.Points(sg,spm);spp.frustumCulled=false;spp.renderOrder=2;Vb.root.add(spp);
+  // the green light breathes with each beat
+  const gl=new THREE.PointLight(0x7fd36a,26,12,1.5);gl.position.set(c.x+.4,3.6,c.z+1.9);Vb.scene.add(gl);Vb.pulseLight=gl;
+  let life=1;
+  Vb.ticks.push((dt,tt)=>{const hu=B&&B.units&&B.units.find(o=>o.key==="heart"),dead=hu?(hu.hp<=0||hu.gone||(B.sc&&B.sc.heartDead)):false;
+    life+=((dead?0:1)-life)*Math.min(1,dt*(dead?.7:3));const b=t3hBeat(tt);
+    U.ph.value=tt%T3H_P;U.beat.value=b;U.life.value=life;SU.uT.value=tt;SU.uS.value=Vb.r.domElement.height*.5;
+    gl.intensity=(14+22*b)*life+2;gp.material.opacity=(.3+.35*b)*life+.04;});}
+
+/* cavern + heart helpers: the heartbeat, a tapered root tube, a merge that keeps extra attributes, a little noise */
+const T3H_P=1.5;
+function t3hBeat(tt){const ph=(tt%T3H_P)/T3H_P,p=(x,c,w)=>Math.exp(-Math.pow((x-c)/w,2));return Math.min(1,p(ph,.06,.05)+p(ph+1,.06,.05)+.65*p(ph,.24,.06));}  // lub-dub
+function t3hTube(pts,r0,r1,hi,rad,withD){const cv=new THREE.CatmullRomCurve3(pts),L=cv.getLength(),n=Math.max(6,Math.min(hi?60:24,Math.round(L*(hi?9:4)))),R=rad||(hi?7:5),fr=cv.computeFrenetFrames(n,false);
+  const P=[],N=[],D=[],I=[],seed=pts[0].x*7.3+pts[0].z*3.1;
+  for(let i=0;i<=n;i++){const t=i/n,c=cv.getPointAt(t),r=(r0+(r1-r0)*Math.pow(t,.7))*(1+.14*Math.sin(t*L*5.3+seed)),nn=fr.normals[i],bb=fr.binormals[i];
+    for(let j=0;j<=R;j++){const a=j/R*Math.PI*2,cs=Math.cos(a),sn=Math.sin(a),nx=cs*nn.x+sn*bb.x,ny=cs*nn.y+sn*bb.y,nz=cs*nn.z+sn*bb.z;P.push(c.x+nx*r,c.y+ny*r,c.z+nz*r);N.push(nx,ny,nz);D.push(t*L);}}
+  for(let i=0;i<n;i++)for(let j=0;j<R;j++){const a=i*(R+1)+j,b=a+R+1;I.push(a,b,a+1,b,b+1,a+1);}
+  const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.Float32BufferAttribute(P,3));g.setAttribute("normal",new THREE.Float32BufferAttribute(N,3));if(withD)g.setAttribute("aD",new THREE.Float32BufferAttribute(D,1));g.setIndex(I);return g;}
+function t3hMerge(list){list=list.map(g=>g.index?g.toNonIndexed():g);const names=Object.keys(list[0].attributes),m=new THREE.BufferGeometry();
+  for(const k of names){const sz=list[0].attributes[k].itemSize;let n=0;for(const g of list)n+=g.attributes[k].count;const A=new Float32Array(n*sz);let o=0;for(const g of list){A.set(g.attributes[k].array,o);o+=g.attributes[k].array.length;}m.setAttribute(k,new THREE.BufferAttribute(A,sz));}
+  for(const g of list)g.dispose();m.computeBoundingSphere();return m;}
+function t3hN(x,y,z){const X=Math.floor(x),Y=Math.floor(y),Z=Math.floor(z),u=x-X,v=y-Y,w=z-Z,s=t=>t*t*(3-2*t),a=s(u),b=s(v),c=s(w),h=(i,j,k)=>t3hash(X+i,Y+j,Z+k),l=(p,q,t)=>p+(q-p)*t;
+  return l(l(l(h(0,0,0),h(1,0,0),a),l(h(0,1,0),h(1,1,0),a),b),l(l(h(0,0,1),h(1,0,1),a),l(h(0,1,1),h(1,1,1),a),b),c);}
+const t3hF=(x,y,z)=>t3hN(x,y,z)*.55+t3hN(x*2.1+5,y*2.1,z*2.1)*.3+t3hN(x*4.3,y*4.3+9,z*4.3)*.15;
+// the heart's shape: a lumpy, two-chambered mass with a blunt apex, as radius per unit direction
+function t3hShape(x,y,z){const bump=(ax,ay,az,k)=>{const l=Math.hypot(ax,ay,az);return Math.pow(Math.max(0,(x*ax+y*ay+z*az)/l),k);};
+  const n=t3hF(x*1.7+3,y*1.7,z*1.7)-.5;return {r:1+.2*bump(-.5,.8,.2,6)+.17*bump(.45,.85,-.15,7)+.22*bump(.3,-.55,.75,4)-.12*bump(0,-1,0,3)+.36*n,cav:n};}
+// GLSL noise for the veins (3D simplex)
+const T3H_GLSL=`vec3 h3m(vec3 x){return x-floor(x*(1./289.))*289.;}vec4 h4m(vec4 x){return x-floor(x*(1./289.))*289.;}vec4 h3p(vec4 x){return h4m(((x*34.)+1.)*x);}
+float h3n(vec3 v){const vec2 C=vec2(1./6.,1./3.);vec3 i=floor(v+dot(v,C.yyy)),x0=v-i+dot(i,C.xxx),g=step(x0.yzx,x0.xyz),l=1.-g,i1=min(g,l.zxy),i2=max(g,l.zxy),x1=x0-i1+C.xxx,x2=x0-i2+C.yyy,x3=x0-.5;i=h3m(i);
+vec4 p=h3p(h3p(h3p(i.z+vec4(0.,i1.z,i2.z,1.))+i.y+vec4(0.,i1.y,i2.y,1.))+i.x+vec4(0.,i1.x,i2.x,1.));vec4 j=p-49.*floor(p*(1./49.)),x_=floor(j*(1./7.)),y_=floor(j-7.*x_),xx=(x_*2.+.5)/7.-1.,yy=(y_*2.+.5)/7.-1.,h=1.-abs(xx)-abs(yy),b0=vec4(xx.xy,yy.xy),b1=vec4(xx.zw,yy.zw),s0=floor(b0)*2.+1.,s1=floor(b1)*2.+1.,sh=-step(h,vec4(0.)),a0=b0.xzyw+s0.xzyw*sh.xxyy,a1=b1.xzyw+s1.xzyw*sh.zzww;
+vec3 p0=vec3(a0.xy,h.x),p1=vec3(a0.zw,h.y),p2=vec3(a1.xy,h.z),p3=vec3(a1.zw,h.w);vec4 nr=inversesqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));p0*=nr.x;p1*=nr.y;p2*=nr.z;p3*=nr.w;
+vec4 m=max(.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.);m=m*m;return 42.*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));}`;
 
 function t3tree(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,S=seeded(4242),rr=(a,b)=>a+(b-a)*S(),pk=a=>a[Math.floor(S()*a.length)],hi=T3Q.hi,qn=n=>Math.max(2,Math.round(hi?n:n*.5));
   const wood=[],bark=[],leaf=[],glow=[],rope=[],earth=[],halo=[];
@@ -4539,11 +4608,56 @@ const T3MINI={
   needle(f){const up=new THREE.Group();f.add(up);const b=new THREE.Mesh(new THREE.ConeGeometry(.17,.55,7),t3mat("#3d4a26"));b.position.y=.34;f.add(b);const sm=t3mat("#a6a06a");
     for(let i=0;i<22;i++){const s=new THREE.Mesh(new THREE.ConeGeometry(.012,.16,3),sm);const a=i*2.4,y=.15+(i%7)*.065;s.position.set(Math.cos(a)*.13*(1-y),y+.05,Math.sin(a)*.13*(1-y));s.lookAt(s.position.x*8,y+.4,s.position.z*8);s.rotateX(Math.PI/2);f.add(s);}
     for(const k of[-1,1]){const e=new THREE.Mesh(new THREE.SphereGeometry(.016,6,4),new THREE.MeshBasicMaterial({color:0xd7ff6a}));e.position.set(k*.04,.5,.08);f.add(e);}return {up,top:.7,hand:new THREE.Vector3(0,.4,.15)};},
-  heart(f){const up=new THREE.Group();f.add(up);const core=new THREE.Mesh(t3rock(.95,9,3),new THREE.MeshStandardMaterial({color:0x4a1a1a,roughness:.55,emissive:0x3f8a2a,emissiveIntensity:.35,flatShading:true}));core.position.y=.9;core.scale.set(1.15,1,1.05);up.add(core);
-    const vm=new THREE.MeshStandardMaterial({color:0x7fd36a,emissive:0x7fd36a,emissiveIntensity:1.8});const S=seeded(91);
-    for(let i=0;i<9;i++){const a=S()*6.28,b2=S()*1.2-.2,pts=[];for(let k=0;k<5;k++){const r=.9+k*.02,aa=a+k*.25;pts.push(new THREE.Vector3(Math.cos(aa)*Math.cos(b2+k*.2)*r*1.15,.9+Math.sin(b2+k*.2)*r,Math.sin(aa)*Math.cos(b2+k*.2)*r*1.05));}up.add(new THREE.Mesh(t3tube(pts,.035,4),vm));}
-    const rm=t3mat("#1a120c");for(let i=0;i<12;i++){const a=i/12*6.28+S()*.3,pts=[new THREE.Vector3(Math.cos(a)*.6,.5,Math.sin(a)*.6),new THREE.Vector3(Math.cos(a)*1.2,.15,Math.sin(a)*1.2),new THREE.Vector3(Math.cos(a)*1.65,.03,Math.sin(a)*1.65)];f.add(new THREE.Mesh(t3tube(pts,.09+S()*.06,6),rm));}
-    return {up,top:2.0,hand:new THREE.Vector3(0,.9,.9),core,big:true};},
+  heart(f,u){const hi=T3Q.hi,S=seeded(91),rr=(a,b)=>a+(b-a)*S(),up=new THREE.Group();f.add(up);const Y0=1.0,SC=[1.26,1.0,1.18];
+    // the flesh: a displaced sphere, shaped once on the CPU; veins, rot, wet sheen and the beat in its shader
+    const geo=new THREE.SphereGeometry(1,hi?128:44,hi?96:30),ps=geo.attributes.position,cav=new Float32Array(ps.count),surf=(x,y,z)=>{const s=t3hShape(x,y,z);return [x*s.r*SC[0],y*s.r*SC[1]+Y0,z*s.r*SC[2],s.cav];};
+    for(let i=0;i<ps.count;i++){const q=surf(ps.getX(i),ps.getY(i),ps.getZ(i));ps.setXYZ(i,q[0],q[1],q[2]);cav[i]=q[3];}
+    geo.setAttribute("aCav",new THREE.BufferAttribute(cav,1));geo.computeVertexNormals();
+    const HU={uT:{value:0},uBeat:{value:0},uLife:{value:1}};
+    const fm=hi?new THREE.MeshPhysicalMaterial({color:0xffffff,roughness:.42,metalness:0,clearcoat:.85,clearcoatRoughness:.22,emissive:0x000000}):new THREE.MeshStandardMaterial({color:0xffffff,roughness:.4,metalness:0,emissive:0x000000});
+    fm.onBeforeCompile=sh=>{Object.assign(sh.uniforms,{uT:HU.uT,uBeat:HU.uBeat,uLife:HU.uLife});
+      sh.vertexShader="attribute float aCav;varying float vCav;varying vec3 vOP;uniform float uT,uBeat;\n"+sh.vertexShader.replace("#include <begin_vertex>","#include <begin_vertex>\nvCav=aCav;vOP=position;transformed+=normal*uBeat*(.025+.03*sin(position.y*7.+position.x*3.));");
+      sh.fragmentShader="varying float vCav;varying vec3 vOP;uniform float uT,uBeat,uLife;\n"+T3H_GLSL+"\n"+sh.fragmentShader
+        .replace("#include <color_fragment>",`#include <color_fragment>
+        vec3 q=vOP*vec3(1.,1.15,1.);float n1=h3n(q*2.1),n2=h3n(q*5.3+7.),rot=smoothstep(.15,.55,h3n(q*1.3+3.)+vCav*.8);
+        float vein=(1.-smoothstep(.0,.075,abs(n1)))*.9+(1.-smoothstep(.0,.06,abs(n2)))*.45*smoothstep(-.2,.3,n1);vein*=smoothstep(.4,.62,vOP.y);
+        vec3 flesh=mix(vec3(.30,.035,.04),vec3(.52,.09,.08),smoothstep(-.25,.3,vCav));flesh=mix(flesh,vec3(.07,.06,.035),rot*.85);flesh*=.75+.25*h3n(q*11.);
+        flesh=mix(flesh,vec3(.38,.5,.2),vein*.55*(1.-rot*.6));
+        diffuseColor.rgb*=mix(vec3(.2,.19,.17)*(.7+.3*h3n(q*7.)),flesh,uLife);float tV=vein;`)
+        .replace("#include <roughnessmap_fragment>","#include <roughnessmap_fragment>\nroughnessFactor=mix(.85,roughnessFactor+rot*.35,uLife);")
+        .replace("#include <emissivemap_fragment>",`#include <emissivemap_fragment>
+        float fr=pow(1.-abs(dot(normal,normalize(vViewPosition))),2.2);
+        totalEmissiveRadiance+=uLife*(vec3(.45,1.,.28)*tV*(.25+1.6*uBeat)*(1.-rot*.7)+vec3(.5,.05,.04)*fr*(.35+.4*uBeat)*(1.-rot)+vec3(.25,.6,.12)*fr*uBeat*.35);`);};
+    const body=new THREE.Mesh(geo,fm);up.add(body);
+    // black roots knotted around it, gripping the flesh from the ground up
+    const wrap=[],pt=(az,el,k=1.04)=>{const x=Math.cos(el)*Math.cos(az),y=Math.sin(el),z=Math.cos(el)*Math.sin(az),q=surf(x,y,z);return new THREE.Vector3((q[0])*k,(q[1]-Y0)*k+Y0,q[2]*k);};
+    for(let i=0,n=hi?13:8;i<n;i++){const a=i/n*6.283+rr(-.2,.2),tw=rr(-.9,.9),e1=rr(.5,1.35),pts=[new THREE.Vector3(Math.cos(a)*1.55,.03,Math.sin(a)*1.55)];
+      for(let k=0;k<=6;k++){const t=k/6;pts.push(pt(a+tw*t,-.35+t*(e1+.35),1.03+.02*Math.sin(k*2.1+i)));}
+      if(i%3===0)pts.push(pt(a+tw,e1,1.25),pt(a+tw*1.1,e1+.1,1.5));// a few break free and point at the dark
+      wrap.push(t3tint(t3hTube(pts,rr(.07,.12),.02,hi),["#120c09","#1a120d","#0d0907"][i%3]));}
+    const bark=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.62,metalness:0});up.add(new THREE.Mesh(t3merge(wrap),bark));
+    // the flared base: roots plunging into the floor (they stay put while the flesh beats)
+    const base=[];for(let i=0,n=hi?14:9;i<n;i++){const a=i/n*6.283+rr(-.15,.15),pts=[new THREE.Vector3(Math.cos(a)*.75,.45,Math.sin(a)*.75),new THREE.Vector3(Math.cos(a)*1.15,.18,Math.sin(a)*1.15),new THREE.Vector3(Math.cos(a+.08)*1.45,.06,Math.sin(a+.08)*1.45),new THREE.Vector3(Math.cos(a+.12)*1.7,.02,Math.sin(a+.12)*1.7)];
+      base.push(t3tint(t3hTube(pts,rr(.12,.18),.03,hi),"#140e0a"));}
+    f.add(new THREE.Mesh(t3merge(base),bark));
+    // legendary roots: thick feelers that sway, twitch, and lash at whoever it strikes
+    const lm=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.55,emissive:0x000000}),legs=[];
+    for(let i=0,n=hi?6:4;i<n;i++){const a=i/n*6.283+.4+rr(-.2,.2),pv=new THREE.Group();pv.position.set(Math.cos(a)*1.0,.45,Math.sin(a)*1.0);pv.rotation.y=-a;
+      const L=rr(1.5,2),pts=[];for(let k=0;k<=7;k++){const t=k/7;pts.push(new THREE.Vector3(t*L*.75,Math.sin(t*2.3)*L*.55+.05,Math.sin(t*5+i)*.12));}
+      pts.push(new THREE.Vector3(L*.6,L*.55,.1));
+      const g2=t3tint(t3hTube(pts,.11,.012,hi,hi?7:5),"#1a120c"),m=new THREE.Mesh(g2,lm);pv.add(m);f.add(pv);legs.push({pv,a,ph:rr(0,6),lash:0});}
+    let w=0,last=null;const tv=new THREE.Vector3();
+    const anim=(dt,tt,now,st)=>{const dead=st.down||st.gone;w+=((dead?1:0)-w)*Math.min(1,dt*(dead?.6:4));const life=1-w,b=t3hBeat(tt)*life;
+      if(dead){f.rotation.x=0;f.position.z=0;}// it doesn't topple, it withers
+      HU.uT.value=tt;HU.uBeat.value=b;HU.uLife.value=life;
+      up.scale.set((1+.045*b)*(1-.18*w),(1+.06*b)*(1-.42*w),(1+.045*b)*(1-.18*w));up.position.y=-.05*w;
+      // which root lashes: the one nearest the direction of the strike
+      const m=V&&V.minis.get(u);if(m&&m.lunge&&m.lunge!==last){last=m.lunge;tv.copy(m.lunge.dir).applyAxisAngle(THREE.Object3D.DEFAULT_UP,-f.rotation.y);const ta=Math.atan2(tv.z,tv.x);let best=legs[0],bd=9;
+        for(const l of legs){const d=Math.abs(Math.atan2(Math.sin(l.a-ta),Math.cos(l.a-ta)));if(d<bd){bd=d;best=l;}}best.lash=1;best.ta=ta;}
+      for(const l of legs){if(l.lash>0)l.lash=Math.max(0,l.lash-dt*2.2);const k=l.lash>0?Math.sin((1-l.lash)*Math.PI):0,tw=Math.sin(tt*9+l.ph)*Math.max(0,Math.sin(tt*.7+l.ph*2))*.08;
+        const ya=l.lash>0?l.ta:l.a;l.pv.rotation.y+=(-ya-l.pv.rotation.y)*Math.min(1,dt*12);
+        l.pv.rotation.z=(Math.sin(tt*1.1+l.ph)*.12+tw-k*1.15)*life-1.0*w;l.pv.rotation.x=Math.sin(tt*.8+l.ph*1.7)*.15*life;l.pv.scale.setScalar(1+k*.45-.25*w);}};
+    return {up,top:2.25,hand:new THREE.Vector3(0,1.1,1.1),big:true,anim};},
   grey(f){const b=t3body(f,{h:.9,cloth:"#3a3d42",cloak:"#6b6e73",skin:"#9a9ca0",hood:true});const dm=t3mat("#c8ccd4",{metalness:.8,roughness:.2});
     for(const s of[-1,1]){const d=new THREE.Mesh(new THREE.BoxGeometry(.014,.18,.03),dm);d.position.set(s*.22,-.1,.16);d.rotation.x=1.2;b.up.add(d);}return b;},
   warden(f){const b=t3body(f,{cloth:"#3e3a33",skin:"#2a2620",eyes:0x9fe08c,bulk:1.1,metal:.5});const am=t3mat("#5a4a36");
