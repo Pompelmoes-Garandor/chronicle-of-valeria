@@ -1753,11 +1753,11 @@ const CITY={};
      const k=1+(h-0.5)*0.42*Math.min(1,-y/0.02); p.setXYZ(i,x*k,y-(h*0.008),z*k);}}
  rock.computeVertexNormals();
  part(rock,(x,y,z,c)=>{const t=Math.min(1,-y/0.09), n=hash(Math.round(x*400),Math.round(y*400),Math.round(z*400));
-   c.setRGB(0.52-0.30*t+n*0.06,0.40-0.22*t+n*0.04,0.28-0.10*t+n*0.04,THREE.SRGBColorSpace);});
+   c.setRGB(0.70-0.28*t+n*0.07,0.56-0.20*t+n*0.05,0.40-0.10*t+n*0.05,THREE.SRGBColorSpace);});
  // grass top with a ragged rim, a cliff band of earth just below it
  const top=new THREE.CircleGeometry(R*1.004,56);top.rotateX(-Math.PI/2);{const p=top.attributes.position;
    for(let i=1;i<p.count;i++){const x=p.getX(i),z=p.getZ(i),k=rag(Math.atan2(z,x));p.setX(i,x*k);p.setZ(i,z*k);}}
- part(top,(x,y,z,c)=>{const n=hash(Math.round(x*500),0,Math.round(z*500)); c.setRGB(0.36+n*0.08,0.52+n*0.10,0.22+n*0.04,THREE.SRGBColorSpace);},0,0.0006,0);
+ part(top,(x,y,z,c)=>{const n=hash(Math.round(x*500),0,Math.round(z*500)); c.setRGB(0.46+n*0.08,0.64+n*0.10,0.30+n*0.05,THREE.SRGBColorSpace);},0,0.0006,0);
  // a stream across the grass, to the two falls
  FALLS.forEach((a,i)=>{const r0=i?0.04:0.02, r1=R*rag(a)+0.001, len=r1-r0, rm=(r0+r1)/2;
    part(new THREE.PlaneGeometry(i?0.0045:0.006,len).rotateX(-Math.PI/2),0x5f9fc4,Math.cos(a)*rm,0.0012,Math.sin(a)*rm,Math.PI/2-a);});
@@ -1815,19 +1815,19 @@ const CITY={};
    mist.position.set(ex*1.12,-0.075,ez*1.12); city.add(mist); return {m,mist,ph:rnd()*6};});
  // a few rocks that broke off and drift underneath
  CITY.rocks=[[0.03,-0.07,0.02,0.007],[-0.034,-0.06,-0.012,0.005],[0.004,-0.11,-0.02,0.006],[-0.016,-0.095,0.03,0.004]].map(([x,y,z,s],i)=>{
-   const r=new THREE.Mesh(new THREE.DodecahedronGeometry(s,0),lam(i%2?0x5c4c3c:0x6e5a44)); r.position.set(x,y,z); r.userData.y=y; r.userData.ph=i*1.7; city.add(r); return r;});
+   const r=new THREE.Mesh(new THREE.DodecahedronGeometry(s,0),lam(i%2?0x7a6550:0x8c7458)); r.position.set(x,y,z); r.userData.y=y; r.userData.ph=i*1.7; city.add(r); return r;});
  // windows: warm dots on the keep and the spire, lit as the sun goes down
  CITY.lights=new THREE.MeshBasicMaterial({color:0xffc66a,transparent:true,opacity:0});
  [[0,0.03,0.0042],[0,0.04,-0.004],[0.0098,0.007,0.003],[-0.009,0.007,0.004],[0.004,0.007,-0.0098],[0.0081,0.016,0.0028],[-0.0069,0.018,0.0032]].forEach(([x,y,z])=>{
    const w=new THREE.Mesh(new THREE.PlaneGeometry(0.0013,0.0019),CITY.lights); w.position.set(x,y,z); w.lookAt(x*3,y,z*3); city.add(w);});
  // the city's own light: a sun that follows the globe's sun, and a soft sky fill
- CITY.sun=new THREE.DirectionalLight(0xfff0d8,2.4); CITY.fill=new THREE.HemisphereLight(0xbcd2ff,0x5a4630,1.1);
+ CITY.sun=new THREE.DirectionalLight(0xfff0d8,3.4); CITY.fill=new THREE.HemisphereLight(0xd6e2ff,0x8a7050,2.0);
  scene.add(CITY.sun,CITY.sun.target,CITY.fill);}
 const _cu=new THREE.Vector3();
 function cityTick(now,dt,up){
   const sun=uniforms.uSun.value, day=Math.max(0,Math.min(1,(sun.dot(up)+0.08)/0.35));
-  CITY.sun.position.copy(city.position).addScaledVector(sun,1); CITY.sun.target.position.copy(city.position); CITY.sun.intensity=2.4*day;
-  CITY.fill.intensity=0.45+0.75*day; CITY.lights.opacity=1-day;
+  CITY.sun.position.copy(city.position).addScaledVector(sun,1); CITY.sun.target.position.copy(city.position); CITY.sun.intensity=3.4*day;
+  CITY.fill.intensity=0.8+1.2*day; CITY.lights.opacity=1-day;
   if(reduced) return;
   CITY.sails.forEach((s,i)=>s.children.forEach(arm=>arm.rotation.z+=dt*(1.6+i*0.4)));
   CITY.flags.forEach((f,i)=>{f.rotation.y=Math.sin(now/420+i*1.3)*0.45; f.scale.y=1+Math.sin(now/180+i)*0.08;});
@@ -2666,8 +2666,8 @@ function frame(now){
   city.position.copy(worldPos(w.lon,w.lat,0.06+bob));
   const up=sphDir(w.lon,w.lat).lerp(new THREE.Vector3(0,0,1),mm).normalize();
   city.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),up); city.rotateY(now/6000);
-  city.scale.setScalar(0.6*(1-0.3*mm)); cityTick(now,dt,up);
-  cityShadow(sphDir(w.lon,w.lat),0.06+bob,0.031*(1-0.3*mm));
+  city.scale.setScalar(0.5*(1-0.3*mm)); cityTick(now,dt,up);
+  cityShadow(sphDir(w.lon,w.lat),0.06+bob,0.026*(1-0.3*mm));
   camPose(); updateTrail(); tickCrash(now); renderWorld(); updatePins(); soundMix();
   requestAnimationFrame(frame);
 }
