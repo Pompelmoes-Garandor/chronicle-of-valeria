@@ -7590,7 +7590,7 @@ function iScoreInit(a,id,mini){const S={a,id,ist:IST,test:!!ISC_CTX,at:null,q:[]
   g("uke",{lp:5600,eq:[["peaking",420,2,1.2]],cave:.26,room:.45,vol:1.25});
   g("hum",{lp:1700,eq:[["peaking",2700,3,1.4]],cave:.3,room:.55,vol:1});
   g("pad",{lp:1150,cave:.32,room:.5,vol:.3});
-  g("drone",{lp:540,eq:[["peaking",620,7,2.6]],cave:.4,vol:.25});
+  g("drone",{lp:540,eq:[["peaking",620,7,2.6]],cave:.4,vol:.15});
   g("glass",{lp:9000,cave:.6,room:.4,vol:1.4});
   g("bell",{lp:7000,cave:.5,room:.3,vol:1});
   g("str",{lp:420,q:.7,cave:.36,room:.2,vol:.3});
@@ -7785,7 +7785,7 @@ const ISCORE={
   K11b:S=>{scQ(S,S.T(12),x=>scPluck(S,"uke",74,x,{vel:.2,pan:0}),"uke");}},
 "s10-saphira":{ // near silence: a low violet drone, a slow pulse like a held heartbeat, glass when the eye wakes
   S1:S=>{scSpace(S,"cave");scDrone(S,{vol:.045,start:S.T(3)});},
-  S2:S=>{scDrone(S,{vol:.07});scLvl(S,"drone",1.4,8);scPulse(S,{per:[2.5,3],depth:.55});scDrift(S,{lo:520,hi:900});scGlass(S,81,S.T(5),{att:1.6,hold:6,rel:5,vol:.02});},
+  S2:S=>{scDrone(S,{vol:.07});scLvl(S,"drone",1.2,8);scPulse(S,{per:[2.5,3],depth:.55});scDrift(S,{lo:520,hi:900});scGlass(S,81,S.T(5),{att:1.6,hold:6,rel:5,vol:.02});},
   S3a:S=>{scDrift(S,{lo:380,hi:620});scLvl(S,"drone",1.1,6);},
   S3b:S=>{scDrift(S,{lo:560,hi:760});},
   S3c:S=>{scCut(S,["drone"],.22);scGlass(S,88,S.T(3),{att:1.2,hold:3,rel:4,vol:.018});       // the hum stops; then the eye turns to you
@@ -7826,8 +7826,8 @@ const ISCORE={
   "G7-2":S=>{scLvl(S,"str",.25,8);scQ(S,S.T(10),()=>{scTide(S,{prog:[38,45,50,53,57],now:S.T(),lo:.5,hi:.8});scLvl(S,"str",1,6);},"x");},
   "G7-3":S=>{scTide(S,{lo:.62,hi:.85,per:[7,8.2],fHi:640});},
   "G7-4":S=>{scLvl(S,"str",.6,5);scPadL(S,"warm",{g:"pad",prog:[[62,65,69]],durs:[16,20],vol:.026,att:6,rel:8,start:S.T(2)});},
-  G8:S=>{scLvl(S,"str",1,4);scTide(S,{prog:[38,50,53,57,62],wave:"warm",now:S.T(.5),lo:.7,hi:1,per:[12,16],fLo:520,fHi:1150});
-    scPadL(S,"warm",{g:"pad",prog:[[53,57,60,65],SCC.Dm],durs:[12,16],vol:.035,att:5,rel:6,start:S.T(1.5)});}},
+  G8:S=>{scLvl(S,"str",.55,4);scTide(S,{prog:[38,50,53,57,62],wave:"warm",now:S.T(.5),lo:.7,hi:1,per:[12,16],fLo:520,fHi:1150});
+    scPadL(S,"warm",{g:"pad",prog:[[53,57,60,65],SCC.Dm],durs:[12,16],vol:.028,att:5,rel:6,start:S.T(1.5)});}},
 "s10-together":{ // the fire's warmth: Matthew's lute, quiet and not quite steady; a pad when the crew writes its verse
   T1:S=>{scSpace(S,"cave");scPadL(S,"cold",{g:"str",prog:[[38,45]],durs:[20,26],vol:.032,att:6,rel:8,wave:"str",start:S.T(1)});
     scQ(S,S.T(9),x=>scPluck(S,"lute",45,x,{vel:.14,dur:1.4}),"lute");scQ(S,S.T(9.4),x=>scPluck(S,"lute",57,x,{vel:.08,mute:1}),"lute");},
