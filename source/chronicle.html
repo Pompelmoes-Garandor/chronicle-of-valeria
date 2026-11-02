@@ -3214,6 +3214,190 @@ sBody.addEventListener("click",e=>{
   else if(at){const sp=at.querySelectorAll("span");rollFor(who,sp[0].textContent,modNum(at.querySelector("b").textContent),at.querySelector(".d")?.textContent||"");}
 });
 
+/* ---- DIE FACES start: makeDie, real numbered dice for throwDice (tests/visual/dice-faces.js runs this block on its own) ---- */
+// makeDie(sides,{dmg,style}) -> {mesh, faceQuat(value), dispose()}
+//  mesh: one THREE.Mesh at unit scale (circumradius 1): a true Platonic solid, or a pentagonal trapezohedron for the d10,
+//    with rounded edges and the numbers engraved and inked on every face. Opposite faces add up to sides+1.
+//    Geometry and the number atlas are built once per die type and shared: never dispose mesh.geometry, call dispose().
+//  faceQuat(v): a fresh quaternion that turns the face of v to +z with its number upright (+y). A d4 is read at the top
+//    vertex, as real ones are, so there the vertex of v turns to +z.
+//  mesh.userData.glow(on | 0..1): the inner glow of a natural 20. It fades in and pulses for as long as the die is drawn.
+//  style: "ivory" (the to-hit die), "ember" (damage, the default with dmg), "shadow", "tide", or an object of colours.
+// The material is MeshPhysicalMaterial (clearcoat over resin) with the swirl, glitter, ink and glow added in its shader.
+// It reflects scene.environment; on a stage without one it brings its own small room.
+const DIEF={types:{},env:null,halo:null,
+  font:s=>`700 ${s}px "Times New Roman",Times,"Liberation Serif","Noto Serif","DejaVu Serif",serif`,
+  styles:{ // resA: the resin, resB: its swirl, resC: the deep tint, ink, flake: the glitter, glow: the natural 20
+    ivory:{resA:0xf4ead2,resB:0xc9a35c,resC:0xe2cfa6,ink:0x23170c,inkMetal:0,inkRough:.55,flake:0xffe2a0,flakes:.1,swirl:.7,deep:.5,rough:.3,glow:0xffbf5a},
+    ember:{resA:0xe8743b,resB:0xffb468,resC:0x9c300e,ink:0xf6cf7a,inkMetal:1,inkRough:.28,flake:0xffd890,flakes:.12,swirl:.65,deep:.45,rough:.3,glow:0xff9a3c},
+    shadow:{resA:0x2a2533,resB:0x5a4b78,resC:0x0c0a10,ink:0xd8d4e6,inkMetal:1,inkRough:.3,flake:0xb9a6ff,flakes:.14,swirl:.75,deep:.5,rough:.26,glow:0x9d7bff},
+    tide:{resA:0x6f8a8c,resB:0xb4ccc6,resC:0x2c3f45,ink:0xf2f0e8,inkMetal:.6,inkRough:.35,flake:0xdff6ff,flakes:.08,swirl:.65,deep:.45,rough:.3,glow:0x8fd3c8}}};
+// which number each face carries, in the order of dieNormals: opposites add up to sides+1, the corners as even as can be
+const DIE_NUM={6:[1,6,2,5,3,4],8:[1,7,6,4,5,3,2,8],10:[9,4,3,10,5,2,7,8,1,6],12:[9,2,6,5,3,1,8,10,12,4,11,7],
+  20:[7,5,4,15,6,17,16,14,11,9,13,3,1,2,18,20,19,10,12,8]};
+function dieNormals(s){ // the outward face normals; a d4 face k lies opposite corner k
+  const P=(1+Math.sqrt(5))/2, q=1/P, v=(x,y,z)=>new THREE.Vector3(x,y,z).normalize(), N=[];
+  if(s===4) for(const [x,y,z] of [[1,1,1],[-1,-1,1],[-1,1,-1],[1,-1,-1]]) N.push(v(-x,-y,-z));
+  else if(s===6) N.push(v(1,0,0),v(-1,0,0),v(0,1,0),v(0,-1,0),v(0,0,1),v(0,0,-1));
+  else if(s===8){for(const x of [1,-1])for(const y of [1,-1])for(const z of [1,-1])N.push(v(x,y,z));}
+  else if(s===10){const e=40*Math.PI/180; for(let k=0;k<10;k++){const a=k*Math.PI/5,el=k%2?-e:e; N.push(new THREE.Vector3(Math.cos(el)*Math.cos(a),Math.sin(el),Math.cos(el)*Math.sin(a)));}}
+  else if(s===12){for(const a of [1,-1])for(const b of [1,-1])N.push(v(0,a,b*P),v(a,b*P,0),v(b*P,0,a));}
+  else {for(const x of [1,-1])for(const y of [1,-1])for(const z of [1,-1])N.push(v(x,y,z)); for(const a of [1,-1])for(const b of [1,-1])N.push(v(0,a*q,b*P),v(a*q,b*P,0),v(b*P,0,a*q));}
+  return N;}
+function dieType(s){ // geometry, number atlas and face table of one kind of die, built once
+  if(DIEF.types[s]) return DIEF.types[s];
+  const V3=THREE.Vector3, N=dieNormals(s), V=[];
+  for(let i=0;i<N.length;i++)for(let j=i+1;j<N.length;j++)for(let k=j+1;k<N.length;k++){ // the corners: three face planes meet inside the rest
+    const a=N[i],b=N[j],c=N[k],bc=new V3().crossVectors(b,c),det=a.dot(bc); if(Math.abs(det)<1e-9) continue;
+    const x=bc.add(new V3().crossVectors(c,a)).add(new V3().crossVectors(a,b)).divideScalar(det);
+    if(N.some(n=>n.dot(x)>1+1e-7)||V.some(w=>w.distanceTo(x)<1e-6)) continue; V.push(x);}
+  const R=Math.max(...V.map(p=>p.length())), inr=1/R; V.forEach(p=>p.divideScalar(R));
+  const ref=new V3(.13,1,.29).normalize();
+  const faces=N.map((n,f)=>{
+    const ids=V.map((p,i)=>Math.abs(p.dot(n)-inr)<1e-5?i:-1).filter(i=>i>=0);
+    const c=ids.reduce((a,i)=>a.add(V[i]),new V3()).divideScalar(ids.length), a=V[ids[0]].clone().sub(c).normalize(), b=new V3().crossVectors(n,a);
+    const ang=i=>{const d=V[i].clone().sub(c);return Math.atan2(d.dot(b),d.dot(a));}; ids.sort((i,j)=>ang(i)-ang(j));
+    let up; // the way the number reads: towards a corner (towards the pole on a d10), towards an edge on a d6
+    if(s===10) up=V[ids.reduce((m,i)=>Math.abs(V[i].y)>Math.abs(V[m].y)?i:m,ids[0])].clone().sub(c);
+    else {const cand=s===6?ids.map((i,k)=>V[i].clone().add(V[ids[(k+1)%4]]).multiplyScalar(.5).sub(c)):ids.map(i=>V[i].clone().sub(c));
+      let r=ref.clone().addScaledVector(n,-ref.dot(n)); if(r.length()<.3){const w=new V3(.31,.12,-1); r=w.addScaledVector(n,-w.dot(n));}
+      up=cand.reduce((m,d)=>d.clone().normalize().dot(r)>m.clone().normalize().dot(r)?d:m);}
+    up.normalize(); const right=new V3().crossVectors(up,n);
+    const L=1.02*Math.max(...ids.map(i=>{const d=V[i].clone().sub(c);return Math.max(Math.abs(d.dot(right)),Math.abs(d.dot(up)));}));
+    let ri=1e9; ids.forEach((i,k)=>{const p=V[i],q=V[ids[(k+1)%ids.length]],e=q.clone().sub(p).normalize(),d=c.clone().sub(p);ri=Math.min(ri,d.sub(e.multiplyScalar(d.dot(e))).length());});
+    return {n,ids,c,up,right,L,ri,value:s===4?0:DIE_NUM[s][f],opp:N.findIndex(m=>m.dot(n)<-.999)};});
+  // the numbers: one per face, or on a d4 one at each corner of each face, read with its top towards that corner
+  const labels=[], edge=V[faces[0].ids[0]].distanceTo(V[faces[0].ids[1]]);
+  faces.forEach((F,f)=>{
+    if(s===4){F.ids.forEach(i=>{const d=V[i].clone().sub(F.c); labels.push({face:f,value:N.findIndex((_,k)=>!faces[k].ids.includes(i))+1,pos:F.c.clone().addScaledVector(d,.47),up:d.clone().normalize(),h:.23*edge});});return;}
+    let h, dy=0;
+    if(s===10){const yp=Math.max(...F.ids.map(i=>V[i].clone().sub(F.c).dot(F.up))), yf=Math.min(...F.ids.map(i=>V[i].clone().sub(F.c).dot(F.up)));
+      const ys=V[F.ids.find(i=>{const y=V[i].clone().sub(F.c).dot(F.up);return y<yp-1e-6&&y>yf+1e-6;})].clone().sub(F.c).dot(F.up);
+      h=.25*(yp-yf); dy=ys+.04*(yp-yf);}
+    else {h=F.ri*({6:1.05,8:1.38,12:.92,20:1.22}[s]); dy=-F.ri*({6:0,8:.08,12:0,20:.05}[s]);}
+    labels.push({face:f,value:F.value,pos:F.c.clone().addScaledVector(F.up,dy),up:F.up.clone(),h});});
+  // the atlas: one cell per face; red = the engraving's depth (soft), green = the ink (sharp)
+  const cols={4:2,6:3,8:4,10:5,12:4,20:5}[s], rows=Math.ceil(N.length/cols), CS=256, W=cols*CS, H=rows*CS;
+  const cv=document.createElement("canvas"); cv.width=W; cv.height=H; const g=cv.getContext("2d");
+  const cell=f=>[(f%cols)*CS,Math.floor(f/cols)*CS], toPx=(f,p)=>{const F=faces[f],[x0,y0]=cell(f),d=p.clone().sub(F.c);
+    return [x0+CS/2+d.dot(F.right)/F.L*CS/2, y0+CS/2-d.dot(F.up)/F.L*CS/2];};
+  g.font=DIEF.font(100); const capK=g.measureText("80").actualBoundingBoxAscent/100||.68;
+  const draw=(L,dx)=>{const F=faces[L.face],[px,py]=toPx(L.face,L.pos),hp=L.h/F.L*CS/2,t=String(L.value);
+    g.save(); g.translate(px+dx,py); g.rotate(Math.atan2(L.up.dot(F.right),L.up.dot(F.up)));
+    g.font=DIEF.font(Math.round(hp/capK)); const m=g.measureText(t), w=m.actualBoundingBoxRight+m.actualBoundingBoxLeft;
+    const ul=t==="6"||t==="9", asc=m.actualBoundingBoxAscent, des=m.actualBoundingBoxDescent, tot=asc+des+(ul?.22*hp:0), yb=-tot/2+asc;
+    if(t.length>1) g.scale(.84,1);
+    g.fillText(t,-w/2+m.actualBoundingBoxLeft,yb); if(ul) g.fillRect(-w*.46,yb+des+.12*hp,w*.92,.1*hp);
+    g.restore();};
+  g.fillStyle="#000"; g.fillRect(0,0,W,H);
+  g.shadowColor="#f00"; g.shadowBlur=CS*.014; g.shadowOffsetX=W*2; g.fillStyle="#f00"; labels.forEach(L=>draw(L,-W*2));
+  g.shadowColor="transparent"; g.shadowBlur=0; g.shadowOffsetX=0; g.globalCompositeOperation="lighter"; g.fillStyle="#0f0"; labels.forEach(L=>draw(L,0));
+  g.globalCompositeOperation="source-over";
+  const tex=new THREE.CanvasTexture(cv); tex.anisotropy=4;
+  const uvOf=(f,p)=>{const [x,y]=toPx(f,p);return [x/W,1-y/H];}, blank=[2/W,1-2/H];
+  // the shape: each face inset, rounded strips along the edges and small caps on the corners (a fillet of radius rho)
+  const rho={4:.08,6:.09,8:.065,10:.06,12:.06,20:.055}[s], SEG=3, ekey=(i,j)=>i<j?i+","+j:j+","+i, E={};
+  faces.forEach((F,f)=>F.ids.forEach((i,k)=>{const j=F.ids[(k+1)%F.ids.length],K=ekey(i,j);(E[K]=E[K]||{i,j,f:[]}).f.push(f);}));
+  const bev=(i,j)=>{const e=E[ekey(i,j)],cs=faces[e.f[0]].n.dot(faces[e.f[1]].n);return rho*Math.sqrt((1-cs)/(1+cs));};
+  const Q=faces.map(F=>{const out={},m=F.ids.length; F.ids.forEach((i,k)=>{const p=F.ids[(k+m-1)%m],nx=F.ids[(k+1)%m];
+    const in1=new V3().crossVectors(F.n,V[i].clone().sub(V[p]).normalize()), in2=new V3().crossVectors(F.n,V[nx].clone().sub(V[i]).normalize());
+    const b1=bev(p,i),b2=bev(i,nx),c=in1.dot(in2),al=(b1-c*b2)/(1-c*c),be=(b2-c*b1)/(1-c*c);
+    out[i]=V[i].clone().addScaledVector(in1,al).addScaledVector(in2,be);}); return out;});
+  const pos=[],nor=[],uv=[],triFace=[];
+  const tri=(a,b,c,fi)=>{const e=b.p.clone().sub(a.p).cross(c.p.clone().sub(a.p)); if(e.dot(a.n.clone().add(b.n).add(c.n))<0){const t=b;b=c;c=t;}
+    for(const o of [a,b,c]){pos.push(o.p.x,o.p.y,o.p.z);nor.push(o.n.x,o.n.y,o.n.z);uv.push(o.t[0],o.t[1]);} triFace.push(fi);};
+  faces.forEach((F,f)=>{const P=F.ids.map(i=>({p:Q[f][i],n:F.n,t:uvOf(f,Q[f][i])})); for(let k=1;k<P.length-1;k++) tri(P[0],P[k],P[k+1],f);});
+  const ends={}; V.forEach((_,i)=>ends[i]=[]);
+  for(const K in E){const e=E[K],[fa,fb]=e.f,A=faces[fa],B=faces[fb],dir=V[e.j].clone().sub(V[e.i]).normalize();
+    const curve=i=>{const qa=Q[fa][i],qb=Q[fb][i],mid=qa.clone().add(qb).multiplyScalar(.5),C=V[i].clone().addScaledVector(dir,mid.clone().sub(V[i]).dot(dir)),pts=[];
+      for(let t=0;t<=SEG;t++){const u=t/SEG; pts.push({p:qa.clone().multiplyScalar((1-u)*(1-u)).addScaledVector(C,2*u*(1-u)).addScaledVector(qb,u*u),n:A.n.clone().multiplyScalar(1-u).addScaledVector(B.n,u).normalize(),t:blank});}
+      ends[i].push(pts); return pts;};
+    const ci=curve(e.i),cj=curve(e.j); for(let t=0;t<SEG;t++){tri(ci[t],ci[t+1],cj[t+1],-1);tri(ci[t],cj[t+1],cj[t],-1);}}
+  V.forEach((P,i)=>{ // the corner caps: a fan around the corner
+    const ax=P.clone().normalize(), a=new V3().crossVectors(ax,Math.abs(ax.y)<.9?new V3(0,1,0):new V3(1,0,0)).normalize(), b=new V3().crossVectors(ax,a), ring=[];
+    for(const pts of ends[i]) for(const o of pts) if(!ring.some(r=>r.p.distanceTo(o.p)<1e-6)) ring.push(o);
+    ring.sort((x,y)=>Math.atan2(x.p.dot(b),x.p.dot(a))-Math.atan2(y.p.dot(b),y.p.dot(a)));
+    const M=ring.reduce((m,o)=>m.add(o.p),new V3()).divideScalar(ring.length), C={p:M.addScaledVector(P.clone().sub(M),.15),n:ax,t:blank};
+    ring.forEach((o,k)=>tri(C,o,ring[(k+1)%ring.length],-1));});
+  const geo=new THREE.BufferGeometry(); geo.setAttribute("position",new THREE.Float32BufferAttribute(pos,3)); geo.setAttribute("normal",new THREE.Float32BufferAttribute(nor,3));
+  geo.setAttribute("uv",new THREE.Float32BufferAttribute(uv,2)); geo.computeBoundingSphere();
+  // faceQuat table: value -> the rotation that brings its face (a d4: its corner) to +z, the number's top to +y
+  const quats={}, rot=(n,up)=>{const r=new V3().crossVectors(up,n);return new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(r,up,n)).invert();};
+  if(s===4) V.forEach((p,i)=>{const n=p.clone().normalize(), F=faces.find(F=>F.ids.includes(i)), d=F.c.clone().addScaledVector(n,-F.c.dot(n)).normalize().negate();
+    quats[N.findIndex((_,k)=>!faces[k].ids.includes(i))+1]=rot(n,d);});
+  else faces.forEach(F=>{quats[F.value]=rot(F.n,F.up);});
+  return DIEF.types[s]={sides:s,geo,tex,canvas:cv,faces,labels,V,quats,inradius:inr,triFace,cell:f=>{const [x,y]=cell(f);return {x,y,w:CS,h:CS,W,H};}};}
+function dieEnv(){ // a small warm room for stages without scene.environment: a soft window up left, a dim fill, a dark floor
+  if(DIEF.env) return DIEF.env;
+  const cv=document.createElement("canvas"); cv.width=512; cv.height=256; const g=cv.getContext("2d");
+  const sky=g.createLinearGradient(0,0,0,256); sky.addColorStop(0,"#6b5a45"); sky.addColorStop(.48,"#2e2822"); sky.addColorStop(.52,"#17130f"); sky.addColorStop(1,"#070605");
+  g.fillStyle=sky; g.fillRect(0,0,512,256);
+  const glow=(x,y,r,c)=>{const gr=g.createRadialGradient(x,y,0,x,y,r); gr.addColorStop(0,c); gr.addColorStop(1,"rgba(0,0,0,0)"); g.fillStyle=gr; g.fillRect(x-r,y-r,2*r,2*r);};
+  glow(436,72,70,"rgba(255,236,200,1)"); glow(436,72,26,"rgba(255,250,235,1)"); glow(314,110,60,"rgba(150,175,200,.55)"); glow(180,60,90,"rgba(255,190,120,.35)");
+  const t=new THREE.CanvasTexture(cv); t.mapping=THREE.EquirectangularReflectionMapping; t.colorSpace=THREE.SRGBColorSpace; return DIEF.env=t;}
+function dieHalo(){ // the soft light around a glowing die
+  if(DIEF.halo) return DIEF.halo;
+  const cv=document.createElement("canvas"); cv.width=cv.height=128; const g=cv.getContext("2d"), gr=g.createRadialGradient(64,64,0,64,64,64);
+  gr.addColorStop(0,"rgba(255,255,255,1)"); gr.addColorStop(.3,"rgba(255,255,255,.6)"); gr.addColorStop(.6,"rgba(255,255,255,.16)"); gr.addColorStop(1,"rgba(255,255,255,0)"); g.fillStyle=gr; g.fillRect(0,0,128,128);
+  return DIEF.halo=new THREE.CanvasTexture(cv);}
+const DIE_VERT=`varying vec3 vDieP; varying vec3 vDieX; varying vec3 vDieY; varying vec3 vDieZ;`;
+const DIE_FRAG=`uniform vec3 uResA,uResB,uResC,uInk,uFlake,uGlowC,uSeed; uniform float uInkM,uInkR,uFlakes,uSwirl,uDeep,uGlow,uTime;
+varying vec3 vDieP; varying vec3 vDieX; varying vec3 vDieY; varying vec3 vDieZ;
+float dfH(vec3 p){p=fract(p*.3183099+.1);p*=17.;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}
+float dfN(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.-2.*f);
+  return mix(mix(mix(dfH(i),dfH(i+vec3(1,0,0)),f.x),mix(dfH(i+vec3(0,1,0)),dfH(i+vec3(1,1,0)),f.x),f.y),
+             mix(mix(dfH(i+vec3(0,0,1)),dfH(i+vec3(1,0,1)),f.x),mix(dfH(i+vec3(0,1,1)),dfH(i+vec3(1,1,1)),f.x),f.y),f.z);}
+float dfF(vec3 p){return .5*dfN(p)+.25*dfN(p*2.03+3.1)+.125*dfN(p*4.07+7.7);}
+float dieInk, dieSw, dieFl; vec3 dieFn;`;
+function dieMaterial(T,st){
+  const C=x=>new THREE.Color(x), R=()=>Math.random()*40;
+  const u={uResA:{value:C(st.resA)},uResB:{value:C(st.resB)},uResC:{value:C(st.resC)},uInk:{value:C(st.ink)},uInkM:{value:st.inkMetal},uInkR:{value:st.inkRough},
+    uFlake:{value:C(st.flake)},uFlakes:{value:st.flakes},uSwirl:{value:st.swirl},uDeep:{value:st.deep},uSeed:{value:new THREE.Vector3(R(),R(),R())},uGlow:{value:0},uGlowC:{value:C(st.glow)},uTime:{value:0}};
+  const m=new THREE.MeshPhysicalMaterial({color:0xffffff,roughness:st.rough,metalness:0,clearcoat:.85,clearcoatRoughness:.07,bumpMap:T.tex,bumpScale:-1.6});
+  m.onBeforeCompile=sh=>{Object.assign(sh.uniforms,u);
+    sh.vertexShader=sh.vertexShader.replace("#include <common>","#include <common>\n"+DIE_VERT).replace("#include <begin_vertex>",
+      "#include <begin_vertex>\nvDieP=position; vDieX=normalize(normalMatrix*vec3(1,0,0)); vDieY=normalize(normalMatrix*vec3(0,1,0)); vDieZ=normalize(normalMatrix*vec3(0,0,1));");
+    sh.fragmentShader=sh.fragmentShader.replace("#include <common>","#include <common>\n"+DIE_FRAG)
+    .replace("#include <color_fragment>",`#include <color_fragment>
+    { vec3 sp=vDieP*1.5+uSeed; float w1=dfF(sp), w2=dfF(sp*1.7+vec3(w1*3.1,w1*2.3,-w1*2.7));
+      float ph=dot(sp,vec3(1.3,.9,-.7))*2.6+w2*9.;
+      dieSw=clamp(smoothstep(-.4,1.,sin(ph*.5))*.6+pow(1.-abs(sin(ph)),4.)*.5,0.,1.)*uSwirl;
+      vec3 res=mix(mix(uResA,uResB,dieSw),uResC,smoothstep(.5,.9,w1)*uDeep);
+      dieInk=texture2D(bumpMap,vBumpMapUv).g;
+      vec3 gp=vDieP*30.+uSeed, gi=floor(gp), gf=fract(gp), fc=vec3(dfH(gi+1.7),dfH(gi+4.3),dfH(gi+9.1))*.5+.25;
+      dieFl=step(dfH(gi+13.1),uFlakes)*smoothstep(.2,.1,length(gf-fc))*clamp(2.4-length(fwidth(gp)),0.,1.)*(1.-dieInk);
+      dieFn=normalize(vec3(dfH(gi+2.1),dfH(gi+5.9),dfH(gi+8.3))*2.-1.);
+      diffuseColor.rgb=mix(mix(res,uFlake,dieFl),uInk,dieInk)*(1.-.35*uGlow*(1.-dieInk)); }`)
+    .replace("#include <metalnessmap_fragment>",`#include <metalnessmap_fragment>
+      roughnessFactor=mix(mix(roughnessFactor,.24,dieFl),uInkR,dieInk); metalnessFactor=mix(mix(metalnessFactor,.7,dieFl),uInkM,dieInk);`)
+    .replace("#include <normal_fragment_maps>",`#include <normal_fragment_maps>
+      normal=normalize(mix(normal,normalize(normal*.8+dieFn.x*vDieX+dieFn.y*vDieY+dieFn.z*vDieZ),dieFl*.7));`)
+    .replace("#include <emissivemap_fragment>",`#include <emissivemap_fragment>
+      { vec3 rv=reflect(-normalize(vViewPosition),normal);   // glitter catches a light from the upper left as the die turns
+        totalEmissiveRadiance+=uFlake*dieFl*(pow(max(dot(rv,vec3(-.45,.6,.66)),0.),24.)*2.6+.22); }
+      if(uGlow>0.){ float ndv=clamp(dot(normal,normalize(vViewPosition)),0.,1.), pulse=.82+.18*sin(uTime*4.2);   // light from inside: strongest where the die faces you
+        totalEmissiveRadiance+=uGlowC*uGlowC*1.7*uGlow*pulse*((.22+1.5*pow(ndv,1.5))*(.65+.7*dieSw)*(1.-dieInk)+dieInk*uInkM*1.2); }`);};
+  m.customProgramCacheKey=()=>"die-faces-1"; m.userData.u=u; return m;}
+function makeDie(sides,o){
+  o=o||{}; const s=[4,6,8,10,12,20].includes(sides)?sides:20, T=dieType(s);
+  const base=DIEF.styles[typeof o.style==="string"?o.style:o.dmg?"ember":"ivory"]||DIEF.styles.ivory, st=typeof o.style==="object"?Object.assign({},base,o.style):base;
+  const mat=dieMaterial(T,st), u=mat.userData.u, mesh=new THREE.Mesh(T.geo,mat), G={g:0,to:0,t:0};
+  let halo=null;
+  mesh.onBeforeRender=(r,scene)=>{
+    if(!mat.envMap&&scene&&!scene.environment){mat.envMap=dieEnv(); mat.needsUpdate=true;}
+    const now=performance.now()/1000, dt=G.t?Math.min(.1,now-G.t):0; G.t=now; u.uTime.value=now;
+    if(G.g!==G.to) G.g+=Math.sign(G.to-G.g)*Math.min(Math.abs(G.to-G.g),dt*2.4);
+    u.uGlow.value=G.g; if(halo){halo.visible=G.g>.01; halo.material.opacity=G.g*(.72+.14*Math.sin(now*4.2));}};
+  mesh.userData={sides:s,radius:1,inradius:T.inradius,style:st,
+    glow(on){G.to=on===true?1:+on||0; if(G.to>0){G.g=Math.max(G.g,G.to*.45);
+      if(!halo){halo=new THREE.Sprite(new THREE.SpriteMaterial({map:dieHalo(),color:st.glow,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:0,toneMapped:false}));
+        halo.scale.setScalar(3.6); halo.userData.fx=true; mesh.add(halo);}}
+      u.uGlow.value=G.g;}};
+  return {mesh,sides:s,type:T,
+    faceQuat:v=>(T.quats[v]||T.quats[1]).clone(),
+    dispose(){mesh.removeFromParent(); mat.dispose(); if(halo){halo.material.dispose(); halo.removeFromParent();}}};}
+/* ---- DIE FACES end ---- */
+
 /* =================== POSTCARD FROM HANS: the current view as a framed picture for the group chat =================== */
 const CARD_LINES=["Wish you were here. You were. That is how the chart works.","I have marked where we are. I have not marked where the snacks are. Yet.",
   "The box beeps less now. I think it likes you.","Cloud means I have not decoded it. It does not mean there is weather. Mostly.","Bring dice. Bring snacks. Bring the bard."];
