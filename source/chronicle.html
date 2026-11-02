@@ -722,6 +722,16 @@ body.playing header.top,body.playing nav.dock,body.playing .eggs,body.playing #p
 .pl-cam i{width:1px;height:22px;margin:0 3px;background:var(--hairline)}
 @media (max-width:700px){.pl-3d .tk{padding:1px 4px 1px 1px;column-gap:3px}.pl-3d .tk .rg{width:14px;height:14px}.pl-3d .tk .rg b,.pl-3d .tk.foe .rg b{font-size:7.5px}.pl-3d .tk .hp{width:16px}.pl-3d .tk .n{left:9px}}
 @media (max-width:700px),(pointer:coarse){.pl-cam .z{display:none}.pl-cam .pl-btn{min-width:44px;min-height:44px}}
+/* t3c: a phone's camera set (re-centre, whole board, follow, turn) replaces turn-left and home when the camera frames the action */
+.pl-cam .c-ph,.pl-cam .c-fl .sl{display:none}
+.pl-3d.t3c-on .pl-cam .c-ph{display:inline-flex}
+.pl-3d.t3c-on .pl-cam :is(.c-dk,.z){display:none}
+.pl-cam .c-fl.on{color:var(--steward);border-color:transparent;box-shadow:none}
+.pl-cam .c-fl:not(.on){color:var(--parch-dim)}
+.pl-cam .c-fl:not(.on) .sl{display:inline}
+.pl-cam .c-rc.nudge{color:var(--steward);box-shadow:inset 0 0 0 1px #8fd3c899;animation:t3c-nudge 1.8s ease-in-out infinite}
+@keyframes t3c-nudge{50%{background:#8fd3c81f}}
+@media (prefers-reduced-motion:reduce){.pl-cam .c-rc.nudge{animation:none}}
 .pl-ft{position:absolute;left:0;top:0;pointer-events:none;font:600 13px/1 var(--mono);color:var(--brass-hi);background:var(--brk),#0b0d12e8;padding:6px 9px;border-radius:7px;box-shadow:0 0 0 1px var(--hairline),0 4px 12px #000a;z-index:3;white-space:nowrap}
 .pl-ft::after{content:"";position:absolute;left:50%;top:100%;margin-left:-5px;border:5px solid transparent;border-top-color:#0b0d12e8}
 .pl-ft b{font-weight:700;font-size:15px}
@@ -6719,7 +6729,7 @@ function t3build(mp,host){
   t3controls(Vb);t3post(Vb);
   return Vb;}
 
-function t3fit(){if(!V)return;const el=V.host,w=Math.max(10,el.clientWidth),hh=Math.max(10,el.clientHeight);V.r.setSize(w,hh,false);V.cam.aspect=w/hh;V.cam.updateProjectionMatrix();if(V.onResize)V.onResize(w,hh);
+function t3fit(){if(!V)return;const el=V.host,w=Math.max(10,el.clientWidth),hh=Math.max(10,el.clientHeight);V.r.setSize(w,hh,false);V.cam.aspect=w/hh;t3c_fov(w,hh);V.cam.updateProjectionMatrix();if(V.onResize)V.onResize(w,hh);
   // home frames the part of the board you can stand on (not the rock around it), mini tops included, as big as it fits
   const bb=V.t3k_bb||(V.t3k_bb=t3k_bbox()),hm=V.home,G=V.goal,tr=V.tree,y0=V.t3k_y0??(V.t3k_y0=hm.yaw);
   let yaw=y0,d=t3k_fitD(bb,y0,hm.pitch);
@@ -6727,6 +6737,7 @@ function t3fit(){if(!V)return;const el=V.host,w=Math.max(10,el.clientWidth),hh=M
   if(SMALL&&!tr)for(const k of[1,-1,2,-2]){const y=y0+k*Math.PI/4,dk=t3k_fitD(bb,y,hm.pitch);if(dk<d*.86&&dk<d){d=dk;yaw=y;}}
   const oy=hm.yaw;hm.yaw=yaw;hm.dist=d;hm.tx=bb.cx;if(tr)hm.ty=bb.cy;else hm.tz=bb.cz;V.limits.dist[1]=d*1.8;
   if(!V.userT){G.dist=d*(V.lastCur?.86:1);G.yaw+=yaw-oy;G.tx=hm.tx;if(tr)G.ty=hm.ty;else G.tz=hm.tz;}
+  t3c_size(w,hh);const C=V.t3c;if(C.fovN==null||!V.fit1)C.fovN=C.fovT;else if(C.fovN!==C.fovT){V.cam.fov=C.fovN;V.cam.updateProjectionMatrix();}
   if(!V.fit1){V.fit1=true;if(V.intro){V.view.dist=d*1.9;V.view.yaw=yaw+(tr?.6:-1.5);}else Object.assign(V.view,G);}}
 /* t3k: the board's standing area: its centre in world units and the corners of every square you can stand on (feet and heads), around that centre */
 function t3k_bbox(){const mp=V.mp,tr=V.tree,K=new Set(),C=[];let x0=1e9,x1=-1,y0=1e9,y1=-1;
@@ -6744,39 +6755,52 @@ function t3k_fitD(bb,yaw,pitch){const c=V.cam,cs=bb.C,q=t3k_q;
   let lo=2,hi=80;for(let i=0;i<20;i++){const m=(lo+hi)/2;if(fits(m))hi=m;else lo=m;}
   c.position.copy(P);c.quaternion.copy(Qn);c.updateMatrixWorld();return hi;}
 
-/* drag to turn, pinch or wheel to zoom, two fingers (or right button) to slide */
-function t3controls(Vb){const el=Vb.r.domElement,pts=new Map(),ac=Vb.ac=new AbortController(),o={signal:ac.signal};let st=null;Vb.dragged=false;const KS=["yaw","pitch","tx","ty","tz"]; // ac: t3dispose aborts every listener
+/* drag to turn, pinch or wheel to zoom, two fingers (or right button) to slide.
+   Touch (see t3c): one finger slides the board, two fingers pinch, twist and slide. A touch that moves under 10 px stays a tap
+   for the square or mini under it; a drag may start on a name tag too. A double tap on a square you can't pick right now looks there */
+function t3controls(Vb){const el=Vb.r.domElement,hs=Vb.host,pts=new Map(),ac=Vb.ac=new AbortController(),o={signal:ac.signal};let st=null;Vb.dragged=false;const KS=["yaw","pitch","tx","ty","tz"]; // ac: t3dispose aborts every listener
   const lim=()=>{const L=Vb.limits,G=Vb.goal;G.yaw=clamp(G.yaw,L.yaw[0],L.yaw[1]);G.pitch=clamp(G.pitch,L.pitch[0],L.pitch[1]);G.dist=clamp(G.dist,L.dist[0],L.dist[1]);
     const ex=Vb.mp.W/2+1,ez=Vb.mp.H/2+1;G.tx=clamp(G.tx,-ex,ex);if(Vb.tree)G.ty=clamp(G.ty,-ez,ez);else G.tz=clamp(G.tz,-ez,ez);};
   const pan=(dx,dy)=>{const G=Vb.goal,k=G.dist*.0016;if(Vb.tree){G.tx-=dx*k;G.ty+=dy*k;}else{const c=Math.cos(G.yaw),s=Math.sin(G.yaw);G.tx-=(dx*c+dy*s)*k;G.tz-=(-dx*s+dy*c)*k;}};
+  // a finger keeps hold of the spot of floor under it (touch): the board moves with it, not a fixed amount per pixel
+  const grab=(x,y,dx,dy)=>{const G=Vb.goal,A=t3k_ground(Vb,x-dx,y-dy);if(!A){pan(dx,dy);return;}const ax=A.x,ay=A.y,az=A.z,P=t3k_ground(Vb,x,y);if(!P){pan(dx,dy);return;}
+    const m=Math.hypot(P.x-ax,P.y-ay,P.z-az),k=m>3?3/m:1;G.tx-=(P.x-ax)*k;if(Vb.tree)G.ty-=(P.y-ay)*k;else G.tz-=(P.z-az)*k;};
   // zoom toward the point under the cursor (or between the fingers); zooming out drifts back to the middle
   const zoomAt=(cx,cy,f)=>{const G=Vb.goal,d0=G.dist,L=Vb.limits;G.dist=clamp(d0*f,L.dist[0],L.dist[1]);const r=G.dist/d0;
     if(r<1){const P=t3k_ground(Vb,cx,cy);if(P){G.tx=P.x+(G.tx-P.x)*r;if(Vb.tree)G.ty=P.y+(G.ty-P.y)*r;else G.tz=P.z+(G.tz-P.z)*r;}}
     else if(r>1){const hm=Vb.home,sp=hm.dist-d0,w=sp>.01?clamp((G.dist-d0)/sp,0,1):1;G.tx-=(G.tx-hm.tx)*w;if(Vb.tree)G.ty-=(G.ty-hm.ty)*w;else G.tz-=(G.tz-hm.tz)*w;}
     lim();};
-  el.addEventListener("pointerdown",e=>{el.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});Vb.dragged=false;Vb.t3k_spin=null;if(Vb.intro)Vb.intro=false;
-    st={x:e.clientX,y:e.clientY,btn:e.button,shift:e.shiftKey,d:null,mx:0,my:0,v:{yaw:0,pitch:0,tx:0,ty:0,tz:0},lt:e.timeStamp};if(pts.size===2){const [a,b]=[...pts.values()];st.d=Math.hypot(a.x-b.x,a.y-b.y);st.mx=(a.x+b.x)/2;st.my=(a.y+b.y)/2;}},o);
-  el.addEventListener("pointermove",e=>{if(!pts.has(e.pointerId)){t3hover(e);return;}const p=pts.get(e.pointerId),dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;
-    if(!st)return;if(Math.hypot(e.clientX-st.x,e.clientY-st.y)>7)Vb.dragged=true;if(!Vb.dragged)return;Vb.userT=performance.now();
+  hs.addEventListener("pointerdown",e=>{if(!pts.size)Vb.dragged=false;const tc=e.pointerType==="touch";
+    if(!(e.target===el||tc&&e.target.closest(".pl-tags")))return; // the camera buttons and anything else on the board keep their own taps
+    if(e.target===el)el.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});Vb.dragged=pts.size>1;Vb.t3k_spin=null;if(Vb.intro)Vb.intro=false;Vb.t3c_tc=tc;
+    st={x:e.clientX,y:e.clientY,btn:e.button,shift:e.shiftKey,touch:tc,d:null,an:null,mx:0,my:0,v:{yaw:0,pitch:0,tx:0,ty:0,tz:0},lt:e.timeStamp,multi:pts.size>1,d0:Vb.goal.dist};if(pts.size===2){const [a,b]=[...pts.values()];st.d=Math.hypot(a.x-b.x,a.y-b.y);st.mx=(a.x+b.x)/2;st.my=(a.y+b.y)/2;t3c_hand(Vb,"pan");}},o);
+  hs.addEventListener("pointermove",e=>{if(!pts.has(e.pointerId)){if(e.target===el)t3hover(e);return;}const p=pts.get(e.pointerId),dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;
+    if(!st)return;if(!Vb.dragged&&Math.hypot(e.clientX-st.x,e.clientY-st.y)>(st.touch?10:7)){Vb.dragged=true;t3c_hand(Vb,"pan");if(!el.hasPointerCapture(e.pointerId))try{el.setPointerCapture(e.pointerId);}catch(_){}} // a phone: the hand holds the camera from here
+    if(!Vb.dragged)return;Vb.userT=performance.now();
     const G=Vb.goal,g0=KS.map(k=>G[k]);
-    if(pts.size>=2){const [a,b]=[...pts.values()],d=Math.hypot(a.x-b.x,a.y-b.y),mx=(a.x+b.x)/2,my=(a.y+b.y)/2;if(st.d)zoomAt(mx,my,st.d/Math.max(20,d));pan(mx-st.mx,my-st.my);st.d=d;st.mx=mx;st.my=my;st.multi=true;}
+    if(pts.size>=2){const [a,b]=[...pts.values()],d=Math.hypot(a.x-b.x,a.y-b.y),mx=(a.x+b.x)/2,my=(a.y+b.y)/2;if(st.d)zoomAt(mx,my,st.d/Math.max(20,d));if(st.touch)grab(mx,my,mx-st.mx,my-st.my);else pan(mx-st.mx,my-st.my);
+      if(st.touch){const an=Math.atan2(b.y-a.y,b.x-a.x);if(st.an!=null){const da=Math.atan2(Math.sin(an-st.an),Math.cos(an-st.an));G.yaw+=da;}st.an=an;} // a twist turns the table with the fingers
+      st.d=d;st.mx=mx;st.my=my;st.multi=true;}
+    else if(st.touch)grab(e.clientX,e.clientY,dx,dy);
     else if(st.btn===2||st.shift)pan(dx,dy);
     else{G.yaw-=dx*.0075;G.pitch+=dy*.005;}
     lim();
     // how fast the view was moving, for the glide after letting go
     const dts=Math.max(.008,(e.timeStamp-st.lt)/1000);st.lt=e.timeStamp;KS.forEach((k,i)=>{st.v[k]=st.v[k]*.55+((G[k]-g0[i])/dts)*.45;});},o);
-  const up=e=>{pts.delete(e.pointerId);if(pts.size<2&&st)st.d=null;
-    if(!pts.size){if(st&&Vb.dragged&&!st.multi&&!reduced&&e.timeStamp-st.lt<90){const v=st.v;v.yaw=clamp(v.yaw,-5,5);v.pitch=clamp(v.pitch,-1.5,1.5)*.5;Vb.t3k_spin=v;}setTimeout(()=>{Vb.dragged=false;},0);}};
-  el.addEventListener("pointerup",up,o);el.addEventListener("pointercancel",up,o);
+  const up=e=>{if(!pts.has(e.pointerId))return;pts.delete(e.pointerId);if(pts.size<2&&st){st.d=null;st.an=null;}
+    if(!pts.size){const dg=Vb.dragged;if(st&&dg&&!st.multi&&!reduced&&e.timeStamp-st.lt<90){const v=st.v;v.yaw=clamp(v.yaw,-5,5);v.pitch=clamp(v.pitch,-1.5,1.5)*.5;Vb.t3k_spin=v;}
+      if(st&&dg&&st.multi)t3c_hand(Vb,"pinch",st.d0);else if(st&&st.touch&&!dg&&e.type==="pointerup")t3c_tap(Vb,e);
+      setTimeout(()=>{if(!pts.size)Vb.dragged=false;},dg?350:0);}}; // a drag never ends in a tap, even when its click comes late
+  hs.addEventListener("pointerup",up,o);hs.addEventListener("pointercancel",up,o);
   el.addEventListener("contextmenu",e=>e.preventDefault(),o);
-  el.addEventListener("wheel",e=>{e.preventDefault();Vb.userT=performance.now();Vb.t3k_spin=null;if(Vb.intro)Vb.intro=false;zoomAt(e.clientX,e.clientY,Math.exp(clamp(e.deltaY,-120,120)*.0012));},{passive:false,signal:ac.signal});
-  el.addEventListener("dblclick",()=>t3home(),o);
+  el.addEventListener("wheel",e=>{e.preventDefault();Vb.userT=performance.now();Vb.t3k_spin=null;if(Vb.intro)Vb.intro=false;const d0=Vb.goal.dist;zoomAt(e.clientX,e.clientY,Math.exp(clamp(e.deltaY,-120,120)*.0012));t3c_hand(Vb,"pinch",d0);},{passive:false,signal:ac.signal});
+  el.addEventListener("dblclick",()=>{if(!Vb.t3c_tc)t3home();},o); // touch has its own double tap (t3c_tap)
   // the board's box can change size without a window resize (the panel grows, a phone turns): refit once per frame at most
   if(window.ResizeObserver&&Vb.host){let q=0;const ro=new ResizeObserver(()=>{if(!q)q=requestAnimationFrame(()=>{q=0;if(V===Vb)t3fit();});});ro.observe(Vb.host);ac.signal.addEventListener("abort",()=>{ro.disconnect();cancelAnimationFrame(q);});}
   Vb.lim=lim;Vb.pan=pan;Vb.zoomAt=zoomAt;}
-function t3home(){if(!V)return;const hm=V.home;Object.assign(V.goal,{yaw:hm.yaw,pitch:hm.pitch,dist:hm.dist,tx:hm.tx,ty:hm.ty,tz:hm.tz});V.t3k_spin=null;V.t3k_act=null;V.userT=performance.now();}
+function t3home(){if(!V)return;const hm=V.home;Object.assign(V.goal,{yaw:hm.yaw,pitch:hm.pitch,dist:hm.dist,tx:hm.tx,ty:hm.ty,tz:hm.tz});V.t3k_spin=null;V.t3k_act=null;V.userT=performance.now();t3c_hand(V,"board");}
 function t3turn(d){if(!V)return;V.t3k_spin=null;V.goal.yaw+=d;V.lim();V.userT=performance.now();}
-function t3zoom(f){if(!V)return;V.t3k_spin=null;const rc=V.r.domElement.getBoundingClientRect();V.zoomAt(rc.left+rc.width/2,rc.top+rc.height/2,f);V.userT=performance.now();}
+function t3zoom(f){if(!V)return;V.t3k_spin=null;const rc=V.r.domElement.getBoundingClientRect(),d0=V.goal.dist;V.zoomAt(rc.left+rc.width/2,rc.top+rc.height/2,f);V.userT=performance.now();t3c_hand(V,"pinch",d0);}
 /* camera helpers: the ground point under a screen point, a critically damped spring, the lowest pitch that keeps walls out of the view */
 const t3k_rc=new THREE.Raycaster(),t3k_nd=new THREE.Vector2(),t3k_pl=new THREE.Plane(),t3k_p=new THREE.Vector3(),t3k_a=new THREE.Vector3(),t3k_b=new THREE.Vector3();
 function t3k_ground(Vb,cx,cy){const rc=Vb.r.domElement.getBoundingClientRect();if(!rc.width)return null;t3k_nd.set((cx-rc.left)/rc.width*2-1,-(cy-rc.top)/rc.height*2+1);Vb.cam.updateMatrixWorld();t3k_rc.setFromCamera(t3k_nd,Vb.cam);
@@ -7051,27 +7075,33 @@ function t3loop(now){t3raf=0;if(!V||!V.live()){return;}t3raf=requestAnimationFra
   if(V.render)V.render(dt);else V.r.render(V.scene,V.cam);}
 
 /* ---- OWNER: camera + animation. The camera eases to its goal and follows whoever acts; each mini walks, faces, lunges, falls, fades ---- */
-function t3camTick(dt,now){const G=V.goal,Vw=V.view,L=V.limits,vel=V.t3k_v,KS=t3k_KS;let user=now-V.userT<2600;V.t3k_fr=(V.t3k_fr||0)+1; // a new frame: t3tag lays the tags out once
+function t3camTick(dt,now){const G=V.goal,Vw=V.view,L=V.limits,vel=V.t3k_v,KS=t3k_KS,C=V.t3c||{};let user=now-V.userT<2600;V.t3k_fr=(V.t3k_fr||0)+1; // a new frame: t3tag lays the tags out once
+  if(C.on){const pk=B.tgt||B.cellPick||null;if(pk!==C.pk){C.pk=pk;if(pk&&C.hold){C.hold=false;t3c_ui();}} // picking a target or a square shows the choices again
+    user=C.hold||!t3c_follow||now-V.userT<400;} // a phone: a hand on the board holds the camera until the next turn (t3c)
+  t3c_fovTick(dt);
   // the glide after a flick
   const sp=V.t3k_spin;if(sp){let any=false;for(const k in sp){G[k]+=sp[k]*dt;sp[k]*=Math.exp(-dt*3.4);if(Math.abs(sp[k])>.02)any=true;}V.lim();V.userT=now;user=true;if(!any)V.t3k_spin=null;}
-  // a strike (a mini lunges): frame the attacker and the one it aims at (the hit shake lives in the VFX area)
-  for(const m of V.minis.values()){if(m.lunge&&m.lunge!==m.t3k_lg){m.t3k_lg=m.lunge;if(!user&&!V.intro)t3k_frame(m,now);}}
+  // a strike (a mini lunges): frame the attacker and the one it aims at (the hit shake lives in the VFX area); t3frame "pair" may have framed it already
+  for(const m of V.minis.values()){if(m.lunge&&m.lunge!==m.t3k_lg){m.t3k_lg=m.lunge;const A=V.t3k_act;if(!user&&!V.intro&&!(A&&A.pair&&A.a===m&&now<A.end))t3k_frame(m,now);}}
   const A=V.t3k_act;if(A&&now>A.end){V.t3k_act=null;if(!user){G.dist=A.dist;V.lim();}}
-  // follow the one acting, unless someone just moved the camera by hand
-  if(!V.t3k_act&&B.cur&&!user){const m=V.minis.get(B.cur);if(m){const p=m.pos,hm=V.home,f=t3k_lean(m,dt),k=1-Math.exp(-dt*1.6);G.tx+=(hm.tx+(p.x-hm.tx)*f-G.tx)*k;if(V.tree)G.ty+=(hm.ty+(p.y-hm.ty)*(f+.05)-G.ty)*k;else G.tz+=(hm.tz+(p.z-hm.tz)*f-G.tz)*k;}}
-  if(B.cur!==V.lastCur){V.lastCur=B.cur;if(B.cur&&!user&&!V.intro&&!V.t3k_act)G.dist=V.home.dist*.86;}
+  // follow the one acting, unless someone just moved the camera by hand. A phone frames the action instead (t3c_tick)
+  if(C.on){if(!V.t3k_act&&!user&&!V.intro)t3c_tick(now);}
+  else if(!V.t3k_act&&!user){const F=t3c_dfocus(now),m=F?null:B.cur&&V.minis.get(B.cur),p=F?F.p:m&&m.pos;
+    if(p){const hm=V.home,f=t3k_lean(F||m,dt),k=now<(V.t3c_fast||0)?1:1-Math.exp(-dt*1.6);G.tx+=(hm.tx+(p.x-hm.tx)*f-G.tx)*k;if(V.tree)G.ty+=(hm.ty+(p.y-hm.ty)*(f+.05)-G.ty)*k;else G.tz+=(hm.tz+(p.z-hm.tz)*f-G.tz)*k;}}
+  if(B.cur!==V.lastCur){V.lastCur=B.cur;t3c_turn(now);if(!C.on&&B.cur&&!user&&!V.intro&&!V.t3k_act)G.dist=V.home.dist*.86;}
   // the fly-in: one sweep from high and turned down to the table, then the springs take over
   let F=V.t3k_fly;if(V.intro&&!F)F=V.t3k_fly={t0:now,from:Object.assign({},Vw)};
   if(F&&!V.intro)F=V.t3k_fly=null;
   if(F){const k=Math.min(1,(now-F.t0)/2800),eo=1-Math.pow(1-k,3),ei=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
     for(const key of KS){Vw[key]=F.from[key]+(G[key]-F.from[key])*(key==="pitch"?ei:eo);vel[key]=0;}if(k>=1){V.intro=false;V.t3k_fly=null;}}
   else{if(KS.every(k=>Vw[k]===G[k]))for(const k of KS)vel[k]=0; // set from outside (a test): stand still
-    const om=now-V.userT<350?16:5.5;for(const k of KS)Vw[k]=t3k_sd(Vw[k],G[k],vel,k,om,dt);}
-  // auto-tilt: lower and more cinematic close up, more top-down when pulled far out
-  const near=clamp((V.home.dist-Vw.dist)/Math.max(.1,V.home.dist-L.dist[0]),-1,1);
-  let p=Vw.pitch-(near>0?Math.pow(near,1.3)*(V.tree?.1:.42):near*.12);p=clamp(p,L.pitch[0],L.pitch[1]);
+    const om=now-V.userT<350?16:now<(V.t3c_fast||0)?9:5.5;for(const k of KS)Vw[k]=t3k_sd(Vw[k],G[k],vel,k,om,dt);} // t3c_fast: a turn framed by t3frame arrives within its beat
+  // auto-tilt: lower and more cinematic close up, more top-down when pulled far out (a phone measures "close" from its readable distance, t3c_tilt)
+  let p,ly;if(C.on){[p,ly]=t3c_tilt(Vw.pitch,Vw.dist);}
+  else{const near=clamp((V.home.dist-Vw.dist)/Math.max(.1,V.home.dist-L.dist[0]),-1,1);
+    p=Vw.pitch-(near>0?Math.pow(near,1.3)*(V.tree?.1:.42):near*.12);p=clamp(p,L.pitch[0],L.pitch[1]);ly=V.tree?0:Math.max(0,near)*.35;}
   if(!V.tree){const need=t3k_clear(Vw.tx,Vw.tz,Vw.yaw,L.pitch[0],Vw.dist);V.t3k_pf+=(need-V.t3k_pf)*(1-Math.exp(-dt*6));p=Math.max(p,V.t3k_pf);}
-  const ly=V.tree?0:Math.max(0,near)*.35,cp=Math.cos(p);
+  const cp=Math.cos(p);
   t3k_a.set(Vw.tx,Vw.ty+ly,Vw.tz);V.cam.position.set(Vw.tx+Math.sin(Vw.yaw)*cp*Vw.dist,Vw.ty+ly+Math.sin(p)*Vw.dist,Vw.tz+Math.cos(Vw.yaw)*cp*Vw.dist);
   V.cam.lookAt(t3k_a);V.t3k_pitch=p;}
 function t3animMini(m,u,dt,tt,now){const rm=reduced,gone=!!(u.gone||u.ghost),down=u.hp<=0&&!gone,fig=m.fig,big=(u.size||1)>1,heart=u.key==="heart";
@@ -7126,15 +7156,143 @@ function t3k_lean(m,dt){const q=t3k_b.copy(m.pos);q.y+=V.tree?0:m.top*.5;q.proje
 /* a unit's floor centre, written into out (V.unitPos without the new Vector3) */
 function t3k_upos(u,out){const s=u.size||1,x=u.x+(s-1)/2,y=u.y+(s-1)/2,W=V.mp.W,H=V.mp.H;return V.tree?out.set(x+.5-W/2,(H-1-y)-H/2+.5,0):out.set(x+.5-W/2,0,y+.5-H/2);}
 /* frame an exchange: the attacker and the mini it lunges toward, turned a little side-on */
-function t3k_frame(a,now){const G=V.goal,d=a.lunge.dir,pa=a.pos;let best=null,bs=1e9;
-  for(const o of V.minis.values()){if(o===a||o.gone||!o.g.visible)continue;const v=t3k_b.subVectors(o.pos,pa);if(V.tree)v.z=0;else v.y=0;const pr=v.dot(d);if(pr<=0)continue;
+function t3k_frame(a,now,tg,dur){const G=V.goal,pa=a.pos;let best=null,bs=1e9,d=a.lunge&&a.lunge.dir;
+  if(tg){best=tg===a?null:tg;d=null;if(best){const v=t3c_dir.subVectors(best.pos,pa);if(V.tree)v.z=0;else v.y=0;if(v.lengthSq()>1e-6)d=v.normalize();}} // t3frame "pair": the target is given
+  else for(const o of V.minis.values()){if(o===a||o.gone||!o.g.visible)continue;const v=t3k_b.subVectors(o.pos,pa);if(V.tree)v.z=0;else v.y=0;const pr=v.dot(d);if(pr<=0)continue;
     const pe=Math.sqrt(Math.max(0,v.lengthSq()-pr*pr)),s=pe*2+pr*.15;if(s<bs){bs=s;best=o;}}
-  const pt=best?best.pos:pa,sep=pa.distanceTo(pt);if(!V.t3k_act)V.t3k_act={dist:G.dist};const A=V.t3k_act;A.end=now+1800;A.a=a;A.t=best;
+  const pt=best?best.pos:pa,sep=pa.distanceTo(pt);if(!V.t3k_act)V.t3k_act={dist:G.dist};const A=V.t3k_act;A.end=now+(dur||1800);A.a=a;A.t=best;A.pair=!!tg;
+  if(V.t3c&&V.t3c.on){t3c_pair(a,best,d,sep);return;}
   G.tx=(pa.x+pt.x)/2;if(V.tree)G.ty=(pa.y+pt.y)/2;else G.tz=(pa.z+pt.z)/2;
   G.dist=clamp(sep*1.3+(V.tree?4.5:3.8),V.limits.dist[0],Math.min(A.dist,V.home.dist*.8));
-  if(!V.tree&&!reduced&&sep>.3){const base=Math.atan2(d.x,d.z);let yb=null;for(const s of[1,-1]){let y=base+s*Math.PI/2;y+=Math.round((G.yaw-y)/(2*Math.PI))*2*Math.PI;if(yb==null||Math.abs(y-G.yaw)<Math.abs(yb-G.yaw))yb=y;}
+  if(!V.tree&&!reduced&&sep>.3&&d){const base=Math.atan2(d.x,d.z);let yb=null;for(const s of[1,-1]){let y=base+s*Math.PI/2;y+=Math.round((G.yaw-y)/(2*Math.PI))*2*Math.PI;if(yb==null||Math.abs(y-G.yaw)<Math.abs(yb-G.yaw))yb=y;}
     G.yaw+=clamp(yb-G.yaw,-.5,.5)*.6;}
   V.lim();}
+
+/* t3c: the camera on a phone. A phone's board box is small, and the whole board in it leaves every mini a few pixels tall,
+   so there the camera frames the action instead: whoever acts and what they will likely hit, or what the player is picking,
+   at a size you can read and tap (T3C_PX), easing there between turns. A hand on the board (a slide, a pinch, "whole board")
+   holds the camera until the next turn or "re-centre"; follow can be turned off (remembered on this device).
+   A computer never takes this path (t3c.on stays false: its board box shows the whole board big enough), so it looks as before.
+   t3frame is the door for the pacing code: it says WHEN and WHOM, t3c says how it looks */
+let t3c_follow=store.get("chron-cam-follow")!=="0",t3c_zoom=1; // t3c_zoom: the player's pinch, kept for the next turns
+const T3C_PX=[50,38,28]; // a mini's height on screen in CSS px: a strike up close, the usual framing, the farthest before things drop out of frame
+const t3c_T=new THREE.Vector3(),t3c_q=new THREE.Vector3(),t3c_R=new THREE.Vector3(),t3c_w=new THREE.Vector3(),t3c_dir=new THREE.Vector3(),t3c_L=new THREE.Vector3(),t3c_P=new THREE.Vector3(),t3c_Q=new THREE.Quaternion(),t3c_dp=new THREE.Vector3();
+/* portrait: widen the view a little so the board isn't a slit (what a square box would show sideways, at most 8 degrees more) */
+function t3c_fov(w,hh){const C=V.t3c||(V.t3c={f0:V.cam.fov,d0:V.limits.dist[0],on:false,hold:false,focus:null,key:null,aim:null});let f=C.f0;
+  if(SMALL&&w<hh)f=clamp(Math.atan(Math.tan(C.f0*Math.PI/360)*.85*hh/w)*360/Math.PI,C.f0,C.f0+8);C.fovT=V.cam.fov=f;} // t3fit works with the new view; the camera eases to it (t3c_fovTick)
+/* the view angle eases when the board box changes shape (the turn panel grows or shrinks), so the shot doesn't jump */
+function t3c_fovTick(dt){const C=V.t3c;if(!C||C.fovN==null||C.fovN===C.fovT)return;C.fovN+=(C.fovT-C.fovN)*Math.min(1,dt*4);if(Math.abs(C.fovT-C.fovN)<.02)C.fovN=C.fovT;V.cam.fov=C.fovN;V.cam.updateProjectionMatrix();}
+/* the readable distances for this board box (a mini is about .85 tall, seen from the home tilt), and whether the phone framing is on */
+function t3c_size(w,hh){const C=V.t3c,L=V.limits,hm=V.home,tp=Math.tan(V.cam.fov*Math.PI/360),D=px=>.85*Math.cos(hm.pitch)*hh/(2*tp*px);
+  C.dMin=D(T3C_PX[0]);C.dPref=D(T3C_PX[1]);C.dMax=D(T3C_PX[2]);
+  const was=C.on;C.on=SMALL&&hm.dist>C.dMax*1.05; // only when the whole board would leave the minis smaller than the farthest framing
+  L.dist[0]=C.on?Math.max(C.d0,D(110)):C.d0;if(C.on)L.dist[1]=Math.max(hm.dist*1.25,C.dMax*1.5);
+  if(C.on!==was){C.key=null;V.host.classList.toggle("t3c-on",C.on);}t3c_ui();}
+/* the tilt at a distance: a phone counts "close" from its usual framing, so the usual view keeps the home tilt. Returns [pitch, look-at lift] */
+function t3c_tilt(pitch,d){const L=V.limits,D=V.t3c.dPref,near=clamp((D-d)/Math.max(.1,D-L.dist[0]),-1,1);
+  return [clamp(pitch-(near>0?Math.pow(near,1.3)*(V.tree?.1:.3):near*.1),L.pitch[0],L.pitch[1]),V.tree?0:Math.max(0,near)*.35];}
+/* the points that must show for a unit (its base and its head, the tag sits above) and for a group of squares (their outer corners) */
+function t3c_upts(u,out,tw=.6){const m=V.minis.get(u),c=t3k_upos(u,t3c_w),r=(u.size||1)*.45,top=(m?m.top:1)+.35,y=V.goal.yaw,rx=Math.cos(y)*tw,rz=-Math.sin(y)*tw; // tw: half the name tag's width, beside the head
+  if(V.tree)out.push(new THREE.Vector3(c.x-r,c.y-.15,0),new THREE.Vector3(c.x+r,c.y-.15,0),new THREE.Vector3(c.x-tw,c.y+top,0),new THREE.Vector3(c.x+tw,c.y+top,0)); // on the tree a mini stands on its square's middle
+  else out.push(new THREE.Vector3(c.x-r,0,c.z-r),new THREE.Vector3(c.x+r,0,c.z-r),new THREE.Vector3(c.x-r,0,c.z+r),new THREE.Vector3(c.x+r,0,c.z+r),new THREE.Vector3(c.x-rx,top,c.z-rz),new THREE.Vector3(c.x+rx,top,c.z+rz));
+  return out;}
+function t3c_cbox(cs,out){let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;for(const [x,y] of cs){x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y);}
+  for(const [x,y] of[[x0,y0],[x1,y0],[x0,y1],[x1,y1]]){const c=V.cell(x,y);for(const a of[-.5,.5])for(const b of[-.5,.5])out.push(V.tree?new THREE.Vector3(c.x+a,c.y+b,0):new THREE.Vector3(c.x+a,0,c.z+b));}return out;}
+/* where to look and how far back, so every point shows at this yaw inside the board box (room above for the tags, below for the camera buttons).
+   The nearest distance that fits, then the look-at point slides until the points sit in the middle; a few rounds */
+function t3c_aim(pts,yaw,pitch0){const c=V.cam,tr=V.tree,W=Math.max(10,V.host.clientWidth),H=Math.max(10,V.host.clientHeight),f0=c.fov,fT=V.t3c.fovT??f0,tp=Math.tan(fT*Math.PI/360),T=t3c_T,q=t3c_q;
+  t3c_P.copy(c.position);t3c_Q.copy(c.quaternion);if(fT!==f0){c.fov=fT;c.updateProjectionMatrix();} // solve for the view angle the camera is easing to
+  const bx0=-1+32/W,bx1=1-32/W,by0=-1+2*66/H,by1=1-2*34/H;
+  let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9,z0=1e9,z1=-1e9;for(const p of pts){x0=Math.min(x0,p.x);x1=Math.max(x1,p.x);y0=Math.min(y0,p.y);y1=Math.max(y1,p.y);z0=Math.min(z0,p.z);z1=Math.max(z1,p.z);}
+  T.set((x0+x1)/2,tr?(y0+y1)/2:0,tr?0:(z0+z1)/2);
+  const put=d=>{let [p,ly]=t3c_tilt(pitch0,d);if(!tr)p=Math.max(p,t3k_clear(T.x,T.z,yaw,V.limits.pitch[0],d));const cp=Math.cos(p); /* the tilt the camera will really take, walls included */c.position.set(T.x+Math.sin(yaw)*cp*d,T.y+ly+Math.sin(p)*d,T.z+Math.cos(yaw)*cp*d);c.lookAt(t3c_L.set(T.x,T.y+ly,T.z));c.updateMatrixWorld();return p;};
+  const box=d=>{put(d);let a=9,b=-9,e=9,f=-9;for(const p of pts){q.copy(p).project(c);if(q.z>1||q.z<-1)return null;a=Math.min(a,q.x);b=Math.max(b,q.x);e=Math.min(e,q.y);f=Math.max(f,q.y);}return [a,b,e,f];};
+  const fits=d=>{const b=box(d);return !!b&&b[0]>=bx0&&b[1]<=bx1&&b[2]>=by0&&b[3]<=by1;};
+  let d=0;
+  for(let it=0;it<5;it++){let lo=it?d*.6:.5,hi=it?d*1.4:Math.max(40,V.home.dist*3);if(it&&!fits(hi))hi=Math.max(40,V.home.dist*3);if(fits(lo))hi=lo;else for(let i=0;i<(it?10:16);i++){const m=(lo+hi)/2;if(fits(m))hi=m;else lo=m;}d=hi;
+    const b=box(d);if(!b)break;const cx=(b[0]+b[1]-bx0-bx1)/2,cy=(b[2]+b[3]-by0-by1)/2;if(Math.abs(cx)<.015&&Math.abs(cy)<.015)break;
+    const p=put(d),hy=d*tp,hx=hy*c.aspect;t3c_R.setFromMatrixColumn(c.matrixWorld,0);T.addScaledVector(t3c_R,cx*hx);
+    if(tr){T.y+=cy*hy/Math.max(.3,Math.cos(p));T.z=0;}else{const s=cy*hy/Math.max(.3,Math.sin(p));T.x-=Math.sin(yaw)*s;T.z-=Math.cos(yaw)*s;T.y=0;}}
+  c.position.copy(t3c_P);c.quaternion.copy(t3c_Q);c.updateMatrixWorld();if(fT!==f0){c.fov=f0;c.updateProjectionMatrix();}
+  return {x:T.x,y:T.y,z:T.z,d};}
+/* who's in the shot: t3frame's pick, else whoever acts with the targets or squares the player is picking, else with what they'll likely hit */
+function t3c_focus(now){const C=V.t3c;let F=C.focus;
+  if(F&&(now>F.until||F.lead&&(F.lead.gone||F.lead.dead)))F=C.focus=null;
+  if(F&&!(F.mode==="turn"&&F.lead===B.cur))return F;
+  const a=B.cur;if(!a||a.gone)return F;
+  if(B.tgt&&B.tgt.list.length)return {mode:"pick",lead:a,units:B.tgt.list,cells:null};
+  if(B.cellPick&&B.cellPick.length)return {mode:"cells",lead:a,units:[],cells:B.cellPick};
+  return {mode:"turn",lead:a,units:t3c_likely(a),cells:null};}
+/* likely targets: the nearest foes within a move and a step (three at most), else the nearest one if it's not far. A crew member doesn't frame a foe hiding from them */
+function t3c_likely(a){const crew=a.side!=="foe",r=speedOf(a)+2,L=enemiesOf(a).filter(o=>!(crew&&o.hidden)).map(o=>[o,dist(a,o)]).sort((p,q)=>p[1]-q[1]);
+  const t=L.filter(p=>p[1]<=r).slice(0,3).map(p=>p[0]);return t.length?t:L.length&&L[0][1]<=12?[L[0][0]]:[];}
+function t3c_keyOf(F){let k=F.mode+"|"+t3c_zoom+"|"+V.goal.yaw.toFixed(2)+"|"+V.host.clientWidth+"x"+V.host.clientHeight;const ad=u=>{k+=","+u.id+"@"+u.x+":"+u.y;};
+  if(F.lead)ad(F.lead);for(const u of F.units||[])ad(u);const c=F.cells;if(c&&c.length)k+="#"+c.length+":"+c[0]+":"+c[c.length-1];return k;}
+/* the shot for a focus: the one acting always; then the others nearest first while they still fit at a readable size; squares by halves */
+function t3c_solve(F){const C=V.t3c,G=V.goal,hm=V.home;if(!F)return null;
+  if(F.mode==="board")return {x:hm.tx,y:hm.ty,z:hm.tz,d:hm.dist};
+  const z=t3c_zoom,dMax=C.dMax*z,pts=[],lead=F.lead,lp=lead?t3k_upos(lead,new THREE.Vector3()):null;let best=null;
+  if(lead){t3c_upts(lead,pts,.85);best=t3c_aim(pts,G.yaw,G.pitch);}
+  const rest=(F.units||[]).filter(u=>u!==lead&&!u.gone).map(u=>({u,k:lp?t3k_upos(u,t3c_w).distanceTo(lp):0})).sort((p,q)=>p.k-q.k);
+  for(const r of rest){const n=pts.length;t3c_upts(r.u,pts);const a=t3c_aim(pts,G.yaw,G.pitch);if(a.d<=dMax||!best)best=a;else{pts.length=n;break;}}
+  // friends standing right beside the one acting come along when that costs no size, so nobody is cut in half at the edge
+  if(lead&&best&&F.mode!=="board")for(const u of B.units.filter(o=>o!==lead&&!o.gone&&!o.ghost&&(o.side==="foe")===(lead.side==="foe")&&!(F.units||[]).includes(o)&&dist(lead,o)<=1)){
+    const n=pts.length;t3c_upts(u,pts,.3);const a=t3c_aim(pts,G.yaw,G.pitch);if(a.d<=Math.max(best.d,C.dPref*z))best=a;else pts.length=n;}
+  const cs=F.cells;if(cs&&cs.length){const s=lead?cs.slice().sort((p,q)=>Math.max(Math.abs(p[0]-lead.x),Math.abs(p[1]-lead.y))-Math.max(Math.abs(q[0]-lead.x),Math.abs(q[1]-lead.y))):cs;
+    for(let n=s.length;;n=Math.floor(n/2)){const a=t3c_aim(t3c_cbox(s.slice(0,Math.max(1,n)),pts.slice()),G.yaw,G.pitch);if(a.d<=dMax||!best){best=a;break;}if(n<=1)break;}}
+  if(best)best.d=clamp(Math.max(best.d,C.dPref*z),V.limits.dist[0],V.limits.dist[1]);return best;}
+/* every frame on a phone, unless a hand holds the camera: set the goal to the shot (worked out again only when someone moves or the focus changes) */
+function t3c_tick(now){const C=V.t3c,G=V.goal,F=t3c_focus(now);if(!F)return;const k=t3c_keyOf(F);if(k!==C.key){C.key=k;C.aim=t3c_solve(F);}
+  const a=C.aim;if(!a)return;G.tx=a.x;if(V.tree)G.ty=a.y;else G.tz=a.z;G.dist=a.d;V.lim();}
+/* a new turn: the hand lets go (phones), an old t3frame pick ends unless it was made for this turn */
+function t3c_turn(now){const C=V.t3c;if(!C)return;const F=C.focus;if(F&&F.lead!==B.cur&&now-F.t>400)C.focus=null;if(B.cur&&C.hold){C.hold=false;t3c_ui();}C.key=null;}
+/* a computer: the point the follow-cam leans toward when t3frame picked someone or something other than whoever acts */
+function t3c_dfocus(now){const C=V.t3c,F=C&&C.focus;if(!F||now>F.until||F.mode==="board"||F.mode==="turn"&&F.lead===B.cur)return null;
+  const p=t3c_dp;let top=0;if(F.cells&&F.cells.length){t3c_cbox(F.cells,t3c_cbuf);p.set(0,0,0);for(const q of t3c_cbuf)p.add(q);p.multiplyScalar(1/t3c_cbuf.length);t3c_cbuf.length=0;}
+  else{const m=F.lead&&V.minis.get(F.lead);if(!m)return null;p.copy(m.pos);top=m.top;}
+  if(!C.df)C.df={pos:p,p,top:0};C.df.top=top;return C.df;}
+const t3c_cbuf=[];
+/* a strike on a phone: both minis close up; upright screens look past one at the other, wide ones from the side (as a computer does) */
+function t3c_pair(a,b,d,sep){const C=V.t3c,G=V.goal;
+  if(!V.tree&&!reduced&&b&&d&&sep>.3){const port=V.host.clientWidth<V.host.clientHeight,base=Math.atan2(d.x,d.z);let yb=null;
+    for(const s of port?[.4,-.4,Math.PI+.4,Math.PI-.4]:[Math.PI/2,-Math.PI/2]){let y=base+s;y+=Math.round((G.yaw-y)/(2*Math.PI))*2*Math.PI;if(yb==null||Math.abs(y-G.yaw)<Math.abs(yb-G.yaw))yb=y;}
+    G.yaw+=clamp(yb-G.yaw,-.5,.5)*.6;}
+  const pts=[];t3c_upts(a.u,pts,.85);if(b)t3c_upts(b.u,pts,.85);const r=t3c_aim(pts,G.yaw,G.pitch);
+  G.tx=r.x;if(V.tree)G.ty=r.y;else G.tz=r.z;G.dist=clamp(Math.max(r.d,C.dMin*t3c_zoom),V.limits.dist[0],V.home.dist);V.lim();}
+/* t3frame(what,{mode,force,dur}): frame a moment. what: a unit, units, or [x,y] squares. mode: "turn" (whoever acts and what they'll likely hit; a quick ease
+   so it lands within the beat), "pair" ([attacker,target], 1.8 s), "area" (squares, e.g. a spell), "unit" (one unit), "board" (the whole board).
+   Holds until the turn changes, another t3frame, or dur ms. Returns false and does nothing while a hand holds the camera, unless force */
+function t3frame(what,{mode="turn",force=false,dur}={}){if(!t3on()||!V.t3c)return false;const C=V.t3c,G=V.goal,now=performance.now();
+  if(!force&&(C.on?C.hold||!t3c_follow:now-V.userT<2600))return false;
+  const L=what==null?[]:Array.isArray(what)&&!(what.length===2&&typeof what[0]==="number")?what:[what];
+  const units=L.filter(x=>x&&typeof x==="object"&&!Array.isArray(x)),cells=L.filter(x=>Array.isArray(x)&&x.length===2);
+  if(mode==="pair"){const a=units[0]&&V.minis.get(units[0]),t=units[1]&&V.minis.get(units[1]);if(!a)return false;t3k_frame(a,now,t||a,dur);return true;}
+  if(mode==="board"&&!C.on){Object.assign(G,{tx:V.home.tx,ty:V.home.ty,tz:V.home.tz,dist:V.home.dist});C.focus=null;return true;}
+  C.focus={mode,lead:units[0]||(mode==="board"?null:B.cur)||null,units:units.slice(1),cells,t:now,until:now+(dur??1e9)};C.key=null;
+  if(mode!=="area")V.t3c_fast=now+600;
+  if(!C.on){if((mode==="turn"||mode==="unit")&&!V.t3k_act)G.dist=V.home.dist*.86;}
+  else if(C.hold||!t3c_follow){const a=t3c_solve(t3c_focus(now));if(a){G.tx=a.x;if(V.tree)G.ty=a.y;else G.tz=a.z;G.dist=a.d;V.lim();}} // forced while held: one shot
+  return true;}
+/* the hands: a slide, a pinch or "whole board" holds the camera on a phone; a pinch also sets how close the next turns are framed */
+function t3c_hand(Vb,kind,d0){const C=Vb&&Vb.t3c;if(!C||!C.on)return;if(kind==="pinch"&&d0>0)t3c_zoom=clamp(t3c_zoom*Vb.goal.dist/d0,.7,1.4);if(!C.hold){C.hold=true;t3c_ui();}}
+/* a double tap (touch): look at that square, up close. Not when the square or the mini on it can be picked right now: that tap was meant for it */
+function t3c_tap(Vb,e){const t=Vb.t3c_tap0,now=e.timeStamp;Vb.t3c_tap0={t:now,x:e.clientX,y:e.clientY};
+  if(!t||now-t.t>400||Math.hypot(e.clientX-t.x,e.clientY-t.y)>30||!B||V!==Vb)return;Vb.t3c_tap0=null;
+  const pk=t3pick(e.clientX,e.clientY);if(!pk.cell)return;const [x,y]=pk.cell,k=x+","+y,on=u=>x>=u.x&&x<u.x+(u.size||1)&&y>=u.y&&y<u.y+(u.size||1);
+  if(B.tgt&&(pk.u&&B.tgt.list.includes(pk.u)||B.tgt.list.some(on)))return;
+  if(B.cellPick&&B.cellPick.some(([a,b])=>a===x&&b===y))return;
+  if(B.reach&&B.onMove){const n=B.reach.d.get(k);if(n&&!n.occ&&k!==B.reach.start)return;}
+  const G=Vb.goal,p=Vb.cell(x,y),C=Vb.t3c;G.tx=p.x;if(Vb.tree)G.ty=p.y;else G.tz=p.z;G.dist=Math.min(G.dist,C&&C.on?C.dPref*.8:Vb.home.dist*.6);
+  Vb.t3k_spin=null;Vb.t3k_act=null;Vb.userT=performance.now();Vb.lim();if(C&&C.on&&!C.hold){C.hold=true;t3c_ui();}}
+/* the camera buttons on a phone: re-centre (and let go), follow on/off, turn (on the tree it swings back at the end) */
+function t3c_recentre(){if(!V||!V.t3c)return;const C=V.t3c,G=V.goal,now=performance.now();C.hold=false;C.key=null;V.t3k_spin=null;V.t3k_act=null;V.userT=now-3000;V.t3c_fast=now+600;
+  if(C.on){const a=t3c_solve(t3c_focus(now));if(a){G.tx=a.x;if(V.tree)G.ty=a.y;else G.tz=a.z;G.dist=a.d;V.lim();}}
+  t3c_ui();}
+function t3c_toggle(){t3c_follow=!t3c_follow;store.set("chron-cam-follow",t3c_follow?"1":"0");if(t3c_follow)t3c_recentre();else t3c_ui();}
+function t3c_spin(d){if(!V)return;const G=V.goal,L=V.limits;if(G.yaw+d>L.yaw[1]+1e-3)d=L.yaw[0]-G.yaw;t3turn(d);}
+function t3c_ui(){if(!V||!V.host)return;const C=V.t3c,fl=V.host.querySelector(".c-fl"),rc=V.host.querySelector(".c-rc");
+  if(fl){fl.classList.toggle("on",t3c_follow);fl.setAttribute("aria-pressed",String(t3c_follow));const l="Camera follows the action: "+(t3c_follow?"on":"off");fl.title=l;fl.setAttribute("aria-label",l);}
+  if(rc)rc.classList.toggle("nudge",!!(C&&C.on&&(C.hold||!t3c_follow)));}
 
 /* ---- OWNER: UI on the board. Selection rings and name tags (see also t3mini's base and ring, t3hi, t3hoverTick, the .pl-3d CSS) ---- */
 const t3pp=new THREE.Vector3();
@@ -7196,9 +7354,13 @@ function t3dispose(){if(!V)return;cancelAnimationFrame(t3raf);t3raf=0;V.ac&&V.ac
 function t3start(){t3dispose();const host=h("div",{class:"pl-3d"}),tags=h("div",{class:"pl-tags"});host.append(tags);
   const tst=B.mp.kind==="tree"?.4:Math.PI/4,cb=(t,l,f,svg,c="")=>h("button",{type:"button",class:"pl-btn"+c,title:t,"aria-label":l,onclick:f,html:`<svg viewBox="0 0 24 24" aria-hidden="true">${svg}</svg>`});
   const cam=h("div",{class:"pl-cam"},
-    cb("Turn left (Q)","Turn the table left",()=>t3turn(-tst),'<path d="M5.5 9.5a7.5 7.5 0 1 1 1.4 7.6"/><path d="M4.5 4.5v5h5"/>'),
-    cb("Back to the whole board (H)","Show the whole board",t3home,'<circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="1.8"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/>'),
-    cb("Turn right (E)","Turn the table right",()=>t3turn(tst),'<path d="M18.5 9.5a7.5 7.5 0 1 0-1.4 7.6"/><path d="M19.5 4.5v5h-5"/>'),
+    cb("Turn left (Q)","Turn the table left",()=>t3turn(-tst),'<path d="M5.5 9.5a7.5 7.5 0 1 1 1.4 7.6"/><path d="M4.5 4.5v5h5"/>'," c-dk"),
+    cb("Back to the whole board (H)","Show the whole board",t3home,'<circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="1.8"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/>'," c-dk"),
+    // a phone's set (t3c): re-centre on whoever acts, the whole board, follow on/off, then turn
+    cb("Back to whoever acts","Re-centre on whoever acts",t3c_recentre,'<circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="1.8"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/>'," c-ph c-rc"),
+    cb("The whole board","Show the whole board",t3home,'<path d="M3.5 8.5v-5h5M20.5 8.5v-5h-5M3.5 15.5v5h5M20.5 15.5v5h-5"/><rect x="8" y="8" width="8" height="8" rx="1"/>'," c-ph c-wb"),
+    cb("Camera follows the action","Camera follows the action",t3c_toggle,'<rect x="3" y="7" width="12.5" height="10" rx="2"/><path d="M15.5 10.5l5-3v9l-5-3"/><path class="sl" d="M3 4l18 16"/>'," c-ph c-fl"),
+    cb("Turn right (E)","Turn the table right",()=>V&&V.t3c&&V.t3c.on?t3c_spin(tst):t3turn(tst),'<path d="M18.5 9.5a7.5 7.5 0 1 0-1.4 7.6"/><path d="M19.5 4.5v5h-5"/>'),
     h("i",{class:"z","aria-hidden":"true"}),
     cb("Zoom in","Zoom in",()=>t3zoom(.8),'<circle cx="10.5" cy="10.5" r="6"/><path d="M10.5 7.8v5.4M7.8 10.5h5.4M15 15l5 5"/>'," z"),
     cb("Zoom out","Zoom out",()=>t3zoom(1.25),'<circle cx="10.5" cy="10.5" r="6"/><path d="M7.8 10.5h5.4M15 15l5 5"/>'," z"));
@@ -7210,6 +7372,15 @@ function t3start(){t3dispose();const host=h("div",{class:"pl-3d"}),tags=h("div",
   for(const u of B.units)V.minis.set(u,t3mini(V,u));
   t3fit();t3hi();t3last=0;cancelAnimationFrame(t3raf);t3raf=requestAnimationFrame(t3loop);return true;}
 if(/[?&]playtest/.test(location.search))window.__t3={settle(){if(V){V.intro=false;Object.assign(V.view,V.goal);}},zoom(f,y){if(V){V.goal.dist=V.home.dist*f;if(y!=null)V.goal.yaw+=y;this.settle();}},cam(){return V?{view:Object.assign({},V.view),pitch:V.t3k_pitch,pos:V.cam.position.toArray()}:null}};
+// playtest hook (camera framing): where each mini stands on screen and how tall it is there, in CSS px
+if(/[?&]playtest/.test(location.search))window.__t3.probe=()=>{if(!V||!B)return null;const rc=V.host.getBoundingClientRect(),W2=rc.width/2,H2=rc.height/2,q=new THREE.Vector3(),sc=v=>{q.copy(v).project(V.cam);return [rc.left+q.x*W2+W2,rc.top-q.y*H2+H2,q.z];};
+  const C=V.t3c||{};return {t3c:{on:!!C.on,hold:!!C.hold,follow:t3c_follow,zoom:t3c_zoom,dPref:C.dPref,dMax:C.dMax},host:[rc.left,rc.top,rc.width,rc.height],fov:V.cam.fov,pitch:V.t3k_pitch,view:Object.assign({},V.view),goal:Object.assign({},V.goal),home:Object.assign({},V.home),cur:B.cur&&B.cur.key,
+    units:B.units.filter(u=>!u.gone&&!u.ghost).map(u=>{const m=V.minis.get(u);if(!m)return {key:u.key};const b=m.g.position.clone(),t=b.clone();if(V.tree)t.y+=m.top;else t.y+=m.top;const [x0,y0,z0]=sc(b),[x1,y1]=sc(t);
+      return {key:u.key+(u.num||""),side:u.side,x:Math.round(x0),y:Math.round(y0),hpx:Math.round(Math.hypot(x1-x0,y1-y0)),vis:z0<1&&x0>=rc.left&&x0<=rc.right&&y0>=rc.top&&y0<=rc.bottom};})};};
+if(window.__t3)Object.assign(window.__t3,{state(){if(!B)return null;const u=B.cur;return {cur:u&&{key:u.key,x:u.x,y:u.y},reach:B.reach?[...B.reach.d.entries()].filter(([k,v])=>!v.occ&&k!==B.reach.start).map(([k])=>k):[],tgt:B.tgt?B.tgt.list.map(t=>B.units.indexOf(t)):[]};},
+  cellXY(x,y){if(!V)return null;const rc=V.host.getBoundingClientRect(),q=V.cell(x,y).project(V.cam);return [rc.left+(q.x+1)/2*rc.width,rc.top+(1-q.y)/2*rc.height];},
+  unitXY(i){const u=B.units[i],m=V&&V.minis.get(u);if(!m)return null;const rc=V.host.getBoundingClientRect(),q=m.g.position.clone();q.y+=V.tree?0:m.top*.5;q.project(V.cam);return [rc.left+(q.x+1)/2*rc.width,rc.top+(1-q.y)/2*rc.height];}});
+if(window.__t3)window.__t3.frame=(ix,o)=>t3frame(Array.isArray(ix)?ix.map(i=>typeof i==="number"?B.units[i]:i):B.units[ix],o||{});
 function t3sync(){if(!t3on())return;for(const u of B.units)if(!V.minis.has(u))V.minis.set(u,t3mini(V,u));}
 
 /* ---- geometry ---- */
