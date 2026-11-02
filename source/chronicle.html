@@ -2599,7 +2599,7 @@ if(store.get("chron-mode")==="table"){morph=morphTarget=1;setMode(1);} placeThum
 const sheet=document.getElementById("sheet"), sTitle=document.getElementById("sheet-title"), sBody=document.getElementById("sheet-body");
 const tabs=[...document.querySelectorAll(".dock button")]; let tab=null;
 function h(tag,attrs={},...kids){const e=document.createElement(tag);for(const [k,v] of Object.entries(attrs)){if(k==="class")e.className=v;else if(k==="html")e.innerHTML=v;else if(k.startsWith("on"))e.addEventListener(k.slice(2),v);else if(v!==false&&v!=null)e.setAttribute(k,v===true?"":v);}for(const c of kids.flat()){if(c==null||c===false)continue;e.append(c.nodeType?c:document.createTextNode(c));}return e;}
-const TALL=new Set(["chronicle","missed","dm","ask","sheets","places"]);
+const TALL=new Set(["chronicle","missed","dm","ask","sheets","places","proposals"]);
 function openSheet(title,nodes,which=null){delete sTitle.dataset.place;const was=!sheet.hidden&&sTitle.dataset.t===title;sTitle.dataset.t=title;if(!was)scramble(sTitle,title);sBody.replaceChildren(...nodes);sBody.classList.toggle("rollable",which==="sheets");
   sheet.classList.toggle("tall",TALL.has(which)&&nodes.length>3);sheet.hidden=false;sBody.scrollTop=0;setTab(which);}
 function closeSheet(){sheet.hidden=true;delete sTitle.dataset.place;setTab(null);}
@@ -2657,7 +2657,7 @@ function openPlace(id,after){
   const here=allNotes.filter(n=>Math.hypot(n.lon-p.lon,n.lat-p.lat)<3);
   openSheet(p.name,[meta.back,tags,sess,h("div",{class:"voice",html:p.voice==="hans"?squawkHtml(p.body):p.body}),
     id==="crash"&&!reduced?h("div",{class:"row"},h("button",{class:"btn ghost",type:"button",onclick:playCrash},"Replay the last flight")):null,
-    ...meta.foot, here.length?h("p",{class:"eyebrow"},"NOTES PINNED NEARBY"):null, ...here.map(noteCard)].filter(Boolean)); sTitle.dataset.place=id;
+    ...meta.foot, ...tableNotesNodes(id), here.length?h("p",{class:"eyebrow"},"NOTES PINNED NEARBY"):null, ...here.map(noteCard), ...proposeNoteNodes(id)].filter(Boolean)); sTitle.dataset.place=id;
 }
 /* =================== PLACES TAB: the gazetteer =================== */
 const KORD=Object.fromEntries(Object.keys(KINDS).map((k,i)=>[k,i]));
@@ -2707,7 +2707,7 @@ function showPlaces(keep){
       h("div",{class:"row"},
         h("button",{type:"button",class:"btn",onclick:()=>{if(inp.value.trim())add();gzEdit=null;upd();}},"Done"),
         e.amended?h("button",{type:"button",class:"btn ghost",onclick:()=>{setTags(e.id,e.base);upd();}},"Back to Hans's tags"):null),
-      h("p",{class:"note"},"Your tags stay on this device. Tell Sam or Niels if Hans should keep them for everyone."));
+      NETLIFY&&account?proposeTagsNode(e):h("p",{class:"note"},"Your tags stay on this device. Tell Sam or Niels if Hans should keep them for everyone."));
   }
   function upd(){
     store.set("chron-places-q",gq); store.set("chron-places-k",gk); clear.hidden=!gq;
@@ -2729,7 +2729,7 @@ function showPlaces(keep){
         h("span",{class:"gz-b"},
           h("span",{class:"nm"},e.name),
           h("span",{class:"mt"},[KINDS[e.kind].one.toUpperCase(),e.parent?"IN "+e.parent.name.toUpperCase():null,e.state==="rumour"?"RUMOURED":null,e.isNew?"NEW":null].filter(Boolean).join(" · "),
-            e.amended?h("span",{class:"cs-amend"},"\u00a0· amended"):null),
+            e.amended?h("span",{class:"cs-amend"},"\u00a0· amended"):e.fromTable?h("span",{class:"cs-amend"},"\u00a0· from the table"):null),
           e.tags.length?h("span",{class:"tg"},e.tags.map(t=>"#"+t).join("  ")):h("span",{class:"tg"},"no tags"))),
       gzEdit===e.id?null:h("button",{type:"button",class:"cs-edit gz-edit","aria-label":"Edit the tags of "+e.name,onclick:()=>{gzEdit=e.id;upd();list.querySelector(".gz-tagin")?.focus();}},"edit"),
       gzEdit===e.id?tagEditor(e):null))
@@ -3366,7 +3366,11 @@ async function goOnline(){
   const user={isOwner:async()=>!!account.isDm,id:async()=>account.id,
     profiles:async ids=>{try{const r=await fetch("/api/profiles?ids="+encodeURIComponent(ids.join(",")),{cache:"no-store"});return r.ok?await r.json():{};}catch(e){return {};}}};
   window.claude={use:async n=>n==="db"?db:n==="user"?user:null};
-  PUBLIC=false; await boot(); rebuildNotes(); if(tab==="missed")showMissed();
+  PUBLIC=false; netdb=db; await boot(); rebuildNotes(); if(tab==="missed")showMissed();
+  db.doc("proposals/"+account.id).onSnapshot(d=>{myProps=d.exists?(d.data().list||[]):[];},()=>{});
+  if(account.isDm) db.collection("proposals").onSnapshot(s=>{allProps={};s.docs.forEach(d=>allProps[d.id]=d.data());},()=>{});
+  let lastDecided="";
+  db.doc("accepted/lore").onSnapshot(d=>{decidedMap=d.exists?(d.data().items||{}):{};const sig=Object.keys(decidedMap).length+"";if(sig!==lastDecided){lastDecided=sig;loadAccepted();}},()=>{});
 }
 async function loadAccount(){
   const r=await fetch("/api/me",{cache:"no-store"}); if(!r.ok)return false;
@@ -3374,11 +3378,99 @@ async function loadAccount(){
 }
 async function bootNetlify(){
   if(!NETLIFY)return;
+  if(location.hash==="#proposals"){store.set("chron-inbox","1");history.replaceState(null,"",location.pathname+location.search);}
+  loadAccepted();
   let I; try{I=await identity();}catch(e){return;} // sign-in unavailable: the public edition keeps working
   const invite=(location.hash.match(/invite_token=([^&]+)/)||[])[1];
   if(invite){history.replaceState(null,"",location.pathname+location.search);showWelcome(decodeURIComponent(invite));return;}
   try{await I.handleAuthCallback();}catch(e){toast("Couldn't finish signing in. Try again.");}
   try{if(await I.getUser())await loadAccount();}catch(e){}
+  if(store.get("chron-inbox")==="1"){if(account)openPendingInbox();else{toast("Sign in as Sam to see the proposals");showSignIn();}}
+}
+/* ---- proposals: players propose, Sam accepts with one tap, the site shows it at once ---- */
+// Accepted changes come from /api/accepted (public) and are laid over the lore built into this page.
+// When Sam's Claude writes one into this file for good, it adds its key here, and the overlay skips it.
+const FILED=new Set([]);
+let accepted=[], myProps=[], allProps={}, decidedMap={}, tableNotes={}, netdb=null;
+const placeName=id=>(byId[id]||spotById[id]||gazById[id]||{name:id}).name;
+const byName=b=>b==="dm"?"Sam (DM)":(CH[b]?.name||"Someone at the table");
+async function loadAccepted(){
+  if(!NETLIFY)return;
+  try{const r=await fetch("/api/accepted",{cache:"no-store"});if(!r.ok)return;accepted=(await r.json()).accepted||[];}catch(e){return;}
+  tableNotes={};
+  for(const a of accepted){ if(FILED.has(a.key))continue;
+    if(a.kind==="tags"&&gazById[a.place]){const e=gazById[a.place];e.base=[...new Set((a.tags||[]).map(cleanTag).filter(Boolean))];e.fromTable=true;
+      if(Array.isArray(tagEdits[e.id])&&tagEdits[e.id].join("|")===e.base.join("|")){delete tagEdits[e.id];store.set("chron-place-tags",JSON.stringify(tagEdits));}gzRetag(e);}
+    if(a.kind==="note")(tableNotes[a.place]=tableNotes[a.place]||[]).push(a);}
+  if(tab==="places")showPlaces(true);
+}
+const openFor=(place,kind)=>myProps.find(p=>p.place===place&&p.kind===kind&&!decidedMap[account.id+"."+p.id]);
+const openCount=()=>Object.entries(allProps).reduce((n,[acc,d])=>n+(d?.list||[]).filter(p=>!decidedMap[acc+"."+p.id]).length,0);
+function proposalLine(p){return p.kind==="tags"?placeName(p.place)+": tags "+(p.tags||[]).map(t=>"#"+t).join(" "):placeName(p.place)+": "+p.text;}
+async function propose(p){
+  if(!netdb||!account){showSignIn();return;}
+  p={id:Math.random().toString(36).slice(2,10),at:Date.now(),...p};
+  const keep=myProps.filter(x=>!decidedMap[account.id+"."+x.id]&&!(x.place===p.place&&x.kind===p.kind&&p.kind==="tags"));
+  try{await netdb.doc("proposals/"+account.id).set({list:[...keep,p].slice(-50)});}
+  catch(e){toast("Couldn't save the proposal: "+(e.message||"try again"));return;}
+  myProps=[...keep,p];
+  if(account.isDm){await decideProposals("accepted",[account.id+"."+p.id]);return;}
+  const c=CH[myChar];
+  const msg=["📜 The Chronicle of Valeria · a proposal for Sam",c?"From: "+c.name:null,"",proposalLine(p),"",
+    "One tap to accept: "+location.origin+location.pathname+"#proposals"].filter(x=>x!=null).join("\n");
+  shareToSam(msg,"Proposed. Sam gets the message; one tap and everyone sees it.");
+}
+async function shareToSam(msg,done){
+  if(navigator.share){try{await navigator.share({text:msg});toast(done);return;}catch(err){if(err&&(err.name==="AbortError"||err.name==="InvalidStateError")){toast("Saved. Send Sam the link when you like.");return;}}}
+  const w=window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank");try{if(w)w.opener=null;}catch(e){}
+  const ok=await copyText(msg); toast(w?done:ok?"Saved, and copied: paste it to Sam":"Saved. Tell Sam to look at his proposals.");
+}
+async function decideProposals(status,keys){
+  try{const r=await fetch("/api/proposals/decide",{method:"POST",cache:"no-store",headers:{"Content-Type":"application/json"},body:JSON.stringify(keys?{status,keys}:{status})});
+    const j=await r.json(); if(!r.ok)throw new Error(j.error||"HTTP "+r.status);
+    toast(status==="accepted"?(j.decided===1?"Accepted. Everyone sees it now.":`Accepted all ${j.decided}. Everyone sees them now.`):"Rejected");
+  }catch(e){toast("Couldn't do that: "+(e.message||"try again"));}
+  await loadAccepted(); if(tab==="proposals")showProposals();
+}
+async function showProposals(){
+  if(!account||!account.isDm)return;
+  let open=[]; try{const r=await fetch("/api/proposals",{cache:"no-store"});if(r.ok)open=(await r.json()).open||[];}catch(e){}
+  const waiting=accepted.filter(a=>!FILED.has(a.key)).length;
+  openSheet("Proposals",[
+    h("p",{class:"small voice"},open.length?"The table has ideas for the Chronicle. Accept them and everyone sees them at once.":"No open proposals. The table is quiet."),
+    open.length?h("div",{class:"row"},h("button",{class:"btn",type:"button",onclick:e=>{e.currentTarget.disabled=true;decideProposals("accepted",null);}},open.length===1?"Accept it":`Accept all ${open.length}`)):null,
+    ...open.map(o=>h("div",{class:"card"},h("div",{class:"who",style:`--c:${(CH[o.by]||CH.dm).hex}`},h("i"),byName(o.by)),
+      h("p",{},proposalLine(o)),
+      h("div",{class:"row"},h("button",{class:"btn ghost",type:"button",onclick:()=>decideProposals("accepted",[o.key])},"Accept"),
+        h("button",{class:"btn ghost",type:"button",onclick:()=>decideProposals("rejected",[o.key])},"Reject")))),
+    waiting?h("p",{class:"note"},`${waiting} accepted change${waiting>1?"s":""} not yet in Hans's own copy. Your Claude writes them in at your next session.`):null
+  ].filter(Boolean),"proposals");
+}
+function tableNotesNodes(id){
+  const list=(tableNotes[id]||[]); if(!list.length)return [];
+  return [h("p",{class:"eyebrow"},"FROM THE TABLE · ACCEPTED BY SAM"),...list.map(a=>h("div",{class:"card"},h("div",{class:"who",style:`--c:${(CH[a.by]||CH.dm).hex}`},h("i"),byName(a.by)),h("p",{},a.text)))];
+}
+function proposeNoteNodes(id){
+  if(!NETLIFY||!account)return [];
+  const pend=myProps.filter(p=>p.place===id&&p.kind==="note"&&!decidedMap[account.id+"."+p.id]);
+  const ta=h("textarea",{rows:"3",maxlength:"1000",placeholder:"Something the Chronicle should say about "+placeName(id)+"…"});
+  const box=h("div",{class:"q",hidden:true},ta,h("div",{class:"row"},h("button",{class:"btn",type:"button",onclick:async e=>{const t=ta.value.trim();if(!t){toast("Write something first");return;}
+    e.currentTarget.disabled=true;await propose({kind:"note",place:id,text:t.slice(0,1000)});openPlace(id,true);}},account.isDm?"Add it":"Propose to Sam")));
+  return [...pend.map(p=>h("p",{class:"note"},"You proposed: “"+p.text+"” · waiting for Sam")),
+    h("div",{class:"row"},h("button",{class:"btn ghost",type:"button",onclick:e=>{box.hidden=false;e.currentTarget.remove();ta.focus();}},account.isDm?"Add to this place":"Propose something for this place")),box];
+}
+function proposeTagsNode(e){
+  if(!NETLIFY||!account)return null;
+  const pend=openFor(e.id,"tags");
+  if(pend&&pend.tags.join("|")===e.tags.join("|"))return h("p",{class:"note"},"Proposed to Sam · waiting for his yes.");
+  if(!e.amended)return h("p",{class:"note"},account.isDm?"Change the tags, then make them everyone's.":"Change the tags, then propose them to Sam. One tap from him and everyone sees them.");
+  return h("div",{class:"row"},h("button",{class:"btn",type:"button",onclick:async ev=>{ev.currentTarget.disabled=true;await propose({kind:"tags",place:e.id,tags:e.tags});
+      showPlaces(true);}},account.isDm?"Make these everyone's tags":"Propose these tags to Sam"));
+}
+function openPendingInbox(){if(store.get("chron-inbox")==="1"&&account){store.set("chron-inbox","");if(account.isDm){showProposals();return true;}toast("That link is for Sam: only the DM can accept proposals.");}return false;}
+function proposalsLine(){
+  if(!NETLIFY||!account||!account.isDm)return null; const n=openCount();
+  return h("div",{class:"row"},h("button",{class:"btn"+(n?"":" ghost"),type:"button",onclick:showProposals},n?`Proposals · ${n} open`:"Proposals"));
 }
 function backupLine(){ // DM only, Netlify edition: everyone's player data as one file to keep
   if(!NETLIFY||!account||!account.isDm)return null;
@@ -3400,7 +3492,7 @@ function showSignIn(){
   const pw=h("input",{type:"password",autocomplete:"current-password",required:true,placeholder:"Password"});
   const go=h("button",{class:"btn",type:"submit"},"Sign in");
   const form=h("form",{class:"q",onsubmit:async e=>{e.preventDefault();go.disabled=true;
-    try{await (await identity()).login(email.value.trim(),pw.value);if(await loadAccount()){toast("Welcome back");showMissed();}else toast("Signed in, but the table data didn't answer. Try again.");}
+    try{await (await identity()).login(email.value.trim(),pw.value);if(await loadAccount()){toast("Welcome back");if(!openPendingInbox())showMissed();}else toast("Signed in, but the table data didn't answer. Try again.");}
     catch(err){toast("That didn't work. Check your email and password.");}
     go.disabled=false;}},
     h("label",{class:"q"},h("span",{class:"eyebrow"},"EMAIL"),email),h("label",{class:"q"},h("span",{class:"eyebrow"},"PASSWORD"),pw),h("div",{class:"row"},go));
@@ -3416,7 +3508,7 @@ function showWelcome(token){ // the link in Sam's invite email lands here
   openSheet("Welcome to the table",[
     h("p",{class:"small voice"},"Sam invited you. Choose a password, and the box will know you on every device."),
     h("form",{class:"q",onsubmit:async e=>{e.preventDefault();go.disabled=true;
-      try{await (await identity()).acceptInvite(token,pw.value);await loadAccount();toast("You're in");showMissed();}
+      try{await (await identity()).acceptInvite(token,pw.value);await loadAccount();toast("You're in");if(!openPendingInbox())showMissed();}
       catch(err){toast("That didn't work. The invite may have expired; ask Sam for a new one.");go.disabled=false;}}},
       h("label",{class:"q"},h("span",{class:"eyebrow"},"PASSWORD"),pw),h("div",{class:"row"},go)),
     h("p",{class:"note"},"Or skip the password and use your Google account with the same email address."),
@@ -3608,7 +3700,7 @@ async function showDM(){
     if(m.lon!=null){c.style.cursor="pointer";c.onclick=()=>flyTo(m.lon,m.lat,.35);}return c;}):[h("p",{class:"note"},"Nothing yet.")];
   openSheet("DM view",[h("p",{class:"eyebrow"},"WHAT THE BOX MISSED"),...missedList,h("p",{class:"eyebrow"},"ANSWERS · SESSION "+AS_OF),tbl,h("p",{class:"eyebrow"},"STORYLINE VOTE"),tallyNode(),
     h("p",{class:"eyebrow"},"WHO PLAYS WHOM"),Object.keys(claims).length?claimList:h("p",{class:"note"},"Nobody has picked a character yet."),
-    h("p",{class:"note"},"To reveal new ground after a session, tell Claude what happened."),backupLine(),accountLine()].filter(Boolean),"dm");
+    h("p",{class:"note"},"To reveal new ground after a session, tell Claude what happened."),proposalsLine(),backupLine(),accountLine()].filter(Boolean),"dm");
 }
 
 /* =================== THE SEAL: opening the black box together =================== */
