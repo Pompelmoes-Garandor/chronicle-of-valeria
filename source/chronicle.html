@@ -4215,31 +4215,236 @@ const T3MINI={
     const bm=t3mat("#2f6fd6",{roughness:.35,metalness:.2});const band=new THREE.Mesh(new THREE.TorusGeometry(.165,.022,6,20,Math.PI),bm);band.position.y=.54;up.add(band);
     for(const s of[-1,1]){const cup=new THREE.Mesh(new THREE.CylinderGeometry(.065,.065,.06,14),bm);cup.rotation.z=Math.PI/2;cup.position.set(s*.165,.53,0);up.add(cup);}
     return {up,top:.43+.7,hand:new THREE.Vector3(.32,-.08,.1),head,core};},
-  hollower(f){return t3body(f,{cloth:"#55574f",skin:"#8b8c86",eyes:0xcfe8ff,hunch:.45,arm:1.45,bulk:.9});},
-  husk(f){const b=t3body(f,{cloth:"#4b4743",skin:"#5c5751",eyes:0xff8a3a,hunch:.2,bulk:1.35});const em=new THREE.MeshStandardMaterial({color:0xff6a2a,emissive:0xff6a2a,emissiveIntensity:1.8});
-    for(let i=0;i<6;i++){const c=new THREE.Mesh(new THREE.BoxGeometry(.012,.09,.012),em);const a=i*1.05;c.position.set(Math.cos(a)*.19,.05+(i%3)*.07,Math.sin(a)*.19);c.rotation.z=i;b.up.add(c);}return b;},
-  vine(f){const S=seeded(55),up=new THREE.Group();f.add(up);const m1=t3mat("#4f5a2c"),m2=t3mat("#2f3a1c");
-    for(let i=0;i<7;i++){const a0=i/7*6.28,pts=[];for(let k=0;k<7;k++){const a=a0+k*.7,r=.12+.05*Math.sin(k*2+i);pts.push(new THREE.Vector3(Math.cos(a)*r,.08+k*.12,Math.sin(a)*r));}f.add(new THREE.Mesh(t3tube(pts,.03),i%2?m1:m2));}
-    for(let i=0;i<8;i++){const l=new THREE.Mesh(new THREE.ConeGeometry(.04,.12,3),t3mat("#6f7a3a"));l.position.set((S()-.5)*.3,.3+S()*.5,(S()-.5)*.3);l.rotation.set(S()*3,S()*3,S()*3);f.add(l);}
-    for(const s of[-1,1]){const e=new THREE.Mesh(new THREE.SphereGeometry(.018,6,4),new THREE.MeshBasicMaterial({color:0xd7ff6a}));e.position.set(s*.05,.78,.1);f.add(e);}return {up,top:.9,hand:new THREE.Vector3(.15,.5,.1)};},
-  needle(f){const up=new THREE.Group();f.add(up);const b=new THREE.Mesh(new THREE.ConeGeometry(.17,.55,7),t3mat("#3d4a26"));b.position.y=.34;f.add(b);const sm=t3mat("#a6a06a");
-    for(let i=0;i<22;i++){const s=new THREE.Mesh(new THREE.ConeGeometry(.012,.16,3),sm);const a=i*2.4,y=.15+(i%7)*.065;s.position.set(Math.cos(a)*.13*(1-y),y+.05,Math.sin(a)*.13*(1-y));s.lookAt(s.position.x*8,y+.4,s.position.z*8);s.rotateX(Math.PI/2);f.add(s);}
-    for(const k of[-1,1]){const e=new THREE.Mesh(new THREE.SphereGeometry(.016,6,4),new THREE.MeshBasicMaterial({color:0xd7ff6a}));e.position.set(k*.04,.5,.08);f.add(e);}return {up,top:.7,hand:new THREE.Vector3(0,.4,.15)};},
+  hollower(f,u){const K=t3m_kit(f,.7),ph=Math.random()*6,v=t3m_v,A="#4b4d47",SK="#6b6c65",BN="#a8a290",D="#1c1b18",CL="#e2dcc4";
+    // bent, starved legs and long toes
+    for(const s of[-1,1]){K.add("fig",t3m_taper([v(s*.06,.37,-.07),v(s*.1,.24,.07),v(s*.085,.13,-.05),v(s*.09,.08,.02)],.034,.02),A);
+      for(const t of[-1,0,1])K.add("fig",t3m_taper([v(s*.09,.08,.02),v(s*.09+t*.03,.075,.09)],.012,.003,3),D);}
+    K.add("fig",t3m_rag(.085,.12,.13,9,7,0,.6),"#3b342b",0,.32,-.04);
+    // the hunched torso: sunken chest, ribs and spine
+    const up=K.grp("up","fig",0,.37,-.05);up.rotation.x=.82;
+    K.add("up",new THREE.SphereGeometry(.1,9,7),SK,0,.15,0,{sx:.85,sy:1.4,sz:.72});
+    for(let i=0;i<4;i++)K.add("up",new THREE.TorusGeometry(.098-i*.007,.012,4,10,Math.PI),BN,0,.08+i*.045,.004,{rx:Math.PI/2,sy:.8});
+    for(let i=0;i<5;i++)K.add("up",new THREE.SphereGeometry(.024,5,4),BN,0,.02+i*.05,-.07+Math.sin(i*.5)*.01);
+    for(const s of[-1,1])K.add("up",new THREE.SphereGeometry(.033,6,5),SK,s*.095,.25,-.01,{sz:.8});
+    K.add("up",t3m_taper([v(0,.25,-.02),v(0,.31,.03),v(0,.34,.08)],.03,.022),SK);
+    // the skull: thrust forward, empty sockets, pale eyes, gaping jaw
+    const hd=K.grp("hd","up",0,.34,.09);hd.rotation.x=-.8;
+    K.add("hd",new THREE.SphereGeometry(.062,10,8),"#9a9686",0,.025,-.01,{sx:.72,sy:.95,sz:1.3});
+    K.add("hd",new THREE.SphereGeometry(.05,8,5),"#5e5b53",0,.04,.042,{sy:.3,sx:1.05});
+    K.add("hd",new THREE.SphereGeometry(.02,7,5),D,0,-.035,.058,{sx:1,sy:1.8,sz:.8});K.add("hd",new THREE.ConeGeometry(.03,.07,5),"#8a8678",0,-.025,.035,{rx:1.9,sx:.8});
+    K.add("hd",new THREE.BoxGeometry(.055,.016,.075),"#8a8678",0,-.075,.03,{rx:.6});for(let i=0;i<4;i++)K.add("hd",new THREE.ConeGeometry(.006,.025,3),CL,(i-1.5)*.014,-.058,.058,{rx:.6});
+    for(const s of[-1,1]){K.add("hd",new THREE.SphereGeometry(.02,6,5),D,s*.025,.018,.058);K.glow("hd",new THREE.SphereGeometry(.0075,6,4),"#9fd6ff",s*.025,.016,.07);}
+    // long arms that almost drag on the floor, three hooked claws each
+    for(const s of[-1,1]){const n=s<0?"aL":"aR",a=K.grp(n,"up",s*.12,.23,0);a.rotation.x=-.82;
+      const hn=v(s*.06,-.31,.13);K.add(n,t3m_taper([v(0,0,0),v(s*.055,-.16,.03),hn],.03,.019),SK);K.add(n,new THREE.SphereGeometry(.026,6,5),SK,hn.x,hn.y,hn.z,{sy:.7});
+      for(const c of[-1,0,1])K.add(n,t3m_taper([hn,v(hn.x+c*.028+s*.01,hn.y-.04,hn.z+.06),v(hn.x+c*.04+s*.012,hn.y-.1,hn.z+.07)],.011,.002,4),CL);}
+    K.done({rough:.88});const aL=K.G.aL.g,aR=K.G.aR.g;
+    const anim=(dt,tt,now,st)=>{if(st.gone)return;if(K.em)K.em.emissiveIntensity=st.down?.25:(u&&u.hidden?3.4:2.1)+Math.sin(tt*3+ph)*.35;if(st.down)return;
+      const b=Math.sin(tt*1.7+ph);up.rotation.x=.82+b*.045;up.position.y=.37+b*.006;
+      aL.rotation.x=-.82+Math.sin(tt*1.1+ph)*.15;aR.rotation.x=-.82+Math.sin(tt*1.1+ph+2.2)*.15;aL.rotation.z=-.06+Math.sin(tt*.7+ph)*.07;aR.rotation.z=.06-Math.sin(tt*.8+ph)*.07;
+      const k=Math.floor(tt*1.4+ph),j=t3hash(k,ph,7);hd.rotation.y=j>.55?(j-.78)*1.7:Math.sin(tt*.6+ph)*.12;hd.rotation.z=j>.82?.32:Math.sin(tt*.9)*.05;};
+    return {up,top:.72,hand:new THREE.Vector3(.18,.23,.26),head:hd,anim};},
+  husk(f,u){const K=t3m_kit(f,.85),ph=Math.random()*6,v=t3m_v,C="#2b2a28",C2="#4a4642",AS="#8a847b",E="#ff5a1a",E2="#ffb04a";
+    // stumpy legs of crusted ash over a smouldering core
+    for(const s of[-1,1]){K.glow("fig",new THREE.SphereGeometry(.068,7,6),E,s*.1,.2,0,{sy:1.7});K.add("fig",t3rock(.082,11+s,1),C,s*.1,.21,0,{sy:1.5});K.add("fig",t3rock(.085,21+s,0),C2,s*.11,.1,.03,{sy:.6,sz:1.35});}
+    // the hulking body: a burning core under plates of cracked ash
+    const up=K.grp("up","fig",0,.3,0);up.rotation.x=.4;
+    K.glow("up",new THREE.SphereGeometry(.18,10,8),E,0,.18,0,{sx:1.25,sy:1.1,sz:.95});
+    const S=seeded(17),n=15;for(let i=0;i<n;i++){const y=1-2*(i+.5)/n,r=Math.sqrt(1-y*y),a=i*2.4+S()*.3,d=v(Math.cos(a)*r,y,Math.sin(a)*r);if(d.y<-.75)continue;
+      K.add("up",t3rock(.1,40+i,0),i%3?C:C2,d.x*.2,.18+d.y*.17,d.z*.16,t3m_dirE(d,{sx:1.15,sy:.5,sz:1.15}));}
+    for(const s of[-1,1]){K.glow("up",new THREE.SphereGeometry(.07,7,6),E,s*.21,.28,0);K.add("up",t3rock(.105,61+s,1),C2,s*.22,.31,-.01,{sy:.8});}
+    K.add("up",t3rock(.078,71,1),C,0,.36,.12,{sz:.95});
+    for(const s of[-1,1])K.glow("up",new THREE.BoxGeometry(.036,.013,.03),E2,s*.028,.375,.19,{rz:s*.25});
+    K.glow("up",new THREE.BoxGeometry(.055,.02,.03),E,0,.335,.188);
+    // huge hanging arms with heavy fists, embers at the joints
+    for(const s of[-1,1]){const nm=s<0?"aL":"aR",a=K.grp(nm,"up",s*.27,.27,0);a.rotation.x=-.4;
+      K.add(nm,t3rock(.08,81+s,1),C,s*.02,-.08,0,{sy:1.2});K.glow(nm,new THREE.SphereGeometry(.05,6,5),E,s*.03,-.17,.03);
+      K.add(nm,t3rock(.085,91+s,1),C2,s*.035,-.24,.05,{sy:1.3});K.glow(nm,new THREE.SphereGeometry(.05,6,5),E,s*.04,-.31,.07);K.add(nm,t3rock(.105,99+s,1),C,s*.045,-.37,.08);}
+    K.add("up",t3rock(.06,5,0),AS,-.12,.36,-.05,{sy:.4});K.add("up",t3rock(.05,6,0),AS,.15,.39,-.02,{sy:.4});
+    K.done({rough:.95});const aL=K.G.aL.g,aR=K.G.aR.g;let last=-1;
+    const anim=(dt,tt,now,st)=>{if(st.gone)return;if(K.em)K.em.emissiveIntensity=st.down?.35:1.1+.75*(.5+.5*Math.sin(tt*1.6+ph))+.18*Math.sin(tt*11+ph*3);if(st.down)return;
+      const b=Math.sin(tt*1.6+ph);up.position.y=.3+b*.01;up.rotation.x=.4+b*.03;aL.rotation.x=-.4+Math.sin(tt*.9+ph)*.08;aR.rotation.x=-.4+Math.sin(tt*.9+ph+1.7)*.08;aL.rotation.z=b*.03;aR.rotation.z=-b*.03;
+      // a lazy ember drifts up now and then
+      const T=t3m_hi()?.6:1.3,k=Math.floor((tt+ph)/T);if(k!==last&&V&&V.sparks&&!(u&&u.hidden)){last=k;if(t3hash(k,ph,1)>.35){up.updateWorldMatrix(true,false);const q=up.localToWorld(t3m_tmp.set((t3hash(k,2,ph)-.5)*.3,.3,(t3hash(k,3,ph)-.5)*.2));V.root.worldToLocal(q);V.sparks.spawn(q,"#ff8a3a",1,{sp:.12,up:.5,lf:1.5,gr:.3});}}};
+    return {up,top:.82,hand:new THREE.Vector3(.3,.2,.1),anim};},
+  vine(f,u){const K=t3m_kit(f,.85),ph=Math.random()*6,v=t3m_v,G1="#56632e",G2="#34401c",G3="#6e5a34",T="#d6cc94",E="#d7ff5a",S=seeded(55);
+    // roots clutching the base
+    for(let i=0;i<7;i++){const a=i/7*6.28+S()*.4,c=Math.cos(a),s=Math.sin(a),L=.26+S()*.08;K.add("fig",t3m_taper([v(c*.05,.17,s*.05),v(c*.15,.09,s*.15),v(c*L,.075,s*L),v(c*(L+.06)+s*.05,.085,s*(L+.06)-c*.05)],.045,.008),i%2?G2:G3);}
+    // a braided, writhing trunk
+    const up=K.grp("up","fig",0,.12,0);
+    for(let i=0;i<5;i++){const a0=i/5*6.28,pts=[];for(let k=0;k<7;k++){const a=a0+k*.85,r=.075+.025*Math.sin(k*1.7+i);pts.push(v(Math.cos(a)*r,k*.085,Math.sin(a)*r+k*k*.002));}K.add("up",t3m_taper(pts,.042,.028,5),i%2?G1:G2);}
+    for(let i=0;i<6;i++){const a=S()*6.28;K.add("up",new THREE.ConeGeometry(.035,.1,3),"#7b8a3e",Math.cos(a)*.1,.1+S()*.4,Math.sin(a)*.1,{rx:S()*3,rz:a,sz:.25});}
+    // the head: a knot of vines around a gaping, toothed maw
+    const hd=K.grp("hd","up",0,.56,.04);
+    K.add("hd",t3rock(.12,77,1),G2,0,.05,-.03,{sx:1.05,sy:.85});
+    for(let i=0;i<5;i++){const a=i*1.26;K.add("hd",t3m_taper([v(Math.cos(a)*.11,-.05,Math.sin(a)*.09-.03),v(Math.cos(a)*.13,.05,Math.sin(a)*.1-.02),v(Math.cos(a)*.05,.14,Math.sin(a)*.04)],.024,.01),i%2?G1:G3);}
+    K.add("hd",new THREE.SphereGeometry(.078,10,8),"#0a0504",0,.01,.075,{sy:.9,sz:.45});
+    K.add("hd",new THREE.TorusGeometry(.078,.022,5,14),G1,0,.01,.1,{sy:.9});
+    for(let i=0;i<10;i++){const a=i/10*6.28;K.add("hd",new THREE.ConeGeometry(.012,.05,4),T,Math.cos(a)*.07,.01+Math.sin(a)*.062,.108,{rz:a+Math.PI/2});}
+    K.glow("hd",new THREE.SphereGeometry(.034,8,6),"#b8f04a",0,.01,.058);
+    for(const [x,y,r] of[[-.06,.1,.017],[.05,.11,.015],[-.005,.13,.012]])K.glow("hd",new THREE.SphereGeometry(r,6,4),E,x,y,.1);
+    // three lashing tendrils
+    const tp=[[v(0,0,0),v(-.12,.05,.06),v(-.24,-.02,.12),v(-.3,-.14,.18),v(-.27,-.24,.22),v(-.21,-.25,.17)],[v(0,0,0),v(.12,.06,.05),v(.25,.02,.1),v(.3,-.1,.16),v(.28,-.2,.21),v(.22,-.21,.17)],[v(0,0,0),v(0,.03,.12),v(.05,-.05,.24),v(.02,-.14,.3),v(-.04,-.16,.25)]];
+    const td=tp.map((p,i)=>{const n="t"+i,g=K.grp(n,"up",i===2?0:(i?.07:-.07),i===2?.3:.4,i===2?.06:0);K.add(n,t3m_taper(p,.03,.006,5),i===2?G2:G1);
+      for(let k=1;k<p.length-1;k++)K.add(n,new THREE.ConeGeometry(.009,.04,3),T,p[k].x,p[k].y+.025,p[k].z);return g;});
+    K.done({rough:.9});
+    const anim=(dt,tt,now,st)=>{if(st.gone)return;if(K.em)K.em.emissiveIntensity=st.down?.2:1.7+Math.sin(tt*2.4+ph)*.5;if(st.down)return;
+      up.rotation.z=Math.sin(tt*.8+ph)*.06;up.rotation.x=Math.sin(tt*.6+ph)*.05;hd.rotation.y=Math.sin(tt*.5+ph)*.25;hd.rotation.x=-Math.max(0,Math.sin(tt*1.3+ph))*.18;
+      td.forEach((g,i)=>{g.rotation.z=Math.sin(tt*1.3+i*2+ph)*.28;g.rotation.x=Math.sin(tt*.9+i*1.3+ph)*.22;g.rotation.y=Math.sin(tt*.7+i)*.2;});};
+    return {up,top:.86,hand:new THREE.Vector3(.2,.45,.2),head:hd,anim};},
+  needle(f,u){const K=t3m_kit(f,.72),ph=Math.random()*6,v=t3m_v,BK="#46502a",BK2="#2a2c18",N="#ddd29a",E="#d7ff5a";
+    // twig legs
+    for(const s of[-1,1]){K.add("fig",t3m_taper([v(s*.05,.33,-.02),v(s*.09,.22,.07),v(s*.08,.12,-.04),v(s*.09,.075,.05)],.026,.012),BK2);for(const t of[-1,1])K.add("fig",t3m_taper([v(s*.09,.08,.04),v(s*.09+t*.04,.075,.1)],.01,.003,3),BK2);}
+    // a spindle body, hunched, bristling with needles down the back
+    const up=K.grp("up","fig",0,.32,-.02);up.rotation.x=.5;
+    K.add("up",new THREE.LatheGeometry([new THREE.Vector2(.001,-.03),new THREE.Vector2(.07,.02),new THREE.Vector2(.1,.12),new THREE.Vector2(.085,.22),new THREE.Vector2(.04,.29),new THREE.Vector2(.001,.31)],7),BK,0,0,0,{sz:.8});
+    const sp=K.grp("sp","up",0,.13,0),S=seeded(9);
+    for(let i=0,n=0;n<32&&i<200;i++){const d=v(S()*2-1,S()*2-1,S()*2-1);if(d.lengthSq()>1||d.lengthSq()<.05)continue;d.normalize();if(d.z>.25)continue;n++;
+      const L=.09+S()*.1,dir=d.clone().add(v(0,.35,-.3)).normalize(),p=v(d.x*.09,d.y*.14,d.z*.075).addScaledVector(dir,L/2);K.add("sp",new THREE.ConeGeometry(.011,L,3),N,p.x,p.y,p.z,t3m_dirE(dir));}
+    // a seed-pod head with a crown of spines
+    const hd=K.grp("hd","up",0,.3,.03);hd.rotation.x=-.5;
+    K.add("hd",new THREE.ConeGeometry(.055,.13,6),BK,0,.01,.04,{rx:Math.PI/2});K.add("hd",new THREE.SphereGeometry(.055,7,6),BK,0,.01,-.01);
+    for(let i=0;i<7;i++){const a=(i/6-.5)*2.4,dir=v(Math.sin(a)*.8,.7,-.5).normalize();K.add("hd",new THREE.ConeGeometry(.009,.13,3),N,dir.x*.08,.03+dir.y*.08,-.01+dir.z*.08,t3m_dirE(dir));}
+    for(const s of[-1,1])K.glow("hd",new THREE.SphereGeometry(.014,6,4),E,s*.028,.03,.06);
+    // thin arms ending in needle claws
+    for(const s of[-1,1]){const n=s<0?"aL":"aR",a=K.grp(n,"up",s*.085,.22,0);a.rotation.x=-.5;const hn=v(s*.06,-.2,.13);
+      K.add(n,t3m_taper([v(0,0,0),v(s*.05,-.12,.04),hn],.02,.012),BK2);for(const c of[-1,0,1]){const dir=v(c*.25+s*.1,-.45,1).normalize();K.add(n,new THREE.ConeGeometry(.008,.11,3),N,hn.x+dir.x*.055,hn.y+dir.y*.055,hn.z+dir.z*.055,t3m_dirE(dir));}}
+    K.done({rough:.85});const aL=K.G.aL.g,aR=K.G.aR.g,spg=K.G.sp.g;
+    const anim=(dt,tt,now,st)=>{if(st.gone)return;if(K.em)K.em.emissiveIntensity=st.down?.2:1.9+Math.sin(tt*4+ph)*.4;if(st.down)return;
+      const k=Math.floor(tt*2.2+ph),j=t3hash(k,ph,5);hd.rotation.y=(j-.5)*.8;hd.rotation.z=(t3hash(k,1,ph)-.5)*.5;
+      aL.rotation.x=-.5+Math.sin(tt*2.1+ph)*.1+(j>.86?-.5:0);aR.rotation.x=-.5+Math.sin(tt*2.1+ph+1.5)*.1+(j<.12?-.5:0);
+      spg.scale.setScalar(1+.08*Math.sin(tt*2.6+ph));up.rotation.x=.5+Math.sin(tt*1.8+ph)*.04;};
+    return {up,top:.66,hand:new THREE.Vector3(.12,.35,.2),head:hd,anim};},
   heart(f){const up=new THREE.Group();f.add(up);const core=new THREE.Mesh(t3rock(.95,9,3),new THREE.MeshStandardMaterial({color:0x4a1a1a,roughness:.55,emissive:0x3f8a2a,emissiveIntensity:.35,flatShading:true}));core.position.y=.9;core.scale.set(1.15,1,1.05);up.add(core);
     const vm=new THREE.MeshStandardMaterial({color:0x7fd36a,emissive:0x7fd36a,emissiveIntensity:1.8});const S=seeded(91);
     for(let i=0;i<9;i++){const a=S()*6.28,b2=S()*1.2-.2,pts=[];for(let k=0;k<5;k++){const r=.9+k*.02,aa=a+k*.25;pts.push(new THREE.Vector3(Math.cos(aa)*Math.cos(b2+k*.2)*r*1.15,.9+Math.sin(b2+k*.2)*r,Math.sin(aa)*Math.cos(b2+k*.2)*r*1.05));}up.add(new THREE.Mesh(t3tube(pts,.035,4),vm));}
     const rm=t3mat("#1a120c");for(let i=0;i<12;i++){const a=i/12*6.28+S()*.3,pts=[new THREE.Vector3(Math.cos(a)*.6,.5,Math.sin(a)*.6),new THREE.Vector3(Math.cos(a)*1.2,.15,Math.sin(a)*1.2),new THREE.Vector3(Math.cos(a)*1.65,.03,Math.sin(a)*1.65)];f.add(new THREE.Mesh(t3tube(pts,.09+S()*.06,6),rm));}
     return {up,top:2.0,hand:new THREE.Vector3(0,.9,.9),core,big:true};},
-  grey(f){const b=t3body(f,{h:.9,cloth:"#3a3d42",cloak:"#6b6e73",skin:"#9a9ca0",hood:true});const dm=t3mat("#c8ccd4",{metalness:.8,roughness:.2});
-    for(const s of[-1,1]){const d=new THREE.Mesh(new THREE.BoxGeometry(.014,.18,.03),dm);d.position.set(s*.22,-.1,.16);d.rotation.x=1.2;b.up.add(d);}return b;},
-  warden(f){const b=t3body(f,{cloth:"#3e3a33",skin:"#2a2620",eyes:0x9fe08c,bulk:1.1,metal:.5});const am=t3mat("#5a4a36");
-    for(const s of[-1,1]){const pts=[new THREE.Vector3(s*.05,0,0),new THREE.Vector3(s*.12,.12,-.02),new THREE.Vector3(s*.2,.2,-.04),new THREE.Vector3(s*.18,.3,-.02)];const t=new THREE.Mesh(t3tube(pts,.014,4),am);t.position.copy(b.head.position);b.up.add(t);}
-    const sp=new THREE.Group();sp.add(new THREE.Mesh(new THREE.CylinderGeometry(.013,.013,.95,5),t3mat("#3a2a1c")));const tip=new THREE.Mesh(new THREE.ConeGeometry(.03,.12,4),t3mat("#9aa3ad",{metalness:.7}));tip.position.y=.52;sp.add(tip);
-    sp.position.set(.22,.05,.1);b.up.add(sp);return b;},
-  thorn(f){const b=t3body(f,{cloth:"#4a5a32",cloak:"#9bc46a",skin:"#d0a882",hair:"#3a2a1a",ears:true});
-    const bow=new THREE.Mesh(new THREE.TorusGeometry(.2,.012,4,16,Math.PI*1.1),t3mat("#5a3a1c"));bow.position.set(-.22,0,.08);bow.rotation.set(0,Math.PI/2,Math.PI/2-.55);b.up.add(bow);return b;},
-  matthew(f){return t3body(f,{cloth:"#d9b98a",cloak:"#6b4a2a",skin:"#e0b894",hair:"#6b4a2a"});}
+  grey(f,u){const K=t3m_kit(f,1),ph=Math.random()*6,v=t3m_v,s=1.16;
+    const b=t3m_body(K,{s,bulk:.86,cloth:"#2c2f33",pants:"#26282c",boots:"#18191c",skin:"#c4c6c9",sleeve:"#3f4247",belt:"#1e2023",
+      armL:[v(-.03,-.15,.06),v(-.02,-.26,.16)],armR:[v(.03,-.15,.06),v(.02,-.26,.16)]});
+    // a smooth blank face under a deep hood
+    K.add("hd",new THREE.SphereGeometry(.1,12,10,Math.PI*.7,Math.PI*1.6,0,Math.PI*.8),"#3c3f44",0,.05,-.012);
+    K.add("hd",new THREE.ConeGeometry(.055,.09,6),"#3c3f44",0,.135,-.06,{rx:-.7});
+    // three layers of tattered grey cloak
+    K.add("fig",t3m_rag(.12,.28,.68,13,31,1.4,.22),"#44474c",0,.45,-.01);
+    K.add("fig",t3m_rag(.1,.25,.32,12,32,1.2,.3),"#56595e",0,.68,-.005);
+    K.add("fig",t3m_rag(.075,.16,.13,10,33,.3,.3),"#696c71",0,.81,0);
+    // twin daggers, held low and forward
+    for(const q of[-1,1]){const n=q<0?"aL":"aR",h=q<0?b.hL:b.hR,d=v(q*.25,-.45,.85).normalize();
+      K.add(n,new THREE.ConeGeometry(.018,.2,4),"#d4d8df",h.x+d.x*.12,h.y+d.y*.12,h.z+d.z*.12,t3m_dirE(d,{sz:.35,m:1}));
+      K.add(n,new THREE.BoxGeometry(.065,.012,.018),"#8c9098",h.x+d.x*.02,h.y+d.y*.02,h.z+d.z*.02,t3m_dirE(d,{m:1}));
+      K.add(n,new THREE.CylinderGeometry(.011,.011,.06,5),"#22201c",h.x-d.x*.01,h.y-d.y*.01,h.z-d.z*.01,t3m_dirE(d));}
+    K.done({rough:.8});const {up,hd,aL,aR}=b;
+    const anim=(dt,tt,now,st)=>{if(st.gone||st.down)return;
+      hd.rotation.z=Math.sin(tt*.45+ph)*.13;hd.rotation.y=Math.sin(tt*.3+ph)*.3;up.rotation.x=.06+Math.sin(tt*1.1+ph)*.015;
+      aL.rotation.x=Math.sin(tt*.8+ph)*.06;aR.rotation.x=Math.sin(tt*.8+ph+1)*.06;aL.rotation.z=-.05;aR.rotation.z=.05;};
+    return {up,top:1.02,hand:new THREE.Vector3(.12,.52,.17),head:hd,anim};},
+  warden(f,u){const K=t3m_kit(f,.95),ph=Math.random()*6,v=t3m_v,W="#4d3d2a",W2="#6e5638",DK="#1a1611",AN="#93805e",MS="#5f6d31",E="#a8f07a";
+    const b=t3m_body(K,{s:1.06,bulk:1.12,cloth:"#2c261e",pants:"#28221a",boots:W,skin:DK,sleeve:"#2c261e",belt:W2,
+      armR:[v(.03,-.13,.05),v(.03,-.22,.13)],armL:[v(-.03,-.13,.03),v(-.04,-.24,.06)]});
+    // armour grown from bark and root: breastplate, pauldrons, greaves, roots coiling round
+    K.add("up",t3rock(.12,5,1),W,0,.16,.045,{sx:1.05,sy:1.2,sz:.55});
+    for(const q of[-1,1]){K.add("up",t3rock(.078,7+q,0),W2,q*.15,.28,0,{sx:1.15,sy:.65});K.add("fig",t3rock(.05,9+q,0),W,q*.07,.25,.035,{sy:1.7,sz:.7});
+      K.add("up",new THREE.SphereGeometry(.03,5,4),MS,q*.15,.32,-.02,{sy:.5});}
+    for(let i=0;i<3;i++){const pts=[];for(let k=0;k<9;k++){const a=i*2.1+k*.85;pts.push(v(Math.cos(a)*.135,-.04+k*.04,Math.sin(a)*.11));}K.add("up",t3m_taper(pts,.019,.01),W2);}
+    for(const q of[-1,1]){const pts=[];for(let k=0;k<6;k++){const a=k*1.1+q;pts.push(v(q*.06+Math.cos(a)*.05,.42-k*.055,Math.sin(a)*.045));}K.add("fig",t3m_taper(pts,.014,.008),W2);}
+    // a faceless bark helm with a dark slit, green eyes and branching antlers
+    K.add("hd",new THREE.DodecahedronGeometry(.082,0),W,0,.045,-.005,{sy:1.12});
+    K.add("hd",new THREE.BoxGeometry(.1,.024,.03),DK,0,.04,.068);
+    for(const q of[-1,1])K.glow("hd",new THREE.SphereGeometry(.012,6,4),E,q*.025,.042,.086);
+    for(const q of[-1,1]){const p0=v(q*.05,.08,-.01),p1=v(q*.1,.14,-.03),p2=v(q*.15,.22,-.03),p3=v(q*.17,.32,-.01);K.add("hd",t3m_taper([p0,p1,p2,p3],.017,.006),AN);
+      K.add("hd",t3m_taper([p1,v(q*.14,.19,.04),v(q*.15,.24,.08)],.01,.003,4),AN);K.add("hd",t3m_taper([p2,v(q*.21,.25,-.05),v(q*.27,.27,-.04)],.01,.003,4),AN);
+      K.add("hd",t3m_taper([p2.clone().lerp(p3,.5),v(q*.12,.34,-.05)],.008,.003,4),AN);}
+    // the spear, bound in root, and a longbow on the back
+    const h=b.hR;K.add("aR",new THREE.CylinderGeometry(.013,.013,1.02,5),"#3a2a1c",h.x,h.y+.1,h.z);
+    K.add("aR",new THREE.ConeGeometry(.034,.15,4),"#cfc8ad",h.x,h.y+.68,h.z,{sz:.35});
+    K.add("aR",new THREE.TorusGeometry(.018,.007,4,8),W2,h.x,h.y+.59,h.z,{rx:Math.PI/2});
+    K.add("up",t3m_taper([v(-.15,-.06,-.1),v(-.06,.08,-.14),v(.06,.24,-.14),v(.15,.4,-.1)],.012,.009,4),"#5a3c22");
+    K.done({rough:.9});const {up,hd,aL,aR}=b;
+    const anim=(dt,tt,now,st)=>{if(st.gone)return;if(K.em)K.em.emissiveIntensity=st.down?.2:1.8+Math.sin(tt*2+ph)*.6;if(st.down)return;
+      hd.rotation.y=Math.sin(tt*.4+ph)*.32;up.rotation.x=Math.sin(tt*1.2+ph)*.02;aR.rotation.x=Math.sin(tt*.8+ph)*.035;aL.rotation.x=Math.sin(tt*.8+ph+1.4)*.04;};
+    return {up,top:1.08,hand:new THREE.Vector3(.17,.5,.13),head:hd,anim};},
+  thorn(f,u){const K=t3m_kit(f,.9),ph=Math.random()*6,v=t3m_v,CL="#6d8c46",LE="#5a3a1c",H="#3a2a1a",SK="#d0a882";
+    const b=t3m_body(K,{cloth:"#4a5a32",pants:"#3a3524",boots:"#3a2614",skin:SK,sleeve:"#4a5a32",belt:LE,
+      armL:[v(-.05,-.12,.04),v(-.06,-.21,.1)],armR:[v(.03,-.13,-.01),v(.035,-.25,0)]});
+    // hair tied back, pointed ears, hood down
+    K.add("hd",new THREE.SphereGeometry(.074,12,8,0,6.283,0,1.95),H,0,.045,-.008,{rx:-.35});
+    K.add("hd",t3m_taper([v(0,.04,-.06),v(0,-.04,-.09),v(0,-.13,-.08)],.022,.01),H);
+    for(const q of[-1,1])K.add("hd",new THREE.ConeGeometry(.016,.075,4),SK,q*.064,.045,0,{rz:-q*1.2});
+    K.add("up",new THREE.TorusGeometry(.07,.03,5,10),CL,0,.29,-.02,{rx:Math.PI/2+.3});
+    K.add("fig",t3m_rag(.12,.21,.46,11,41,2.2,.2),CL,0,.47,-.02);
+    // quiver of arrows on the back
+    K.add("up",new THREE.CylinderGeometry(.036,.03,.25,7),LE,.06,.16,-.12,{rz:-.35});
+    for(let i=0;i<4;i++){const x=.09+(i%2)*.025,z=-.13+(i>1?.025:0);K.add("up",new THREE.CylinderGeometry(.004,.004,.07,3),"#8a6a44",x,.3,z,{rz:-.35});K.add("up",new THREE.ConeGeometry(.012,.04,3),i%2?"#e4ddc8":"#a8452c",x+.015,.34,z,{rz:-.35});}
+    // the longbow in the left hand, with its string
+    const h=b.hL,bp=[[.045,.36],[.06,.32],[.03,.18],[0,0],[.03,-.18],[.06,-.32],[.045,-.36]].map(([x,y])=>v(h.x+x,h.y+y,h.z));
+    K.add("aL",t3m_taper(bp.slice(0,4),.007,.013,4),"#6b4424");K.add("aL",t3m_taper(bp.slice(3),.013,.007,4),"#6b4424");
+    K.add("aL",new THREE.CylinderGeometry(.003,.003,.64,3),"#e8e0c8",h.x+.06,h.y,h.z);
+    K.done({rough:.8});const {up,hd,aL,aR}=b;
+    const anim=(dt,tt,now,st)=>{if(st.gone||st.down)return;hd.rotation.y=Math.sin(tt*.5+ph)*.42;hd.rotation.x=Math.sin(tt*.37+ph)*.05;up.rotation.x=Math.sin(tt*1.5+ph)*.015;aL.rotation.x=Math.sin(tt*.9+ph)*.03;aR.rotation.x=Math.sin(tt*.9+ph+2)*.05;};
+    return {up,top:.9,hand:new THREE.Vector3(-.19,.47,.1),head:hd,anim};},
+  matthew(f,u){const K=t3m_kit(f,.9),ph=Math.random()*6,v=t3m_v,CLK="#6b4a2a",LW="#b07a3a",DK="#3a2414";
+    const b=t3m_body(K,{cloth:"#d9b98a",pants:"#4e3b2a",boots:"#3a2818",skin:"#e0b894",sleeve:"#d9b98a",belt:DK,
+      armL:[v(-.03,-.1,.08),v(.02,-.08,.16)],armR:[v(.02,-.12,.06),v(-.02,-.17,.14)]});
+    K.add("hd",new THREE.SphereGeometry(.073,12,8,0,6.283,0,1.7),"#6b4a2a",0,.045,-.004,{rx:-.3});
+    // travel cloak with the hood down, bedroll and satchel
+    K.add("fig",t3m_rag(.12,.23,.5,11,51,1.6,.22),CLK,0,.47,-.02);
+    K.add("up",new THREE.TorusGeometry(.07,.03,5,10),CLK,0,.29,-.02,{rx:Math.PI/2+.3});
+    K.add("up",new THREE.CylinderGeometry(.042,.042,.22,8),"#7a6a4a",0,.3,-.12,{rz:Math.PI/2});
+    K.add("up",t3m_taper([v(-.12,.25,.06),v(0,.12,.11),v(.12,-.02,.07)],.01,.01,3),DK);
+    K.add("up",new THREE.BoxGeometry(.09,.08,.035),"#5a3c22",.13,-.03,.05,{ry:-.4});
+    // the lute held across the chest
+    const dir=v(-.78,.62,.05).normalize(),c=v(.03,.06,.13),rz=.9;
+    K.add("up",new THREE.SphereGeometry(.085,10,8),LW,c.x,c.y,c.z,{rz,sy:1.2,sz:.5});
+    K.add("up",new THREE.CylinderGeometry(.022,.022,.006,10),"#1a120a",c.x-.012,c.y+.01,c.z+.045,{rx:Math.PI/2});
+    K.add("up",new THREE.BoxGeometry(.03,.22,.016),DK,c.x+dir.x*.2,c.y+dir.y*.2,c.z+dir.z*.2+.01,{rz});
+    K.add("up",new THREE.BoxGeometry(.036,.065,.02),DK,c.x+dir.x*.33,c.y+dir.y*.33,c.z+dir.z*.33-.005,{rz,rx:-.5});
+    K.done({rough:.8});const {up,hd,aL,aR}=b;
+    const anim=(dt,tt,now,st)=>{if(st.gone||st.down)return;aR.rotation.x=Math.sin(tt*6.5+ph)*.09;aR.rotation.z=Math.sin(tt*6.5+ph)*.05;
+      hd.rotation.z=Math.sin(tt*2.2+ph)*.07;hd.rotation.x=Math.sin(tt*4.4+ph)*.035;up.rotation.z=Math.sin(tt*1.1+ph)*.03;};
+    return {up,top:.9,hand:new THREE.Vector3(.11,.5,.14),head:hd,anim};}
 };
+/* monster minis kit: collect painted pieces per moving part, merge each into one mesh (vertex colours), glow and metal parts apart */
+const t3m_v=(x,y,z)=>new THREE.Vector3(x,y,z),t3m_tmp=new THREE.Vector3(),t3m_qq=new THREE.Quaternion(),t3m_ee=new THREE.Euler(),t3m_Y=new THREE.Vector3(0,1,0);
+const t3m_hi=()=>typeof T3Q!=="undefined"?T3Q.hi:!SMALL;
+function t3m_kit(fig,top){const K={top,G:{fig:{g:fig,y:0,s:[],m:[],e:[]}},sm:null,mm:null,em:null,
+  grp(n,p,x=0,y=0,z=0){const g=new THREE.Group();g.position.set(x,y,z);this.G[p].g.add(g);this.G[n]={g,y:this.G[p].y+y,s:[],m:[],e:[]};return g;},
+  add(n,geo,col,x=0,y=0,z=0,o={}){this.G[n][o.m?"m":"s"].push(t3at(t3tint(geo,col),x,y,z,o));return this;},
+  glow(n,geo,col,x=0,y=0,z=0,o={}){this.G[n].e.push(t3at(t3tint(geo,col),x,y,z,o));return this;},
+  done({rough=.85}={}){for(const n in this.G){const G=this.G[n];
+      if(G.s.length){this.sm=this.sm||t3vmat({roughness:rough,side:THREE.DoubleSide});for(const g of G.s)t3m_paint(g,G.y,this.top);G.g.add(new THREE.Mesh(t3merge(G.s),this.sm));}
+      if(G.m.length){this.mm=this.mm||t3vmat({roughness:.3,metalness:.55});G.g.add(new THREE.Mesh(t3merge(G.m),this.mm));}
+      if(G.e.length){this.em=this.em||t3m_glowMat();G.g.add(new THREE.Mesh(t3merge(G.e),this.em));}}return this;}};return K;}
+/* paint: darker toward the base, mottled per face, dry-brushed on top surfaces */
+function t3m_paint(g,gy,top){const p=g.attributes.position.array,n=g.attributes.normal.array,c=g.attributes.color.array;
+  for(let i=0;i<p.length;i+=9){const y=(p[i+1]+p[i+4]+p[i+7])/3+gy,ny=(n[i+1]+n[i+4]+n[i+7])/3,h=t3hash(p[i]*13.1,y*17.3,p[i+2]*11.7);
+    const k=(.55+.45*Math.min(1,Math.max(0,(y-.06)/top)))*(.86+.26*h)*(ny>.6?1.22:ny<-.5?.8:1);for(let j=0;j<9;j++)c[i+j]=Math.min(1,c[i+j]*k);}}
+function t3m_glowMat(){const m=new THREE.MeshStandardMaterial({vertexColors:true,color:0x111111,emissive:0xffffff,emissiveIntensity:1.8,roughness:.5});
+  m.onBeforeCompile=sh=>{sh.fragmentShader=sh.fragmentShader.replace("#include <emissivemap_fragment>","#include <emissivemap_fragment>\ntotalEmissiveRadiance*=vColor;");};m.customProgramCacheKey=()=>"t3mglow";return m;}
+/* a tube that tapers from r0 to r1 */
+function t3m_taper(pts,r0,r1,seg=5){const cv=new THREE.CatmullRomCurve3(pts),T=Math.max(8,pts.length*4),g=new THREE.TubeGeometry(cv,T,1,seg,false),p=g.attributes.position,c=new THREE.Vector3();
+  for(let i=0;i<=T;i++){cv.getPointAt(i/T,c);const r=r0+(r1-r0)*i/T;for(let j=0;j<=seg;j++){const k=i*(seg+1)+j;p.setXYZ(k,c.x+(p.getX(k)-c.x)*r,c.y+(p.getY(k)-c.y)*r,c.z+(p.getZ(k)-c.z)*r);}}g.computeVertexNormals();return g;}
+/* a cloth tube with a ragged hem, open at the front by gap radians */
+function t3m_rag(r0,r1,h,seg,seed,gap=0,jag=.35){const g=new THREE.CylinderGeometry(r0,r1,h,seg,3,true,gap/2,6.2832-gap),p=g.attributes.position,S=seeded(seed);
+  for(let i=0;i<p.count;i++){const y=p.getY(i);if(y<-h/2+1e-4)p.setY(i,y-S()*h*jag);const k=1+(S()-.5)*.14;p.setX(i,p.getX(i)*k);p.setZ(i,p.getZ(i)*k);}g.computeVertexNormals();return g;}
+/* rotation that points +y along d (for spikes, plates) */
+function t3m_dirE(d,o={}){t3m_qq.setFromUnitVectors(t3m_Y,d.clone().normalize());t3m_ee.setFromQuaternion(t3m_qq);return Object.assign({rx:t3m_ee.x,ry:t3m_ee.y,rz:t3m_ee.z},o);}
+/* a simple painted person: legs, torso, head and two posable arms (groups up, hd, aL, aR). Pose = [elbow, hand] from the shoulder */
+function t3m_body(K,o){const {s=1,cloth="#555",pants=cloth,boots="#2a2018",skin="#d9b08c",bulk=1,belt="#3a2a1c",sleeve=cloth,armL,armR}=o,v=t3m_v,hip=.07+.36*s;
+  for(const q of[-1,1]){K.add("fig",t3m_taper([v(q*.055*bulk,hip,0),v(q*.06*bulk,hip-.18*s,.012),v(q*.062*bulk,.12,0)],.045*bulk,.036*bulk),pants);
+    K.add("fig",new THREE.CylinderGeometry(.04*bulk,.046*bulk,.1*s,7),boots,q*.062*bulk,.07+.05*s,0);K.add("fig",new THREE.SphereGeometry(.04*bulk,7,5),boots,q*.062*bulk,.085,.035,{sy:.6,sz:1.3});}
+  const up=K.grp("up","fig",0,hip,0);
+  K.add("up",new THREE.CylinderGeometry(.125*bulk,.1*bulk,.27*s,9),cloth,0,.135*s,0,{sz:.78});
+  K.add("up",new THREE.SphereGeometry(.1*bulk,8,6),pants,0,0,0,{sy:.6,sz:.8});
+  K.add("up",new THREE.TorusGeometry(.1*bulk,.014,4,14),belt,0,.02*s,0,{rx:Math.PI/2,sy:.8});
+  for(const q of[-1,1])K.add("up",new THREE.SphereGeometry(.045*bulk,7,5),sleeve,q*.12*bulk,.25*s,0);
+  K.add("up",new THREE.CylinderGeometry(.03,.035,.06*s,6),skin,0,.29*s,0);
+  const hd=K.grp("hd","up",0,.33*s,0);K.add("hd",new THREE.SphereGeometry(.068*s,12,10),skin,0,.035*s,.005,{sx:.92,sy:1.08});
+  const arm=(q,n,pose)=>{K.grp(n,"up",q*.13*bulk,.245*s,0);const [el,hn]=pose||[v(q*.02,-.13*s,0),v(q*.03,-.25*s,.03)];
+    K.add(n,t3m_taper([v(0,0,0),el,hn],.038*bulk,.03*bulk),sleeve);K.add(n,new THREE.SphereGeometry(.03*bulk,7,5),skin,hn.x,hn.y,hn.z);return hn;};
+  const hL=arm(-1,"aL",armL),hR=arm(1,"aR",armR);
+  return {up,hd,aL:K.G.aL.g,aR:K.G.aR.g,hL,hR,hip};}
 function t3mini(Vb,u){const g=new THREE.Group(),fig=new THREE.Group(),s=u.size||1;g.add(fig);
   const sideCol=u.side==="foe"?"#c2452c":u.side==="ally"?"#7bc36a":(u.hex||"#c9a35c");
   const base=new THREE.Mesh(new THREE.CylinderGeometry(.4*s,.44*s,.07,28),t3mat("#15171c",{roughness:.45,metalness:.35,flatShading:false}));base.position.y=.035;base.receiveShadow=true;g.add(base);
