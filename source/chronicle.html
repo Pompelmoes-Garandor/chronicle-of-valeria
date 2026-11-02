@@ -4614,7 +4614,7 @@ function paintMap(cv,mp,cs){
   const dpr=Math.min(2,devicePixelRatio||1),W=mp.W*cs,H=mp.H*cs;cv.width=W*dpr;cv.height=H*dpr;const g=cv.getContext("2d");g.setTransform(dpr,0,0,dpr,0,0);
   const R=seeded(mp.key.length*977+13), rr=(a,b)=>a+(b-a)*R();
   const root=(x,y,ang,len,w,col)=>{g.strokeStyle=col;g.lineWidth=w;g.lineCap="round";g.beginPath();g.moveTo(x,y);for(let i=0;i<len;i++){ang+=rr(-.5,.5);const nx=x+Math.cos(ang)*cs*.3,ny=y+Math.sin(ang)*cs*.3;g.quadraticCurveTo((x+nx)/2+rr(-3,3),(y+ny)/2+rr(-3,3),nx,ny);x=nx;y=ny;}g.stroke();};
-  if(mp.kind==="cave"){
+  if(mp.kind!=="tree"){ // caves, and the interlude boards (IPAINT adds theirs)
     g.fillStyle="#0c0b0a";g.fillRect(0,0,W,H);
     for(let y=0;y<mp.H;y++)for(let x=0;x<mp.W;x++){const ch=mp.c(x,y),X=x*cs,Y=y*cs;
       if("#o".includes(ch))continue;
@@ -4636,6 +4636,7 @@ function paintMap(cv,mp,cs){
       for(let i=0;i<5;i++)root(X+rr(-cs*.3,cs*.3),Y+cs*.4,rr(3,6.3),3,rr(1.5,3),"#0e0b09");}
     if(mp.def.glow){const [gx,gy]=mp.def.glow,gr=g.createRadialGradient(gx*cs+cs/2,gy*cs,cs,gx*cs+cs/2,gy*cs,cs*7);gr.addColorStop(0,"#7fd36a55");gr.addColorStop(1,"#7fd36a00");g.fillStyle=gr;g.fillRect(0,0,W,H);
       for(let i=0;i<40;i++)root(gx*cs+cs/2+rr(-cs,cs),gy*cs+rr(-cs,cs),rr(0,7),rr(5,14),rr(1.5,6),"#120e0b");}
+    if(IPAINT[mp.kind])IPAINT[mp.kind](g,mp,cs);
   } else { // the Hollowmother at night, from the side
     const sky=g.createLinearGradient(0,0,0,H);sky.addColorStop(0,"#070b16");sky.addColorStop(1,"#162033");g.fillStyle=sky;g.fillRect(0,0,W,H);
     for(let i=0;i<70;i++){g.fillStyle="#e9e1cf";g.globalAlpha=rr(.15,.7);g.fillRect(rr(0,W),rr(0,H*.7),1.2,1.2);}g.globalAlpha=1;
@@ -4813,13 +4814,13 @@ function t3cave(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,S=seeded(mp.key.length*977+31),
     const fl=new THREE.Sprite(new THREE.SpriteMaterial({map:t3dotTex(),color:0xffa24a,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true}));fl.scale.set(.45,.6,1);fl.position.set(c.x+.08,1.42,c.z);
     Vb.root.add(st,fl);Vb.flames.push(fl);Vb.t3wTorch.push([st,fl,null]);};
   const spots=[];for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(wall(x,y)&&[[1,0],[-1,0],[0,1],[0,-1]].some(([a,b])=>open(x+a,y+b)))spots.push([x,y]);
-  const want=mp.key==="cavern"?[[0,9],[11,6],[2,12],[10,2]]:[[0,13],[8,13],[0,6],[8,3]];
+  const want=mp.def.torches||(mp.key==="cavern"?[[0,9],[11,6],[2,12],[10,2]]:[[0,13],[8,13],[0,6],[8,3]]);
   for(const [wx,wy] of want){let best=null,bd=1e9;for(const s of spots){const d=Math.hypot(s[0]-wx,s[1]-wy);if(d<bd){bd=d;best=s;}}if(best){torch(best[0],best[1]);spots.splice(spots.indexOf(best),1);}}
   t3v_torchLights(Vb,T3Q.hi?2:1);
   if(mp.def.label)for(const [x,y,t] of mp.def.label){const s=t3label(t);s.material.depthTest=false;s.renderOrder=5;const c=Vb.cell(x,y);s.position.set(c.x,1.1,c.z);Vb.root.add(s);}
   Vb.motes=t3motes(Vb,90,"#bfb6a6",()=>[rr(-W/2,W/2),rr(.1,2.4),rr(-H/2,H/2)]);
   Vb.ticks.push((dt,tt)=>{for(const f of Vb.flames){const s=.55+.08*Math.sin(tt*17+f.id);f.scale.set(.42,s,1);}});
-  if(mp.key==="cavern")t3dressCavern(Vb);else t3dressTunnel(Vb);}
+  if(T3DRESS[mp.kind])T3DRESS[mp.kind](Vb);else if(mp.key==="cavern")t3dressCavern(Vb);else t3dressTunnel(Vb);}
 
 /* ---- OWNER: tunnels. Extra set dressing for the tunnel map (also the waystone husk fight) ---- */
 function t3dressTunnel(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,S=seeded(9091),rr=(a,b)=>a+(b-a)*S(),pk=a=>a[Math.floor(S()*a.length)],Q=T3Q.hi?1:.5,V3=(x,y,z)=>new THREE.Vector3(x,y,z);
@@ -7477,6 +7478,7 @@ async function aiTurn(u){
   panelMsg(u,u.side==="foe"?`${nameOf(u)} moves…`:`${nameOf(u)} acts…`);await sleep(350);
   const ai=MON[u.key].ai;
   if(u.cond.turned){log(`${nameOf(u)} cowers.`);return;}
+  const iai=IAI[u.iai||ai];if(iai)return iai(u); // the interlude fights' foes
   if(ai==="heart")return heartTurn(u);
   if(ai==="grey")return greyTurn(u);
   if(ai==="thorn")return thornTurn(u);
@@ -8368,15 +8370,7 @@ const PCS=["katy","stig","saphira"];
 const SPEAKER={T8a:"Katy",T8b:"Stig",T8c:"Saphira",T8d:"Thorn"};
 // The fights at the end of each interlude, by I.fight; level design fills these in (battle() defs, like TUNNELS).
 const IFIGHTS={};
-// PLACEHOLDER fights so the whole loop runs; level design replaces them with the real sets, foes and rules.
-{const end=()=>{if(!B.units.some(u=>u.side==="foe"&&alive(u)))return "win";if(B.units.filter(u=>u.crew).every(u=>u.hp<=0))return "lose";return null;};
-  const solo=(who,foes)=>({key:"i-"+who,map:"tunnel",dim:true,intro:"The memory frays at the edges. Something comes through.",
-    setup(){B.units.push(mkCrew(who,4,12));foes.forEach(([k,x,y],i)=>B.units.push(mkMon(k,x,y,i+1)));},async check(){return end();}});
-  IFIGHTS.katy=solo("katy",[["husk",3,8],["husk",5,8]]);
-  IFIGHTS.saphira=solo("saphira",[["husk",3,8],["needle",5,6]]);
-  IFIGHTS.stig=solo("stig",[["husk",3,8],["husk",5,8]]);
-  IFIGHTS.together={key:"i-together",map:"tunnel",dim:true,intro:"Something smells the fire.",
-    setup(){B.units.push(mkCrew("katy",3,12),mkCrew("stig",4,12),mkCrew("saphira",5,12),mkCrew("hans",4,11));[[3,6],[5,6],[4,4]].forEach(([x,y],i)=>B.units.push(mkMon("husk",x,y,i+1)));},async check(){return end();}};}
+// filled in by the INTERLUDE FIGHTS section below
 let IST=null; // the interlude being played: {I, seen, path, verse, votes}
 function myResults(){try{return JSON.parse(store.get(IKEY)||"{}")||{};}catch(e){return {};}}
 function saveMine(id,r){const all=myResults();all[id]=r;store.set(IKEY,JSON.stringify(all));}
@@ -8955,6 +8949,372 @@ async function interludeHub(){
   if(unsent.length&&i===list.length){for(const I of unsent)await iSend(I.id,mine[I.id]);return interludeHub();}}
 PLAY.interludes=INTERLUDES;PLAY.runInterlude=runInterlude;
 if(PLAY.auto)window.__inter={text:()=>INTERLUDE_TEXT,list:INTERLUDES,ist:()=>IST,fights:IFIGHTS,results:myResults};
+
+/* =================== INTERLUDE FIGHTS: the small fight at the end of each interlude ===================
+   Not canon: the memory, the visit or the prayer turns on the player for a few rounds, so the whole engine gets a test.
+   Each shows off something else: Katy guards a candle (movement, blocking, pushing spells), Saphira duels her own shadow
+   (Shadow Blade in the dark, Sneak Attack, Shield, Misty Step out of a grapple), Stig holds a rising tide (terrain that
+   changes every round, radiant, Turn Undead), and the crew keeps a fire alive round Matthew (reach, opportunity attacks,
+   Bardic Inspiration, Bodyguard). Boards: MAPS kinds imemory ipatron iprayer ifire; set dressing in t3dress* (OWNER below). */
+Object.assign(ICON,{
+  shade:'<circle cx="12" cy="7" r="4"/><path d="M5 21c0-5 3-8 7-8s7 3 7 8"/><path d="M9 13l3 3 3-3"/>',
+  shadow:'<path d="M12 3c-3 0-5 3-5 6 0 2 1 3 1 3l-3 9h14l-3-9s1-1 1-3c0-3-2-6-5-6z"/><path d="M16 10l5-6"/>',
+  hand:'<path d="M7 21v-7l-2-4M7 14V6M10 13V4M13 13V5M16 14V7M7 21h9l2-7"/>',
+  drowned:'<path d="M6 19c0-5 2.5-8 6-8s6 3 6 8"/><circle cx="12" cy="7" r="3.5"/><path d="M3 21c2-1 3-1 5 0s3 1 5 0 3-1 5 0 2 1 3 0"/>',
+  sleeper:'<path d="M3 17h18M4 17v-3a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v3"/><circle cx="7" cy="8.5" r="2"/><path d="M15 4h3l-3 3h3"/>',
+  hulk:'<path d="M4 21v-7c0-5 3.5-8 8-8s8 3 8 8v7"/><path d="M7 8c0-3 2.2-5.5 5-5.5S17 5 17 8"/><path d="M9.5 12h.01M14.5 12h.01M10 16h4"/>'
+});
+Object.assign(MON,{
+  shade:{name:"Court Shade",ini:"Cs",icon:"shade",ac:12,hp:11,speed:6,init:1,size:1,
+    sv:{str:0,dex:2,con:0,int:-1,wis:0,cha:1},res:["cold"],atk:[{n:"Cold hand",hit:4,dmg:"1d6+2",type:"cold",reach:1}],ai:"shade"},
+  shadowself:{name:"Her Shadow",ini:"Sh",icon:"shadow",ac:13,hp:30,speed:6,init:4,size:1,boss:true,
+    sv:{str:1,dex:4,con:1,int:2,wis:1,cha:3},res:["acid","cold","fire","lightning","thunder","necrotic","force","poison","bludgeoning","piercing","slashing"],noCond:["prone","grappled"],
+    atk:[{n:"Black glass",hit:5,dmg:"1d8+2",type:"psychic",reach:1},{n:"Shadow bolt",hit:5,dmg:"1d10",type:"necrotic",range:[24,24]}],ai:"shadowself"},
+  hand:{name:"Shadow Hand",ini:"Hd",icon:"hand",ac:11,hp:7,speed:6,init:2,size:1,
+    sv:{str:1,dex:2,con:0,int:-4,wis:0,cha:-4},res:["cold","necrotic"],noCond:["prone"],atk:[{n:"Grasp",hit:4,dmg:"1d4+1",type:"cold",reach:1}],ai:"hand"},
+  drowned:{name:"Drowned Shade",ini:"D",icon:"drowned",ac:11,hp:22,speed:6,init:0,size:1,undead:true,
+    sv:{str:2,dex:0,con:2,int:-3,wis:0,cha:-2},res:["cold","necrotic"],imm:["poison"],atk:[{n:"Grasp",hit:4,dmg:"1d6+2",type:"cold",reach:1}],ai:"drowned"},
+  sleeper:{name:"The sleeper",ini:"Z",icon:"sleeper",hex:"#c9d6e0",ac:10,hp:20,speed:0,init:-5,size:1,sv:{str:0,dex:0,con:0,int:0,wis:0,cha:0},atk:[],ai:"none"},
+  hulk:{name:"Ash Hulk",ini:"AH",icon:"hulk",ac:11,hp:45,speed:5,init:-2,size:1,undead:true,
+    sv:{str:3,dex:-2,con:3,int:-4,wis:0,cha:-3},imm:["poison"],atk:[{n:"Long slam",hit:5,dmg:"2d6+3",type:"bludgeoning",reach:2}],fort:true,burst:true,ai:"ember"}
+});
+/* the boards. b bed (climb over: rough), t stool, c the candle on its sill, s the servants' stair (rough), d the pact dagger,
+   k Stig's booklet on a stone, 1-3 floor that floods when the tide reaches that level (then it reads "~", rough), F the fire */
+Object.assign(CAVE_COST,{b:2,t:0,c:0,s:2,d:0,k:0,F:0,"1":1,"2":1,"3":1,"~":2});
+Object.assign(MAPS,{
+  imemory:{kind:"imemory",light:[4,1],torches:[],rows:[
+    "#########","####c####","##.....##","#b......#","#b....t.#","#.......#","#.......#","##......#","###...ss#","######ss#","######ss#","######ss#"],
+    label:[[6,11,"↓ stair"]]},
+  ipatron:{kind:"ipatron",light:[5,5],torches:[],rows:[
+    "###########","####...####","##.......##","##..o....##","#.........#","#....d....#","#.........#","##....o..##","##.......##","####...####","###########"]},
+  iprayer:{kind:"iprayer",light:[6,2],torches:[],rows:[
+    "#############","####..k..####","##33.....33##","#332.....233#","#3322...2233#","#22223332222#","#21112221112#","#11111111111#","#11111111111#","##111111111##","###1111111###","#############"]},
+  ifire:{kind:"ifire",light:[6,6],torches:[],rows:[
+    "######.######","#####...#####","###.......###","##....,....##","##.r.....r.##","#...........#","....,.F.,....","#...........#","##.r.....r.##","##.........##","###.......###","#####...#####","######.######"]}
+});
+
+/* ---- helpers ---- */
+const iFoes=()=>B.units.filter(u=>u.side==="foe"&&!u.gone&&(u.hp>0||u.ghost));
+function iDown(key){const u=B.units.find(o=>o.key===key);return !u||u.hp<=0;}
+function iSpawn(key,spots,o={}){let k=B.units.filter(u=>u.key===key).length;const out=[];
+  for(const [x,y] of spots){const c=freeNear(x,y);k++;const u=mkMon(key,c[0],c[1],k,o);B.units.push(u);B.order.push({u});out.push(u);}renderTokens();renderInit();return out;}
+function iGhosts(r,spots,txt){for(const u of B.units)if(u.ghost&&!u.gone&&u.hp>0&&u.back<=r){u.ghost=false;const c=freeNear(...pick(spots));u.x=c[0];u.y=c[1];log(`${u.name} ${txt}`,"r");if(!B.order.some(e=>e.u===u))B.order.push({u});}renderTokens();}
+function iRepaint(){if(B&&mapCv&&mapEl&&!t3on()&&stage.contains(mapEl))paintMap(mapCv,B.mp,CS);}
+async function iDim(u,what){const S=B.sc;
+  if(what==="candle"&&S.cup){S.cup=false;log(`${u.name} pinches at the flame. It bends in Katy's cupped hands, and holds.`,"g");floatTxt(u,"holds","miss");return;}
+  S.flame=Math.max(0,S.flame-1);log(what==="candle"?`${u.name} pinches the candle. The flame shrinks (${S.flame}/3).`:`${u.name} heaps ash onto the fire. It sinks (${S.flame}/3).`,"r");
+  floatTxt(u,what==="candle"?"pinch":"smother");iRepaint();await sleep(250);}
+
+/* ---- the foes' tactics (aiTurn looks here first, by u.iai or MON ai) ---- */
+const IAI={
+  // Court Shades go for the candle; Katy in their way, or her hands round the flame, gets the cold hand instead
+  async shade(u){const S=B.sc,k=B.units.find(o=>o.key==="katy"),C={x:S.at[0],y:S.at[1],size:1},at=MON.shade.atk[0],byK=()=>k&&k.hp>0&&dist(u,k)<=1;
+    if(S.flame<=0)return;
+    if(byK()&&(S.cup||dist(u,C)>1)&&Math.random()<.7){await attack(u,k,at);return;}
+    if(dist(u,C)>1)await approach(u,C,1);if(!alive(u))return;
+    if(dist(u,C)<=1&&!(S.cup&&byK())){await iDim(u,"candle");return;}
+    if(byK())await attack(u,k,at);},
+  // the hands grab and hold, so the shadow can come in
+  async hand(u){const s=B.units.find(o=>o.key==="saphira");if(!s||s.hp<=0)return;
+    if(dist(u,s)>1)await approach(u,s,1);if(!alive(u)||dist(u,s)>1||s.hp<=0)return;
+    const r=await attack(u,s,MON.hand.atk[0]);
+    if(r.hit&&s.hp>0&&!s.cond.grappled){addC(s,"grappled",{dc:12,by:u.id});log("  The hand closes on Saphira: grappled (escape DC 12, or Misty Step out of it).","r");}},
+  // her shadow fights like her: it closes in, once it steps through the dark to her side, and at range it throws a bolt
+  async shadowself(u){const S=B.sc,s=B.units.find(o=>o.key==="saphira");if(!s||s.hp<=0)return;const [mel,rng]=MON.shadowself.atk;
+    if(dist(u,s)>1&&!S.stepped&&B.round>=2&&dist(u,s)>u.mv){S.stepped=true;const c=freeNear(s.x,s.y+(u.y>s.y?1:-1));u.x=c[0];u.y=c[1];renderTokens();log("Her shadow folds down into the floor and stands up again beside her.","r");await sleep(300);}
+    else if(dist(u,s)>1)await approach(u,s,1);
+    if(!alive(u))return;
+    if(dist(u,s)<=1){await attack(u,s,mel);return;}
+    if(los(u,s))await attack(u,s,rng);},
+  // the drowned want the sleeper; Stig in the way gets grabbed
+  async drowned(u){const sl=B.units.find(o=>o.key==="sleeper"),st=B.units.find(o=>o.key==="stig"),at=MON.drowned.atk[0],up=o=>o&&o.hp>0,adj=o=>up(o)&&dist(u,o)<=1;
+    if(adj(st)&&!adj(sl)&&Math.random()<.6){await attack(u,st,at);return;}
+    if(!adj(sl))await approach(u,up(sl)?sl:st,1);if(!alive(u))return;
+    if(adj(sl)&&(!adj(st)||Math.random()<.75)){await attack(u,sl,at);return;}
+    if(adj(st))await attack(u,st,at);},
+  // husks drawn by the fire: they smother it, or hit Matthew beside it; the crew in the way gets hit first
+  async ember(u){const S=B.sc,F={x:S.at[0],y:S.at[1],size:1},m=B.units.find(o=>o.key==="matthew"),at=MON[u.key].atk[0],rc=at.reach||1,
+      near=()=>enemiesOf(u).filter(o=>o.crew&&o.hp>0&&dist(u,o)<=rc),mOk=()=>m&&m.hp>0&&dist(u,m)<=rc;
+    if(S.flame<=0)return;
+    if(dist(u,F)>1){if(near().length&&Math.random()<.5){await attack(u,nearest(u,near()),at);return;}await approach(u,F,1);}
+    if(!alive(u)||u.hp<=0)return;
+    if(dist(u,F)<=1){if(mOk()&&Math.random()<.4){await attack(u,m,at);return;}if(near().length&&Math.random()<.5){await attack(u,nearest(u,near()),at);return;}await iDim(u,"fire");return;}
+    if(mOk()){await attack(u,m,at);return;}
+    const c=near();if(c.length)await attack(u,nearest(u,c),at);}
+};
+
+/* ---- Katy: the room under the eaves ---- */
+IFIGHTS.katy={key:"i-katy",map:"imemory",dim:true,sc:{flame:3,at:[4,1],cup:false},
+  intro:"The memory frays. Faceless shades in house livery come up the servants' stair, and they want the candle. Keep it lit until the bell rings below (the end of round 5), or drive them all off. Next to the candle, Cup the flame (bonus action): the next pinch before your turn fails. Thunderwave throws them back from it.",
+  setup(){B.units.push(mkCrew("katy",4,4));iSpawn("shade",[[6,10],[7,11]]);},
+  async onRound(r){if(r===2){log("Another shade comes up the stair.","r");iSpawn("shade",[[6,11]]);}
+    if(r===3){log("Two more, climbing up out of the dark below.","r");iSpawn("shade",[[7,10],[6,11]]);}},
+  async startTurn(u){if(u.key==="katy"&&B.sc.cup){B.sc.cup=false;log("Katy takes her hands from the flame.");}return false;},
+  async onRoundEnd(r){if(r>=5&&B.sc.flame>0&&!B.over){log("Down in the house a bell rings, once. The shades stop, and come apart like smoke. The candle is still burning.","h");for(const u of live("foe"))u.gone=true;renderTokens();B.over="win";}},
+  sceneActs(u){const S=B.sc,C={x:S.at[0],y:S.at[1],size:1};if(u.key!=="katy"||S.flame<=0)return [];
+    return [{n:"Cup the flame",sub:`bonus · next to the candle · ${S.flame}/3`,kind:"bonus",ok:dist(u,C)<=1&&!S.cup,run:async()=>{u.bonus--;S.cup=true;log("Katy cups her hands round the candle. The flame leans, and holds.","g");}}];},
+  async check(){if(iDown("katy")){log("Katy goes down, and the room goes dark.","r");return "lose";}
+    if(B.sc.flame<=0){log("The candle goes out. The room goes with it.","r");return "lose";}
+    if(B.round>=3&&!iFoes().length)return "win";return null;}};
+
+/* ---- Saphira: her own shadow, at the patron's word ---- */
+IFIGHTS.saphira={key:"i-saphira",map:"ipatron",dim:true,sc:{},
+  intro:"The woman in the robe says one word. Your shadow stands up off the stone, and two hands of shadow rise with it. Your shadow shrugs off every harm but psychic and radiant. Draw the Shadow Blade (bonus action, a pact slot): in this dim light it strikes with advantage, and that means Sneak Attack. Shield costs a pact slot too.",
+  setup(){B.units.push(mkCrew("saphira",5,9),mkMon("shadowself",5,1,0),mkMon("hand",1,4,1),mkMon("hand",9,4,2));},
+  async onRound(r){if(r===3&&B.units.some(o=>o.key==="shadowself"&&alive(o))&&B.units.filter(o=>o.key==="hand"&&alive(o)).length<2){
+    log("The woman speaks again, softly. Another hand claws up out of the floor.","r");iSpawn("hand",[pick([[1,5],[9,5],[5,1],[5,9]])]);}},
+  async startTurn(u){if(u.key!=="saphira")return false;const g=u.cond.grappled;
+    if(g&&!B.units.some(o=>o.id===g.by&&alive(o))){delete u.cond.grappled;log("The hand that held Saphira is gone. She is free.","g");}
+    if(B.sc.blade&&!u.conc){B.sc.blade=false;log("The Shadow Blade goes back to shadow.","r");}return false;},
+  async onHurt(t){if(t.key==="shadowself"&&t.hp<=0)for(const o of B.units)if(o.key==="hand"&&alive(o)){o.gone=true;log(`${o.name} sinks back into the floor.`,"g");}},
+  sceneActs(u){const p=P("saphira");if(u.key!=="saphira"||B.sc.blade||p.lv>=6)return [];
+    return [{n:"Shadow Blade",sub:"bonus · pact slot · 2d8 psychic",kind:"bonus",ok:p.pact>0&&!u.conc,run:async()=>{u.bonus--;p.pact--;B.sc.blade=true;u.conc={n:"Shadow Blade",conds:[]};log("Saphira draws black glass up out of her own shadow: the Shadow Blade.","b");}}];},
+  async check(){if(iDown("saphira")){log("Saphira falls, and her shadow lies back down over her.","r");return "lose";}
+    if(!B.units.some(o=>o.key==="shadowself"&&alive(o)))return "win";return null;}};
+
+/* ---- Stig: the tide at the dark edge ---- */
+IFIGHTS.stig={key:"i-stig",map:"iprayer",dim:true,undead:true,sc:{tide:1},
+  intro:"The prayer turns. Grey water comes in over the floor, and the drowned come up out of it, for the sleeper. Keep the sleeper alive until the tide turns (the end of round 5). The water rises every round, and flooded squares cost double. Radiant light and Turn Undead drive them back.",
+  setup(){const base=B.mp.c;B.mp.c=(x,y)=>{const c=base(x,y);return c>="1"&&c<="3"&&+c<=B.sc.tide?"~":c;};
+    B.units.push(mkCrew("stig",6,3),mkAlly("sleeper",6,4));iSpawn("drowned",[[4,10],[8,10]]);},
+  async onRound(r){iGhosts(r,[[2,9],[10,9],[6,10]],"rises out of the water again.");
+    if(r===2){log("Two more of the drowned come up at the edges.","r");iSpawn("drowned",[[1,8],[11,8]]);}
+    if(r===3){log("One more, out of the deep water.","r");iSpawn("drowned",[[6,10]]);}},
+  async onRoundEnd(r){const S=B.sc;
+    if(r>=5){log("The tide turns. The grey water goes back out, and takes the drowned with it.","h");for(const u of B.units)if(u.side==="foe")u.gone=true;renderTokens();B.over="win";return;}
+    if(S.tide<3){S.tide++;log(S.tide===3?"The water is everywhere now, but for the rise where the sleeper lies.":"The tide comes in. More of the floor goes under.","r");iRepaint();}},
+  async check(){if(iDown("sleeper")){log("The water closes over the sleeper.","r");return "lose";}
+    if(iDown("stig")){log("Stig goes under.","r");return "lose";}
+    if(B.round>=3&&!iFoes().length)return "win";return null;}};
+
+/* ---- together: the fire Hans lit ---- */
+IFIGHTS.together={key:"i-together",map:"ifire",dim:true,undead:true,sc:{flame:3,at:[6,6]},
+  intro:"Something smells the fire. Ash Husks come out of the dark from every side, to smother it. Keep the fire burning and keep Matthew safe. Next to the fire, Feed the fire (action) builds it back up. Turn Undead crumbles husks to ash.",
+  setup(){B.units.push(mkCrew("katy",5,7),mkCrew("stig",7,7),mkCrew("saphira",7,5),mkCrew("hans",5,5),mkAlly("matthew",6,7));iSpawn("husk",[[6,0],[5,1],[7,1]],{iai:"ember"});},
+  async onRound(r){iGhosts(r,[[0,6],[12,6],[6,12],[6,0]],"lurches back out of the dark.");
+    if(r===2){log("More of them, out of the side tunnels.","r");iSpawn("husk",[[0,6],[1,5],[12,6],[11,7]],{iai:"ember"});}
+    if(r===3){log("Something bigger comes up the south tunnel, dragging the ash with it.","r");iSpawn("hulk",[[6,12]]);iSpawn("husk",[[6,0],[6,11]],{iai:"ember"});}},
+  sceneActs(u){const S=B.sc,F={x:S.at[0],y:S.at[1],size:1};if(!u.crew||dist(u,F)>1||S.flame<=0)return [];
+    return [{n:"Feed the fire",sub:`action · ${S.flame}/3`,ok:S.flame<3,run:async()=>{u.act--;S.flame++;log(`${u.short} feeds the fire. It climbs back up (${S.flame}/3).`,"g");iRepaint();}}];},
+  async check(){if(B.sc.flame<=0){log("The fire goes out. In the dark, the ash closes in.","r");return "lose";}
+    if(iDown("matthew")){log("Matthew goes down beside the fire.","r");return "lose";}
+    if(B.units.filter(u=>u.crew).every(u=>u.hp<=0))return "lose";
+    if(B.round>=3&&!iFoes().length)return "win";return null;}};
+
+// for the playtest harness: where everyone stands, and the fight's own state
+if(PLAY.auto)window.__ifight=()=>B&&{key:B.def.key,round:B.round,sc:Object.assign({},B.sc),units:B.units.map(u=>[u.name,u.x,u.y,u.hp,!!u.ghost,!!u.gone]),B};
+
+/* ---- the flat board: what each interlude board adds over the rock (paintMap calls it) ---- */
+const IPAINT={
+  imemory(g,mp,cs){const S=B&&B.mp===mp?B.sc:{};for(let y=0;y<mp.H;y++)for(let x=0;x<mp.W;x++){const c=mp.c(x,y),X=x*cs,Y=y*cs;
+    if(".bt".includes(c)){g.fillStyle="#5a3f2840";g.fillRect(X,Y,cs,cs);g.strokeStyle="#1a120a66";g.lineWidth=1;for(let i=1;i<4;i++){g.beginPath();g.moveTo(X+i*cs/4+.5,Y);g.lineTo(X+i*cs/4+.5,Y+cs);g.stroke();}}
+    if(c==="b"){g.fillStyle="#4a3020";g.fillRect(X+cs*.08,Y+cs*.04,cs*.84,cs*.92);g.fillStyle="#6e4f63";g.fillRect(X+cs*.14,Y+cs*.3,cs*.72,cs*.62);}
+    if(c==="t"){g.fillStyle="#5e4029";g.fillRect(X+cs*.2,Y+cs*.25,cs*.6,cs*.5);}
+    if(c==="s"){g.fillStyle="#00000040";g.fillRect(X,Y,cs,cs);g.strokeStyle="#00000099";g.lineWidth=2;for(let i=0;i<3;i++){g.beginPath();g.moveTo(X,Y+(i+.5)*cs/3);g.lineTo(X+cs,Y+(i+.5)*cs/3);g.stroke();}}
+    if(c==="c"){const k=Math.max(0,S.flame??3)/3;g.fillStyle="#3e3226";g.fillRect(X,Y,cs,cs);
+      if(k>0){const gr=g.createRadialGradient(X+cs/2,Y+cs/2,1,X+cs/2,Y+cs/2,cs*3*k);gr.addColorStop(0,"#ffd27a99");gr.addColorStop(1,"#ffd27a00");g.fillStyle=gr;g.fillRect(X-cs*3,Y-cs*3,cs*7,cs*7);}
+      g.fillStyle="#efe6cc";g.fillRect(X+cs*.42,Y+cs*.42,cs*.16,cs*.3);if(k>0){g.fillStyle="#ffcf6a";g.beginPath();g.ellipse(X+cs/2,Y+cs*.34,cs*.06,cs*.1*(.5+k/2),0,0,7);g.fill();}}}},
+  ipatron(g,mp,cs){for(let y=0;y<mp.H;y++)for(let x=0;x<mp.W;x++){if(mp.c(x,y)!=="d")continue;const X=x*cs+cs/2,Y=y*cs+cs/2,gr=g.createRadialGradient(X,Y,2,X,Y,cs*3);
+    gr.addColorStop(0,"#9a7cff66");gr.addColorStop(1,"#9a7cff00");g.fillStyle=gr;g.fillRect(X-cs*3,Y-cs*3,cs*6,cs*6);
+    g.strokeStyle="#9a7cff88";g.lineWidth=1.2;g.beginPath();g.arc(X,Y,cs*1.6,0,7);g.stroke();g.strokeStyle="#c8ccd4";g.lineWidth=2;g.beginPath();g.moveTo(X,Y-cs*.32);g.lineTo(X,Y+cs*.3);g.moveTo(X-cs*.15,Y-cs*.12);g.lineTo(X+cs*.15,Y-cs*.12);g.stroke();}},
+  iprayer(g,mp,cs){for(let y=0;y<mp.H;y++)for(let x=0;x<mp.W;x++){const c=mp.c(x,y),X=x*cs,Y=y*cs;
+    if(c==="~"){g.fillStyle="#2c4a5a99";g.fillRect(X,Y,cs,cs);g.strokeStyle="#9fc4d455";g.lineWidth=1;g.beginPath();g.moveTo(X+cs*.15,Y+cs*.5);g.quadraticCurveTo(X+cs*.35,Y+cs*.35,X+cs*.5,Y+cs*.5);g.quadraticCurveTo(X+cs*.65,Y+cs*.65,X+cs*.85,Y+cs*.5);g.stroke();}
+    if(c==="k"){g.fillStyle="#3a3833";g.fillRect(X+cs*.1,Y+cs*.2,cs*.8,cs*.6);g.fillStyle="#d8d0bc";g.fillRect(X+cs*.26,Y+cs*.34,cs*.48,cs*.32);}}},
+  ifire(g,mp,cs){const S=B&&B.mp===mp?B.sc:{};for(let y=0;y<mp.H;y++)for(let x=0;x<mp.W;x++){if(mp.c(x,y)!=="F")continue;const X=x*cs+cs/2,Y=y*cs+cs/2,k=Math.max(0,S.flame??3)/3;
+    if(k>0){const gr=g.createRadialGradient(X,Y,2,X,Y,cs*4*k);gr.addColorStop(0,"#ffa24a88");gr.addColorStop(1,"#ffa24a00");g.fillStyle=gr;g.fillRect(X-cs*4,Y-cs*4,cs*8,cs*8);}
+    g.fillStyle="#4a4540";for(let i=0;i<8;i++){const a=i/8*Math.PI*2;g.beginPath();g.arc(X+Math.cos(a)*cs*.36,Y+Math.sin(a)*cs*.36,cs*.09,0,7);g.fill();}
+    if(k>0){g.fillStyle="#ff8a2a";g.beginPath();g.ellipse(X,Y,cs*.2*k+2,cs*.2*k+2,0,0,7);g.fill();g.fillStyle="#ffe08a";g.beginPath();g.ellipse(X,Y,cs*.09*k+1,cs*.09*k+1,0,0,7);g.fill();}}}
+};
+
+/* ---- OWNER: interlude fights. The minis: court shade, her shadow, shadow hand, drowned shade, the sleeper, ash hulk ---- */
+Object.assign(T3MINI,{
+  shade(f){const K=t3m_kit(f,.85),v=t3m_v,ph=Math.random()*6,L="#3a3452",T="#4b4168",BR="#9a8250";
+    const b=t3m_body(K,{cloth:L,pants:"#26222f",boots:"#18161e",skin:"#9a98a6",sleeve:L,belt:BR,armL:[v(-.02,-.12,.05),v(-.01,-.22,.13)],armR:[v(.02,-.12,.05),v(.01,-.21,.14)]});
+    // house livery: a tabard banded in tarnished brass, a high collar; the coat frays into smoke below the knee
+    K.add("up",new THREE.BoxGeometry(.16,.22,.018),T,0,.14,.098).add("up",new THREE.BoxGeometry(.165,.016,.02),BR,0,.035,.1).add("up",new THREE.BoxGeometry(.165,.012,.02),BR,0,.25,.1);
+    K.add("up",new THREE.TorusGeometry(.058,.014,5,12),BR,0,.285,0,{rx:Math.PI/2});
+    K.add("fig",t3m_rag(.11,.2,.34,11,77,0,.55),"#2a2536",0,.31,0);
+    // where a face should be: a smooth oval with a faint cold light in it
+    K.glow("hd",new THREE.SphereGeometry(.05,10,8),"#4a5070",0,.035,.045,{sx:1.05,sy:1.25,sz:.8});
+    K.done({rough:.9});const {up,hd,aL,aR}=b,y0=up.position.y;
+    const anim=(dt,tt,now,st)=>{if(st.gone||st.down)return;const s=Math.sin(tt*1.2+ph);up.position.y=y0+.012*s;hd.rotation.z=Math.sin(tt*.7+ph)*.12;aL.rotation.x=-.5+Math.sin(tt*1.1+ph)*.12;aR.rotation.x=-.6+Math.sin(tt*1.1+ph+1)*.12;};
+    return t3n_fin(f,{up,top:.85,hand:v(.1,.45,.16),head:hd,anim},"#a9b4ff",{mon:1});},
+  shadowself(f){const b=t3body(f,{h:.78,bulk:.93,cloth:"#110e18",cloak:"#0c0a12",skin:"#15121c",hood:true,eyes:0xa98cff,pants:"#0a090e",boots:"#07060a",belt:"#16121c",gloves:"#0c0a10",
+      hands:[[-.2,-.04,.1],[.2,-.01,.15]]});
+    // her blade, in black glass
+    const s=new THREE.Shape();s.moveTo(-.016,0);s.lineTo(.016,0);s.quadraticCurveTo(.032,.19,0,.37);s.quadraticCurveTo(-.012,.2,-.016,0);
+    const bg=new THREE.ExtrudeGeometry(s,{depth:.006,bevelEnabled:true,bevelThickness:.003,bevelSize:.003,bevelSegments:1,curveSegments:T3Q.hi?10:5});bg.translate(0,.026,-.003);
+    const G=new THREE.Group();G.position.set(.2,-.01,.15);G.rotation.x=1.4;b.up.add(G);
+    const bl=new THREE.Mesh(bg,new THREE.MeshStandardMaterial({color:0x07060a,emissive:0x5a3cc0,emissiveIntensity:1.2,roughness:.08,metalness:.6}));G.add(bl);
+    b.blade=bl;b.anim=t3c_anim(b,{look:.5,extra(dt,tt,dn){bl.material.emissiveIntensity=(1-dn*.8)*(1+.4*Math.sin(tt*5.1));}});
+    return t3n_fin(f,b,"#8a6cf0",{s:1.08,mon:1});},
+  hand(f){const K=t3m_kit(f,.8),v=t3m_v,ph=Math.random()*6,D="#120e1a",D2="#1e172a",E="#9a7cff";
+    // a pool of dark on the plinth, a forearm rising out of it, a palm and long curling fingers
+    K.add("fig",new THREE.CylinderGeometry(.3,.36,.02,18),"#060509",0,.08,0);
+    const up=K.grp("up","fig",0,.08,0);
+    K.add("up",t3m_taper([v(0,0,0),v(.03,.16,-.01),v(0,.32,.03)],.075,.055,8),D).add("up",new THREE.SphereGeometry(.08,10,8),D2,0,.38,.05,{sx:1.25,sy:.9,sz:.6});
+    for(let i=0;i<4;i++){const a=(i-1.5)*.36,bx=Math.sin(a)*.08,pts=[v(bx,.42,.05),v(bx*1.3,.54,.08),v(bx*1.45,.62,.16),v(bx*1.4,.63,.24)];K.add("up",t3m_taper(pts,.02,.009,5),D).glow("up",new THREE.SphereGeometry(.011,6,4),E,pts[3].x,pts[3].y,pts[3].z);}
+    K.add("up",t3m_taper([v(-.08,.36,.06),v(-.14,.42,.1),v(-.15,.49,.17)],.022,.01,5),D).glow("up",new THREE.SphereGeometry(.011,6,4),E,-.15,.49,.17);
+    K.done({rough:.35});
+    const anim=(dt,tt,now,st)=>{if(st.gone||st.down)return;up.rotation.x=.12+Math.sin(tt*1.3+ph)*.1;up.rotation.z=Math.sin(tt*.9+ph)*.08;const s=1+Math.sin(tt*2.1+ph)*.03;up.scale.set(s,1/s,s);};
+    return t3n_fin(f,{up,top:.72,hand:v(0,.6,.2),anim},"#8a6cf0",{mon:1});},
+  drowned(f){const K=t3m_kit(f,.85),v=t3m_v,ph=Math.random()*6,C="#4a5856",C2="#333d3b",WD="#3d5536";
+    const b=t3m_body(K,{cloth:C,pants:C2,boots:"#262c2a",skin:"#8f9b96",sleeve:C,belt:"#2b2d26",armL:[v(-.03,-.13,.07),v(-.02,-.24,.17)],armR:[v(.03,-.12,.08),v(.02,-.23,.18)]});
+    // sodden rags, weed hanging off the shoulders, lank hair, two pale points for eyes
+    K.add("fig",t3m_rag(.11,.19,.3,9,33,0,.6),C2,0,.3,0);
+    for(let i=0;i<5;i++){const a=i/5*6.28,x=Math.cos(a)*.1,z=Math.sin(a)*.07;K.add("up",t3m_taper([v(x,.26,z),v(x*1.1,.15,z*1.2),v(x*1.05,.02,z*1.25)],.008,.004,4),WD);}
+    for(let i=0;i<6;i++){const a=-.9+i*.36;K.add("hd",t3m_taper([v(Math.sin(a)*.06,.08,-Math.cos(a)*.04),v(Math.sin(a)*.075,0,-Math.cos(a)*.05),v(Math.sin(a)*.07,-.08,-Math.cos(a)*.04)],.012,.005,4),"#252c29");}
+    for(const s of[-1,1])K.glow("hd",new THREE.SphereGeometry(.011,6,4),"#bfe6ff",s*.024,.045,.062);
+    K.done({rough:.3});const {up,hd}=b;let last=-1;
+    const anim=(dt,tt,now,st)=>{if(st.gone||st.down)return;up.rotation.x=.28+Math.sin(tt*.8+ph)*.05;up.rotation.z=Math.sin(tt*.5+ph)*.06;hd.rotation.x=.2+Math.sin(tt*.9+ph)*.06;
+      // water runs off it
+      const k=Math.floor((tt+ph)/1.1);if(k!==last&&V&&V.sparks){last=k;if(t3hash(k,ph,2)>.5){up.updateWorldMatrix(true,false);const q=up.localToWorld(t3m_tmp.set((t3hash(k,4,ph)-.5)*.2,.1,(t3hash(k,5,ph)-.5)*.15));V.root.worldToLocal(q);V.sparks.spawn(q,"#9fc8e0",1,{sp:.05,up:0,lf:.6,sz:.05});}}};
+    return t3n_fin(f,{up,top:.82,hand:v(.1,.45,.18),head:hd,anim},"#9fd0e8",{mon:1});},
+  sleeper(f){const K=t3m_kit(f,.32),v=t3m_v,ph=Math.random()*6;
+    // someone asleep on a bedroll, under a grey blanket, breathing slow
+    K.add("fig",new THREE.BoxGeometry(.36,.04,.8),"#4a3c2c",0,.09,0);
+    const up=K.grp("up","fig",0,.11,0);
+    K.add("up",new THREE.CapsuleGeometry(.1,.4,4,10),"#5d5a6a",0,.07,-.04,{rx:Math.PI/2,sx:1.25,sz:.62}).add("up",new THREE.BoxGeometry(.3,.025,.16),"#6c6979",0,.12,.18);
+    K.add("up",new THREE.SphereGeometry(.07,12,10),"#d8b494",0,.07,.3,{sz:1.1}).add("up",new THREE.SphereGeometry(.074,12,8,0,6.283,0,1.7),"#8c8c88",0,.085,.285,{rx:-1.4});
+    K.done({rough:.9});
+    const anim=(dt,tt,now,st)=>{if(st.gone)return;const b=Math.sin(tt*.9+ph);up.scale.set(1+b*.025,1+b*.06,1);};
+    return t3n_fin(f,{up,top:.32,hand:v(0,.15,.2),anim},"#c9d6e0",{mon:1});},
+  hulk(f,u){const b=T3MINI.husk(f,u);f.scale.setScalar(1.32);b.top*=1.32;return b;}
+});
+
+/* ---- OWNER: interlude fights. Set dressing for the four boards (t3cave builds the rock and calls T3DRESS[kind]) ---- */
+const T3DRESS={imemory:t3dressMemory,ipatron:t3dressPatron,iprayer:t3dressPrayer,ifire:t3dressFire};
+function t3i_kit(Vb,seed){const S=seeded(seed),mp=Vb.mp,rows=mp.def.rows;
+  return {S,rr:(a,b)=>a+(b-a)*S(),pk:a=>a[Math.floor(S()*a.length)],V3:(x,y,z)=>new THREE.Vector3(x,y,z),hi:T3Q.hi,
+    ch:(x,y)=>x<0||y<0||x>=mp.W||y>=mp.H?"#":rows[y][x],
+    cells(chs){const o=[];for(let y=0;y<mp.H;y++)for(let x=0;x<mp.W;x++)if(chs.includes(rows[y][x]))o.push([x,y]);return o;},
+    box(L,w,h,d,col,x,y,z,o={}){L.push(t3at(t3tint(new THREE.BoxGeometry(w,h,d),col),x,y,z,o));}};}
+/* a flame of two sprites (a halo and a bright tongue); set(k) sizes it 0..1 and flickers it */
+function t3i_flame(Vb,x,y,z,s,col=0xffa24a){const mk=(c,o)=>new THREE.Sprite(new THREE.SpriteMaterial({map:t3dotTex(),color:c,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:o}));
+  const halo=mk(col,.5),core=mk(0xfff0c0,.95),g=new THREE.Group();g.position.set(x,y,z);g.add(halo,core);Vb.root.add(g);
+  return {g,set(k,tt,ph=0){const f=.85+.1*Math.sin(tt*13+ph)+.06*Math.sin(tt*29+ph*2);g.visible=k>.02;halo.scale.set(s*2.4*k*f,s*2.6*k*f,1);halo.material.opacity=.42*Math.min(1,k*1.4);
+    core.scale.set(s*.5*Math.sqrt(k),s*1.05*k*f,1);core.position.y=s*.3*k;}};}
+/* a soft patch of deeper dark on the floor */
+function t3i_shades(Vb,L,op){const P=[],U=[];for(const [x,z,r] of L)for(const [a,b] of[[-1,-1],[-1,1],[1,1],[-1,-1],[1,1],[1,-1]]){P.push(x+a*r/2,.05,z+b*r/2);U.push((a+1)/2,(b+1)/2);}  // many in one draw
+  const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.Float32BufferAttribute(P,3));g.setAttribute("uv",new THREE.Float32BufferAttribute(U,2));
+  const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({map:t3dotTex(),color:0x000000,transparent:true,opacity:op,depthWrite:false,side:THREE.DoubleSide}));m.renderOrder=1;Vb.root.add(m);return m;}
+function t3i_shade(Vb,x,z,r,op){const m=new THREE.Mesh(new THREE.PlaneGeometry(r,r),new THREE.MeshBasicMaterial({map:t3dotTex(),color:0x000000,transparent:true,opacity:op,depthWrite:false}));
+  m.rotation.x=-Math.PI/2;m.position.set(x,.05,z);m.renderOrder=1;Vb.root.add(m);return m;}
+const t3i_fl=()=>B&&B.sc&&B.sc.flame!=null?Math.min(1,Math.max(0,B.sc.flame)/3):1;
+
+/* Katy's memory: floorboards over the rock (fraying toward the walls, where the cave shows through), her bed, a stool, the candle on the sill, the stair down */
+function t3dressMemory(Vb){const mp=Vb.mp,K=t3i_kit(Vb,7171),{rr,pk,hi,ch,box}=K,C=new THREE.Color(),dk=(c,k)=>"#"+C.set(c).multiplyScalar(1-k).getHexString();
+  const wd=(x,y)=>{for(let r=1;r<4;r++)for(let dx=-r;dx<=r;dx++)for(let dy=-r;dy<=r;dy++)if(ch(x+dx,y+dy)==="#")return r;return 4;};
+  const wood=[],soft=[],wax=[];
+  for(let y=0;y<mp.H;y++)for(let x=0;x<mp.W;x++){const c=ch(x,y);if("#sc".includes(c))continue;const p=Vb.cell(x,y),d=wd(x,y);
+    for(let i=0;i<4;i++){if(d<=1&&K.S()<.4)continue;const l=d<=1?rr(.5,1):1,o=d<=1?rr(-.25,.25):0;
+      box(wood,.235,.02,l-.012,pk(["#5a3f28","#634530","#4e3622","#6b4b31","#573c26"]),p.x-.375+i*.25,.008+rr(0,.004),p.z+o,{ry:rr(-.012,.012)});}}
+  // the bed: a narrow frame, a straw mattress, the blanket thrown back where a child climbed out
+  const bb=K.cells("b");if(bb.length){const P=bb.map(([x,y])=>Vb.cell(x,y)),cx=P.reduce((s,p)=>s+p.x,0)/P.length,cz=P.reduce((s,p)=>s+p.z,0)/P.length,
+      xs=bb.map(b=>b[0]),ys=bb.map(b=>b[1]),bw=(Math.max(...xs)-Math.min(...xs)+1)*.86,bl=(Math.max(...ys)-Math.min(...ys)+1)*.92,fr="#4a3020";
+    for(const sx of[-1,1])for(const sz of[-1,1])box(wood,.07,sz<0?.46:.3,.07,fr,cx+sx*bw/2,sz<0?.23:.15,cz+sz*bl/2);
+    for(const sx of[-1,1])box(wood,.05,.07,bl,fr,cx+sx*bw/2,.17,cz);box(wood,bw,.07,.05,fr,cx,.17,cz-bl/2);box(wood,bw,.09,.05,fr,cx,.36,cz-bl/2);box(wood,bw,.05,.05,fr,cx,.17,cz+bl/2);
+    box(soft,bw-.06,.12,bl-.06,"#a8966c",cx,.24,cz);
+    soft.push(t3at(t3tint(t3rock(.2,5,1),"#d8cfba"),cx,.33,cz-bl/2+.22,{sx:1.5*bw,sy:.38,sz:.75}));
+    const bk=new THREE.BoxGeometry(bw+.04,.04,bl*.6,6,1,6),bp=bk.attributes.position;
+    for(let i=0;i<bp.count;i++){const X=bp.getX(i),Z=bp.getZ(i);bp.setY(i,bp.getY(i)+Math.sin(X*9+Z*4)*.016-(Math.abs(X)>bw/2-.01?.07:0));}bk.computeVertexNormals();
+    soft.push(t3at(t3tint(bk,"#6e4f63"),cx,.32,cz+bl*.18),t3at(t3tint(new THREE.CylinderGeometry(.05,.05,bw+.02,10),"#7d5c70"),cx,.33,cz-bl*.13,{rz:Math.PI/2}));}
+  // a stool by the wall, a jug and a folded cloth on it
+  for(const [x,y] of K.cells("t")){const p=Vb.cell(x,y);box(wood,.46,.04,.38,"#5e4029",p.x,.36,p.z);for(const a of[-1,1])for(const b of[-1,1])box(wood,.04,.34,.04,"#4a3020",p.x+a*.18,.17,p.z+b*.14);
+    wax.push(t3at(t3tint(new THREE.CylinderGeometry(.045,.065,.16,10),"#8a6a4a"),p.x-.08,.46,p.z),t3at(t3tint(new THREE.TorusGeometry(.03,.008,4,8,Math.PI),"#8a6a4a"),p.x-.135,.47,p.z,{rz:Math.PI/2}));
+    box(soft,.18,.03,.14,"#cbbfa4",p.x+.1,.395,p.z+.02);}
+  // the candle on the deep sill, under a dark window
+  let fl=null;for(const [x,y] of K.cells("c")){const p=Vb.cell(x,y),sy=.56,cz=p.z+.1;
+    box(wood,.96,sy,.96,"#3e3226",p.x,sy/2,p.z);box(wood,1.02,.05,1.02,"#5a4430",p.x,sy+.025,p.z+.02);
+    const gl=new THREE.Mesh(new THREE.PlaneGeometry(.7,.75),new THREE.MeshStandardMaterial({color:0x0c1424,emissive:0x1a2a4a,emissiveIntensity:.5,roughness:.15,metalness:.4}));gl.position.set(p.x,sy+.45,p.z-.47);Vb.root.add(gl);
+    box(wood,.04,.78,.03,"#2a2018",p.x,sy+.45,p.z-.455);box(wood,.72,.04,.03,"#2a2018",p.x,sy+.48,p.z-.455);box(wood,.8,.05,.06,"#3a2a1c",p.x,sy+.84,p.z-.45);
+    wax.push(t3at(t3tint(new THREE.CylinderGeometry(.13,.11,.025,14),"#d6ccb0"),p.x,sy+.06,cz),t3at(t3tint(new THREE.CylinderGeometry(.045,.05,.13,10),"#efe6cc"),p.x,sy+.135,cz));
+    for(let i=0;i<5;i++)wax.push(t3at(t3tint(new THREE.SphereGeometry(.02,5,4),"#e6dcc0"),p.x+rr(-.06,.06),sy+.08+rr(0,.06),cz+rr(-.06,.06),{sy:1.6}));
+    box(wood,.006,.03,.006,"#1a1410",p.x,sy+.215,cz);
+    fl={f:t3i_flame(Vb,p.x,sy+.26,cz,.16),pool:t3v_pool(Vb,p.x,p.z+1,3.4,0xffb060,.3)};}
+  // the servants' stair, going down into the dark
+  const st=K.cells("s");if(st.length){const xs=st.map(s=>s[0]),ys=st.map(s=>s[1]),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys),
+      c0=Vb.cell(x0,y0),c1=Vb.cell(x1,y0),cx=(c0.x+c1.x)/2,w=x1-x0+1;
+    for(let y=y0;y<=y1;y++){const p=Vb.cell(x0,y),k=(y-y0)/(y1-y0+1)*.8;box(wood,w-.06,.05,.9,dk("#5e4029",k),cx,.025,p.z);box(wood,w-.02,.035,.07,dk("#7a5636",k),cx,.06,p.z-.44);}
+    box(wood,.07,.75,.07,"#4a3020",c0.x-.5,.375,c0.z-.45);box(wood,.07,.75,.07,"#4a3020",c0.x-.5,.375,c0.z+.45);box(wood,.05,.05,1,"#5e4029",c0.x-.5,.74,c0.z);
+    const lp=Vb.cell(x0,y1);t3i_shade(Vb,cx,lp.z-.3,3.2,.85);t3i_shade(Vb,cx,lp.z+.5,2.6,.9);}
+  if(wood.length)Vb.root.add(t3mesh(t3merge(wood),t3surf("wood",Vb),{cast:hi,recv:true}));
+  if(soft.length)Vb.root.add(t3mesh(t3merge(soft),t3vmat({roughness:.95,flatShading:false}),{cast:hi,recv:true}));
+  if(wax.length)Vb.root.add(t3mesh(t3merge(wax),t3vmat({roughness:.45,flatShading:false}),{cast:hi,recv:true}));
+  // the flame shrinks with each pinch, and steadies while Katy cups it
+  if(fl){let k=1;Vb.ticks.push((dt,tt)=>{const want=t3i_fl();k+=(want-k)*Math.min(1,dt*3);const cup=B&&B.sc&&B.sc.cup;fl.f.set(want<=0?k*.4:.4+.6*k,cup?tt*.35:tt);fl.pool.material.opacity=.3*Math.min(1,k*1.5);});}}
+
+/* Saphira's visit: the pact dagger driven into the stone, humming in a ring of marks; pools of deeper dark; shadow drifting up off the floor */
+function t3dressPatron(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,K=t3i_kit(Vb,5150),{rr,hi}=K;const dark=[];let hum=null;
+  for(const [x,y] of K.cells("d")){const p=Vb.cell(x,y),g=new THREE.Group();g.position.set(p.x,0,p.z);g.rotation.set(.12,.6,-.08);Vb.root.add(g);
+    const parts=[t3at(t3tint(new THREE.BoxGeometry(.035,.26,.008),"#c8ccd4"),0,.1,0),t3at(t3tint(new THREE.BoxGeometry(.12,.018,.026),"#8a7a5a"),0,.235,0),
+      t3at(t3tint(new THREE.CylinderGeometry(.014,.014,.09,6),"#1a1418"),0,.29,0),t3at(t3tint(new THREE.SphereGeometry(.022,8,6),"#8a7a5a"),0,.345,0)];
+    g.add(t3mesh(t3merge(parts),t3vmat({roughness:.3,metalness:.8}),{cast:hi}));
+    for(let i=0;i<7;i++){const a=i/7*6.28+rr(-.3,.3),l=rr(.25,.6);dark.push(t3at(t3tint(new THREE.BoxGeometry(l,.006,.02),"#050407"),p.x+Math.cos(a)*l/2,.012,p.z+Math.sin(a)*l/2,{ry:-a}));}
+    const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:t3dotTex(),color:0x9a7cff,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:.6}));glow.position.set(p.x,.3,p.z);glow.scale.set(.7,.7,1);Vb.root.add(glow);
+    const ring=new THREE.Mesh(new THREE.PlaneGeometry(3.4,3.4),new THREE.MeshBasicMaterial({map:t3i_runeTex(),color:0x8a6cf0,transparent:true,opacity:.5,depthWrite:false,blending:THREE.AdditiveBlending,fog:false}));
+    ring.rotation.x=-Math.PI/2;ring.position.set(p.x,.028,p.z);ring.renderOrder=1;Vb.root.add(ring);hum={glow,ring,pool:t3v_pool(Vb,p.x,p.z,2.6,0x7a5cd8,.22)};}
+  const pools=[];for(let y=0;y<H;y++)for(let x=0;x<W;x++){if(K.ch(x,y)!=="."||K.S()>.24)continue;const p=Vb.cell(x,y);pools.push([p.x+rr(-.3,.3),p.z+rr(-.3,.3),rr(1,1.8)]);}
+  if(pools.length)t3i_shades(Vb,pools,.5);
+  if(dark.length)Vb.root.add(t3mesh(t3merge(dark),t3vmat({roughness:1})));
+  const N=hi?70:34,pos=new Float32Array(N*3),sd=[];for(let i=0;i<N;i++)sd.push([rr(-W/2+1.5,W/2-1.5),rr(-H/2+1.5,H/2-1.5),rr(0,3),rr(.15,.4)]);
+  const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.BufferAttribute(pos,3));
+  const pts=new THREE.Points(g,new THREE.PointsMaterial({map:t3dotTex(),color:0x241634,size:.38,transparent:true,opacity:.55,depthWrite:false}));pts.frustumCulled=false;Vb.root.add(pts);
+  Vb.ticks.push((dt,tt)=>{for(let i=0;i<N;i++){const [x,z,o,s]=sd[i],t=(tt*s+o)%2.4;pos[i*3]=x+Math.sin(tt*.7+o*3)*.15;pos[i*3+1]=t*.8;pos[i*3+2]=z+Math.cos(tt*.6+o*2)*.15;}g.attributes.position.needsUpdate=true;
+    if(hum){const k=.5+.5*Math.sin(tt*2.4)+.15*Math.sin(tt*9.1);hum.glow.material.opacity=.35+.3*k;hum.ring.rotation.z=tt*.08;hum.ring.material.opacity=.32+.2*k;hum.pool.material.opacity=.14+.1*k;}});}
+function t3i_runeTex(){const cv=document.createElement("canvas");cv.width=cv.height=256;const g=cv.getContext("2d"),c=128;let sd=31;const r=()=>(sd=(sd*16807)%2147483647)/2147483647;
+  g.strokeStyle="#fff";g.lineCap="round";for(const [R,w] of[[118,1.5],[104,3],[70,1.2]]){g.lineWidth=w;g.beginPath();g.arc(c,c,R,0,7);g.stroke();}
+  for(let i=0;i<24;i++){const a=i/24*Math.PI*2;g.save();g.translate(c+Math.cos(a)*111,c+Math.sin(a)*111);g.rotate(a+Math.PI/2);g.lineWidth=1.6;g.beginPath();for(let k=0;k<3;k++){g.moveTo((r()-.5)*8,(r()-.5)*7);g.lineTo((r()-.5)*8,(r()-.5)*7);}g.stroke();g.restore();}
+  for(let i=0;i<48;i++){const a=i/48*Math.PI*2,o=i%4?80:90;g.lineWidth=1;g.beginPath();g.moveTo(c+Math.cos(a)*74,c+Math.sin(a)*74);g.lineTo(c+Math.cos(a)*o,c+Math.sin(a)*o);g.stroke();}
+  return new THREE.CanvasTexture(cv);}
+
+/* Stig's prayer: the tide. Water over each level of the floor fades in as B.sc.tide reaches it; the booklet on its stone; pale stones at the tide line; low mist */
+function t3dressPrayer(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,K=t3i_kit(Vb,2718),{rr,pk,hi}=K;const lv=[[],[],[],[]],stone=[];
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const c=K.ch(x,y);if(c<"1"||c>"3")continue;const n=+c,p=Vb.cell(x,y);lv[n].push(p);
+    if(n===1&&K.S()<.45)for(let i=0;i<3;i++)stone.push(t3at(t3tint(t3rock(rr(.03,.06),x*7+y+i,0),pk(["#c9c4b8","#a9b0b0","#8a948f"])),p.x+rr(-.4,.4),.015,p.z+rr(-.4,.4),{sy:.4,ry:rr(0,6)}));}
+  for(const [x,y] of K.cells("k")){const p=Vb.cell(x,y);stone.push(t3at(t3tint(t3w_slab(.7,.22,.55,x*3+y),"#3a3833"),p.x,.11,p.z,{ry:.2}));
+    stone.push(t3at(t3tint(new THREE.BoxGeometry(.28,.008,.19),"#5a4632"),p.x,.226,p.z));for(const s of[-1,1])stone.push(t3at(t3tint(new THREE.BoxGeometry(.13,.012,.18),"#d8d0bc"),p.x+s*.066,.236,p.z,{rz:s*.1}));}
+  if(stone.length)Vb.root.add(t3mesh(t3merge(stone),t3surf("rock",Vb),{cast:hi,recv:true}));
+  const tex=t3i_rippleTex(),water=[];
+  for(let n=1;n<=3;n++){if(!lv[n].length)continue;const Pa=[],Ua=[],Na=[];
+    for(const p of lv[n])for(const [a,b] of[[-1,-1],[1,-1],[1,1],[-1,-1],[1,1],[-1,1]]){const X=p.x+a*.51,Z=p.z+b*.51;Pa.push(X,0,Z);Ua.push(X*.35,Z*.35);Na.push(0,1,0);}
+    const geo=new THREE.BufferGeometry();geo.setAttribute("position",new THREE.Float32BufferAttribute(Pa,3));geo.setAttribute("uv",new THREE.Float32BufferAttribute(Ua,2));geo.setAttribute("normal",new THREE.Float32BufferAttribute(Na,3));
+    const m=new THREE.MeshStandardMaterial({color:0x6a8590,map:tex,emissive:0x0c171c,roughness:.12,metalness:.15,transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide});
+    const mesh=new THREE.Mesh(geo,m);mesh.position.y=.035+n*.01;mesh.renderOrder=1;mesh.receiveShadow=true;mesh.visible=false;Vb.root.add(mesh);
+    // the shimmer on top: the same ripples, added as light, so the water reads even in the dark
+    const sh=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,color:0x2c4450,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending,fog:false}));sh.position.y=.004;sh.renderOrder=2;mesh.add(sh);
+    water.push({n,mesh,sh,k:0});}
+  const mist=[];for(let i=0;i<(hi?8:4);i++){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t3dotTex(),color:0x8a9aa4,transparent:true,opacity:.1,depthWrite:false}));
+    s.scale.set(rr(3,5),rr(.8,1.3),1);s.position.set(rr(-W/2,W/2),rr(.25,.5),rr(0,H/2-1));Vb.root.add(s);mist.push([s,rr(.05,.15),rr(0,6),s.position.x]);}
+  Vb.ticks.push((dt,tt)=>{const tide=B&&B.mp===mp?B.sc.tide||0:1;tex.offset.set(tt*.012,tt*.02);
+    for(const w of water){w.k+=((tide>=w.n?1:0)-w.k)*Math.min(1,dt*1.2);w.mesh.visible=w.k>.01;w.mesh.material.opacity=.82*w.k;w.sh.material.opacity=w.k*(.75+.25*Math.sin(tt*1.7+w.n));w.mesh.position.y=.035+w.n*.01+Math.sin(tt*.9+w.n)*.006;}
+    for(const [s,v,o,x0] of mist){s.position.x=x0+Math.sin(tt*v+o)*1.2;s.material.opacity=.07+.04*Math.sin(tt*.3+o);}});}
+function t3i_rippleTex(){const cv=document.createElement("canvas");cv.width=cv.height=128;const g=cv.getContext("2d");g.fillStyle="#7d8c92";g.fillRect(0,0,128,128);let sd=5;const r=()=>(sd=(sd*16807)%2147483647)/2147483647;
+  for(let i=0;i<70;i++){const x=r()*128,y=r()*128,w=r()*22+6;g.strokeStyle=r()<.5?"#b9c8cc55":"#3a4a5055";g.lineWidth=r()*2+1;for(const dx of[-128,0,128])for(const dy of[-128,0,128]){g.beginPath();g.ellipse(x+dx,y+dy,w,w*.35,0,0,7);g.stroke();}}
+  const t=new THREE.CanvasTexture(cv);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.colorSpace=THREE.SRGBColorSpace;return t;}
+
+/* the fire Hans lit: a stone ring, a tepee of logs, an ember bed, flames that sink as the husks smother it; bedrolls; the tunnel mouths fall away into dark */
+function t3dressFire(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,K=t3i_kit(Vb,1618),{rr,pk,hi,box}=K;const stone=[],wood=[],glow=[],soft=[];let fire=null;
+  for(const [x,y] of K.cells("F")){const p=Vb.cell(x,y);
+    for(let i=0;i<9;i++){const a=i/9*6.283+rr(-.1,.1);stone.push(t3at(t3tint(t3rock(rr(.09,.13),i*7+3,1),pk(["#4a4540","#3a3632","#57514a"])),p.x+Math.cos(a)*.37,.06,p.z+Math.sin(a)*.37,{sy:.75,ry:rr(0,6)}));}
+    for(let i=0;i<5;i++){const a=i/5*6.283+rr(-.2,.2);wood.push(t3at(t3tint(new THREE.CylinderGeometry(.03,.04,.46,7),pk(["#3a2616","#2a1c10","#4a3220"])),p.x+Math.cos(a)*.12,.19,p.z+Math.sin(a)*.12,{rz:Math.cos(a)*.55,rx:-Math.sin(a)*.55}));}
+    for(let i=0;i<14;i++)glow.push(t3at(t3tint(t3rock(rr(.03,.06),i*5+1,0),pk(["#ff6a1a","#ff8a2a","#c84a10","#ffa040"])),p.x+rr(-.2,.2),.025,p.z+rr(-.2,.2),{sy:.5}));
+    for(let i=0;i<6;i++)soft.push(t3at(t3tint(new THREE.CylinderGeometry(rr(.15,.3),rr(.18,.34),.02,8),pk(["#6e6a63","#5d5952","#7b766e"])),p.x+rr(-.5,.5),.01,p.z+rr(-.5,.5)));
+    fire={p,F:[t3i_flame(Vb,p.x,.2,p.z,.44),t3i_flame(Vb,p.x+.08,.18,p.z-.06,.3),t3i_flame(Vb,p.x-.07,.17,p.z+.06,.28)],pool:t3v_pool(Vb,p.x,p.z,5,0xff8a3a,.3)};}
+  // bedrolls and packs where the crew sat down
+  for(const [x,y,r] of[[3,9,.4],[9,3,-.6],[2,5,1.5]]){if(K.ch(x,y)!=="."&&K.ch(x,y)!==",")continue;const p=Vb.cell(x,y);
+    soft.push(t3at(t3tint(new THREE.CylinderGeometry(.1,.1,.62,10),pk(["#5a4a36","#4e5a3a","#5a3a36"])),p.x,.1,p.z,{rz:Math.PI/2,ry:r}));
+    soft.push(t3at(t3tint(new THREE.CylinderGeometry(.103,.103,.04,10),"#2a2018"),p.x+Math.cos(r)*.15,.1,p.z-Math.sin(r)*.15,{rz:Math.PI/2,ry:r}));
+    box(soft,.2,.22,.14,"#4a3a28",p.x+Math.sin(r)*.3,.11,p.z+Math.cos(r)*.3,{ry:r});}
+  const mouths=[];for(let y=0;y<H;y++)for(let x=0;x<W;x++){if(K.ch(x,y)==="#"||!(x===0||y===0||x===W-1||y===H-1))continue;const p=Vb.cell(x,y);mouths.push([p.x+(x===0?-.4:x===W-1?.4:0),p.z+(y===0?-.4:y===H-1?.4:0),2.2]);}
+  if(mouths.length)t3i_shades(Vb,mouths,.85);
+  if(stone.length)Vb.root.add(t3mesh(t3merge(stone),t3surf("rock",Vb),{cast:hi,recv:true}));
+  if(wood.length)Vb.root.add(t3mesh(t3merge(wood),t3surf("wood",Vb),{cast:hi,recv:true}));
+  if(glow.length)Vb.root.add(t3mesh(t3merge(glow),t3surf("glow",Vb)));
+  if(soft.length)Vb.root.add(t3mesh(t3merge(soft),t3vmat({roughness:.95,flatShading:false}),{recv:true}));
+  if(fire){let k=1;const sp=new THREE.Vector3();Vb.ticks.push((dt,tt)=>{const want=t3i_fl();k+=(want-k)*Math.min(1,dt*2.5);
+    fire.F.forEach((f,i)=>f.set(want<=0?k*.5:.35+.65*k,tt*(1+i*.13),i*2.1));fire.pool.material.opacity=.3*Math.min(1,k*1.4);
+    if(Vb.sparks&&want>0&&Math.random()<dt*(hi?7:3.5)*k)Vb.sparks.spawn(sp.set(fire.p.x+rr(-.12,.12),.3,fire.p.z+rr(-.12,.12)),"#ffa040",1,{sp:.15,up:.9,lf:1.4,gr:.4,sz:.06});});}}
 
 
 /* =================== RUNNING IT: scene order, retries, entry and exit =================== */
