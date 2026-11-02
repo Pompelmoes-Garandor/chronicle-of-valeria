@@ -785,6 +785,20 @@ body.playing header.top,body.playing nav.dock,body.playing .eggs,body.playing #p
 .pl-chip{position:absolute;z-index:4;left:50%;top:10px;transform:translateX(-50%);max-width:calc(100% - 24px);box-sizing:border-box;background:var(--housing);border:1px solid var(--steward);color:var(--steward);border-radius:10px;padding:8px 12px;font:500 13px/1.35 var(--mono);text-align:center;box-shadow:0 8px 30px #000a;pointer-events:none;animation:fl 3.2s forwards;animation-name:chipin}
 .pl-chip.bad{border-color:var(--ember);color:#ffb08a}
 @keyframes chipin{0%{opacity:0}8%{opacity:1}85%{opacity:1}100%{opacity:0}}
+/* pace: whose turn it is (top left of the board, clear of the roll chip), the wind-up on the flat board, the Pace choice in the menu */
+.pl-ban{position:absolute;z-index:4;left:10px;top:10px;display:flex;align-items:stretch;gap:9px;padding:6px 14px 7px 8px;border-radius:12px;background:var(--brk),#0b0d12e6;box-shadow:0 0 0 1px var(--hairline),0 6px 18px #0009;pointer-events:none;white-space:nowrap;max-width:calc(100% - 20px);box-sizing:border-box;animation:plBan 1.5s cubic-bezier(.2,.8,.2,1) forwards}
+.pl-ban i{width:3px;border-radius:2px;background:var(--c)}
+.pl-ban.foe i{background:var(--wax,#b8402a)}
+.pl-ban small{display:block;font:500 10px/1.2 var(--mono);letter-spacing:.14em;color:var(--steward);text-transform:uppercase}
+.pl-ban b{display:block;font:400 22px/1.1 var(--display);color:var(--parch);overflow:hidden;text-overflow:ellipsis}
+@media (max-width:700px){.pl-ban{left:8px;top:8px;padding:5px 12px 6px 7px}.pl-ban b{font-size:19px}}
+@keyframes plBan{0%{opacity:0;transform:translateY(-6px)}14%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.pl-ban{animation-name:plBanR}}
+@keyframes plBanR{0%,100%{opacity:0}8%,85%{opacity:1}}
+.pl-tks .tk.pace-wind{transform:scale(1.14)}
+.pl-tks .tk.pace-wind .rg{box-shadow:0 0 0 2px #0b0d12,0 0 0 4px var(--c,#ecd08f),0 0 18px var(--c,#ecd08f)}
+.pl-pace{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.pl-menu .pl-pace .pl-btn{flex-direction:column;justify-content:center;gap:0;min-height:48px;padding:4px 8px}
 .pl-init{position:sticky;top:-10px;z-index:1;background:var(--housing);padding-top:10px!important;margin-top:-10px;min-height:34px}
 .pl-panel{background:var(--housing);border:1px solid var(--hairline);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;max-height:36vh;overflow:auto;box-sizing:border-box}
 @media (min-width:900px){.pl-panel{max-height:none;flex:1}}
@@ -4973,6 +4987,7 @@ menuBtn.onclick=()=>{if(menuEl){closeMenu();return;}
     ...(inI?[]:t3cineMenu()),
     h("div",{class:"pl-sec"},"Table"),
     tg("dice","3D dice for the crew"),tg("flat","Flat 2D board"),tg("fast","Faster monsters"),tg("sound","Sound"),
+    h("div",{class:"pl-sec"},"Pace of the fights"),paceMenu(),
     inI?null:h("button",{type:"button",class:"pl-btn",onclick:async()=>{closeMenu();if(await ask("Start the session again?","Everyone back to full, chapter 1.","Start again","Cancel")){ST=freshState();saveState();runScene();}}},"Start the session again"),
     h("button",{type:"button",class:"pl-btn",onclick:()=>{closeMenu();exitPlay();}},"Back to the map"));
   root.querySelector(".pl-top").style.position="relative";root.querySelector(".pl-top").append(menuEl);};
@@ -7010,11 +7025,11 @@ function t3uPath(path,n,k){const U=V.t3u,s=B.cur.size||1,h2=(s-1)/2;U.pathK=k;
   U.ft.innerHTML=`<b>${n.c*5}</b> ft`+(n.jump?"<small>jump</small>":"");U.ft.classList.toggle("j",!!n.jump);U.ft.hidden=false;U.ftOn=true;}
 
 /* ---- OWNER: VFX. Moments: a lunge, a bolt, a burst. t3strike(a,t,at) runs before each attack roll (at.n is the attack or spell name, at.type the damage type) ---- */
-async function t3strike(a,t,at){if(!t3on())return;const ma=V.minis.get(a),mt=V.minis.get(t);if(!ma||!mt)return;const X=V.t3x;
+async function t3strike(a,t,at,miss){if(!t3on())return;const ma=V.minis.get(a),mt=V.minis.get(t);if(!ma||!mt)return;const X=V.t3x; // miss (Cinematic, after the roll): the bolt sails past
   const pa=ma.g.position,pt=mt.g.position,dir=new THREE.Vector3().subVectors(pt,pa);if(V.tree)dir.z=0;else dir.y=0;const len=dir.length()||1;dir.divideScalar(len);
   if(!V.tree)ma.faceT=Math.atan2(dir.x,dir.z);else ma.faceT=dir.x>=0?.7:-.7;
   const ranged=!!at.range&&len>1.6,n=(at.n||"").toLowerCase(),col=DMG_COL[at.type]||"#ffe0b0",now=performance.now();X.last={a,t,at,time:now,dir};
-  const from=pa.clone().addScaledVector(dir,.24*(ma.u&&ma.u.size||1));from.y+=ma.top*.62;const to=pt.clone();to.y+=mt.top*.55;
+  const from=pa.clone().addScaledVector(dir,.24*(ma.u&&ma.u.size||1));from.y+=ma.top*.62;const to=pt.clone();to.y+=mt.top*.55;if(miss&&ranged)t3p_past(to,dir,mt);
   let ms;if(!ranged){ma.lunge={dir,t:now,dur:300};ms=t3x_melee(X,n,at,ma,mt,from,to,len,dir,col);}
   else{ma.lunge={dir,t:now,dur:220,small:true};ms=t3x_shot(X,n,at,from,to,len,dir,col);}
   await sleep(Math.min(440,ms)*t3x_ts*(opt.fast?1/.35:1));}
@@ -7151,6 +7166,7 @@ function t3y_pop(X,p,col,s){const o=t3x_take(X.stars),tok=o.userData.tok;s*=t3y_
 /* every frame: ease the camera, walk the minis, pin their name tags */
 let t3last=0,t3raf=0;
 function t3loop(now){t3raf=0;if(!V||!V.live()){return;}t3raf=requestAnimationFrame(t3loop);const dt=Math.min(.05,(now-(t3last||now))/1000);t3last=now;const tt=now/1000;
+  if(V.t3p_hs&&t3p_held(now))return; // a hit stop: the frame of the impact holds for a blink
   t3hoverTick();t3camTick(dt,now);t3lightTick(dt,tt);
   const rc=V.host,W2=rc.clientWidth/2,H2=rc.clientHeight/2;
   for(const [u,m] of V.minis){if(!B.units.includes(u)){V.root.remove(m.g);t3free(m.g);V.minis.delete(u);continue;}t3animMini(m,u,dt,tt,now);t3tag(m,u,W2,H2);}
@@ -7186,7 +7202,7 @@ function t3camTick(dt,now){const G=V.goal,Vw=V.view,L=V.limits,vel=V.t3k_v,KS=t3
   V.cam.lookAt(t3k_a);V.t3k_pitch=p;}
 function t3animMini(m,u,dt,tt,now){const rm=reduced,gone=!!(u.gone||u.ghost),down=u.hp<=0&&!gone,fig=m.fig,big=(u.size||1)>1,heart=u.key==="heart";
   if(!m.t3k){m.t3k={v:{x:0,y:0,z:0},ph:0,fall:0,fv:0,s0:fig.scale.x,to:m.pos.clone(),len:0,hop:0,land:0,rd:new THREE.Vector3(),fl:false};fig.rotation.order="YXZ";}
-  const K=m.t3k,want=t3k_upos(u,t3k_w);
+  const K=m.t3k,want=t3k_upos(u,t3k_w);if(m.t3p_wk)t3p_walkTo(m,want,now); // Cinematic: the square it chases glides along the path
   // walking: a damped chase of the square (no stops between steps), a hop for jumps, a jump cut for teleports
   if(!want.equals(K.to)){const d=want.distanceTo(m.pos);if(d>3.6){m.pos.copy(want);K.v.x=K.v.y=K.v.z=0;K.hop=0;}else{K.len=Math.max(.01,d);K.hop=d>1.6?Math.min(.9,.28*d):0;}K.to.copy(want);}
   for(const k of t3k_XYZ)m.pos[k]=t3k_sd(m.pos[k],want[k],K.v,k,14,dt);
@@ -7203,6 +7219,7 @@ function t3animMini(m,u,dt,tt,now){const rm=reduced,gone=!!(u.gone||u.ghost),dow
     else if(k<.5){const t=(k-.3)/.2,e=1-(1-t)*(1-t);off=-amp*.3+amp*1.3*e;lean+=-.2+.5*e;sq+=.06*e;}
     else{const t=(k-.5)/.5,e=t*t*(3-2*t);off=amp*(1-e)+Math.sin(t*Math.PI)*amp*.06;lean+=.3*(1-e);sq+=.06*(1-e);}
     m.g.position.addScaledVector(Lg.dir,off);}}
+  if(m.t3p_wd||m.t3p_dg){const P=t3p_pose(m,now,big,rm);m.g.position.add(P.o);lean+=P.l;sq+=P.s;roll+=P.r;} // the wind-up before a blow or spell, the duck from a miss
   // hit: a red flash, a knock back away from the attacker, then a settle
   if(m.hitT){const kf=(now-m.hitT)/260,kr=(now-m.hitT)/420;
     if(kr<.02||K.rdT!==m.hitT){K.rdT=m.hitT;const A=V.t3k_act;if(A&&A.t===m&&A.a!==m){K.rd.subVectors(m.pos,A.a.pos);if(V.tree)K.rd.z=0;else K.rd.y=0;}else K.rd.set(-Math.sin(m.face),0,-Math.cos(m.face));if(K.rd.lengthSq()<1e-4)K.rd.set(0,0,1);K.rd.normalize();}
@@ -7382,7 +7399,8 @@ async function attack(a,t,at,o={}){
   let bonus=at.hit;if(a.crew&&P(a.key).ex)bonus-=2*P(a.key).ex;if(a.cond.bane){const b=rnd(4);bonus-=b;}
   if(a.cond.mocked)delete a.cond.mocked;if(t.cond.guided&&!at.noGuide)delete t.cond.guided;
   if(a.hidden){a.hidden=false;}
-  await t3strike(a,t,at);
+  const cin=paceCine(); // Cinematic: wind up now, roll, then release the blow or bolt once the dice have spoken (Quick: the strike first, as before)
+  if(cin)await paceWind(a,t,at);else await t3strike(a,t,at);
   const crewSide=a.crew;
   let dmgRoll=null; // pre-roll damage so the dice can show it together
   const roll=()=>{let crit=r.v>=critOn,tot=r.v+bonus;return {crit,tot,hit:r.v!==1&&(crit||tot>=acOf(t))};};
@@ -7398,7 +7416,7 @@ async function attack(a,t,at,o={}){
     if(t.key==="saphira"&&P("saphira").pact>0&&await ask("Saphira: cast Shield?",`${res.tot} hits AC ${acOf(t)}. Shield gives +5 AC until her next turn (one pact slot, ${P("saphira").pact} left).`,"Shield","Take it")){P("saphira").pact--;t.react=false;addC(t,"shield",{exp:{u:t.id,at:"start"}});res=roll();log("  Saphira raises Shield: "+(res.hit?"still hits":"miss"),"g");}
     else if(t.key==="stig"&&P("stig").res.shield>0&&await ask("Stig: cast Shield?",`${res.tot} hits AC ${acOf(t)}. Once a day, +5 AC until his next turn.`,"Shield","Take it")){P("stig").res.shield--;t.react=false;addC(t,"shield",{exp:{u:t.id,at:"start"}});res=roll();log("  Stig raises Shield: "+(res.hit?"still hits":"miss"),"g");}}
   hide3d();
-  if(!res.hit){floatTxt(t,"miss","miss");hitSnd("miss");return {hit:false};}
+  if(!res.hit){if(cin)await paceRelease(a,t,at,false);floatTxt(t,"miss","miss");hitSnd("miss");if(cin)await paceSettle(a,t,false);return {hit:false};}
   let tgt=t;
   if(t.crew&&t.key!=="hans"&&!o.noGuard){const hans=B.units.find(u=>u.key==="hans"&&alive(u));
     if(hans&&hans.react&&!incap(hans)&&!hans.cond.drained&&dist(hans,t)<=1&&await ask("Hans: Bodyguard?",`${at.n} hits ${t.short}. Hans can step in and take it.`,"Take the hit","Let it land")){hans.react=false;tgt=hans;log("  Hans steps in front: Bodyguard.","h");o.guarded=true;}}
@@ -7411,8 +7429,10 @@ async function attack(a,t,at,o={}){
   if(tgt.cond.hexed&&tgt.cond.hexed.by===a.id&&!at.noHex)parts.push([dice(res.crit?"2d6":"1d6"),"necrotic"]);
   if(tgt.cond.cursed&&tgt.cond.cursed.by===a.id)parts.push([{t:3,rolls:[],flat:3},at.type]);
   if(crewSide&&opt.dice){const list=parts.flatMap(([d])=>d.rolls.map((v,i)=>({sides:d.sides[i],value:Math.abs(v),dmg:true})));if(list.length){await show3d(list);await sleep(250);hide3d();}}
+  if(cin)await paceRelease(a,tgt,at,true,res.crit);
   if(at.dmg!=="0")for(const [d,type] of parts){await hurt(tgt,d.t,type,a,{magic:at.magic,crit:res.crit,src:at.n});}
   if(at.onHit&&alive(tgt))await at.onHit(tgt,res);
+  if(cin)await paceSettle(a,tgt,true);
   return {hit:true,crit:res.crit,guarded:!!o.guarded,tgt};}
 
 /* a saving throw by any creature. Returns true on a success */
@@ -7464,19 +7484,154 @@ function spit(){const g=B.sc.engulfed;if(!g)return;B.sc.engulfed=null;delete g.c
 function freeNear(x,y){for(let r=0;r<6;r++)for(let dx=-r;dx<=r;dx++)for(let dy=-r;dy<=r;dy++){const nx=x+dx,ny=y+dy;if(cost(B.mp,nx,ny)>0&&!occupant(nx,ny))return [nx,ny];}return [x,y];}
 
 /* moving a token one square at a time: opportunity attacks, jumps and falls */
-async function moveAlong(u,path){
-  for(const st of path){const [nx,ny]=st.k.split(",").map(Number);
-    if(st.jump&&u.crew){const ok=(await crewRoll(u.key,"Acrobatics (jump)",skillMod(u.key,"acrobatics"),12,{u,quiet:!opt.dice})).ok;if(!ok){log(`  ${u.short} misses the jump.`,"r");await fall(u,nx-(Math.sign(nx-u.x)),u.y);return false;}}
+async function moveAlong(u,path){const wk=paceWalk(u,path); // Cinematic: one walk at a walking pace (null in Quick: a square every 170 ms, as before)
+  try{
+  for(let i=0;i<path.length;i++){const st=path[i],[nx,ny]=st.k.split(",").map(Number);
+    if(st.jump&&u.crew){wk&&wk.stop();const ok=(await crewRoll(u.key,"Acrobatics (jump)",skillMod(u.key,"acrobatics"),12,{u,quiet:!opt.dice})).ok;if(!ok){log(`  ${u.short} misses the jump.`,"r");await fall(u,nx-(Math.sign(nx-u.x)),u.y);return false;}}
     if(!u.disengage&&!u.teleport){for(const e of enemiesOf(u)){if(!e.react||incap(e)||e.key==="heart"||u.cond.engulfed)continue;const reach=Math.max(...(MON[e.key]?.atk||[{reach:1}]).map(a=>a.reach||0),e.crew?1:0);
-      if(dist(e,u)<=reach&&distXY(e,nx,ny)>reach){e.react=false;log(`${nameOf(e)} takes an opportunity attack.`,"");await sleep(200);await oppAttack(e,u);if(!alive(u)||u.hp<=0)return false;}}}
-    u.x=nx;u.y=ny;renderTokens();await sleep(170);
+      if(dist(e,u)<=reach&&distXY(e,nx,ny)>reach){wk&&wk.stop();e.react=false;log(`${nameOf(e)} takes an opportunity attack.`,"");await sleep(200);await oppAttack(e,u);if(!alive(u)||u.hp<=0)return false;}}}
+    u.x=nx;u.y=ny;renderTokens();if(wk)await wk.step(i);else await sleep(170);
     if(B.def.onStep){const stop=await B.def.onStep(u);if(stop)return false;}}
-  return true;}
+  return true;}finally{wk&&wk.end();}}
 async function oppAttack(e,u){if(e.crew){const a=crewMelee(e);if(a)await attack(e,u,a);}else{const a=(MON[e.key].atk||[]).find(x=>x.reach);if(a)await attack(e,u,a);}}
 function crewMelee(u){if(u.key==="hans")return {n:"Slam",hit:6,dmg:"2d6+4",type:"bludgeoning"};if(u.key==="saphira")return B.sc.blade?{n:"Shadow Blade",hit:7,dmg:"2d8",type:"psychic",magic:true,sneak:true,shadow:true}:{n:"Magical dagger",hit:8,dmg:"1d4+5",type:"piercing",magic:true,sneak:true};if(u.key==="stig")return {n:"Mace",hit:3,dmg:"1d6",type:"bludgeoning"};return {n:"Dagger",hit:5,dmg:"1d4+2",type:"piercing"};}
 async function fall(u,x,y){let ny=y,drop=0;while(ny<B.mp.H-1&&cost(B.mp,x,ny+1)===0){ny++;drop++;}ny=Math.min(B.mp.H-1,ny+1);drop++;
   const c=occupant(x,ny,u)?freeNear(x,ny):[x,ny];u.x=c[0];u.y=c[1];renderTokens();const n=Math.max(1,Math.floor(drop/2));log(`  ${nameOf(u)} falls ${drop*5} ft.`,"r");await hurt(u,dice(n+"d6").t,"bludgeoning",null,{aoe:true});if(alive(u))addC(u,"prone");}
 
+
+/* =================== OWNER: pace. The rhythm of a fight, so every blow and spell has weight ===================
+   Each action plays in beats: whose turn (the camera eases to them, their name shows), a walk at walking pace, then
+   wind-up → the roll → release → impact (a hit stop, the number) → settle. Misses sail past, area spells show their area first.
+   opt.pace: "cine" (Cinematic, the default) or "quick" (the old speed: no beats, the strike before the roll).
+   A tap on the board ends the beat that is playing, never the whole turn. opt.fast (and playtest=auto) shortens every beat like sleep().
+   Board side: t3p_* below (the wind-up pose, the walk, the duck, the hit stop); the camera only through t3frame when it exists. */
+const PACE={w:null,skipT:0,ban:null};
+const PACE_MS={turnPc:460,turnFoe:200,wind:420,windShot:460,windSpell:520,windFollow:240,cast:300,area:560,settle:400,settleMiss:340,settleDown:650,step:220,ramp:180}; // ms; a monster turn (aiTurn adds its own 350 ms) stays under ~4 s
+const paceCine=()=>opt.pace!=="quick";
+const pms=ms=>opt.fast?ms*.35:ms;
+// a beat: a pause a tap can end early. Nothing in Quick. raw: ms is already scaled
+function beat(ms,raw){if(!paceCine()||!(ms>0))return Promise.resolve();return new Promise((res,rej)=>{const g=PLAY.gen;let t=0;
+  const fin=()=>{clearTimeout(t);if(PACE.w===fin)PACE.w=null;PLAY.gen!==g?rej(ABORT):res();};PACE.w=fin;t=setTimeout(fin,raw?ms:pms(ms));});}
+stage.addEventListener("click",e=>{if(!PACE.w||!B||e.target.closest(".pl-cam,.pl-modal,.pl-menu,.pl-drawer"))return;if(t3on()&&V.dragged)return;PACE.skipT=performance.now();PACE.w();},true);
+function paceMenu(){const row=h("div",{class:"pl-pace",role:"group","aria-label":"Pace of the fights"}),cur=()=>paceCine()?"cine":"quick";
+  for(const [k,l,s] of [["cine","Cinematic","every blow in beats"],["quick","Quick","the old speed"]])
+    row.append(h("button",{type:"button","data-k":k,class:"pl-btn"+(cur()===k?" on":""),"aria-pressed":String(cur()===k),onclick:()=>{opt.pace=k;saveOpt();
+      for(const b of row.children){const on=b.dataset.k===k;b.classList.toggle("on",on);b.setAttribute("aria-pressed",String(on));}}},l,h("small",{},s)));
+  return row;}
+// whose turn: a short banner, the camera eases to them (t3frame, from the camera owner), a beat before they act
+function paceBanner(u){if(PACE.ban)PACE.ban.remove();PACE.ban=null;if(!B)return;const foe=u.side==="foe";
+  const eye=`Round ${B.round}`+(u.crew?(u.hp<=0?" · dying":""):foe?" · foe":" · with you");
+  const el=h("div",{class:"pl-ban"+(foe?" foe":""),style:`--c:${u.hex||"#b8402a"}`,"aria-hidden":"true"},h("i"),h("span",{},h("small",{},eye),h("b",{},nameOf(u))));
+  const ms=(paceCine()?1500:1000)*(opt.fast?.5:1);el.style.animationDuration=ms+"ms";stage.append(el);PACE.ban=el;setTimeout(()=>{el.remove();if(PACE.ban===el)PACE.ban=null;},ms+60);}
+async function paceTurn(u){if(u.crew?u.hp<=0&&(u.dead||u.cond.stable||u.key==="hans"):MON[u.key]&&MON[u.key].ai==="none")return; // nothing to watch: no banner, no beat
+  paceBanner(u);if(!paceCine())return;if(t3on()&&typeof t3frame==="function")t3frame(u,{mode:"turn"});
+  await beat(u.ctl==="p"&&!u.cond.ko?PACE_MS.turnPc:PACE_MS.turnFoe);}
+// an attack: what kind of wind-up it gets
+function paceKind(at){const n=(at.n||"").toLowerCase();if(/bolt|blast|ray|vampiric|flame|toll|mockery|whisper/.test(n)||(at.magic&&at.range&&!/dagger|bow|net|needle/.test(n)))return "spell";return at.range?"shot":"melee";}
+async function paceWind(a,t,at){const k=paceKind(at),follow=performance.now()-(a.paceT||0)<1600; // a second beam or swing straight after the first winds up quicker
+  const ms=follow?PACE_MS.windFollow:k==="spell"?PACE_MS.windSpell:k==="shot"?PACE_MS.windShot:PACE_MS.wind;
+  const ma=t3p_windUp(a,t,k,pms(ms),DMG_COL[at.type]||"#ffe0b0",at.type==="radiant"||at.type==="force");if(ma)t3p_pair(a,t,ma);
+  await beat(t3on()?ms:Math.min(ms,300));}
+// the release, once the dice have spoken: the swing or bolt flies (a miss sails past and the target ducks), then the impact holds a blink
+async function paceRelease(a,t,at,hit,crit){const ma=t3on()&&V.minis.get(a);if(ma&&ma.t3p_wd){if(typeof t3frame==="function"&&performance.now()-ma.t3p_wd.t0>1200)t3frame([a,t],{mode:"pair"});ma.t3p_wd.rel=performance.now();} // the dice took a while: frame the pair again
+  if(t3on()){const k=t3x_ts;let pr;t3x_ts=k*1.2;try{pr=t3strike(a,t,at,!hit);}finally{t3x_ts=k;}await pr;}else await beat(160);
+  if(hit)t3p_stop(crit?140:85);else t3p_duck(a,t);}
+async function paceSettle(a,t,hit){if(!paceCine())return;if(a)a.paceT=performance.now();await beat(t&&!alive(t)?PACE_MS.settleDown:hit?PACE_MS.settle:PACE_MS.settleMiss);}
+// a spell with a saving throw (or a heal): the caster gathers it, it goes to the target, then the save decides
+async function paceCast(u,t,n,type){if(!paceCine())return;const heal=type==="heal",col=heal?"#a8f090":DMG_COL[type]||"#e8dcc0";
+  const ma=t3p_windUp(u,t&&t!==u?t:null,"spell",pms(PACE_MS.windSpell),col,type==="radiant");if(ma&&t&&t!==u)t3p_pair(u,t,ma);
+  await beat(t3on()?PACE_MS.windSpell:260);if(ma&&ma.t3p_wd)ma.t3p_wd.rel=performance.now();
+  if(t3on()&&t)t3p_bolt(u,t,n,type,col);await beat(heal?140:PACE_MS.cast);}
+function paceLand(hits,u,t){if(!paceCine())return;if(hits)t3p_stop(85);else t3p_duck(u,t);}
+// an area: the cells light up and the force gathers, then it lands all at once
+async function paceArea(u,cx,cy,r,n,type){if(!paceCine()||!B)return;const col=DMG_COL[type]||"#e8dcc0",cells=[];
+  for(let y=Math.round(cy-r);y<=Math.round(cy+r);y++)for(let x=Math.round(cx-r);x<=Math.round(cx+r);x++)if(x>=0&&y>=0&&x<B.mp.W&&y<B.mp.H)cells.push([x,y]);
+  B.area=cells;drawHi();
+  if(t3on()){const c=V.cell(cx,cy),self=Math.abs(cx-u.x-((u.size||1)-1)/2)<.6&&Math.abs(cy-u.y-((u.size||1)-1)/2)<.6;
+    t3p_windUp(u,self?null:c,"spell",pms(PACE_MS.area),col,type==="radiant");if(typeof t3frame==="function")t3frame(cells,{mode:"area",dur:pms(PACE_MS.area+900)});t3p_gather(c,r,col,pms(PACE_MS.area));}
+  else if(u.el){u.el.classList.add("pace-wind");setTimeout(()=>u.el&&u.el.classList.remove("pace-wind"),pms(PACE_MS.area)+150);}
+  try{await beat(PACE_MS.area);}finally{if(B){B.area=null;drawHi();}}
+  if(t3on()){const ma=V.minis.get(u);if(ma&&ma.t3p_wd)ma.t3p_wd.rel=performance.now();t3p_burst(V.cell(cx,cy),r,col,type);}
+  await beat(150);}
+// a walk: one smooth move along the whole path (ease in, walking pace, ease out); the rules still go square by square
+function paceWalk(u,path){if(!paceCine()||!path.length||!B)return null;
+  const P=pms(PACE_MS.step)*(1+.22*((u.size||1)-1))*(B.mp.kind==="tree"?1.12:1),A=pms(PACE_MS.ramp);
+  const sq=[[u.x,u.y],...path.map(s=>s.k.split(",").map(Number))],jmp=[false,...path.map(s=>!!s.jump)];
+  const W={on:false,skip:false,
+    go(i){const pts=sq.slice(i),cum=[0];for(let j=1;j<pts.length;j++)cum.push(cum[j-1]+Math.hypot(pts[j][0]-pts[j-1][0],pts[j][1]-pts[j-1][1]));
+      const D=cum[cum.length-1]||1,T=D*P+A,vm=D/(T-A),at=c=>c<=vm*A/2?Math.sqrt(2*A*c/vm):c<=D-vm*A/2?c/vm+A/2:T-Math.sqrt(Math.max(0,2*A*(D-c)/vm));
+      W.i0=i;W.t0=performance.now();W.tA=cum.map(at);W.on=true;
+      if(t3on()){const m=V.minis.get(u);if(m)m.t3p_wk={t0:W.t0,T,A,D,vm,cum,jmp:jmp.slice(i),pts:pts.map(([x,y])=>t3k_upos({x,y,size:u.size},new THREE.Vector3()))};}},
+    async step(i){if(W.skip)return;if(!W.on)W.go(i);const g=PACE.skipT;await beat(W.t0+W.tA[i-W.i0+1]-performance.now(),true);if(PACE.skipT!==g){W.skip=true;W.stop();}}, // a tap: the rest at once
+    stop(){W.on=false;if(t3on()){const m=V.minis.get(u);if(m)m.t3p_wk=null;}},
+    end(){W.stop();}};
+  return W;}
+
+/* ---- the board side of the pace (3D): poses, the walk, the duck, the hit stop, the cast and the area ---- */
+const t3p_o=new THREE.Vector3(),t3p_v=new THREE.Vector3();
+function t3p_dir(ma,p){const d=new THREE.Vector3().subVectors(p,ma.g.position);if(V.tree)d.z=0;else d.y=0;const L=d.length();return L>1e-3?d.divideScalar(L):(V.tree?d.set(Math.sign(ma.face||1),0,0):d.set(Math.sin(ma.face),0,Math.cos(ma.face)));}
+// the wind-up: melee rears back and crouches, a shot draws, a spell rises with light gathering at the hand. to: a unit, a point or null
+function t3p_windUp(a,to,k,ms,col,star){
+  if(!t3on()){if(a.el){a.el.classList.add("pace-wind");setTimeout(()=>a.el&&a.el.classList.remove("pace-wind"),Math.min(ms,300)+150);}return null;}
+  const ma=V.minis.get(a);if(!ma)return null;const X=V.t3x,now=performance.now(),tp=to&&to.isVector3?to:to&&V.minis.get(to)?V.minis.get(to).g.position:null,dir=t3p_dir(ma,tp||ma.g.position);
+  if(tp){if(!V.tree)ma.faceT=Math.atan2(dir.x,dir.z);else ma.faceT=dir.x>=0?.7:-.7;}
+  ma.t3p_wd={t0:now,dur:Math.max(60,ms),dir,k,rel:0};
+  if(k==="spell"&&X){const hand=ma.g.position.clone().addScaledVector(dir,.2*Math.min(2,a.size||1));hand.y+=ma.top*.72;
+    t3x_charge(X,hand,col,ms*.95,.42,star);let e=0;const P=new THREE.Vector3();
+    t3x_fx(ms,q=>{if(!X.hi&&(e++&1))return;const r=.42*(1-q)+.07,an=q*10+Math.random()*6.283;P.set(hand.x+Math.cos(an)*r,hand.y+(Math.random()-.5)*.22*(1-q),hand.z+Math.sin(an)*r);X.glow.spawn(P,col,1,{sp:.05,up:.08,lf:.22,gr:0,sz:.06,i:1.2+q});});}
+  return ma;}
+// frame the attacker and the one it aims at while it winds up: the camera owner's t3frame, else the existing lunge framing
+function t3p_pair(a,t,ma){if(typeof t3frame==="function"){t3frame([a,t],{mode:"pair"});return;}
+  const now=performance.now();if(now-V.userT<2600||V.intro||!ma.t3p_wd)return;const keep=ma.lunge;ma.lunge={dir:ma.t3p_wd.dir};try{t3k_frame(ma,now);}finally{ma.lunge=keep;}}
+// the pose on top of t3animMini's: {o: offset, l: lean, s: squash, r: roll}
+function t3p_pose(m,now,big,rm){const o=t3p_o.set(0,0,0),amp=(big?.55:1)*(rm?.5:1);let l=0,s=0,r=0;const W=m.t3p_wd;
+  if(W){const k=clamp((now-W.t0)/W.dur,0,1);let e=k*k*(3-2*k);if(W.rel){const f=1-clamp((now-W.rel)/110,0,1);e*=f;if(f<=0)m.t3p_wd=null;}
+    const tr=k>=1&&!rm&&!W.rel?Math.sin(now*.05)*.01:0; // held at the top: the gathered force trembles
+    if(W.k==="spell"){o.y+=.06*e*amp;l-=.12*e*amp;s+=.05*e*amp+tr;o.addScaledVector(W.dir,-.04*e*amp);}
+    else if(W.k==="shot"){l-=.1*e*amp;s+=.02*e*amp+tr;o.addScaledVector(W.dir,-.07*e*amp);}
+    else{l-=.24*e*amp;s-=.07*e*amp-tr;o.addScaledVector(W.dir,-.13*e*amp);}}
+  const D=m.t3p_dg;if(D){const k=(now-D.t0)/D.dur;if(k>=1)m.t3p_dg=null;else{const q=Math.sin(Math.PI*Math.min(1,k*1.15))*(1-k*.2);o.addScaledVector(D.dir,.17*q*amp);r+=.2*q*D.side*amp;l-=.07*q*amp;s-=.04*q*amp;}}
+  return {o,l,s,r};}
+// a miss: aim the bolt past the target, to one side and on beyond (the target will duck the other way)
+function t3p_past(to,dir,mt){const s=Math.min(2,mt.u&&mt.u.size||1),side=Math.random()<.5?-1:1;mt.t3p_side=-side;
+  if(V.tree)to.y+=(.32+.14*s)*side;else{t3p_v.crossVectors(dir,t3y_Y).normalize();to.addScaledVector(t3p_v,(.36+.16*s)*side);}to.addScaledVector(dir,.9);}
+function t3p_duck(a,t){if(!t3on()||!t||t.hp<=0)return;const ma=V.minis.get(a),mt=V.minis.get(t);if(!mt||mt===ma)return;const dir=ma?t3p_dir(ma,mt.g.position):t3p_dir(mt,mt.g.position);
+  const side=mt.t3p_side||(Math.random()<.5?-1:1);mt.t3p_side=0;const p=V.tree?new THREE.Vector3(0,-.5,0).addScaledVector(dir,.6):new THREE.Vector3().crossVectors(dir,t3y_Y).normalize().multiplyScalar(side).addScaledVector(dir,.35);
+  mt.t3p_dg={t0:performance.now(),dur:pms(380),dir:p.normalize(),side};}
+// the walk: where the mini's square is along the path now (t3animMini's spring chases it)
+function t3p_walkTo(m,want,now){const W=m.t3p_wk,t=now-W.t0,A=W.A,T=W.T,vm=W.vm,D=W.D;
+  const c=t<=0?0:t<A?vm*t*t/(2*A):t<T-A?vm*(t-A/2):t<T?D-vm*(T-t)*(T-t)/(2*A):D;
+  let j=1;while(j<W.cum.length-1&&W.cum[j]<c)j++;const c0=W.cum[j-1],c1=W.cum[j],f=c1>c0?clamp((c-c0)/(c1-c0),0,1):1;
+  want.lerpVectors(W.pts[j-1],W.pts[j],f);if(W.jmp[j])want.y+=Math.sin(Math.PI*f)*.45;}
+// the hit stop: the frame of the impact holds ~80 ms (not with reduced motion, not in Quick, not when fast)
+function t3p_stop(ms){if(!t3on()||!V.t3x||V.t3x.still||opt.fast||!paceCine())return;const now=performance.now();V.t3p_hs={t0:now,end:now+ms};}
+function t3p_held(now){const H=V.t3p_hs;if(now<H.end){if(V.render)V.render(0);else V.r.render(V.scene,V.cam);return true;}
+  V.t3p_hs=null;const d=now-H.t0;for(const f of V.fx)f.t0+=d; // pick up where everything stood
+  for(const m of V.minis.values()){if(m.lunge)m.lunge.t+=d;if(m.hitT)m.hitT+=d;if(m.t3k&&m.t3k.land)m.t3k.land+=d;for(const k of ["t3p_wd","t3p_dg","t3p_wk"]){const o=m[k];if(o){o.t0+=d;if(o.rel)o.rel+=d;}}}
+  return false;}
+// a save spell or a heal goes to the target (no attack roll, so the spell's own look plays at the impact)
+function t3p_bolt(u,t,n,type,col){const ma=V.minis.get(u),mt=V.minis.get(t),X=V.t3x;if(!ma||!mt||!X)return;X.last=null;
+  const to=mt.g.position.clone();to.y+=mt.top*.55;if(ma===mt){t3x_ring(X,mt.g.position.clone(),col,.8,360,.06,1.2);return;}
+  const dir=t3p_dir(ma,mt.g.position),from=ma.g.position.clone().addScaledVector(dir,.2);from.y+=ma.top*.7;const d=pms(PACE_MS.cast);
+  if(type==="heal"){t3x_streak(X,from,to,{col,w:.05,i:1.4,wv:.6,grow:.5,dur:d});return;}
+  if(type==="radiant"){const top=to.clone();top.y+=1.5;t3x_flare(X,top,col,.9,d*1.3,true);X.glow.spawn(top,"#fff2c0",10,{sp:.4,up:-.6,lf:.5,gr:-2,sz:.07,i:1.6});return;} // light gathers above the target
+  if(type==="psychic"){t3x_streak(X,from,to,{col,w:.06,i:1.5,wv:1.6,grow:.6,dur:d});t3x_ring(X,to.clone(),col,.7,d,.05,1.2,d*.55);return;}
+  if(type==="necrotic"){t3x_streak(X,from,to,{col:"#5a3a8a",w:.05,i:1.1,wv:.8,grow:.6,dur:d});t3x_ring(X,to.clone(),col,.75,d,.05,1.1,d*.5);return;} // the bell gathers before it tolls
+  t3x_streak(X,from,to,{col,w:.07,i:1.6,cr:.3,grow:.5,dur:d});}
+// the area before it lands: a pale ring opens to its edge, motes rise from the floor inside it
+function t3p_gather(c,r,col,ms){const X=V.t3x;if(!X)return;const R=(r+.5)*1.15;t3x_ring(X,c.clone(),col,R,ms,.05,.75);let e=0;const P=new THREE.Vector3();
+  t3x_fx(ms,q=>{if(!X.hi&&(e++&1))return;const an=Math.random()*6.283,rr=Math.sqrt(Math.random())*R*.9;
+    if(V.tree)P.set(c.x+Math.cos(an)*rr,c.y+Math.sin(an)*rr,c.z+.1);else P.set(c.x+Math.cos(an)*rr,c.y+.05,c.z+Math.sin(an)*rr);X.glow.spawn(P,col,1,{sp:.1,up:.5+q,lf:.5,gr:.3,sz:.06,i:1.1+q*.6});});}
+// ... and when it lands: rings out to the edge, a flash, a shake for the loud ones, one hit stop for everyone in it
+function t3p_burst(c,r,col,type){const X=V.t3x;if(!X)return;const R=(r+.5)*1.2,up=c.clone();if(V.tree)up.z+=.4;else up.y+=.4;
+  t3x_ring(X,c.clone(),col,R*1.1,520,.1,1.8);t3x_ring(X,c.clone(),"#fff4e0",R*.7,380,.06,1.4,60);t3x_flare(X,up,col,1.1+Math.min(2,R*.3),320);t3x_flash(X,col,up,9);
+  X.glow.spawn(up,col,Math.round(18+Math.min(30,R*6)),{ring:R*.5,sp:2,up:1.2,lf:.55,gr:-3,sz:.09,i:1.6});if(type==="thunder"||type==="radiant"||type==="necrotic")t3x_shake(X,.09,null);t3p_stop(90);}
+// playtest hook: play one beat by hand (units by their index in B.units) to look at it or time it
+if(/[?&]playtest/.test(location.search))window.__pace={ms:PACE_MS,cine:paceCine,
+  wind(ai,ti,kind="spell",ms=2500,type="fire"){const a=B.units[ai],t=B.units[ti],ma=t3p_windUp(a,t,kind,ms,DMG_COL[type]||"#ffe0b0",false);if(ma)t3p_pair(a,t,ma);return !!ma;},
+  release(ai,ti,hit=true,n="Fire Bolt",type="fire"){const a=B.units[ai],t=B.units[ti];return paceRelease(a,t,{n,type,range:[24,24],magic:true},hit,false).then(()=>{if(hit){t3hurt(t,type);t3float(t,"−9","");}else t3float(t,"miss","miss");});},
+  area(ai,x,y,r=1,type="thunder"){return paceArea(B.units[ai],x,y,r,"Test",type);},banner(i){paceBanner(B.units[i]);},stop(ms=85){t3p_stop(ms);},
+  probe(i){const m=t3on()&&V.minis.get(B.units[i]);if(!m)return null;const r=v=>Math.round(v*1000)/1000;return {x:r(m.g.position.x),y:r(m.g.position.y),z:r(m.g.position.z),lean:r(m.fig.rotation.x),roll:r(m.fig.rotation.z),sq:r(m.fig.scale.y),wd:!!m.t3p_wd,dg:!!m.t3p_dg,wk:!!m.t3p_wk,hold:!!V.t3p_hs};}};
 
 /* =================== TURNS: initiative, the crew's turn, the monsters' turn =================== */
 async function battle(def){
@@ -7514,6 +7669,7 @@ async function takeTurn(u){
   B.cur=u;tickC(u,"start");u.act=1;u.bonus=1;u.react=true;u.mv=speedOf(u);u.moved=0;u.disengage=false;u.teleport=false;u.sneakUsed=false;u.talked=false;u.dashed=false;
   if(u.key==="heart")B.sc.turnDmg=0;else B.sc.turnDmg=0;
   renderTokens();renderInit();
+  await paceTurn(u); // a beat to see whose turn it is: the camera eases to them, their name shows
   if(u.cond.surprised){delete u.cond.surprised;log(`${nameOf(u)} is surprised and loses the turn.`,"r");u.hasActed=true;await sleep(500);B.cur=null;return;}
   if(B.def.startTurn){const skip=await B.def.startTurn(u);if(skip){u.hasActed=true;tickC(u,"end");B.cur=null;return;}}
   if(u.crew&&u.hp<=0){if(!u.dead&&!u.cond.stable&&u.key!=="hans")await deathSave(u);u.hasActed=true;tickC(u,"end");B.cur=null;renderTokens();return;}
@@ -7779,20 +7935,25 @@ function crewActions(u){
   const atkAct=(at,r,count=1,kind="action",cost=null)=>async()=>{const list=inRange(r);const t=await pickTarget(list,`${at.n}: pick a target`);if(!t)return;
     kind==="action"?useA():useB();if(cost)cost();for(let i=0;i<count;i++){let tt=t;if(i>0&&!alive(t)){const l=inRange(r);if(!l.length)break;tt=await pickTarget(l,`${at.n}: next target`);if(!tt)break;}await attack(u,tt,at);await sleep(250);}};
   const saveAct=(n,r,ab,dc,dmg,type,{half=false,kind="action",cost=null,after=null,dmgHurt=null}={})=>async()=>{const list=inRange(r);const t=await pickTarget(list,`${n}: pick a target`);if(!t)return;
-    kind==="action"?useA():useB();if(cost)cost();log(`${u.short} casts ${n} on ${nameOf(t)}.`,"b");const ok=await save(t,ab,dc,n);let d=typeof dmg==="function"?dmg(t):dmg;
+    kind==="action"?useA():useB();if(cost)cost();log(`${u.short} casts ${n} on ${nameOf(t)}.`,"b");await paceCast(u,t,n,type);const ok=await save(t,ab,dc,n);let d=typeof dmg==="function"?dmg(t):dmg;
+    paceLand(!ok||half,u,t);
     if(d){const n2=dice(d).t;if(!ok)await hurt(t,n2,type,u,{magic:true});else if(half)await hurt(t,Math.floor(n2/2),type,u,{magic:true});else floatTxt(t,"saved","miss");}
-    if(!ok&&after&&alive(t))await after(t);};
+    else if(ok)floatTxt(t,"saved","miss");
+    if(!ok&&after&&alive(t))await after(t);await paceSettle(u,t,!ok);};
   const area=(n,center,radius,ab,dc,dmg,type,{range=0,cost=null,friendly=true,after=null,kind="action"}={})=>async()=>{
     let cx=u.x,cy=u.y;
     if(!center){const cs=[];for(let y=0;y<B.mp.H;y++)for(let x=0;x<B.mp.W;x++)if(distXY(u,x,y)<=range)cs.push([x,y]);
       const c=await pickCell(cs,`${n}: tap where it lands`,(x,y)=>{const a=[];for(let yy=y-radius;yy<=y+radius;yy++)for(let xx=x-radius;xx<=x+radius;xx++)a.push([xx,yy]);return a;});if(!c)return;[cx,cy]=c;}
     kind==="action"?useA():useB();if(cost)cost();log(`${u.short}: ${n}!`,"b");
+    await paceArea(u,cx,cy,radius,n,type); // the area shows on the floor before it lands
     const hitList=B.units.filter(o=>alive(o)&&o!==u&&!o.untarget&&!o.ghost&&Math.max(gap(o.x,o.x+o.size-1,cx,cx),gap(o.y,o.y+o.size-1,cy,cy))<=radius&&(friendly||o.side==="foe"));
     if(!hitList.length)log("  It hits nobody.");const n2=dice(dmg).t;
-    for(const o of hitList){const ok=await save(o,ab,dc,n);await hurt(o,ok?Math.floor(n2/2):n2,type,u,{magic:true,aoe:true});if(!ok&&after&&alive(o))await after(o);}};
+    for(const o of hitList){const ok=await save(o,ab,dc,n);await hurt(o,ok?Math.floor(n2/2):n2,type,u,{magic:true,aoe:true});if(!ok&&after&&alive(o))await after(o);await beat(110);}
+    await paceSettle(u,null,hitList.length>0);};
   const healAct=(n,r,expr,{kind="action",cost=null,multi=1,max=false}={})=>async()=>{let list=friends(r).filter(o=>o.hp<o.max&&!o.dead&&o.key!=="hans"||o.key==="hans"&&o.hp<o.max);
     const picked=[];for(let i=0;i<multi;i++){const t=await pickTarget(list.filter(o=>!picked.includes(o)),`${n}: pick ${multi>1?"who (Cancel when done)":"who"}`);if(!t)break;picked.push(t);if(list.length<=picked.length)break;}
-    if(!picked.length)return;kind==="action"?useA():useB();if(cost)cost();for(const t of picked){const e=(max||(k==="stig"&&t.hp<=0))?maxDice(expr):expr;heal(t,dice(e).t,u);if(k==="stig"&&t.hp>0&&max===false&&t.hp===t.max){}}
+    if(!picked.length)return;kind==="action"?useA():useB();if(cost)cost();await paceCast(u,picked[0],n,"heal");for(const t of picked){const e=(max||(k==="stig"&&t.hp<=0))?maxDice(expr):expr;heal(t,dice(e).t,u);if(k==="stig"&&t.hp>0&&max===false&&t.hp===t.max){}if(picked.length>1)await beat(140);}
+    await paceSettle(u,null,false);
     if(k==="stig"&&picked.some(t=>t.hp>0))log("  (Circle of Mortality: full dice for anyone at 0 HP.)");};
   const netted=u.cond.netted,ko=u.cond.ko;
   const piled=F().piled&&!u.armed&&B.def.key==="ambush";
@@ -7851,7 +8012,7 @@ function crewActions(u){
   }
   if(k==="hans"){
     if(!piled)A("Slam ×2","+6 · 2d6+4 each",inRange(1).length>0,atkAct({n:"Slam",hit:6,dmg:"2d6+4",type:"bludgeoning"},1,2));
-    A("The Drop",B.sc.dropReady===false?"recharging (5–6)":"Con DC 14 · 2d8 thunder + prone",B.sc.dropReady!==false&&enemiesOf(u).some(o=>dist(o,u)<=2),async()=>{useA();B.sc.dropReady=false;log("Hans stamps to the beat: THE DROP.","b");thump();
+    A("The Drop",B.sc.dropReady===false?"recharging (5–6)":"Con DC 14 · 2d8 thunder + prone",B.sc.dropReady!==false&&enemiesOf(u).some(o=>dist(o,u)<=2),async()=>{useA();B.sc.dropReady=false;log("Hans stamps to the beat: THE DROP.","b");thump();await paceArea(u,u.x,u.y,2,"The Drop","thunder");
       for(const o of enemiesOf(u).filter(o=>dist(o,u)<=2)){const ok=await save(o,"con",14,"The Drop");await hurt(o,ok?Math.floor(dice("2d8").t/2):dice("2d8").t,"thunder",u,{aoe:true,magic:true});if(!ok&&alive(o)){addC(o,"prone");if(B.mp.kind==="tree"&&(cost(B.mp,o.x-1,o.y)===0||cost(B.mp,o.x+1,o.y)===0)&&!(await save(o,"dex",13,"Edge")))await fall(o,o.x,o.y);}}});
   }
   // everyone
@@ -7864,7 +8025,7 @@ function crewActions(u){
 function teleport(u,r,cost){return async()=>{const cs=[];for(let y=0;y<B.mp.H;y++)for(let x=0;x<B.mp.W;x++)if(distXY(u,x,y)<=r&&cost_(x,y)&&!occupant(x,y))cs.push([x,y]);
   const c=await pickCell(cs,"Misty Step: tap where to appear");if(!c)return;u.bonus--;cost();delete u.cond.grappled;u.x=c[0];u.y=c[1];renderTokens();log(`${nameOf(u)} steps through silver mist.`,"b");};}
 const cost_=(x,y)=>cost(B.mp,x,y)>0;
-async function turnUndead(u){log("Stig raises his holy symbol: Turn Undead!","b");
+async function turnUndead(u){log("Stig raises his holy symbol: Turn Undead!","b");await paceArea(u,u.x,u.y,6,"Turn Undead","radiant");
   for(const o of B.units.filter(o=>alive(o)&&o.side==="foe"&&MON[o.key].undead&&dist(o,u)<=6)){
     if(o.key==="husk"){o.hp=0;o.gone=true;log(`  ${o.name} crumbles to ash.`,"g");floatTxt(o,"crumbles","heal");continue;}
     const ok=await save(o,"wis",17,"Turn Undead");if(ok){floatTxt(o,"resists","miss");continue;}
@@ -7891,7 +8052,7 @@ async function aiTurn(u){
   else target=(u.focus&&foes.includes(u.focus))?u.focus:nearest(u,foes);
   u.focus=target;
   const atks=MON[u.key].atk,melee=atks.find(a=>a.reach),ranged=atks.find(a=>a.range);
-  if(MON[u.key].tangle&&u.rech.tangle!==false){const near=foes.filter(o=>dist(u,o)<=3);if(near.length>=2){u.rech.tangle=false;log(`${u.name}: Entangling Plants! Roots burst from the floor.`,"r");
+  if(MON[u.key].tangle&&u.rech.tangle!==false){const near=foes.filter(o=>dist(u,o)<=3);if(near.length>=2){u.rech.tangle=false;log(`${u.name}: Entangling Plants! Roots burst from the floor.`,"r");await paceArea(u,u.x+(u.size-1)/2,u.y+(u.size-1)/2,3,"Entangling Plants","poison");
     for(const o of near){if(!(await save(o,"str",12,"Entangling Plants")))addC(o,"restrained",{dc:12});}renderTokens();await sleep(300);return;}}
   else if(MON[u.key].tangle&&rnd(6)>=5)u.rech.tangle=true;
   if(ai==="archer"&&ranged&&dist(u,target)>1){
@@ -7946,7 +8107,7 @@ async function heartLegendary(after){const S=B.sc,hrt=B.units.find(o=>o.key==="h
   if(S.engulfed){if(!S.mattNote){S.mattNote=true;log("Matthew plays: the Heart can't use legendary actions while it holds someone.","h");}return;}
   const tg=enemiesOf(hrt).filter(o=>o.hp>0&&!o.untarget&&dist(hrt,o)<=6);if(!tg.length)return;
   if(S.ashCharged!==false&&S.leg>=2){const near=tg.filter(o=>dist(hrt,o)<=4);if(near.length>=2){S.leg-=2;S.ashCharged=false;log("Legendary action: ASH BREATH. A cone of black ash.","r");
-    const aim=nearest(hrt,near);for(const o of near.filter(o=>dist(o,aim)<=2)){const ok=await save(o,"con",14,"Ash Breath");const n=dice("3d8").t;await hurt(o,ok?Math.floor(n/2):n,"necrotic",hrt,{aoe:true});}return;}}
+    const aim=nearest(hrt,near);await paceArea(hrt,aim.x,aim.y,2,"Ash Breath","necrotic");for(const o of near.filter(o=>dist(o,aim)<=2)){const ok=await save(o,"con",14,"Ash Breath");const n=dice("3d8").t;await hurt(o,ok?Math.floor(n/2):n,"necrotic",hrt,{aoe:true});}return;}}
   S.leg--;const t=S.focus&&tg.includes(S.focus)?S.focus:pick(tg);log("Legendary action: a root lashes "+nameOf(t)+".","r");await attack(hrt,t,Object.assign({},MON.heart.atk[0],{magic:true}));}
 
 /* ---- the night ambush: the Grey Man and the wardens ---- */
