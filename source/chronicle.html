@@ -4022,41 +4022,73 @@ let t3tile=null;function t3tileTex(){if(t3tile)return t3tile;const cv=document.c
   g.fillStyle="#ffffff30";g.beginPath();g.roundRect(5,5,54,54,10);g.fill();g.strokeStyle="#ffffffcc";g.lineWidth=2.5;g.stroke();t3tile=new THREE.CanvasTexture(cv);return t3tile;}
 
 /* ---- the diorama for each map ---- */
-function t3cave(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,S=seeded(mp.key.length*977+31),rr=(a,b)=>a+(b-a)*S(),pk=a=>a[Math.floor(S()*a.length)];
-  const stone=[],floor=[],roots=[],glow=[],ash=[],deep=[];
+function t3cave(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,S=seeded(mp.key.length*977+31),rr=(a,b)=>a+(b-a)*S(),pk=a=>a[Math.floor(S()*a.length)],Q=T3Q.hi?1:.5,lot=p=>S()<p*Q,V3=(x,y,z)=>new THREE.Vector3(x,y,z);
+  const stone=[],floor=[],roots=[],glow=[],ash=[],deep=[],keep=[],grit=[],tips=[];
   const wall=(x,y)=>"#".includes(mp.c(x,y)),open=(x,y)=>!wall(x,y)&&x>=0&&y>=0&&x<W&&y<H;
+  t3w_cutSetup(Vb);
   for(let y=-2;y<H+2;y++)for(let x=-2;x<W+2;x++){const ch=(x<0||y<0||x>=W||y>=H)?"#":mp.c(x,y),c=Vb.cell(x,y);
     if(ch==="#"){let edge=false,ox=0,oz=0;for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++)if((dx||dy)&&open(x+dx,y+dy)){edge=true;ox+=dx;oz+=dy;}
-      if(edge){stone.push(t3at(t3tint(t3rock(.62,x*31+y*7),pk(["#2e2a25","#38322b","#26231f","#3f3830"])),c.x+rr(-.12,.12),rr(.4,.9),c.z+rr(-.12,.12),{ry:rr(0,6),sx:rr(1.05,1.35),sy:rr(1.7,3.4),sz:rr(1.05,1.35)}));
-        if(S()<.55)stone.push(t3at(t3tint(t3rock(.34,x*13+y),pk(["#4a433a","#332e28"])),c.x+ox*.25+rr(-.2,.2),rr(.05,.25),c.z+oz*.25+rr(-.2,.2),{ry:rr(0,6),sy:rr(.5,.9)}));
-        // grey roots crawling down the wall face toward the open side
-        if(S()<.75){const n=ox||oz?Math.hypot(ox,oz):1,dx=ox/n*.42,dz=oz/n*.42,pts=[];let px=c.x+dx+rr(-.3,.3),pz=c.z+dz+rr(-.3,.3);
-          for(let i=0;i<6;i++){pts.push(new THREE.Vector3(px,2.6-i*.5,pz));px+=rr(-.18,.18)+dx*.08;pz+=rr(-.18,.18)+dz*.08;}pts.push(new THREE.Vector3(px+dx*.6,0.02,pz+dz*.6));
-          roots.push(t3tint(t3tube(pts,rr(.035,.07)),pk(["#6a6058","#5a5047","#7a7066"])));}}
-      else deep.push(t3at(t3tint(new THREE.BoxGeometry(1,1,1),"#100e0c"),c.x,1.4,c.z,{sy:rr(2.6,3.6)}));
+      if(edge){const n=Math.hypot(ox,oz),ux=n?ox/n:0,uz=n?oz/n:0,px=-uz,pz=ux,ry=Math.atan2(ux,uz),band=pk(T3W_STRATA),L=3+(S()<.45?1:0);let hy=0,push=0,w=1,d=1;
+        // the rock behind: a dark mass so the wall reads solid from above
+        deep.push(t3at(t3tint(t3w_slab(1.08,rr(1.8,2.2),1.08,x*7+y*3,.06),pk(["#151310","#181511","#12100d"])),c.x-ux*.32,.95,c.z-uz*.32,{ry:rr(-.15,.15)}));
+        // layered shelves, each a little further out than the one below: strata and overhangs
+        for(let i=0;i<L;i++){const last=i===L-1,h=i?rr(.3,.52):rr(.5,.72);w=rr(1.02,1.24);d=last?rr(.8,.95):rr(.95,1.12);push=Math.min(last?.3:.18,push+(i?rr(.04,.1):0)+(last?rr(.06,.12):0));
+          stone.push(t3at(t3tint(t3w_slab(w,h,d,x*13+y*5+i*37),band[i]),c.x+ux*push+rr(-.05,.05),hy+h/2,c.z+uz*push+rr(-.05,.05),{ry:ry+rr(-.28,.28),rx:rr(-.05,.05),rz:rr(-.06,.06)}));
+          if(last){if(S()<.4)ash.push(t3at(t3tint(t3w_slab(w*.8,.04,d*.7,x+y*11,.05),pk(["#4d4943","#57534c","#45413b"])),c.x+ux*(push-.05),hy+h+.01,c.z+uz*(push-.05),{ry:ry+rr(-.3,.3)}));
+            // drips of stone under the lip
+            if(n&&lot(.85))for(let k=0,m=1+Math.floor(S()*3);k<m;k++){const s=rr(-.42,.42),o=push+d/2-rr(.04,.12);tips.push([c.x+ux*o+px*s,hy+.02,c.z+uz*o+pz*s,rr(.12,.42),rr(.6,1.25)]);}}
+          if(!last)hy+=h*rr(.84,.95);}
+        const top=hy+.3;
+        // stones fallen at the foot of the wall
+        if(n)for(let k=0,m=Math.round((2+S()*3)*Q);k<m;k++){const s=rr(-.5,.5),o=rr(.5,.7);grit.push([c.x+ux*o+px*s,c.z+uz*o+pz*s,rr(.04,.12)]);}
+        if(n&&lot(.35)){const s=rr(-.35,.35);stone.push(t3at(t3tint(t3rock(rr(.14,.22),x*3+y*17,1),pk(["#3a342d","#2e2924"])),c.x+ux*.55+px*s,.06,c.z+uz*.55+pz*s,{ry:rr(0,6),sy:rr(.55,.8)}));}
+        // grey roots: over the top, down the face, and a little way out across the floor
+        if(n&&S()<.8){const s=rr(-.4,.4),bx=c.x+px*s,bz=c.z+pz*s,lip=push+d/2+.03,pts=[V3(bx-ux*.25,top+.05,bz-uz*.25),V3(bx+ux*(lip-.1),top,bz+uz*(lip-.1)),V3(bx+ux*lip,top-.25,bz+uz*lip)];
+          let yy=top-.6,o=lip;while(yy>.3){o=Math.max(.6,o-rr(0,.06));const w2=rr(-.08,.08);pts.push(V3(bx+ux*o+px*w2,yy,bz+uz*o+pz*w2));yy-=rr(.3,.45);}
+          const e=rr(.85,1.1),w3=rr(-.2,.2);pts.push(V3(bx+ux*.64,.05,bz+uz*.64),V3(bx+ux*e+px*w3,.02,bz+uz*e+pz*w3));
+          roots.push(t3tint(t3tube(pts,rr(.025,.055)),pk(["#6a6058","#5a5047","#7a7066","#625a52"])));}
+        // and some that hang free from the overhang
+        if(n&&lot(.6))for(let k=0,m=1+Math.floor(S()*2);k<m;k++){const s=rr(-.45,.45),bx=c.x+px*s,bz=c.z+pz*s,o=push+d/2-.05,yb=rr(.55,1.2),pts=[V3(bx+ux*(o-.15),top-.05,bz+uz*(o-.15)),V3(bx+ux*o,top-.25,bz+uz*o)];
+          for(let yy=top-.5;yy>yb;yy-=.3)pts.push(V3(bx+ux*(o+rr(-.04,.06))+px*rr(-.05,.05),yy,bz+uz*(o+rr(-.04,.06))+pz*rr(-.05,.05)));pts.push(V3(bx+ux*(o+.08),yb,bz+uz*(o+.08)));
+          roots.push(t3tint(t3tube(pts,rr(.012,.028),4),pk(["#7a7066","#8a8076","#6a6058"])));}}
+      else deep.push(t3at(t3tint(new THREE.BoxGeometry(1.02,1,1.02),pk(["#0c0b09","#0e0c0a"])),c.x,.98,c.z,{sy:rr(1.9,2.05)}));
       continue;}
-    floor.push(t3at(t3tint(new THREE.BoxGeometry(.99,.4,.99),ch===","?"#4b463f":pk(["#302a24","#342e27","#2b2620","#2f2923"])),c.x,-.2+rr(-.025,.01),c.z));
-    for(let i=0;i<2;i++)if(S()<.5)floor.push(t3at(t3tint(t3rock(.07,x+i*9+y*3,0),pk(["#4a443c","#26221d"])),c.x+rr(-.4,.4),.02,c.z+rr(-.4,.4),{sy:.5}));
-    if(ch===","){for(let i=0;i<3;i++)ash.push(t3at(t3tint(new THREE.CylinderGeometry(rr(.18,.36),rr(.2,.4),.03,7),pk(["#9a958c","#837e75","#b0aba2"])),c.x+rr(-.25,.25),.01,c.z+rr(-.25,.25),{ry:rr(0,3)}));}
-    if(ch==="r"){for(let i=0;i<3;i++){const a=rr(0,Math.PI),l=.62,pts=[];for(let k=0;k<5;k++){const t=k/4-.5;pts.push(new THREE.Vector3(c.x+Math.cos(a)*t*l*1.6+rr(-.06,.06),.04+Math.sin(k*1.3)*.07+.05,c.z+Math.sin(a)*t*l*1.6+rr(-.06,.06)));}
-      roots.push(t3tint(t3tube(pts,rr(.05,.09)),pk(["#1c1611","#2a2119","#14100c"])));}}
-    if(ch==="o"){stone.push(t3at(t3tint(t3rock(.42,x*5+y),"#2a2520"),c.x,.1,c.z,{sy:.5}));
-      for(let i=0;i<6;i++){const a0=i/6*Math.PI*2,pts=[];for(let k=0;k<8;k++){const a=a0+k*.55,r=.26+Math.sin(k+i)*.06;pts.push(new THREE.Vector3(c.x+Math.cos(a)*r,k*.46,c.z+Math.sin(a)*r));}
-        roots.push(t3tint(t3tube(pts,rr(.06,.1)),pk(["#3d342b","#5a5047","#4a4036"])));}}
-    if(ch==="W"){stone.push(t3at(t3tint(new THREE.CylinderGeometry(.2,.34,1.7,5),"#6f6a60"),c.x,.85,c.z,{ry:.4}));
-      stone.push(t3at(t3tint(t3rock(.24,77),"#5f5a51"),c.x,1.72,c.z,{sy:.6}));
-      for(let i=0;i<3;i++)glow.push(t3at(t3tint(new THREE.BoxGeometry(.2,.035,.03),"#8fd3c8"),c.x+.0,.7+i*.28,c.z+.3,{ry:.4,rz:rr(-.2,.2)}));
-      for(let i=0;i<5;i++){const a=rr(0,6.3),pts=[new THREE.Vector3(c.x+Math.cos(a)*.25,.5,c.z+Math.sin(a)*.25),new THREE.Vector3(c.x+Math.cos(a)*.45,.15,c.z+Math.sin(a)*.45),new THREE.Vector3(c.x+Math.cos(a)*.7,.02,c.z+Math.sin(a)*.7)];roots.push(t3tint(t3tube(pts,.05),"#0e0b09"));}}
+    const nearW=[[1,0],[-1,0],[0,1],[0,-1]].some(([a,b])=>!open(x+a,y+b));
+    floor.push(t3at(t3tint(new THREE.BoxGeometry(.99,.4,.99),ch===","?"#4b463f":ch==="r"?pk(["#241f1a","#27211b"]):pk(["#302a24","#342e27","#2b2620","#2f2923"])),c.x,-.2+rr(-.025,.01),c.z));
+    for(let i=0;i<3;i++)if(lot(nearW?.7:.4))floor.push(t3at(t3tint(t3rock(rr(.04,.08),x+i*9+y*3,0),pk(["#4a443c","#26221d","#3a352e"])),c.x+rr(-.42,.42),.02,c.z+rr(-.42,.42),{sy:.5,ry:rr(0,6)}));
+    if(ch===","){for(let i=0;i<3;i++)ash.push(t3at(t3tint(new THREE.CylinderGeometry(rr(.18,.36),rr(.2,.4),.03,7),pk(["#9a958c","#837e75","#b0aba2"])),c.x+rr(-.25,.25),.01,c.z+rr(-.25,.25),{ry:rr(0,3)}));
+      // soft drifts heaped on the ash
+      for(let i=0;i<2;i++)ash.push(t3at(t3tint(t3rock(rr(.2,.32),x*9+y+i,1),pk(["#a6a198","#8f8a81"])),c.x+rr(-.25,.25),.02,c.z+rr(-.25,.25),{sy:rr(.12,.2),ry:rr(0,6)}));}
+    if(ch==="r"){// a tangle: roots arching over and under each other, knots, thin tendrils
+      for(let i=0,m=T3Q.hi?6:4;i<m;i++){const a=i/m*Math.PI+rr(-.25,.25),l=1.12,hh=rr(.04,.15),pts=[];for(let k=0;k<=5;k++){const t=k/5-.5,w2=rr(-.07,.07);pts.push(V3(c.x+Math.cos(a)*t*l-Math.sin(a)*w2,.03+Math.sin((t+.5)*Math.PI)*hh+rr(0,.02),c.z+Math.sin(a)*t*l+Math.cos(a)*w2));}
+        roots.push(t3tint(t3tube(pts,rr(.035,.075)),pk(["#5b5249","#4a4239","#6a6056","#3a332c"])));}
+      for(let i=0;i<2;i++)roots.push(t3at(t3tint(t3rock(rr(.07,.11),x*7+y*3+i,0),pk(["#3d352d","#4a4138"])),c.x+rr(-.3,.3),.06,c.z+rr(-.3,.3),{sy:.7}));
+      if(T3Q.hi)for(let i=0;i<3;i++){const a=rr(0,6.3),x0=c.x+rr(-.3,.3),z0=c.z+rr(-.3,.3);roots.push(t3tint(t3tube([V3(x0,.04,z0),V3(x0+Math.cos(a)*.15,.09,z0+Math.sin(a)*.15),V3(x0+Math.cos(a+.6)*.3,.03,z0+Math.sin(a+.6)*.3)],.012,3),"#7a7066"));}}
+    if(ch==="o"){// a pillar of twisted roots, flared at the foot and the crown
+      stone.push(t3at(t3tint(t3rock(.42,x*5+y),"#2a2520"),c.x,.06,c.z,{sy:.4}));(Vb.t3wPillar||(Vb.t3wPillar=[])).push([c.x,c.z]);
+      for(let i=0;i<8;i++){const a0=i/8*Math.PI*2+rr(-.2,.2),tw=rr(1.8,2.6),pts=[];for(let k=0;k<=9;k++){const t=k/9,a=a0+t*tw,r=.17+.4*Math.pow(1-t,3)+.34*Math.pow(t,4)+rr(-.03,.03);pts.push(V3(c.x+Math.cos(a)*r,t*2.3+(k?0:-.02),c.z+Math.sin(a)*r));}
+        roots.push(t3tint(t3tube(pts,rr(.06,.11)),pk(["#3d342b","#5a5047","#4a4036","#665c52"])));}
+      for(let i=0;i<4;i++){const a=rr(0,6.3),pts=[V3(c.x+Math.cos(a)*.45,2.15,c.z+Math.sin(a)*.45),V3(c.x+Math.cos(a)*.62,1.8,c.z+Math.sin(a)*.62),V3(c.x+Math.cos(a)*.66,rr(1.1,1.5),c.z+Math.sin(a)*.66)];roots.push(t3tint(t3tube(pts,.02,4),"#7a7066"));}}
+    if(ch==="W")t3w_waystone(Vb,c,keep,glow,roots,S);
     if(ch==="H")floor.push(t3at(t3tint(new THREE.BoxGeometry(.99,.06,.99),"#1d1512"),c.x,.02,c.z));
   }
-  Vb.root.add(t3mesh(t3merge(stone),t3surf("rock",Vb),{cast:true,recv:true}),t3mesh(t3merge(floor),t3surf("floor",Vb),{recv:true}),t3mesh(t3merge(roots),t3surf("root",Vb),{cast:true,recv:true}),t3mesh(t3merge(deep),t3surf("deep",Vb)));
-  if(ash.length)Vb.root.add(t3mesh(t3merge(ash),t3surf("ash",Vb),{recv:true}));
+  const cast=T3Q.hi;
+  Vb.root.add(t3mesh(t3merge(stone),t3w_cut(Vb,"rock"),{cast:true,recv:true}),t3mesh(t3merge(floor),t3surf("floor",Vb),{recv:true}),t3mesh(t3merge(roots),t3w_cut(Vb,"root"),{cast:true,recv:true}),t3mesh(t3merge(deep),t3w_cut(Vb,"deep"),{cast,recv:true}));
+  if(keep.length)Vb.root.add(t3mesh(t3merge(keep),t3surf("rock",Vb),{cast:true,recv:true}));
+  if(ash.length)Vb.root.add(t3mesh(t3merge(ash),t3w_cut(Vb,"ash"),{recv:true}));
   if(glow.length)Vb.root.add(t3mesh(t3merge(glow),t3surf("glow",Vb)));
+  // stalactites and rubble: one instanced mesh each
+  if(tips.length){const g=t3tint(new THREE.ConeGeometry(.055,1,5,1),"#ffffff");g.rotateX(Math.PI);g.translate(0,-.5,0);const im=new THREE.InstancedMesh(g,t3w_cut(Vb,"rock"),tips.length),m=new THREE.Matrix4(),col=new THREE.Color();
+    tips.forEach(([x,y,z,l,s],i)=>{t3e.set(rr(-.12,.12),rr(0,6),rr(-.12,.12));m.compose(t3v.set(x,y,z),t3q.setFromEuler(t3e),t3s.set(s,l,s));im.setMatrixAt(i,m);im.setColorAt(i,col.set(pk(["#5a544b","#4d473f","#686157","#433e37"])));});
+    im.castShadow=cast;im.receiveShadow=true;Vb.root.add(im);Vb.t3wTips=tips;}
+  if(grit.length){const g=t3tint(t3rock(1,5,0),"#ffffff"),im=new THREE.InstancedMesh(g,t3surf("rock",Vb),grit.length),m=new THREE.Matrix4(),col=new THREE.Color();
+    grit.forEach(([x,z,r],i)=>{t3e.set(rr(0,3),rr(0,6),rr(0,3));m.compose(t3v.set(x,r*.3,z),t3q.setFromEuler(t3e),t3s.set(r,r*rr(.5,.9),r*rr(.8,1.2)));im.setMatrixAt(i,m);im.setColorAt(i,col.set(pk(["#3f3931","#332e28","#4a443b","#2a2621"])));});
+    im.receiveShadow=true;Vb.root.add(im);}
   const under=t3mesh(new THREE.PlaneGeometry(W+14,H+14),t3mat("#0a0908",{roughness:1}));under.rotation.x=-Math.PI/2;under.position.y=-.4;Vb.root.add(under);
   // torches on the walls by the way out
   const torch=(x,y)=>{const c=Vb.cell(x,y);const st=t3mesh(new THREE.CylinderGeometry(.03,.04,.5,5),t3mat("#3a2a1c"));st.position.set(c.x,1.1,c.z);st.rotation.z=.3;
     const fl=new THREE.Sprite(new THREE.SpriteMaterial({map:t3dotTex(),color:0xffa24a,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true}));fl.scale.set(.45,.6,1);fl.position.set(c.x+.08,1.42,c.z);
-    Vb.root.add(st,fl);Vb.flames.push(fl);if(!SMALL||Vb.flames.length<2){const l=new THREE.PointLight(0xff9a48,7,6,1.7);l.position.set(c.x+.1,1.45,c.z);Vb.scene.add(l);Vb.flicker.push(l);}};
+    Vb.root.add(st,fl);Vb.flames.push(fl);Vb.t3wTorch.push([st,fl]);if(!SMALL||Vb.flames.length<2){const l=new THREE.PointLight(0xff9a48,7,6,1.7);l.position.set(c.x+.1,1.45,c.z);Vb.scene.add(l);Vb.flicker.push(l);}};
   const spots=[];for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(wall(x,y)&&[[1,0],[-1,0],[0,1],[0,-1]].some(([a,b])=>open(x+a,y+b)))spots.push([x,y]);
   const want=mp.key==="cavern"?[[0,9],[11,6],[2,12],[10,2]]:[[0,13],[8,13],[0,6],[8,3]];
   for(const [wx,wy] of want){let best=null,bd=1e9;for(const s of spots){const d=Math.hypot(s[0]-wx,s[1]-wy);if(d<bd){bd=d;best=s;}}if(best){torch(best[0],best[1]);spots.splice(spots.indexOf(best),1);}}
@@ -4066,7 +4098,92 @@ function t3cave(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,S=seeded(mp.key.length*977+31),
   if(mp.key==="cavern")t3dressCavern(Vb);else t3dressTunnel(Vb);}
 
 /* ---- OWNER: tunnels. Extra set dressing for the tunnel map (also the waystone husk fight) ---- */
-function t3dressTunnel(Vb){}
+function t3dressTunnel(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,S=seeded(9091),rr=(a,b)=>a+(b-a)*S(),pk=a=>a[Math.floor(S()*a.length)],Q=T3Q.hi?1:.5,V3=(x,y,z)=>new THREE.Vector3(x,y,z);
+  const wall=(x,y)=>x<0||y<0||x>=W||y>=H||mp.c(x,y)==="#",walk=(x,y)=>!wall(x,y)&&".,r".includes(mp.c(x,y));
+  const side=[],corner=[];for(let y=0;y<H;y++)for(let x=0;x<W;x++){if(!walk(x,y))continue;
+    for(const [a,b] of[[1,0],[-1,0],[0,1],[0,-1]])if(wall(x+a,y+b))side.push([x,y,a,b]);
+    for(const a of[-1,1])for(const b of[-1,1])if(wall(x+a,y)&&wall(x,y+b))corner.push([x,y,a,b]);}
+  const take=(L,n)=>{const out=[];for(let i=0;i<n&&L.length;i++)out.push(L.splice(Math.floor(S()*L.length),1)[0]);return out;};
+  const props=[],at=([x,y,a,b],o,s)=>{const c=Vb.cell(x,y);return [c.x+a*o-b*s,c.z+b*o+a*s];};
+  // old bones by the walls
+  for(const sp of take(side,Math.round(3*Q))){const [bx,bz]=at(sp,.3,rr(-.25,.25)),bone=pk(["#c8bfa8","#b5ac96","#d2cab6"]);
+    props.push(t3at(t3tint(new THREE.SphereGeometry(.07,7,5),bone),bx,.06,bz,{sx:.95,sy:.85,sz:1.15,ry:rr(0,6),rx:rr(-.4,.4)}));
+    for(let i=0;i<2;i++)props.push(t3at(t3tint(new THREE.SphereGeometry(.018,4,3),"#0b0907"),bx+rr(-.03,.03),.08,bz+rr(-.03,.03)));
+    for(let i=0,m=2+Math.floor(S()*3);i<m;i++){const x=bx+rr(-.22,.22),z=bz+rr(-.22,.22),r=rr(0,6),l=rr(.16,.28);
+      props.push(t3at(t3tint(new THREE.CylinderGeometry(.013,.016,l,5),bone),x,.02,z,{rz:Math.PI/2,ry:r}));
+      for(const e of[-1,1])props.push(t3at(t3tint(new THREE.SphereGeometry(.024,5,4),bone),x+Math.cos(r)*l/2*e,.025,z-Math.sin(r)*l/2*e));}
+    if(T3Q.hi)for(let i=0;i<3;i++)props.push(t3at(t3tint(new THREE.TorusGeometry(.08,.008,3,8,Math.PI*.9),bone),bx+rr(-.12,.12),.012,bz+rr(-.12,.12),{rx:-Math.PI/2+rr(-.3,.3),rz:rr(0,6)}));}
+  // a lantern someone dropped, tipped over, its glass broken
+  for(const sp of take(side,1)){const [lx,lz]=at(sp,.28,rr(-.2,.2)),ry=rr(0,6),parts=[],iron="#2a2724";
+    parts.push(t3tint(new THREE.BoxGeometry(.13,.02,.13),iron),t3at(t3tint(new THREE.ConeGeometry(.09,.07,4),iron),0,.24,0,{ry:Math.PI/4}),t3at(t3tint(new THREE.TorusGeometry(.04,.006,3,8),iron),0,.31,0));
+    for(const [a,b] of[[1,1],[1,-1],[-1,1],[-1,-1]])parts.push(t3at(t3tint(new THREE.CylinderGeometry(.006,.006,.2,3),iron),a*.055,.11,b*.055));
+    for(const [a,b,r] of[[0,.056,0],[.056,0,Math.PI/2],[-.056,0,Math.PI/2]])parts.push(t3at(t3tint(new THREE.BoxGeometry(.1,.16,.004),"#3d3322"),a,.11,b,{ry:r}));
+    parts.push(t3at(t3tint(new THREE.CylinderGeometry(.018,.02,.05,6),"#b9ae95"),0,.035,0));
+    for(const g of parts)props.push(t3at(g,lx,.07,lz,{rz:Math.PI/2*.92,ry}));
+    for(let i=0;i<5;i++)props.push(t3at(t3tint(new THREE.TetrahedronGeometry(rr(.015,.03)),"#4a3d27"),lx+rr(-.2,.2),.01,lz+rr(-.2,.2),{rx:rr(0,6),ry:rr(0,6),sy:.3}));}
+  if(props.length)Vb.root.add(t3mesh(t3merge(props),t3surf("rock",Vb),{cast:T3Q.hi,recv:true}));
+  // cobwebs across the corners
+  const webs=take(corner,Math.round(6*Q));if(webs.length){const P=[],U=[],I=[];webs.forEach(([x,y,a,b],k)=>{const c=Vb.cell(x,y),cx=c.x+a*.5,cz=c.z+b*.5,s=rr(.55,.72),y0=rr(.45,.8),y1=y0+rr(.6,.9),A=[cx-a*s,cz],Bq=[cx,cz-b*s];
+      P.push(A[0],y1,A[1],Bq[0],y1,Bq[1],Bq[0],y0,Bq[1],A[0],y0,A[1]);const f=S()<.5;U.push(f?1:0,1,f?0:1,1,f?0:1,0,f?1:0,0);I.push(k*4,k*4+1,k*4+2,k*4,k*4+2,k*4+3);});
+    const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.Float32BufferAttribute(P,3));g.setAttribute("uv",new THREE.Float32BufferAttribute(U,2));g.setIndex(I);g.computeVertexNormals();
+    const m=new THREE.MeshBasicMaterial({map:t3w_webTex(),color:0xb9b4aa,transparent:true,opacity:.42,depthWrite:false,side:THREE.DoubleSide});Vb.root.add(new THREE.Mesh(g,t3w_cutMat(Vb,m)));}
+  // tiny glowing fungus at the foot of the walls, with a soft halo
+  const caps=[],halo=[];for(const sp of take(side,Math.round(12*Q))){const [fx,fz]=at(sp,.36,rr(-.3,.3)),hue=pk(["#5fd6c0","#7fe0a8","#6fb8e8","#a6e6c8"]);halo.push(fx,.08,fz);
+    for(let i=0,m=4+Math.floor(S()*5);i<m;i++)caps.push([fx+rr(-.13,.13),fz+rr(-.13,.13),rr(.6,1.4),hue]);}
+  if(Vb.t3wPillar)for(const [x,z] of Vb.t3wPillar)for(let i=0;i<6*Q;i++){const a=rr(0,6.3),r=rr(.3,.5);caps.push([x+Math.cos(a)*r,z+Math.sin(a)*r,rr(.7,1.2),"#7fe0a8"]);}
+  if(caps.length){const cap=t3tint(new THREE.SphereGeometry(.035,6,3,0,Math.PI*2,0,Math.PI/2),"#ffffff"),stem=t3tint(new THREE.CylinderGeometry(.008,.011,.05,4),"#ffffff");cap.translate(0,.045,0);stem.translate(0,.025,0);
+    const im=new THREE.InstancedMesh(t3merge([stem,cap]),t3surf("glow",Vb),caps.length),m=new THREE.Matrix4(),col=new THREE.Color();
+    caps.forEach(([x,z,s,h],i)=>{t3e.set(rr(-.25,.25),0,rr(-.25,.25));m.compose(t3v.set(x,0,z),t3q.setFromEuler(t3e),t3s.set(s,s*rr(.7,1.3),s));im.setMatrixAt(i,m);im.setColorAt(i,col.set(h));});Vb.root.add(im);
+    const hg=new THREE.BufferGeometry();hg.setAttribute("position",new THREE.Float32BufferAttribute(halo,3));
+    Vb.root.add(new THREE.Points(hg,new THREE.PointsMaterial({map:t3dotTex(),color:0x6fd8c0,size:.5,transparent:true,opacity:.22,depthWrite:false,blending:THREE.AdditiveBlending})));}
+  // the waystone's runes breathe, faintly
+  if(Vb.t3wRune){const {sp,li}=Vb.t3wRune;Vb.ticks.push((dt,tt)=>{const k=.5+.5*Math.sin(tt*1.3);sp.material.opacity=.14+.16*k;if(li)li.intensity=.9+.9*k;});}
+  // water dripping from the stone teeth
+  const tips=Vb.t3wTips||[];if(tips.length){const N=Math.min(tips.length,Math.round(8*Q)),pos=new Float32Array(N*3),st=[];
+    for(let i=0;i<N;i++){const t=tips[Math.floor(S()*tips.length)];st.push({t,y:t[1]-t[3],v:0,w:rr(0,4)});}
+    const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.BufferAttribute(pos,3));const pts=new THREE.Points(g,new THREE.PointsMaterial({map:t3dotTex(),color:0xb8d4e8,size:.07,transparent:true,opacity:.8,depthWrite:false,blending:THREE.AdditiveBlending}));pts.frustumCulled=false;Vb.root.add(pts);
+    const sv=new THREE.Vector3();Vb.ticks.push(dt=>{for(let i=0;i<N;i++){const d=st[i],t=d.t,y0=t[1]-t[3];if(d.w>0){d.w-=dt;d.y=y0;d.v=0;}else{d.v+=9.8*dt;d.y-=d.v*dt;if(d.y<.03){d.w=rr(1.5,5);if(T3Q.hi&&Vb.sparks)Vb.sparks.spawn(sv.set(t[0],.04,t[2]),"#b8d4e8",3,{sp:.5,up:.6,lf:.35});}}
+      pos[i*3]=t[0];pos[i*3+1]=d.w>0?y0+.01:d.y;pos[i*3+2]=t[2];}g.attributes.position.needsUpdate=true;});}}
+
+/* walls nearest the camera are cut down so the board stays in view from any side */
+const T3W_STRATA=[["#2a2621","#36302a","#2e2a26","#433c34"],["#26231f","#3a352e","#312c27","#4a433a"],["#2c2722","#332f2b","#3d3730","#2a2723"],["#24211d","#38322b","#2f2b25","#463f37"]];
+function t3w_cutSetup(Vb){const mp=Vb.mp,U=Vb.t3wU={c:{value:new THREE.Vector4(0,0,0,1)},k:{value:new THREE.Vector3(99,1.3,.45)}};Vb.t3wTorch=[];
+  Vb.ticks.push(()=>{const Vw=Vb.view,cp=Vb.cam.position;let dx=cp.x-Vw.tx,dz=cp.z-Vw.tz;const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;
+    const ext=.5*(mp.W*Math.abs(dx)+mp.H*Math.abs(dz))-(Vw.tx*dx+Vw.tz*dz),a0=Math.max(.8,ext-2.7),hl=.35+.25*Math.max(0,Math.sin(Vw.pitch)-.5);U.c.value.set(Vw.tx,Vw.tz,dx,dz);U.k.value.set(a0,1.3,hl);
+    for(const [st,fl] of Vb.t3wTorch){const a=(st.position.x-Vw.tx)*dx+(st.position.z-Vw.tz)*dz;st.visible=fl.visible=a<a0+.5;}});}
+function t3w_cut(Vb,kind){const m=t3surf(kind,Vb),c=m.clone();c.onBeforeCompile=m.onBeforeCompile;if(Object.prototype.hasOwnProperty.call(m,"customProgramCacheKey"))c.customProgramCacheKey=m.customProgramCacheKey;return t3w_cutMat(Vb,c);}
+function t3w_cutMat(Vb,m){if(m.userData.t3wCut)return m;m.userData.t3wCut=1;const prev=m.onBeforeCompile,key=m.customProgramCacheKey()+"|t3wcut",U=Vb.t3wU;
+  m.onBeforeCompile=function(sh,r){if(prev)prev.call(this,sh,r);if(!sh.vertexShader.includes("#include <project_vertex>")||!sh.fragmentShader.includes("void main() {"))return;sh.uniforms.t3wC=U.c;sh.uniforms.t3wK=U.k;
+    sh.vertexShader="varying vec3 vT3w;\n"+sh.vertexShader.replace("#include <project_vertex>","#include <project_vertex>\n{vec4 q=vec4(transformed,1.);\n#ifdef USE_INSTANCING\nq=instanceMatrix*q;\n#endif\nvT3w=(modelMatrix*q).xyz;}");
+    sh.fragmentShader="varying vec3 vT3w;uniform vec4 t3wC;uniform vec3 t3wK;\n"+sh.fragmentShader.replace("void main() {","void main() {\n{float a=dot(vT3w.xz-t3wC.xy,t3wC.zw),lim=mix(60.,t3wK.z,smoothstep(t3wK.x,t3wK.x+t3wK.y,a)),n=fract(sin(dot(floor(gl_FragCoord.xy),vec2(12.9898,78.233)))*43758.5453);if(vT3w.y>lim+.16*(n-.5))discard;}");};
+  m.customProgramCacheKey=()=>key;return m;}
+/* a rock slab: a box with rounded, chipped corners */
+function t3w_slab(w,h,d,seed,j=.07){const g=new THREE.BoxGeometry(w,h,d,3,2,3),p=g.attributes.position;
+  for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i),X=Math.round(x*50),Y=Math.round(y*50),Z=Math.round(z*50),q=t3hash(X+seed,Y,Z),q2=t3hash(Z+seed,X,Y+3),q3=t3hash(Y+seed,Z,X+7);
+    const cr=Math.max(0,Math.abs(x)/(w/2)+Math.abs(z)/(d/2)+Math.abs(y)/(h/2)-2.1);p.setXYZ(i,x*(1-cr*.22)+(q-.5)*j,y*(1-cr*.12)+(q2-.5)*j*.6,z*(1-cr*.22)+(q3-.5)*j);}
+  g.computeVertexNormals();return g;}
+/* the waystone: a carved standing stone on a worn plinth, faint runes down both faces */
+function t3w_waystone(Vb,c,keep,glow,roots,S){const rr=(a,b)=>a+(b-a)*S(),ry=.55+rr(-.15,.15),lean=rr(-.05,.05),ph=.29,H2=1.75,put=g=>t3at(g,c.x,0,c.z,{ry,rz:lean});
+  keep.push(put(t3at(t3tint(t3w_slab(.98,.17,.84,71,.05),"#55514a"),0,.085,0)),put(t3at(t3tint(t3w_slab(.74,.14,.6,72,.04),"#5e5a52"),0,.22,.01)));
+  const g=new THREE.BoxGeometry(.56,H2,.3,2,8,1),p=g.attributes.position;for(let i=0;i<p.count;i++){let x=p.getX(i),y=p.getY(i),z=p.getZ(i);const t=(y+H2/2)/H2,q=t3hash(Math.round(x*60),Math.round(y*60),Math.round(z*60));
+    x*=1-.26*t;z*=1-.15*t;if(t>.95)y-=x*.32+.03;p.setXYZ(i,x+(q-.5)*.025,y,z+(q-.5)*.02);}g.computeVertexNormals();
+  keep.push(put(t3at(t3tint(g,"#6c695f"),0,ph+H2/2,0)));
+  // lichen and a chipped corner
+  for(let i=0;i<6;i++){const t=rr(.05,.7),f=S()<.5?1:-1;keep.push(put(t3at(t3tint(new THREE.CircleGeometry(rr(.03,.07),6),S()<.5?"#7d8466":"#5f6a55"),rr(-.18,.18)*(1-.26*t),ph+t*H2,f*(.152*(1-.15*t)+.003),{ry:f>0?0:Math.PI})));}
+  for(let i=0;i<4;i++)keep.push(t3at(t3tint(t3rock(rr(.04,.08),90+i,0),"#5e5a52"),c.x+rr(-.6,.6),.03,c.z+rr(-.6,.6),{sy:.6}));
+  // the runes: short angular strokes in a column, each glyph its own
+  const stroke=(x1,y1,x2,y2,zf,f)=>{const l=Math.hypot(x2-x1,y2-y1);return put(t3at(t3tint(new THREE.BoxGeometry(.016,l+.012,.008),"#7fd0c4"),(x1+x2)/2,(y1+y2)/2,zf*f,{rz:Math.atan2(x1-x2,y2-y1)}));};
+  for(const f of[1,-1])for(let gy=.42;gy<1.55;gy+=rr(.17,.22)){const t=gy/H2,zf=.152*(1-.15*t)+.006,yb=ph+gy,s=.05;glow.push(stroke(0,yb-s,0,yb+s,zf,f));
+    const n=1+Math.floor(S()*2.5);for(let k=0;k<n;k++){const side=S()<.5?-1:1,y0=yb+rr(-s,s);glow.push(stroke(0,y0,side*rr(.04,.07),y0+rr(-.05,.05),zf,f));}}
+  // roots gripping the foot of the stone
+  for(let i=0;i<6;i++){const a=rr(0,6.3),pts=[new THREE.Vector3(c.x+Math.cos(a)*.22,.55,c.z+Math.sin(a)*.12),new THREE.Vector3(c.x+Math.cos(a)*.4,.24,c.z+Math.sin(a)*.38),new THREE.Vector3(c.x+Math.cos(a)*.5,.1,c.z+Math.sin(a)*.5),new THREE.Vector3(c.x+Math.cos(a+.2)*.75,.02,c.z+Math.sin(a+.2)*.75)];roots.push(t3tint(t3tube(pts,rr(.025,.045)),S()<.5?"#4a4239":"#5b5249"));}
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:t3dotTex(),color:0x8fd3c8,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:.25}));sp.scale.set(1,1.7,1);sp.position.set(c.x,ph+1,c.z);Vb.root.add(sp);
+  let li=null;if(T3Q.hi){li=new THREE.PointLight(0x7fd0c4,1.2,3.2,2);li.position.set(c.x+Math.sin(ry)*.4,1.1,c.z+Math.cos(ry)*.4);Vb.scene.add(li);}Vb.t3wRune={sp,li};}
+function t3w_webTex(){const cv=document.createElement("canvas");cv.width=cv.height=128;const g=cv.getContext("2d"),hx=58,hy=40,N=10,ang=[];for(let i=0;i<N;i++)ang.push(i/N*Math.PI*2+Math.sin(i*3.1)*.22);
+  g.strokeStyle="#fff";g.lineWidth=1.1;g.globalAlpha=.85;for(const a of ang){g.beginPath();g.moveTo(hx,hy);g.lineTo(hx+Math.cos(a)*120,hy+Math.sin(a)*120);g.stroke();}
+  g.globalAlpha=.6;g.lineWidth=.8;for(let r=5;r<90;r+=r<30?4.5:6.5){g.beginPath();ang.forEach((a,i)=>{const q=r*(1+.1*Math.sin(i*2.3+r*.3)),X=hx+Math.cos(a)*q,Y=hy+Math.sin(a)*q+r*.08;i?g.lineTo(X,Y):g.moveTo(X,Y);});g.closePath();g.stroke();}
+  g.globalCompositeOperation="destination-out";const gr=g.createLinearGradient(0,60,0,128);gr.addColorStop(0,"#0000");gr.addColorStop(1,"#000f");g.fillStyle=gr;g.fillRect(0,0,128,128);
+  const tx=new THREE.CanvasTexture(cv);tx.colorSpace=THREE.SRGBColorSpace;return tx;}
 
 /* ---- OWNER: cavern + heart. The Blight Heart's chamber: veins, glow light, its pulse ---- */
 function t3dressCavern(Vb){const mp=Vb.mp,S=seeded(707),rr=(a,b)=>a+(b-a)*S();if(!mp.def.glow)return;const [gx,gy]=mp.def.glow,c=Vb.cell(gx,gy),roots=[],glow=[];
