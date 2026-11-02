@@ -9282,7 +9282,7 @@ function t3dressPrayer(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,K=t3i_kit(Vb,2718),{rr,p
     const m=new THREE.MeshStandardMaterial({color:0x6a8590,map:tex,emissive:0x0c171c,roughness:.12,metalness:.15,transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide});
     const mesh=new THREE.Mesh(geo,m);mesh.position.y=.035+n*.01;mesh.renderOrder=1;mesh.receiveShadow=true;mesh.visible=false;Vb.root.add(mesh);
     // the shimmer on top: the same ripples, added as light, so the water reads even in the dark
-    const sh=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,color:0x2c4450,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending,fog:false}));sh.position.y=.004;sh.renderOrder=2;mesh.add(sh);
+    const sh=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:tex,color:0x426674,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending,fog:false}));sh.position.y=.004;sh.renderOrder=2;mesh.add(sh);
     water.push({n,mesh,sh,k:0});}
   const mist=[];for(let i=0;i<(hi?8:4);i++){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t3dotTex(),color:0x8a9aa4,transparent:true,opacity:.1,depthWrite:false}));
     s.scale.set(rr(3,5),rr(.8,1.3),1);s.position.set(rr(-W/2,W/2),rr(.25,.5),rr(0,H/2-1));Vb.root.add(s);mist.push([s,rr(.05,.15),rr(0,6),s.position.x]);}
