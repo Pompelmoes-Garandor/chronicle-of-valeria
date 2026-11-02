@@ -5866,7 +5866,7 @@ let t3last=0,t3raf=0;
 function t3loop(now){t3raf=0;if(!V||!V.live()){return;}t3raf=requestAnimationFrame(t3loop);const dt=Math.min(.05,(now-(t3last||now))/1000);t3last=now;const tt=now/1000;
   t3hoverTick();t3camTick(dt,now);t3lightTick(dt,tt);
   const rc=V.host,W2=rc.clientWidth/2,H2=rc.clientHeight/2;
-  for(const [u,m] of V.minis){if(!B.units.includes(u)){V.root.remove(m.g);V.minis.delete(u);continue;}t3animMini(m,u,dt,tt,now);t3tag(m,u,W2,H2);}
+  for(const [u,m] of V.minis){if(!B.units.includes(u)){V.root.remove(m.g);t3free(m.g);V.minis.delete(u);continue;}t3animMini(m,u,dt,tt,now);t3tag(m,u,W2,H2);}
   if(V.motes)V.motes.tick(dt,tt);
   for(const f of V.ticks)f(dt,tt,now);
   for(let i=V.fx.length-1;i>=0;i--){const f=V.fx[i],k=Math.min(1,(now-f.t0)/f.dur);f.tick(k);if(k>=1){f.end&&f.end();V.fx.splice(i,1);}}
@@ -5984,7 +5984,10 @@ if(/[?&]playtest/.test(location.search))window.__t3x={ts(v){t3x_ts=v;},units(){r
   hurt(ti,type){const u=B.units[ti];t3hurt(u,type);t3float(u,"−7","");},crit(ti,type){const u=B.units[ti];V.t3x.critU=u;V.t3x.critT=performance.now();V.t3x.fc=true;t3hurt(u,type);V.t3x.fc=false;t3float(u,"−19","");},
   heal(ti){t3float(B.units[ti],"+6","heal");},death(ti){const u=B.units[ti],m=V.minis.get(u);if(m)t3death(m,u);}};
 
-function t3dispose(){if(!V)return;cancelAnimationFrame(t3raf);t3raf=0;V.disposePost&&V.disposePost();V.scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){const ms=Array.isArray(o.material)?o.material:[o.material];for(const m of ms){if(m.map&&m.map!==t3dot&&m.map!==t3tile)m.map.dispose();m.dispose();}}});
+/* free everything under a node: geometry, materials, their textures (also those in shader uniforms), shadow maps */
+function t3free(root){const tx=t=>{if(t&&t.isTexture&&t!==t3dot&&t!==t3tile)t.dispose();};root.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.isInstancedMesh||o.isLight)o.dispose?.();
+    if(o.material){const ms=Array.isArray(o.material)?o.material:[o.material];for(const m of ms){for(const k in m)tx(m[k]);if(m.uniforms)for(const k in m.uniforms)tx(m.uniforms[k]&&m.uniforms[k].value);m.dispose();}}});}
+function t3dispose(){if(!V)return;cancelAnimationFrame(t3raf);t3raf=0;V.ac&&V.ac.abort();V.disposePost&&V.disposePost();t3free(V.scene);
   V.r.renderLists.dispose();V=null;}
 /* build the 3D board for the battle B */
 function t3start(){t3dispose();const host=h("div",{class:"pl-3d"}),tags=h("div",{class:"pl-tags"});host.append(tags);
