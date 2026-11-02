@@ -79,6 +79,14 @@ Accepted proposals live in the database until a Claude writes them into the lore
 4. Add each key to `FILED`, rebuild, add a **Lore** line to `CHANGELOG.md` ("Hans wrote down what the table told him: …"), and open one PR "File accepted proposals" that lists the keys.
 5. Never change an entry's meaning. Never file a rejected one. The mirror branch is written by Netlify only; never push to it.
 
+### Reading finished interludes
+
+Between sessions each signed-in player plays short solo interludes; "Send to Sam" stores the result in `interludes/<account>` (checked in `netlify/lib/rules.mts`, listed by `netlify/lib/interludes.mts`).
+
+1. Get the list: `git fetch origin table-proposals && git show origin/table-proposals:interludes.json`. Netlify mirrors it there on every send. Without the branch or file, ask Sam to open `/api/interludes` on the live Netlify site, signed in as DM, and paste it.
+2. Each entry names the player by character (`account`), never by account id. Choices for the shared interlude are votes (`votes/<id>["i10-gift"]`, `["i10-speak"]`).
+3. Echoes are Sam's to honour at the table. Lore lines go into the repo only with Sam's OK, filed like accepted proposals.
+
 ### Backups of the player data
 
 - `backup-weekly` copies the whole `table` store into `table-backups` every Monday at 03:17 UTC and keeps the newest 8. It only runs on the published production deploy.

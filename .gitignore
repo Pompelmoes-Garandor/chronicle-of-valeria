@@ -3,3 +3,5 @@ dist/
 node_modules/
 .netlify/
 tests/visual/out/
+__pycache__/
+.claude/worktrees/

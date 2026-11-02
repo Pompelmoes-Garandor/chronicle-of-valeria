@@ -4,14 +4,17 @@
 // keyed by the player's account id:
 //   players/<id>  {character, at}         which character this account plays ("You only choose once")
 //   pins/<id>     {character, pins:[…]}   map pins the player shares with the party
-//   votes/<id>    {<session key>: story}   storyline vote per session, counted with the party's
+//   votes/<id>    {<session key>: story}   storyline vote per session, counted with the party's;
+//                 the shared interlude stores its choices here too, as option ids: "i10-gift", "i10-speak"
 //   answers/<id>  {<session key>: {…}, missed:[…]}  feedback and "Missed something?" notes, for the DM only
 //   proposals/<id> {list:[…]}             changes to the lore a player proposes to Sam (netlify/lib/proposals.mts)
 //   accepted/lore  {items:{…}}             what Sam decided; accepted changes show on the site until filed into the repo
+//   interludes/<id> {done:{<interlude id>: Result}}  finished solo interludes ("Send to Sam"), for the DM only
+//                 (validInterlude below; listed by netlify/lib/interludes.mts, mirrored to git by github.mts)
 
 export type Viewer = { id: string; isDm: boolean };
 
-export const COLLECTIONS = ["players", "pins", "votes", "answers", "proposals", "accepted"] as const;
+export const COLLECTIONS = ["players", "pins", "votes", "answers", "proposals", "accepted", "interludes"] as const;
 export type Collection = (typeof COLLECTIONS)[number];
 
 export const MAX_DOC_BYTES = 64 * 1024;
@@ -27,7 +30,7 @@ export function validId(id: string): boolean {
 
 /** May this viewer see this doc? Everything is table-only: the caller is always signed in. */
 export function canRead(v: Viewer, col: Collection, docId: string): boolean {
-  if (col === "answers" || col === "proposals") return v.isDm || docId === v.id; // these go to Sam only
+  if (col === "answers" || col === "proposals" || col === "interludes") return v.isDm || docId === v.id; // these go to Sam only
   return true;
 }
 
@@ -75,6 +78,33 @@ export function validProposal(p: unknown): boolean {
   return false;
 }
 
+export const INTERLUDE_ID_RE = /^[a-z0-9-]{1,32}$/;
+
+const isObj = (x: unknown): x is Record<string, unknown> => !!x && typeof x === "object" && !Array.isArray(x);
+const str = (x: unknown, max: number): x is string => typeof x === "string" && x.length <= max;
+const strList = (x: unknown, items: number, max: number) => Array.isArray(x) && x.length <= items && x.every((s) => str(s, max));
+const onlyKeys = (o: Record<string, unknown>, keys: string[]) => Object.keys(o).every((k) => keys.includes(k));
+
+/**
+ * One finished interlude: the character, the choices taken (as text), the ending, the echo Sam honours
+ * at the table, and the "Sent to Sam" lore lines. Strict: unknown fields are refused.
+ */
+export function validInterlude(r: unknown): boolean {
+  if (!isObj(r)) return false;
+  if (!onlyKeys(r, ["character", "title", "path", "ending", "echo", "lore", "verse", "fight", "finishedAt"])) return false;
+  const { character, title, path, ending, echo, lore, verse, fight, finishedAt } = r;
+  if (!str(character, 24) || !character || !str(title, 80) || !str(ending, 40)) return false;
+  if (!strList(path, 40, 120) || !strList(lore, 8, 1000)) return false;
+  if (verse !== undefined && !strList(verse, 4, 200)) return false;
+  if (!isObj(echo) || !onlyKeys(echo, ["id", "text", "used"])) return false;
+  if (!str(echo.id, 40) || !str(echo.text, 300) || typeof echo.used !== "boolean") return false;
+  if (fight !== undefined) {
+    if (!isObj(fight) || !onlyKeys(fight, ["won", "rounds"])) return false;
+    if (typeof fight.won !== "boolean" || typeof fight.rounds !== "number" || !Number.isFinite(fight.rounds)) return false;
+  }
+  return typeof finishedAt === "number" && Number.isFinite(finishedAt);
+}
+
 export type Check ={ ok: true } | { ok: false; status: number; error: string };
 
 /**
@@ -101,6 +131,11 @@ export function checkDoc(
     const list = (doc as { list?: unknown }).list;
     if (!Array.isArray(list) || list.length > MAX_PROPOSALS || !list.every(validProposal))
       return { ok: false, status: 400, error: "proposals must be a list of up to 50 proposed changes" };
+  }
+  if (col === "interludes") {
+    const d = doc as Record<string, unknown>;
+    const ok = onlyKeys(d, ["done"]) && isObj(d.done) && Object.entries(d.done).every(([id, r]) => INTERLUDE_ID_RE.test(id) && validInterlude(r));
+    if (!ok) return { ok: false, status: 400, error: "interludes must be {done: {<interlude id>: result}}" };
   }
   if (col === "players") {
     const c = (doc as { character?: unknown }).character;

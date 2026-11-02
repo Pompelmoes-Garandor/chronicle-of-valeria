@@ -23,6 +23,9 @@ Things that are wrong on the live site today. Check this list before **Now**: a 
 - Anyone at the table can report a bug to Sam or Niels; whoever hears it adds it here. Fixing one is a **Fixed** line in the patch notes, and the bug moves to **Done**.
 
 - [ ] **The open sea is one flat colour up close** · cosmetic · Map · Zoomed in, the ocean has no texture or swell left, so it looks empty next to the land. Seen in the test screenshots of 2026-11-01.
+- [ ] **The acting mini can hide behind the cavern's wall rocks on phones** · annoying · Play session 10, Blight Heart fight, phone · The crew start against the south wall and the close phone camera looks through the rocks. A planned fix tilts the camera up until the line to the mini's feet is clear.
+- [ ] **The camera can end up behind the root pillars in Saphira's interlude fight** · cosmetic · Interludes, Saphira's fight, 3D · Turn or re-centre to see the board again.
+- [ ] **Long action names are cut off in the phone quick bar** · cosmetic · Play mode, phone · For example "Throw the d…". *All* shows the full names.
 - [ ] **Saphira's Passive Perception doesn't add up** · cosmetic · Characters, Saphira · Her paper says Passive Perception 15, but her Perception skill is +4, which gives 14. The sheet shows the paper's 15. Lore question for Sam: which number is right?
 
 ## Now
@@ -43,6 +46,10 @@ Top of the list is what to work on next.
 
 ## Later
 
+- [ ] **More in-engine cinematics** · New · either · Needs Sam for lines. The cinematic director's plan ranks the next ones: a dip to black on every story-to-board change, Elara's voice through Lúmeneth, the night ambush opening, a fight-intro for every battle, chapter cards, Overclock. The system (`t3cine`) is in; each one is a small PR.
+- [ ] **Play-test the interlude fights for balance** · Changed · either · The four fights are balanced on paper only. Watch Katy's candle (3 points), the sleeper's 20 HP in Stig's fight, and Turn Undead in the shared fight.
+- [ ] **An interlude before every session** · New · Sam · Needs Sam. The session 10 set is the first; write the next set from the session script (a memory, a dream, a talk with a patron), same engine.
+
 - [ ] **Map beside the recap on desktop** · Changed · either · Put the recap text next to the globe instead of over it, as Craft does with its map.
 - [ ] **Live online storage** · New · Sam and Niels · Needs Sam. Shared tags, notes and trackers for everyone at once through a hosted database (Firebase or Supabase), with sign-in limited to the table. Breaks two house rules (no new libraries, player data stays on the device), so only if both agree.
 
@@ -58,6 +65,8 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Interludes before the table finishes session 10: a solo piece per player plus a shared one, each with a small fight, an Echo and Send to Sam** · New · Sam · PR (this one)
+- [x] **Real numbered dice, a slower and weightier fight pace, a phone camera that follows the action, cleaner fight controls, Blight Heart cinematics** · Changed · Sam · PR (this one)
 - [x] **Hardcore graphics for the 3D battle table: lighting, materials, post effects, minis, spell effects, phone layout** · Changed · Sam · PR #46
 - [x] **The flying city looks crude up close:** rebuilt as a lit, painted miniature · Fixed · Niels · PR #44
 - [x] **Get tag edits to everyone:** players propose tags and notes, Sam accepts with one tap · New · Niels · PR #43
