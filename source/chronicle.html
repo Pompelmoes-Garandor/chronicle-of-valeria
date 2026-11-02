@@ -7132,7 +7132,7 @@ async function paceWind(a,t,at){const k=paceKind(at),follow=performance.now()-(a
   const ma=t3p_windUp(a,t,k,pms(ms),DMG_COL[at.type]||"#ffe0b0",at.type==="radiant"||at.type==="force");if(ma)t3p_pair(a,t,ma);
   await beat(t3on()?ms:Math.min(ms,300));}
 // the release, once the dice have spoken: the swing or bolt flies (a miss sails past and the target ducks), then the impact holds a blink
-async function paceRelease(a,t,at,hit,crit){const ma=t3on()&&V.minis.get(a);if(ma&&ma.t3p_wd)ma.t3p_wd.rel=performance.now();
+async function paceRelease(a,t,at,hit,crit){const ma=t3on()&&V.minis.get(a);if(ma&&ma.t3p_wd){if(typeof t3frame==="function"&&performance.now()-ma.t3p_wd.t0>1200)t3frame([a,t],{mode:"pair"});ma.t3p_wd.rel=performance.now();} // the dice took a while: frame the pair again
   if(t3on()){const k=t3x_ts;let pr;t3x_ts=k*1.2;try{pr=t3strike(a,t,at,!hit);}finally{t3x_ts=k;}await pr;}else await beat(160);
   if(hit)t3p_stop(crit?140:85);else t3p_duck(a,t);}
 async function paceSettle(a,t,hit){if(!cine())return;if(a)a.paceT=performance.now();await beat(t&&!alive(t)?PACE_MS.settleDown:hit?PACE_MS.settle:PACE_MS.settleMiss);}
