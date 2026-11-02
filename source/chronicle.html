@@ -3380,6 +3380,11 @@ async function bootNetlify(){
   try{await I.handleAuthCallback();}catch(e){toast("Couldn't finish signing in. Try again.");}
   try{if(await I.getUser())await loadAccount();}catch(e){}
 }
+function backupLine(){ // DM only, Netlify edition: everyone's player data as one file to keep
+  if(!NETLIFY||!account||!account.isDm)return null;
+  return h("div",{class:"row"},h("a",{class:"btn ghost",href:"/api/backup",download:""},"Download a backup"),
+    h("p",{class:"note"},"All players' notes, pins, votes and answers in one file. Netlify also keeps a weekly copy."));
+}
 function accountLine(){
   if(!NETLIFY||!account)return null;
   return h("p",{class:"note"},"Signed in as "+(account.name||account.email)+(account.isDm?" (DM)":"")+" · ",
@@ -3603,7 +3608,7 @@ async function showDM(){
     if(m.lon!=null){c.style.cursor="pointer";c.onclick=()=>flyTo(m.lon,m.lat,.35);}return c;}):[h("p",{class:"note"},"Nothing yet.")];
   openSheet("DM view",[h("p",{class:"eyebrow"},"WHAT THE BOX MISSED"),...missedList,h("p",{class:"eyebrow"},"ANSWERS · SESSION "+AS_OF),tbl,h("p",{class:"eyebrow"},"STORYLINE VOTE"),tallyNode(),
     h("p",{class:"eyebrow"},"WHO PLAYS WHOM"),Object.keys(claims).length?claimList:h("p",{class:"note"},"Nobody has picked a character yet."),
-    h("p",{class:"note"},"To reveal new ground after a session, tell Claude what happened."),accountLine()].filter(Boolean),"dm");
+    h("p",{class:"note"},"To reveal new ground after a session, tell Claude what happened."),backupLine(),accountLine()].filter(Boolean),"dm");
 }
 
 /* =================== THE SEAL: opening the black box together =================== */
