@@ -58,7 +58,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
-- [x] **Hardcore graphics for the 3D battle table: lighting, materials, post effects, minis, spell effects, phone layout** · Changed · Sam · PR #PRNUM
+- [x] **Hardcore graphics for the 3D battle table: lighting, materials, post effects, minis, spell effects, phone layout** · Changed · Sam · PR #46
 - [x] **The flying city looks crude up close:** rebuilt as a lit, painted miniature · Fixed · Niels · PR #44
 - [x] **Get tag edits to everyone:** players propose tags and notes, Sam accepts with one tap · New · Niels · PR #43
 - [x] **Play session 10 on a 3D table: lit dioramas, painted minis, a camera you can turn and zoom** · New · Sam · PR #41
