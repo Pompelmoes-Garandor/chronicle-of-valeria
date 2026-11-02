@@ -86,7 +86,7 @@ const snap = (page, file) => page.screenshot({ path: path.join(out, file), timeo
     const page = await ctx.newPage(), errors = [];
     page.on('pageerror', e => errors.push('pageerror: ' + e.message));
     page.on('console', m => { if (m.type() === 'error' && !FONTS.test((m.location() || {}).url || '') && !FONTS.test(m.text())) errors.push(m.text()); });
-    await page.goto(base + (base.includes('?') ? '&' : '?') + 'playtest=auto&pace=' + pace + '&interlude=' + id, { waitUntil: 'domcontentloaded' });
+    await page.goto(base + (base.includes('?') ? '&' : '?') + 'playtest=auto&pace=' + pace + '&interlude=' + id, { waitUntil: 'domcontentloaded', timeout: 120000 }).catch(e => errors.push('could not open the page: ' + e.message.split('\n')[0]));
     return { ctx, page, errors };
   }
   const state = (page, id) => Promise.race([new Promise(r => setTimeout(() => r({ busy: true }), 30000)), page.evaluate(id => { const x = window.__inter; if (!x) return { ready: false };
@@ -128,7 +128,9 @@ const snap = (page, file) => page.screenshot({ path: path.join(out, file), timeo
     while (Date.now() - t0 < timeout) { await page.waitForTimeout(700); st = await state(page, id); if (st.fight || st.res) break; }
     if (!st.fight) fail(st.res ? 'finished before the fight could be left' : 'the fight never started');
     else {
-      await page.click('#play .pl-x'); await page.getByRole('button', { name: 'Back to the map' }).click();
+      // the real menu, clicked through the DOM (a busy software-WebGL page never looks "stable" to Playwright)
+      await page.locator('#play .pl-x').evaluate(b => b.click());
+      await page.locator('#play .pl-menu button', { hasText: 'Back to the map' }).evaluate(b => b.click(), null, { timeout: 60000 });
       await page.waitForTimeout(1500); st = await state(page, id);
       if (st.on) fail('the play screen is still open');
       if (st.fight) fail('still marked as in an interlude fight (saving would stay off)');
@@ -183,7 +185,7 @@ const snap = (page, file) => page.screenshot({ path: path.join(out, file), timeo
     const page = await ctx.newPage(), errors = [];
     page.on('pageerror', e => errors.push('pageerror: ' + e.message));
     page.on('console', m => { if (m.type() === 'error' && !FONTS.test((m.location() || {}).url || '') && !FONTS.test(m.text())) errors.push(m.text()); });
-    await page.goto('http://chronicle.test/?playtest=auto&pace=0&interlude=' + id, { waitUntil: 'domcontentloaded' });
+    await page.goto('http://chronicle.test/?playtest=auto&pace=0&interlude=' + id, { waitUntil: 'domcontentloaded', timeout: 120000 }).catch(e => errors.push('could not open the page: ' + e.message.split('\n')[0]));
     let st = {};
     while (Date.now() - t0 < timeout) { await page.waitForTimeout(500); st = await state(page, id); if (st.res) break; }
     if (!st.res) fail('no result');
