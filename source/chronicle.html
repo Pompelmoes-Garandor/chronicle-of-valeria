@@ -237,6 +237,72 @@ table.ans td,table.ans th{border-bottom:1px solid #c9a35c22;padding:6px 4px;text
 #chapter .ch-s{font:italic 18px/1.5 var(--body);color:var(--parch-dim)}
 #chapter .ch-by{font:500 12px/1 var(--label);letter-spacing:.2em;color:var(--brass);margin-top:14px}
 #chapter.out{opacity:0;transition:opacity .5s}
+/* interlude cinematics (iCine): the title card, a mood per passage on the story view, the Echo inking in, Hans's seal */
+@property --ic-a{syntax:"<color>";inherits:false;initial-value:#1d222c}
+.pl-story.ic{--ic-a:#1d222c;background:radial-gradient(ellipse at 50% 0%,var(--ic-a) 0%,#0b0d12 70%);transition:--ic-a var(--ic-ms,1.2s) ease}
+.pl-story.ic .art{position:relative}
+.pl-story.ic .art canvas{transition:filter var(--ic-ms,1.2s) ease}
+.pl-story.ic .art .ic-old{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.pl-story.ic-m-memory{--ic-a:#2c2216}.pl-story.ic-m-memory .art canvas{filter:sepia(.28) saturate(1.08) brightness(1.04)}
+.pl-story.ic-m-thin{--ic-a:#161a1f}.pl-story.ic-m-thin .art canvas{filter:grayscale(.88) contrast(1.08) brightness(.92)}
+.pl-story.ic-m-grey{--ic-a:#191b1e}.pl-story.ic-m-grey .art canvas{filter:grayscale(.75) brightness(.82)}
+.pl-story.ic-m-lamp{--ic-a:#251d13}
+.pl-story.ic-m-fire{--ic-a:#2b1a0f}
+.pl-story.ic .art::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity var(--ic-ms,1.2s) ease}
+.pl-story.ic-m-memory .art::after{opacity:1;background:radial-gradient(ellipse at 50% 50%,transparent 55%,#3a240f66 100%)}
+.pl-story.ic-m-fire .art::after{opacity:1;background:radial-gradient(ellipse at 50% 92%,#ff9a4a40,transparent 62%);mix-blend-mode:screen}
+.pl-story.ic-m-thin .art::after{opacity:1;background:radial-gradient(ellipse at 50% 50%,transparent 50%,#000a 100%)}
+.ic-flash{position:absolute;inset:0;pointer-events:none;opacity:0}
+.ic-flash.ic-warm{background:radial-gradient(ellipse at 50% 55%,#ffd8a066,#ffb26a22 45%,transparent 75%)}
+.ic-flash.ic-fire{background:radial-gradient(ellipse at 50% 90%,#ffb05a88,#e8743b33 40%,transparent 70%)}
+.ic-flash.ic-lamp{background:radial-gradient(ellipse at 50% 60%,#ffd59a55,transparent 65%)}
+.ic-flash.ic-beat{box-shadow:inset 0 0 70px 18px #000d}
+.ic-card{position:absolute;inset:0;z-index:3;display:grid;place-items:center;text-align:center;padding:24px 20px;cursor:pointer;background:radial-gradient(ellipse at center,#0a0c10f0,#0a0c10fd)}
+.ic-card .ic-lb{position:absolute;left:0;right:0;height:11%;background:#000;pointer-events:none}.ic-card .ic-lb:first-child{top:0}.ic-card .ic-lb:nth-child(2){bottom:0}
+.ic-card .ic-in{max-width:520px}
+.ic-card .ic-eye{font:400 12px/1.4 var(--mono);letter-spacing:.3em;color:var(--steward);text-transform:uppercase}
+.ic-card .ic-t{font:400 clamp(32px,8vw,58px)/1.05 var(--display);color:var(--parch);margin:10px 0 14px;text-wrap:balance}
+.ic-card .ic-rule{width:120px;height:1px;margin:0 auto 14px;background:linear-gradient(90deg,transparent,var(--brass),transparent)}
+.ic-card .ic-who{font:500 13px/1.2 var(--label);letter-spacing:.2em;color:var(--brass);text-transform:uppercase}
+.ic-card .ic-mood{font:italic 18px/1.5 var(--body);color:var(--parch-dim);margin:12px 0 0;text-wrap:balance}
+.ic-card .ic-tap{font:400 11px/1 var(--mono);letter-spacing:.14em;color:#ffffff55;margin-top:22px;text-transform:uppercase}
+.ic-card.out{opacity:0;transition:opacity .45s;pointer-events:none}
+.ic-say{width:min(620px,100%);display:flex;gap:14px;align-items:flex-start;box-sizing:border-box;padding:14px 16px 12px;border-radius:14px;background:linear-gradient(#0b0d12d0,#0b0d12ee);border:1px solid var(--hairline);margin-top:12px}
+.ic-say .hans-face{--hf-size:52px;flex:none}.ic-say>div{flex:1;min-width:0}
+.ic-say .ic-who2{font:400 11px/1.3 var(--mono);letter-spacing:.14em;color:var(--brass);margin-bottom:6px;text-transform:uppercase}
+.ic-say p{margin:0;font:italic clamp(17px,2.4vw,21px)/1.4 var(--body);color:var(--parch);text-wrap:balance}
+.ic-seal{position:absolute;left:50%;top:42%;z-index:30;width:132px;height:132px;margin:-66px 0 0 -66px;border-radius:50%;pointer-events:none;display:grid;place-items:center;text-align:center;
+  background:radial-gradient(circle at 38% 34%,#d45a40,var(--wax,#b8402a) 45%,#6e1f14 100%);box-shadow:0 0 0 6px #8a2c1c55,0 10px 30px #000c,inset 0 -6px 14px #0006;color:#f3d9c4;transform:rotate(-12deg)}
+.ic-seal::before{content:"";position:absolute;inset:12px;border-radius:50%;border:1.5px dashed #f3d9c477}
+.ic-seal b{display:block;font:400 30px/1 var(--display)}.ic-seal span{display:block;font:500 10px/1.3 var(--mono);letter-spacing:.18em;margin-top:4px}
+.ic-seal.out{opacity:0;transition:opacity .5s}
+@media (prefers-reduced-motion:no-preference){
+  .ic-card .ic-lb{animation:icLb .6s cubic-bezier(.2,.8,.2,1) both}
+  .ic-card .ic-in{animation:rise .8s ease-out .15s both}
+  .pl-story.ic .pl-inter{animation:icText .6s ease-out both}
+  .pl-story.ic-m-memory .pl-inter,.pl-story.ic-m-grey .pl-inter{animation-duration:1.1s}
+  .pl-story.ic .art canvas{animation:icDrift 38s ease-in-out infinite alternate}
+  .pl-story.ic-m-thin .art canvas{animation-play-state:paused}
+  .pl-story.ic-m-grey .art canvas{animation-duration:70s}
+  .pl-story.ic-m-fire .art::after{animation:icFlick 2.6s ease-in-out infinite}
+  .ic-flash.ic-warm,.ic-flash.ic-lamp{animation:icFlash 2.2s ease-in-out both}
+  .ic-flash.ic-fire{animation:icFlash 1.4s cubic-bezier(.2,.8,.2,1) both}
+  .ic-flash.ic-beat{animation:icBeat 1.2s ease-out both}
+  .pl-echo.ic-ink{animation:icInk 1.3s cubic-bezier(.2,.7,.2,1) .3s both,icHalo 1.8s ease-out 1.5s both}
+  .pl-lore.ic-ink li{animation:icText .5s ease-out both;animation-delay:calc(var(--i,0) * .18s + .2s)}
+  .ic-say{animation:rise .35s cubic-bezier(.2,.8,.2,1)}
+  .ic-seal{animation:icStamp .5s cubic-bezier(.3,1.4,.5,1) both}
+}
+@media (prefers-reduced-motion:reduce){.pl-story.ic .art canvas,.pl-story.ic .art::after{transition:none}.pl-story.ic{transition:none}}
+@keyframes icLb{from{height:0}}
+@keyframes icText{from{opacity:0;transform:translateY(6px)}}
+@keyframes icDrift{from{transform:scale(1.0)}to{transform:scale(1.045) translate(-1%,-.6%)}}
+@keyframes icFlick{0%,100%{opacity:.85}22%{opacity:1}41%{opacity:.7}63%{opacity:.95}80%{opacity:.78}}
+@keyframes icFlash{0%{opacity:0}35%{opacity:1}100%{opacity:0}}
+@keyframes icBeat{0%,100%{opacity:0}12%{opacity:1}30%{opacity:.25}44%{opacity:.85}}
+@keyframes icInk{0%{opacity:0;filter:blur(5px);clip-path:inset(-30px 100% -30px -30px round 12px)}50%{opacity:1;filter:blur(0)}100%{opacity:1;clip-path:inset(-30px -30px -30px -30px round 12px)}}
+@keyframes icHalo{0%{border-color:#c9a35c66;box-shadow:0 0 0 0 #ecd08f00}30%{border-color:var(--brass-hi);box-shadow:0 0 22px 2px #ecd08f40}100%{border-color:#c9a35c99;box-shadow:0 0 0 0 #ecd08f00}}
+@keyframes icStamp{0%{opacity:0;transform:rotate(-24deg) scale(2.3)}70%{opacity:1;transform:rotate(-11deg) scale(.93)}100%{opacity:1;transform:rotate(-12deg) scale(1)}}
 #caption:not(.steward) .txt p::first-letter{font:400 2.6em/0.8 var(--display);float:left;margin:4px 6px 0 0;color:var(--brass)}
 body.flying #pins{opacity:1}
 body.flying #pins .pin:not(.party){opacity:.55}
@@ -7327,7 +7393,7 @@ async function iVote(p,key){const opts=p.opts;
     if(i===1)return finishVote(p,tally(key));await sleep(800);}}
 async function finishVote(p,by){const w=winner(by,p.opts),o=p.opts[w.i];
   const line=Object.entries(by).map(([c,v])=>`${CREW[c].short}: ${escapeHtml(p.opts[v].t)}`).join("<br>");
-  await iPassage({html:`<p>${line}</p>`+(w.tie&&o.tie?`<p><q>${escapeHtml(o.tie)}</q></p>`:"")},[{t:"Continue"}],{spk:w.tie?"Hans breaks the tie":"The crew decides"});
+  await iPassage({html:`<p>${line}</p>`+(w.tie&&o.tie?`<p><q>${escapeHtml(o.tie)}</q></p>`:""),tie:w.tie&&o.tie?o.tie:null},[{t:"Continue"}],{spk:w.tie?"Hans breaks the tie":"The crew decides"});
   return w.i;}
 async function iVerse(){const v={};
   if(!online()||account.isDm&&!PCS.includes(myChar)){v[1]=await iText("Stig, your line:");v[2]=await iText("Saphira, your line:");v[3]=await iText("Katy, yours closes it:");return v;}
@@ -7388,8 +7454,67 @@ async function iFinalize(I,r){
   await iSend(I.id,r);}
 async function iSend(id,r){try{const cur=(window.__myInterludes||{});const done=Object.assign({},cur.done||{});done[id]=r;
     await netdb.doc("interludes/"+account.id).set({done});window.__myInterludes={done};const all=myResults();if(all[id]){all[id].sent=true;store.set(IKEY,JSON.stringify(all));}
-    toast("Sent to Sam. Hans saluted.");}
+    toast("Sent to Sam. Hans saluted.");iSeal();}
   catch(e){toast("Couldn't send it: "+(e.message||"try again later"));}}
+
+/* ---- cinematics: the title card, the turns between passages, the Echo inking in, Hans's seal ----
+   window.__iset (iCine) runs on every passage. It keys the look by passage id (ICUE): which painted art shows,
+   a mood on the story view (memory, thin, grey, lamp, fire), a sound while play sound is on.
+   Nothing here holds the story up: the card goes on a tap (or by itself in 3 s), the turns run under the text,
+   and with prefers-reduced-motion every turn is an instant cut. storyEl.dataset.mood says the mood for other looks. */
+const IMOOD={"s10-katy":"A song, played slowly enough to hear her in it.","s10-saphira":"One held heartbeat. Someone wants a word.",
+  "s10-stig":"A watch kept in the dark, for someone in your care.","s10-together":"The cave is cold. Hans has an idea about fire."};
+const ICUE={
+  "s10-katy":{K1:{art:"cave",mood:"",snd:"song"},K2:{art:"memory",mood:"memory",ms:2600,flash:"warm",snd:"warm"},K9:{snd:"bell"},K11:{art:"cave",mood:"",ms:2200,snd:"fold"}},
+  "s10-saphira":{S1:{art:"cave",mood:"",snd:"hum"},S2:{mood:"thin",ms:1800,flash:"beat",snd:"heart"},S4:{art:"patron",ms:1800,snd:"hum"},S13:{art:"cave",mood:"",ms:300,snd:"release"}},
+  "s10-stig":{G1:{art:"prayer",mood:"grey",ms:5000,snd:"low"},G8:{mood:"lamp",ms:1600,flash:"lamp",snd:"warm"}},
+  "s10-together":{T1:{art:"cave",mood:""},T2:{art:"fire",mood:"fire",ms:1400,flash:"fire",snd:"strike"}}};
+function iDrone(f,dur,vol){const a=pAc();if(!a)return;const t=a.currentTime,o=a.createOscillator(),g=a.createGain();o.type="sine";o.frequency.value=f;
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+dur*.35);g.gain.linearRampToValueAtTime(0,t+dur);o.connect(g).connect(pOut);o.start(t);o.stop(t+dur+.05);}
+function iSnd(k){if(!opt.sound)return;const N=NOTE;
+  ({song:()=>fourNotes(false,.95),warm:()=>{pluck(N.D4,0,2.6,.1);pluck(N.F4,.14,2.6,.08);pluck(N.A4,.28,2.8,.07);},
+    bell:()=>{pluck(1568,0,2.8,.07,"sine");pluck(1568*2.76,0,1.2,.02,"sine");},fold:()=>{pluck(N.A3,0,2.4,.1);pluck(N.E4,.45,2.4,.08);},
+    hum:()=>{iDrone(110,3.2,.07);iDrone(165.5,3.2,.03);},heart:()=>thump(),release:()=>{pluck(N.A4,0,1.2,.06,"sine");pluck(N.E4,.05,1.4,.05,"sine");},
+    low:()=>pluck(110,0,3.2,.14,"sine"),strike:()=>{[0,.32,.66].forEach(d=>setTimeout(()=>hitSnd("miss"),d*1000));pluck(N.D4,.9,2.6,.1);pluck(N.A4,1.02,2.8,.07);},
+    echo:()=>[N.A4,N.D4*2,N.F4*2,N.E4*2].forEach((f,i)=>pluck(f,.35+i*.3,2.4,.06,"sine")),seal:()=>hitSnd("hit"),tie:()=>fourNotes(false,.09,true)}[k]||(()=>{}))();}
+function iArtTo(key,ms){if(!artCv)return;const box=artCv.parentNode;
+  if(ms&&!reduced&&box){const old=h("canvas",{width:artCv.width,height:artCv.height,class:"ic-old","aria-hidden":"true"});
+    try{old.getContext("2d").drawImage(artCv,0,0);}catch(e){}
+    old.style.transition=`opacity ${ms}ms ease-in-out`;box.append(old);requestAnimationFrame(()=>requestAnimationFrame(()=>{old.style.opacity="0";}));setTimeout(()=>old.remove(),ms+100);}
+  try{paintArt(artCv,key);}catch(e){console.error(e);}}
+function iFlash(k){const box=artCv&&artCv.parentNode;if(!box||reduced)return;const f=h("i",{class:"ic-flash ic-"+k,"aria-hidden":"true"});box.append(f);setTimeout(()=>f.remove(),2400);}
+function iApply(S,c){const ms=reduced?0:(c.ms||0);storyEl.style.setProperty("--ic-ms",(ms||1)+"ms");
+  if("mood" in c){[...storyEl.classList].filter(k=>k.startsWith("ic-m-")).forEach(k=>storyEl.classList.remove(k));if(c.mood)storyEl.classList.add("ic-m-"+c.mood);S.cine.mood=c.mood;storyEl.dataset.mood=c.mood||"";}
+  if(c.art&&c.art!==S.cine.art){iArtTo(c.art,ms);S.cine.art=c.art;}
+  if(c.flash)iFlash(c.flash);
+  if(c.snd)iSnd(c.snd);}
+/* the title card: the interlude's name, whose it is, one line of mood; letterbox in, tap to begin */
+function iTitle(I){const T=INTERLUDE_TEXT[I.id]||{},who=I.who==="all"?PCS.map(c=>CREW[c].short).join(" · "):(CREW[I.who]||{}).name||"";
+  const card=h("div",{class:"ic-card",role:"button",tabindex:"0","aria-label":(T.title||"Interlude")+". Tap to begin."},h("i",{class:"ic-lb"}),h("i",{class:"ic-lb"}),
+    h("div",{class:"ic-in"},h("div",{class:"ic-eye"},I.eye||"Interlude"),h("div",{class:"ic-t"},T.title||""),h("div",{class:"ic-rule"}),h("div",{class:"ic-who"},who),
+      IMOOD[I.id]?h("p",{class:"ic-mood"},IMOOD[I.id]):null,h("div",{class:"ic-tap"},"tap to begin")));
+  let done=false;const key=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go();}};
+  const go=()=>{if(done)return;done=true;clearTimeout(t);removeEventListener("keydown",key,true);card.classList.add("out");setTimeout(()=>card.remove(),reduced?0:460);};
+  card.onclick=go;addEventListener("keydown",key,true);const t=setTimeout(go,PLAY.auto?1200:3000);stage.append(card);}
+/* after the passage is on screen: the Echo inks in, Hans's log writes itself, a tie gets Hans's speaker card */
+function iAfter(p){if(!storyEl)return;
+  const e=storyEl.querySelector(".pl-echo");if(e&&!e.classList.contains("ic-ink")){e.classList.add("ic-ink");iSnd("echo");}
+  const l=storyEl.querySelector(".pl-lore");if(l){l.classList.add("ic-ink");[...l.children].forEach((li,i)=>li.style.setProperty("--i",i));}
+  if(p&&p.tie){const q=storyEl.querySelector(".pl-inter q"),para=q&&q.closest("p");
+    if(para){const face=h("span",{html:hansFace({state:"is-speaking",label:"Hans"})}).firstElementChild;setTimeout(()=>face&&face.classList.remove("is-speaking"),2400);
+      para.replaceWith(h("div",{class:"ic-say"},face,h("div",{},h("div",{class:"ic-who2"},"Hans"),h("p",{},p.tie))));}
+    iSnd("tie");}}
+function iCine(S,p){if(!S||!S.I||!storyEl)return;const I=S.I;
+  storyEl.classList.add("ic");
+  if(!S.cine){S.cine={art:I.art,last:null,mood:""};iTitle(I);}
+  if(S.at!==S.cine.last){S.cine.last=S.at;const c=(ICUE[I.id]||{})[S.at];if(c)iApply(S,c);}
+  const html=p&&p.html||"";
+  if(html.includes("pl-echo")||html.includes("pl-lore")||p&&p.tie)Promise.resolve().then(()=>iAfter(p));}
+window.__iset=iCine;
+/* Send to Sam: Hans files it, a small wax seal */
+function iSeal(){const s=h("div",{class:"ic-seal","aria-hidden":"true"},h("div",{},h("b",{},"H"),h("span",{},"FILED")));root.append(s);
+  setTimeout(()=>iSnd("seal"),reduced?0:300);setTimeout(()=>s.classList.add("out"),1500);setTimeout(()=>s.remove(),2100);}
+if(devPlay())window.__icine={seal:iSeal,cues:ICUE,ist:()=>IST};
 
 /* ---- the hub: what this device may play ---- */
 async function interludeHub(){
