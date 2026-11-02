@@ -7111,7 +7111,7 @@ const pms=ms=>opt.fast?ms*.35:ms;
 // a beat: a pause a tap can end early. Nothing in Quick. raw: ms is already scaled
 function beat(ms,raw){if(!cine()||!(ms>0))return Promise.resolve();return new Promise((res,rej)=>{const g=PLAY.gen;let t=0;
   const fin=()=>{clearTimeout(t);if(PACE.w===fin)PACE.w=null;PLAY.gen!==g?rej(ABORT):res();};PACE.w=fin;t=setTimeout(fin,raw?ms:pms(ms));});}
-stage.addEventListener("click",e=>{if(!PACE.w||!B||e.target.closest(".pl-cam,.pl-modal,.pl-menu"))return;if(t3on()&&V.dragged)return;PACE.skipT=performance.now();PACE.w();},true);
+stage.addEventListener("click",e=>{if(!PACE.w||!B||e.target.closest(".pl-cam,.pl-modal,.pl-menu,.pl-drawer"))return;if(t3on()&&V.dragged)return;PACE.skipT=performance.now();PACE.w();},true);
 function paceMenu(){const row=h("div",{class:"pl-pace",role:"group","aria-label":"Pace of the fights"}),cur=()=>cine()?"cine":"quick";
   for(const [k,l,s] of [["cine","Cinematic","every blow in beats"],["quick","Quick","the old speed"]])
     row.append(h("button",{type:"button","data-k":k,class:"pl-btn"+(cur()===k?" on":""),"aria-pressed":String(cur()===k),onclick:()=>{opt.pace=k;saveOpt();
