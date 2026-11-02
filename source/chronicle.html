@@ -5807,13 +5807,13 @@ function playerTurn(u){if(PLAY.auto)return autoTurn(u);return new Promise(done=>
     const p=P(u.key),c=CREW[u.key];
     const res=[];if(p.slots)res.push(h("span",{},"Slots ",...p.slots.map((n,i)=>h("span",{},` ${i+1}:`,pips(n,(p.lv>=6&&c.slots6?c.slots6:c.slots)[i])))));
     if(c.pact)res.push(h("span",{},"Pact ",pips(p.pact,2)));if(p.res.bi!=null)res.push(h("span",{},"Inspiration ",pips(p.res.bi,4)));if(p.res.cd!=null)res.push(h("span",{},"Channel ",pips(p.res.cd,2)));
-    panel.replaceChildren(initEl,whoRow(u),
+    panel.replaceChildren(...[initEl,whoRow(u),
       h("div",{class:"pl-bars"},h("span",{},"Move ",h("b",{},(u.mv*5)+" ft")),h("span",{},"Action ",pips(u.act,1)),h("span",{},"Bonus ",pips(u.bonus,1)),h("span",{},"Reaction ",pips(u.react?1:0,1)),...res),
       u.mv>0&&speedOf(u)>0?h("p",{class:"pl-hint m"},"Tap a lit square to move."):null,
       A.length?h("div",{class:"pl-sec"},"Action"):null,h("div",{class:"pl-acts"},...A.map(mk)),
       Bo.length?h("div",{class:"pl-sec"},"Bonus action"):null,Bo.length?h("div",{class:"pl-acts"},...Bo.map(mk)):null,
       Fr.length?h("div",{class:"pl-acts"},...Fr.map(mk)):null,
-      h("button",{type:"button",class:"pl-btn pri",onclick:()=>{if(busy)return;B.onMove=null;done();}},"End turn"));};
+      h("button",{type:"button",class:"pl-btn pri",onclick:()=>{if(busy)return;B.onMove=null;done();}},"End turn")].filter(Boolean));};
   refreshPanel=draw;draw();panel.scrollTop=0;});}
 
 async function autoTurn(u){const f=enemiesOf(u).filter(o=>o.hp>0);if(f.length&&speedOf(u)>0&&Math.random()<.7)await approach(u,nearest(u,f),u.key==="stig"||u.key==="katy"?4:1);if(u.hp<=0)return;
