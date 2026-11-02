@@ -555,7 +555,7 @@ body.sealed header.top,body.sealed nav.dock,body.sealed .eggs,body.sealed #pins{
   .sl-face .hans-face{--hf-size:60px}.sl-h{display:none}.sl-say{font-size:16px}.sl-in{gap:6px}
   #sl-plate{width:min(150px,38vh)}#sl-plate b{font-size:14px}.sl-cmd{font-size:16px;min-height:1.4em}}
 /* =================== PLAY SESSION 10: the battle map (one shared screen at the table) =================== */
-#play{position:fixed;inset:0;z-index:25;background:var(--void);color:var(--parch);display:grid;grid-template-rows:auto 1fr auto;font-family:var(--body);
+#play{position:fixed;inset:0;z-index:25;background:var(--void);color:var(--parch);display:grid;grid-template-rows:auto 1fr auto;grid-template-columns:minmax(0,1fr);font-family:var(--body);
   padding:calc(var(--top) + 8px) max(10px,env(safe-area-inset-right,0px)) calc(var(--bot) + 8px) max(10px,env(safe-area-inset-left,0px));box-sizing:border-box}
 body.playing header.top,body.playing nav.dock,body.playing .eggs,body.playing #pins,body.playing #stage{visibility:hidden}
 .pl-top{display:flex;align-items:center;gap:10px;min-height:44px}
@@ -571,7 +571,7 @@ body.playing header.top,body.playing nav.dock,body.playing .eggs,body.playing #p
 .pl-btn small{display:block;font:400 11px/1.2 var(--mono);letter-spacing:0;color:var(--parch-dim);margin-top:3px}
 .pl-btn.pri small{color:#3a2a10}
 .pl-x{width:44px;padding:0;font-size:18px}
-.pl-main{position:relative;min-height:0;display:grid;grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto;gap:8px}
+.pl-main{position:relative;min-height:0;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;gap:8px}
 @media (min-width:900px){.pl-main{grid-template-columns:1fr 380px;grid-template-rows:minmax(0,1fr)}}
 .pl-stage{position:relative;min-height:0;display:grid;place-items:center;overflow:hidden;border-radius:12px;background:#07080b}
 .pl-map{position:relative;touch-action:manipulation;-webkit-user-select:none;user-select:none}
@@ -642,7 +642,7 @@ body.playing header.top,body.playing nav.dock,body.playing .eggs,body.playing #p
 .pl-ft small{font:500 10px/1 var(--label);letter-spacing:.14em;text-transform:uppercase;color:var(--parch-dim);margin-left:6px}
 .pl-ft.j{color:#ffb08a}
 .pl-3d .fl{z-index:3}
-.pl-side{min-height:0;display:flex;flex-direction:column;gap:8px}
+.pl-side{min-height:0;min-width:0;display:flex;flex-direction:column;gap:8px}
 .pl-chip{position:absolute;z-index:4;left:50%;top:10px;transform:translateX(-50%);max-width:calc(100% - 24px);box-sizing:border-box;background:var(--housing);border:1px solid var(--steward);color:var(--steward);border-radius:10px;padding:8px 12px;font:500 13px/1.35 var(--mono);text-align:center;box-shadow:0 8px 30px #000a;pointer-events:none;animation:fl 3.2s forwards;animation-name:chipin}
 .pl-chip.bad{border-color:var(--ember);color:#ffb08a}
 @keyframes chipin{0%{opacity:0}8%{opacity:1}85%{opacity:1}100%{opacity:0}}
