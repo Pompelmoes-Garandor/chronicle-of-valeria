@@ -5750,8 +5750,8 @@ async function t3strike(a,t,at){if(!t3on())return;const ma=V.minis.get(a),mt=V.m
   await sleep(Math.min(440,ms)*t3x_ts*(opt.fast?1/.35:1));}
 function t3hurt(u,type){if(!t3on())return;const m=V.minis.get(u);if(!m)return;const X=V.t3x,now=performance.now();m.hitT=now;
   const st=X.last&&X.last.t===u&&now-X.last.time<8000?X.last:null,crit=(!!st&&t3x_crit(st.at))||!!X.fc,big=crit?1.6:1,col=DMG_COL[type]||"#ffd0b0",sz=Math.min(2,u.size||1),G=X.glow,Sm=X.smoke;
-  if(crit){X.critU=u;X.critT=now;}
-  const p=m.g.position.clone();p.y+=m.top*.55;const f=m.g.position.clone();f.y+=.035;const d=st?st.dir:null;
+  if(crit){X.critU=u;X.critT=now;}X.hurtU=u;X.hurtT=now;X.hurtTy=type;
+  const p=m.g.position.clone();p.y+=m.top*.55;const f=m.g.position.clone();f.y+=.035;const d=st?st.dir:null;t3y_pop(X,p,col,(crit?.85:.55)*sz);
   G.spawn(p,col,18*big*sz,{sp:2.2*big,up:1.4,lf:.5,gr:-7,sz:.14,dr:1.2,dir:d,cone:.75,i:1.6});
   t3x_flare(X,p,col,.95*big*sz,200,crit||type==="radiant"||type==="force");t3x_ring(X,f,col,.85*big*sz,380,.09,1.4);t3x_flash(X,col,p,crit?12:5);
   if(type==="fire"){G.spawn(p,"#ffb050",16*sz,{sp:.7,up:1.5,lf:1.1,gr:1.2,sz:.11,dr:1.5,jit:.15,fl:1,i:1.6});Sm.spawn(p,"#2a221d",5*sz,{sp:.3,up:.6,lf:1.3,gr:.4,sz:.35,sz1:1.1,dr:1.5,jit:.15,a:.8});}
@@ -5765,11 +5765,16 @@ function t3hurt(u,type){if(!t3on())return;const m=V.minis.get(u);if(!m)return;co
   else{G.spawn(p,"#fff4e0",10*sz,{sp:3,up:1,lf:.3,gr:-9,sz:.06,dir:d,cone:.5,i:2});}
   if(crit){t3x_ring(X,f,"#fff0d0",1.6*sz,520,.06,1.6);G.spawn(p,"#fff0d0",22,{sp:3.4,up:2,lf:.55,gr:-8,sz:.09,dr:1,i:2});t3x_shake(X,.16,d);}}
 function t3float(u,t,cls){if(!t3on())return false;const m=V.minis.get(u);if(!m)return true;const X=V.t3x,now=performance.now(),p=m.g.position.clone();p.y+=m.top+.35;p.project(V.cam);const rc=V.host;
-  const x=(p.x*.5+.5)*rc.clientWidth,y=(-p.y*.5+.5)*rc.clientHeight,crit=!cls&&X.critU===u&&now-X.critT<2500;if(crit)X.critU=null;
-  const f=h("div",{class:"fl "+cls,style:`left:${x}px;top:${y}px`+(crit?";font-size:24px;color:#ffd27a;text-shadow:0 1px 3px #000,0 0 12px #ff7a2a":"")},t);V.tags.append(f);setTimeout(()=>f.remove(),1600);
+  const crit=!cls&&X.critU===u&&now-X.critT<2500;if(crit)X.critU=null;const ph=rc.clientWidth<560,dmg=!cls,ty=X.hurtU===u&&now-X.hurtT<700?X.hurtTy:null,num=+(String(t).match(/\d+/)||[0])[0];
+  // big outlined numbers in the damage colour that pop on impact, spread a little sideways so two hits don't stack
+  const x=(p.x*.5+.5)*rc.clientWidth+(Math.random()-.5)*(ph?14:22),y=(-p.y*.5+.5)*rc.clientHeight-(ph?14:18),fs=dmg?(crit?(ph?28:32):Math.round((ph?19:21)+Math.min(5,num/4))):cls==="info"?0:ph?15:16;
+  const c=crit?"#ffd27a":t==="miss"?"#cdd4de":dmg&&ty&&DMG_COL[ty]&&!T3Y_PHYS.includes(ty)?t3y_lift(DMG_COL[ty]):"",sh="0 0 2px #000,0 0 3px #000,0 2px 4px #000"+(crit?",0 0 14px #ff7a2a":dmg?",0 0 10px #000a":"");
+  const f=h("div",{class:"fl "+cls,style:`left:${x}px;top:${y}px;text-shadow:${sh}`+(fs?`;font-size:${fs}px`:"")+(c?`;color:${c}`:"")+(dmg?";font-weight:800;letter-spacing:.02em":"")+(t3x_ts!==1?`;animation-duration:${1.5*t3x_ts}s`:"")},t);V.tags.append(f);setTimeout(()=>f.remove(),1600*t3x_ts);
+  if(!X.still&&f.animate){const T=s=>`translate(-50%,-50%) ${s}`;f.animate(dmg?[{transform:T(`scale(${crit?2.4:1.8})`)},{transform:T("scale(.9)"),offset:.09},{transform:T("scale(1)"),offset:.16},{transform:T("scale(1)")}]:
+    cls==="miss"?[{transform:T("translateX(0) skewX(0deg)")},{transform:T("translateX(10px) skewX(-12deg)"),offset:.25},{transform:T("translateX(16px) skewX(-8deg)")}]:[{transform:T("scale(1)")},{transform:T("scale(1)")}],{duration:1500*t3x_ts});}
   const q=m.g.position.clone(),sz=Math.min(2,u.size||1);
-  if(cls==="heal"){q.y+=.04;t3x_heal(X,m,q,sz);}
-  else if(cls==="miss"){q.y+=m.top*.5;X.smoke.spawn(q,"#7d7a74",3,{sp:.5,up:.3,lf:.8,gr:.2,sz:.25,sz1:.6,dr:2,a:.45});X.glow.spawn(q,"#8f939b",6,{sp:.8,up:.6,lf:.4,sz:.07});}
+  if(cls==="heal"&&/^\+/.test(t)){q.y+=.04;t3x_heal(X,m,q,sz);}
+  else if(cls==="miss"){q.y+=m.top*.5;X.smoke.spawn(q,"#7d7a74",3,{sp:.5,up:.3,lf:.8,gr:.2,sz:.25,sz1:.6,dr:2,a:.45});X.glow.spawn(q,"#8f939b",6,{sp:.8,up:.6,lf:.4,sz:.07});if(t==="miss")t3y_whiff(X,u,q,sz,now);}
   return true;}
 // helpers: take a pooled piece (steal the oldest if all are busy), and the small building blocks every effect uses
 function t3x_take(list){let o=list.find(x=>!x.userData.busy);if(!o){o=list.shift();list.push(o);}else{list.splice(list.indexOf(o),1);list.push(o);}o.userData.tok++;o.userData.busy=true;o.visible=true;return o;}
@@ -5777,17 +5782,17 @@ function t3x_fx(dur,tick,end,delay=0){V.fx.push({t0:performance.now()+delay*t3x_
 function t3x_done(o,tok){if(o.userData.tok===tok){o.visible=false;o.userData.busy=false;}}
 function t3x_ring(X,p,col,R,dur,w=.08,i=1.2,delay=0){const o=t3x_take(X.rings),tok=o.userData.tok,U=o.material.uniforms;o.position.copy(p);o.scale.setScalar(R);U.uC.value.set(col);U.uW.value=w;U.uR.value=0;U.uI.value=0;
   t3x_fx(dur,k=>{if(o.userData.tok!==tok)return;U.uR.value=.08+.84*(1-Math.pow(1-k,3));U.uI.value=i*Math.pow(1-k,1.4);},()=>t3x_done(o,tok),delay);}
-function t3x_flare(X,p,col,s,dur,star=false,delay=0){const o=t3x_take(star?X.stars:X.glows),tok=o.userData.tok;o.position.copy(p);o.material.color.set(col).multiplyScalar(1.8);o.material.rotation=Math.random()*6.28;o.scale.setScalar(.01);
+function t3x_flare(X,p,col,s,dur,star=false,delay=0){const o=t3x_take(star?X.stars:X.glows),tok=o.userData.tok;s*=t3y_far(p);o.position.copy(p);o.material.color.set(col).multiplyScalar(1.8);o.material.rotation=Math.random()*6.28;o.scale.setScalar(.01);
   t3x_fx(dur,k=>{if(o.userData.tok!==tok)return;const e=1-Math.pow(1-k,3);o.scale.setScalar(s*(.4+.8*e));o.material.opacity=Math.pow(1-k,1.6);},()=>t3x_done(o,tok),delay);}
 function t3x_flash(X,col,p,i){if(!X.light)return;X.light.color.set(col);X.light.position.copy(p);X.light.position.y+=.3;X.light.intensity=Math.max(X.light.intensity,i);}
 function t3x_shake(X,a,d){if(X.still)return;const S=X.sh;S.a=Math.max(S.a,a);S.x=d?d.x*.6:0;S.z=d?d.z*.6:0;}
 function t3x_crit(at){try{const ps=logEl.children;for(let i=ps.length-1,j=0;i>=0&&j<8;i--,j++){const s=ps[i].textContent;if(s.includes(" · "+at.n+" → "))return s.includes("CRITICAL");}}catch(e){}return false;}
 // a streak between two points: a glowing beam, lance, trail or tendril. A and B are copied; o.track(U,k) may move them each frame
-function t3x_streak(X,A,B,{col,w=.05,i=1.5,cr=0,wv=0,dur=300,delay=0,grow=0,track=null,fade=1.4}){const o=t3x_take(X.streaks),tok=o.userData.tok,U=o.material.uniforms;
+function t3x_streak(X,A,B,{col,w=.05,i=1.5,cr=0,wv=0,dur=300,delay=0,grow=0,track=null,fade=1.4}){const o=t3x_take(X.streaks),tok=o.userData.tok,U=o.material.uniforms;w*=t3y_far(t3v.lerpVectors(A,B,.5));
   U.uA.value.copy(A);U.uB.value.copy(B);U.uC.value.set(col);U.uW.value=w;U.uCr.value=cr;U.uWv.value=wv;U.uS0.value=0;U.uS1.value=grow?0:1.06;U.uI.value=0;U.uSeed.value=Math.random()*50;
   t3x_fx(dur,k=>{if(o.userData.tok!==tok)return;if(grow){const g=Math.min(1,k/grow);U.uS1.value=g*1.06;}U.uI.value=i*(grow&&k<grow?1:Math.pow(1-(k-grow)/(1-grow),fade))*(cr?.75+.25*Math.sin(k*80):1);track&&track(U,k);},()=>t3x_done(o,tok),delay);return o;}
 // a curved slash ribbon at c, facing the camera, with a random tilt
-function t3x_arc(X,c,col,s,dur,{i=1.6,tilt=null,flip=null,delay=0}={}){const o=t3x_take(X.arcs),tok=o.userData.tok,U=o.material.uniforms;o.position.copy(c);
+function t3x_arc(X,c,col,s,dur,{i=1.6,tilt=null,flip=null,delay=0}={}){const o=t3x_take(X.arcs),tok=o.userData.tok,U=o.material.uniforms;o.position.copy(c);s*=Math.sqrt(t3y_far(c));
   t3v.subVectors(V.cam.position,c).normalize();t3v.y+=.35;o.lookAt(t3v.add(c));o.rotateZ(tilt??(Math.random()*.9-.45+(Math.random()<.5?0:Math.PI)));o.scale.set(s*((flip??Math.random()<.5)?-1:1),s,s);
   U.uC.value.set(col);U.uI.value=i;U.uP.value=0;t3x_fx(dur,k=>{if(o.userData.tok!==tok)return;U.uP.value=(1-Math.pow(1-k,2.2))*1.45;},()=>t3x_done(o,tok),delay);}
 // a column of light falling from above
@@ -5796,11 +5801,11 @@ function t3x_pillar(X,p,col,r,hgt,dur){const o=t3x_take(X.pillars),tok=o.userDat
   t3x_fx(dur,k=>{if(o.userData.tok!==tok)return;U.uH.value=Math.min(1,k/.22);U.uI.value=2.2*(k<.22?1:Math.pow(1-(k-.22)/.78,1.5));o.scale.x=o.scale.z=r*(1-.4*k);},()=>t3x_done(o,tok));}
 // something that flies from A to B: a glowing head, a trailing streak, a mesh (arrow, dagger, thorn), sparks shed on the way
 function t3x_proj(X,from,to,dur,{arc=0,delay=0,head=null,hs=.3,trail=null,tw=.05,tl=.8,ti=1.2,mesh=null,spin=0,emit=null,arrive=null}){
-  const P=new THREE.Vector3(),Q=new THREE.Vector3(),L=from.distanceTo(to)||1,pos=(k,v)=>{v.lerpVectors(from,to,k);v.y+=Math.sin(Math.PI*k)*arc;return v;};
+  hs*=t3y_far(to);const P=new THREE.Vector3(),Q=new THREE.Vector3(),L=from.distanceTo(to)||1,pos=(k,v)=>{v.lerpVectors(from,to,k);v.y+=Math.sin(Math.PI*k)*arc;return v;};
   const hd=head?t3x_take(X.glows):null,tr=trail?t3x_take(X.streaks):null,ms=mesh?t3x_take(mesh):null,tk=[hd,tr,ms].map(o=>o&&o.userData.tok);
   for(const o of[hd,tr,ms])if(o)o.visible=false;
   if(hd){hd.material.color.set(head).multiplyScalar(2);hd.material.opacity=1;hd.material.rotation=0;hd.scale.setScalar(hs);}
-  if(tr){const U=tr.material.uniforms;U.uC.value.set(trail);U.uW.value=tw;U.uCr.value=0;U.uWv.value=0;U.uS0.value=0;U.uS1.value=1.06;U.uI.value=ti;}
+  if(tr){const U=tr.material.uniforms;U.uC.value.set(trail);U.uW.value=tw*t3y_far(from);U.uCr.value=0;U.uWv.value=0;U.uS0.value=0;U.uS1.value=1.06;U.uI.value=ti;}
   t3x_fx(dur,k=>{pos(k,P);if(hd&&hd.userData.tok===tk[0]){hd.visible=true;hd.position.copy(P);hd.scale.setScalar(hs*(.85+.3*Math.random()));}
     if(tr&&tr.userData.tok===tk[1]){tr.visible=k>.02;pos(Math.max(0,k-tl/L),Q);tr.material.uniforms.uA.value.copy(Q);tr.material.uniforms.uB.value.copy(P);}
     if(ms&&ms.userData.tok===tk[2]){ms.visible=true;ms.position.copy(P);pos(Math.min(1,k+.04),Q);if(Q.distanceToSquared(P)>1e-6)ms.lookAt(Q);if(spin)ms.rotateX(-k*spin);}
@@ -5860,6 +5865,18 @@ function t3x_melee(X,n,at,ma,mt,from,to,len,dir,col){const G=X.glow,Sm=X.smoke,s
 function t3x_heal(X,m,f,sz){const c="#a8f090",r=.32*sz,top=m.top*1.3,P=new THREE.Vector3();let e=0;t3x_ring(X,f,c,.9*sz,600,.07,1.2);t3x_flare(X,P.copy(f).setY(f.y+m.top*.5),c,.9*sz,450);
   t3x_fx(820,k=>{if(!X.hi&&(e++&1))return;for(let s=0;s<3;s++){const a=k*Math.PI*4+s*2.094,rr=r*(1-k*.35);P.set(f.x+Math.cos(a)*rr,f.y+.05+k*top,f.z+Math.sin(a)*rr);
     X.glow.spawn(P,s?c:"#f0ffe0",1,{sp:.05,up:.15,lf:.55,gr:.3,sz:.1,i:1.6});}},null);}
+// combat feel: damage-number colour, the miss whiff, the impact pop
+const T3Y_PHYS=["slashing","piercing","bludgeoning"];
+function t3y_lift(c){const n=parseInt(c.slice(1),16),l=v=>Math.round(v+(255-v)*.3);return `rgb(${l(n>>16)},${l(n>>8&255)},${l(n&255)})`;}
+// a miss: the blow or bolt sails past, a pale streak skimming beside the target and on beyond it
+function t3y_whiff(X,u,q,sz,now){const st=X.last&&X.last.t===u&&now-X.last.time<4000?X.last:null;if(!st)return;const d=st.dir,pp=new THREE.Vector3().crossVectors(d,V.tree?t3y_Z:t3y_Y).normalize().multiplyScalar(.3*sz*(Math.random()<.5?1:-1));
+  const A=q.clone().add(pp).addScaledVector(d,-.6),B=q.clone().add(pp).addScaledVector(d,1.5);t3x_streak(X,A,B,{col:"#cfd6e2",w:.04,i:1.1,grow:.4,dur:340});X.glow.spawn(B,"#cfd6e2",4,{sp:.6,up:.2,lf:.35,gr:-2,sz:.05,dir:d,cone:.3});}
+const t3y_Y=new THREE.Vector3(0,1,0),t3y_Z=new THREE.Vector3(0,0,1);
+// seen from the whole-board distance, thin beams and flares grow a little so they still read (1 up close, at most 1.5)
+function t3y_far(p){return clamp(V.cam.position.distanceTo(p)/8,1,1.5);}
+// the hit moment: a hard white pop gone in a blink, before the coloured flare blooms
+function t3y_pop(X,p,col,s){const o=t3x_take(X.stars),tok=o.userData.tok;s*=t3y_far(p);o.position.copy(p);o.material.color.set("#fff").lerp(t3c.set(col),.3).multiplyScalar(1.3);o.material.rotation=Math.random()*.8;o.material.opacity=1;o.scale.setScalar(s);
+  t3x_fx(110,k=>{if(o.userData.tok!==tok)return;o.scale.setScalar(s*(1+.5*k));o.material.opacity=Math.pow(1-k,2);},()=>t3x_done(o,tok));}
 
 /* every frame: ease the camera, walk the minis, pin their name tags */
 let t3last=0,t3raf=0;
@@ -5982,7 +5999,7 @@ function t3death(m,u){const X=V.t3x;if(!X)return;const foe=u.side==="foe",sz=Mat
 if(/[?&]playtest/.test(location.search))window.__t3x={ts(v){t3x_ts=v;},units(){return B?B.units.map((u,i)=>i+":"+u.key+":"+u.side):[];},
   strike(ai,ti,at){if(!B)return;const a=B.units[ai],t=B.units[ti];V.t3x.last=null;t3strike(a,t,at).catch(e=>console.error(e));},dbg(){const X=V&&V.t3x;return X?{fx:V.fx.length,on:t3on(),vis:['streaks','arcs','rings','glows','stars'].map(k=>X[k].filter(o=>o.visible).length).join()}:null;},
   hurt(ti,type){const u=B.units[ti];t3hurt(u,type);t3float(u,"−7","");},crit(ti,type){const u=B.units[ti];V.t3x.critU=u;V.t3x.critT=performance.now();V.t3x.fc=true;t3hurt(u,type);V.t3x.fc=false;t3float(u,"−19","");},
-  heal(ti){t3float(B.units[ti],"+6","heal");},death(ti){const u=B.units[ti],m=V.minis.get(u);if(m)t3death(m,u);}};
+  heal(ti){t3float(B.units[ti],"+6","heal");},miss(ti){t3float(B.units[ti],"miss","miss");},death(ti){const u=B.units[ti],m=V.minis.get(u);if(m)t3death(m,u);}};
 
 function t3dispose(){if(!V)return;cancelAnimationFrame(t3raf);t3raf=0;V.disposePost&&V.disposePost();V.scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){const ms=Array.isArray(o.material)?o.material:[o.material];for(const m of ms){if(m.map&&m.map!==t3dot&&m.map!==t3tile)m.map.dispose();m.dispose();}}});
   V.r.renderLists.dispose();V=null;}
