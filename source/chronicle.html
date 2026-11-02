@@ -3229,7 +3229,7 @@ const DIEF={types:{},env:null,halo:null,
   font:s=>`700 ${s}px "Times New Roman",Times,"Liberation Serif","Noto Serif","DejaVu Serif",serif`,
   styles:{ // resA: the resin, resB: its swirl, resC: the deep tint, ink, flake: the glitter, glow: the natural 20
     ivory:{resA:0xf4ead2,resB:0xc9a35c,resC:0xe2cfa6,ink:0x23170c,inkMetal:0,inkRough:.55,flake:0xffe2a0,flakes:.1,swirl:.7,deep:.5,rough:.3,glow:0xffbf5a},
-    ember:{resA:0xe8743b,resB:0xffb468,resC:0x9c300e,ink:0xf6cf7a,inkMetal:1,inkRough:.28,flake:0xffd890,flakes:.12,swirl:.65,deep:.45,rough:.3,glow:0xff9a3c},
+    ember:{resA:0xe8743b,resB:0xffb468,resC:0x9c300e,ink:0xf6cf7a,inkMetal:.9,inkRough:.38,flake:0xffd890,flakes:.12,swirl:.65,deep:.45,rough:.3,glow:0xff9a3c},
     shadow:{resA:0x2a2533,resB:0x5a4b78,resC:0x0c0a10,ink:0xd8d4e6,inkMetal:1,inkRough:.3,flake:0xb9a6ff,flakes:.14,swirl:.75,deep:.5,rough:.26,glow:0x9d7bff},
     tide:{resA:0x6f8a8c,resB:0xb4ccc6,resC:0x2c3f45,ink:0xf2f0e8,inkMetal:.6,inkRough:.35,flake:0xdff6ff,flakes:.08,swirl:.65,deep:.45,rough:.3,glow:0x8fd3c8}}};
 // which number each face carries, in the order of dieNormals: opposites add up to sides+1, the corners as even as can be
@@ -3273,7 +3273,7 @@ function dieType(s){ // geometry, number atlas and face table of one kind of die
     let h, dy=0;
     if(s===10){const yp=Math.max(...F.ids.map(i=>V[i].clone().sub(F.c).dot(F.up))), yf=Math.min(...F.ids.map(i=>V[i].clone().sub(F.c).dot(F.up)));
       const ys=V[F.ids.find(i=>{const y=V[i].clone().sub(F.c).dot(F.up);return y<yp-1e-6&&y>yf+1e-6;})].clone().sub(F.c).dot(F.up);
-      h=.25*(yp-yf); dy=ys+.04*(yp-yf);}
+      h=.3*(yp-yf); dy=ys+.06*(yp-yf);}
     else {h=F.ri*({6:1.05,8:1.38,12:.92,20:1.22}[s]); dy=-F.ri*({6:0,8:.08,12:0,20:.05}[s]);}
     labels.push({face:f,value:F.value,pos:F.c.clone().addScaledVector(F.up,dy),up:F.up.clone(),h});});
   // the atlas: one cell per face; red = the engraving's depth (soft), green = the ink (sharp)

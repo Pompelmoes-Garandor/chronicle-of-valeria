@@ -12,7 +12,8 @@
 //   --sizes LIST     desktop, phone (default both)
 //   --no-shots       only the checks
 //   --shots LIST     which pictures: gallery, glow, 4, 6, 8, 10, 12, 20 (default all)
-//   --software       sandboxes without a graphics card (SwiftShader)
+//   --software       sandboxes without a graphics card (SwiftShader); slow, so pictures get 5 minutes each
+//   --dpr N          pixel ratio for every size (the phone is 3 by default; 2 is quicker with --software)
 //   --headed         show the browser
 //
 // For every die (d4 d6 d8 d10 d12 d20) and every value v it checks:
@@ -30,9 +31,10 @@ const args = process.argv.slice(2), opt = {};
 for (let i = 0; i < args.length; i++) { const a = args[i]; if (!a.startsWith('--')) continue;
   const k = a.slice(2), v = args[i + 1]; if (v === undefined || v.startsWith('--')) opt[k] = true; else { opt[k] = v; i++; } }
 const out = path.resolve(opt.out || path.join(__dirname, 'out', 'dice')); fs.mkdirSync(out, { recursive: true });
-const sizes = String(opt.sizes || 'desktop,phone').split(',').map(s => s.trim()).filter(Boolean);
+const sizes = String(opt.sizes || 'desktop,phone').split(',').map(s => s.trim()).filter(Boolean), missing = [];
 const SIZES = { desktop: { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2 },
                 phone: { viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true } };
+const software = !!opt.software;
 const THREE_URL = 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js';
 
 const src = fs.readFileSync(path.join(__dirname, '..', '..', 'source', 'chronicle.html'), 'utf8');
@@ -151,10 +153,10 @@ function stage(kind) {
 
 (async () => {
   const launch = { headless: !opt.headed };
-  if (opt.software) launch.args = ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'];
+  if (software) launch.args = ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'];
   const browser = await pw.chromium.launch(launch); let failed = false;
   for (const size of sizes) {
-    const ctx = await browser.newContext(SIZES[size]), p = await ctx.newPage(), errors = [];
+    const ctx = await browser.newContext(Object.assign({}, SIZES[size], opt.dpr ? { deviceScaleFactor: +opt.dpr } : {})), p = await ctx.newPage(), errors = [];
     p.on('pageerror', e => errors.push('pageerror: ' + e.message));
     p.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
     if (process.env.THREE_JS) await p.route(THREE_URL, r => r.fulfill({ path: process.env.THREE_JS, contentType: 'text/javascript', headers: { 'access-control-allow-origin': '*' } }));
@@ -171,14 +173,16 @@ function stage(kind) {
         await p.reload(); await p.waitForFunction(() => window.__dice, null, { timeout: 30000 });
         await p.evaluate(stage, kind);
         for (let i = 0; i < (kind === 'glow' ? 3 : 1); i++) { await p.waitForTimeout(150); await p.evaluate(() => window.__frame(1)); }   // the glow fades in
-        const file = path.join(out, `dice-${/^\d+$/.test(kind) ? 'd' + kind : kind}-${size}.png`); await p.screenshot({ path: file, timeout: 120000 });
-        console.log('  ' + path.relative(process.cwd(), file));
+        const file = path.join(out, `dice-${/^\d+$/.test(kind) ? 'd' + kind : kind}-${size}.png`);
+        try { await p.screenshot({ path: file, timeout: software ? 300000 : 60000 }); console.log('  ' + path.relative(process.cwd(), file)); }
+        catch (e) { missing.push(path.basename(file)); console.log(`  no picture ${path.basename(file)}: ${e.message.split('\n')[0]}`); }
       }
     }
     if (errors.length) { failed = true; console.log(`${size}: errors in the page`); errors.slice(0, 10).forEach(e => console.log('   ' + e)); }
     await ctx.close();
   }
   await browser.close();
+  if (missing.length) console.log(`pictures not taken (too slow?): ${missing.join(', ')}`);
   console.log(failed ? 'FAILED' : 'all dice check out');
   process.exit(failed ? 1 : 0);
 })().catch(e => { console.error(e); process.exit(1); });
