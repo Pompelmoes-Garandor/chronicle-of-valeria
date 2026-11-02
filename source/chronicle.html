@@ -4897,9 +4897,9 @@ function t3build(mp,host){
   const span=Math.max(mp.W,mp.H);
   Vb.view={tx:0,ty:tree?0:0,tz:0,yaw:tree?0:.55,pitch:tree?.18:.92,dist:span*1.25};
   Vb.goal=Object.assign({},Vb.view);Vb.home=Object.assign({},Vb.view);
-  Vb.view.dist*=1.9;Vb.view.yaw+=tree?.6:-1.3;Vb.view.pitch=tree?.5:1.3; // the fly-in
-  Vb.limits=tree?{yaw:[-.85,.85],pitch:[-.05,.95],dist:[4,span*2]}:{yaw:[-1e9,1e9],pitch:[.32,1.45],dist:[3.5,span*2.1]};
-  Vb.userT=0;
+  Vb.view.dist*=1.9;Vb.view.yaw+=tree?.6:-1.5;Vb.view.pitch=tree?.55:1.38; // the fly-in starts high and turned
+  Vb.limits=tree?{yaw:[-.85,.85],pitch:[-.05,.95],dist:[4,span*2]}:{yaw:[-1e9,1e9],pitch:[.32,1.45],dist:[3.2,span*2.1]};
+  Vb.userT=0;Vb.t3k_v={tx:0,ty:0,tz:0,yaw:0,pitch:0,dist:0};Vb.t3k_pf=0;
   host.prepend(r.domElement);r.domElement.className="pl-gl";
   t3controls(Vb);t3post(Vb);
   return Vb;}
@@ -4912,27 +4912,44 @@ function t3fit(){if(!V)return;const el=V.host,w=Math.max(10,el.clientWidth),hh=M
   let lo=2,hi=80;for(let i=0;i<22;i++){const m=(lo+hi)/2;if(fits(m))hi=m;else lo=m;}const d=hi;V.home.dist=d;if(!V.userT){V.goal.dist=d*(V.lastCur?.86:1);}if(V.intro&&!V.fit1){V.fit1=true;V.view.dist=d*1.9;}V.limits.dist[1]=d*1.8;}
 
 /* drag to turn, pinch or wheel to zoom, two fingers (or right button) to slide */
-function t3controls(Vb){const el=Vb.r.domElement,pts=new Map();let st=null;Vb.dragged=false;
+function t3controls(Vb){const el=Vb.r.domElement,pts=new Map();let st=null;Vb.dragged=false;const KS=["yaw","pitch","tx","ty","tz"];
   const lim=()=>{const L=Vb.limits,G=Vb.goal;G.yaw=clamp(G.yaw,L.yaw[0],L.yaw[1]);G.pitch=clamp(G.pitch,L.pitch[0],L.pitch[1]);G.dist=clamp(G.dist,L.dist[0],L.dist[1]);
     const ex=Vb.mp.W/2+1,ez=Vb.mp.H/2+1;G.tx=clamp(G.tx,-ex,ex);if(Vb.tree)G.ty=clamp(G.ty,-ez,ez);else G.tz=clamp(G.tz,-ez,ez);};
   const pan=(dx,dy)=>{const G=Vb.goal,k=G.dist*.0016;if(Vb.tree){G.tx-=dx*k;G.ty+=dy*k;}else{const c=Math.cos(G.yaw),s=Math.sin(G.yaw);G.tx-=(dx*c+dy*s)*k;G.tz-=(-dx*s+dy*c)*k;}};
-  el.addEventListener("pointerdown",e=>{el.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});Vb.dragged=false;
-    st={x:e.clientX,y:e.clientY,btn:e.button,shift:e.shiftKey,d:null,mx:0,my:0};if(pts.size===2){const [a,b]=[...pts.values()];st.d=Math.hypot(a.x-b.x,a.y-b.y);st.mx=(a.x+b.x)/2;st.my=(a.y+b.y)/2;}});
+  // zoom toward the point under the cursor (or between the fingers); zooming out drifts back to the middle
+  const zoomAt=(cx,cy,f)=>{const G=Vb.goal,d0=G.dist,L=Vb.limits;G.dist=clamp(d0*f,L.dist[0],L.dist[1]);const r=G.dist/d0;
+    if(r<1){const P=t3k_ground(Vb,cx,cy);if(P){G.tx=P.x+(G.tx-P.x)*r;if(Vb.tree)G.ty=P.y+(G.ty-P.y)*r;else G.tz=P.z+(G.tz-P.z)*r;}}
+    else if(r>1){const sp=Vb.home.dist-d0,w=sp>.01?clamp((G.dist-d0)/sp,0,1):1;G.tx-=G.tx*w;if(Vb.tree)G.ty-=G.ty*w;else G.tz-=G.tz*w;}
+    lim();};
+  el.addEventListener("pointerdown",e=>{el.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});Vb.dragged=false;Vb.t3k_spin=null;if(Vb.intro)Vb.intro=false;
+    st={x:e.clientX,y:e.clientY,btn:e.button,shift:e.shiftKey,d:null,mx:0,my:0,v:{yaw:0,pitch:0,tx:0,ty:0,tz:0},lt:e.timeStamp};if(pts.size===2){const [a,b]=[...pts.values()];st.d=Math.hypot(a.x-b.x,a.y-b.y);st.mx=(a.x+b.x)/2;st.my=(a.y+b.y)/2;}});
   el.addEventListener("pointermove",e=>{if(!pts.has(e.pointerId)){t3hover(e);return;}const p=pts.get(e.pointerId),dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;
     if(!st)return;if(Math.hypot(e.clientX-st.x,e.clientY-st.y)>7)Vb.dragged=true;if(!Vb.dragged)return;Vb.userT=performance.now();
-    if(pts.size>=2){const [a,b]=[...pts.values()],d=Math.hypot(a.x-b.x,a.y-b.y),mx=(a.x+b.x)/2,my=(a.y+b.y)/2;if(st.d){Vb.goal.dist*=st.d/Math.max(20,d);}pan(mx-st.mx,my-st.my);st.d=d;st.mx=mx;st.my=my;}
+    const G=Vb.goal,g0=KS.map(k=>G[k]);
+    if(pts.size>=2){const [a,b]=[...pts.values()],d=Math.hypot(a.x-b.x,a.y-b.y),mx=(a.x+b.x)/2,my=(a.y+b.y)/2;if(st.d)zoomAt(mx,my,st.d/Math.max(20,d));pan(mx-st.mx,my-st.my);st.d=d;st.mx=mx;st.my=my;st.multi=true;}
     else if(st.btn===2||st.shift)pan(dx,dy);
-    else{Vb.goal.yaw-=dx*.0075;Vb.goal.pitch+=dy*.005;}
-    lim();});
-  const up=e=>{pts.delete(e.pointerId);if(pts.size<2&&st)st.d=null;if(!pts.size)setTimeout(()=>{Vb.dragged=false;},0);};
+    else{G.yaw-=dx*.0075;G.pitch+=dy*.005;}
+    lim();
+    // how fast the view was moving, for the glide after letting go
+    const dts=Math.max(.008,(e.timeStamp-st.lt)/1000);st.lt=e.timeStamp;KS.forEach((k,i)=>{st.v[k]=st.v[k]*.55+((G[k]-g0[i])/dts)*.45;});});
+  const up=e=>{pts.delete(e.pointerId);if(pts.size<2&&st)st.d=null;
+    if(!pts.size){if(st&&Vb.dragged&&!st.multi&&!reduced&&e.timeStamp-st.lt<90){const v=st.v;v.yaw=clamp(v.yaw,-5,5);v.pitch=clamp(v.pitch,-1.5,1.5)*.5;Vb.t3k_spin=v;}setTimeout(()=>{Vb.dragged=false;},0);}};
   el.addEventListener("pointerup",up);el.addEventListener("pointercancel",up);
   el.addEventListener("contextmenu",e=>e.preventDefault());
-  el.addEventListener("wheel",e=>{e.preventDefault();Vb.userT=performance.now();Vb.goal.dist*=Math.exp(e.deltaY*.0012);lim();},{passive:false});
+  el.addEventListener("wheel",e=>{e.preventDefault();Vb.userT=performance.now();Vb.t3k_spin=null;if(Vb.intro)Vb.intro=false;zoomAt(e.clientX,e.clientY,Math.exp(clamp(e.deltaY,-120,120)*.0012));},{passive:false});
   el.addEventListener("dblclick",()=>t3home());
-  Vb.lim=lim;Vb.pan=pan;}
-function t3home(){if(!V)return;Object.assign(V.goal,{yaw:V.home.yaw,pitch:V.home.pitch,dist:V.home.dist,tx:0,ty:0,tz:0});V.userT=performance.now();}
-function t3turn(d){if(!V)return;V.goal.yaw+=d;V.lim();V.userT=performance.now();}
-function t3zoom(f){if(!V)return;V.goal.dist*=f;V.lim();V.userT=performance.now();}
+  Vb.lim=lim;Vb.pan=pan;Vb.zoomAt=zoomAt;}
+function t3home(){if(!V)return;Object.assign(V.goal,{yaw:V.home.yaw,pitch:V.home.pitch,dist:V.home.dist,tx:0,ty:0,tz:0});V.t3k_spin=null;V.t3k_act=null;V.userT=performance.now();}
+function t3turn(d){if(!V)return;V.t3k_spin=null;V.goal.yaw+=d;V.lim();V.userT=performance.now();}
+function t3zoom(f){if(!V)return;V.t3k_spin=null;const rc=V.r.domElement.getBoundingClientRect();V.zoomAt(rc.left+rc.width/2,rc.top+rc.height/2,f);V.userT=performance.now();}
+/* camera helpers: the ground point under a screen point, a critically damped spring, the lowest pitch that keeps walls out of the view */
+const t3k_rc=new THREE.Raycaster(),t3k_nd=new THREE.Vector2(),t3k_pl=new THREE.Plane(),t3k_p=new THREE.Vector3(),t3k_a=new THREE.Vector3(),t3k_b=new THREE.Vector3();
+function t3k_ground(Vb,cx,cy){const rc=Vb.r.domElement.getBoundingClientRect();if(!rc.width)return null;t3k_nd.set((cx-rc.left)/rc.width*2-1,-(cy-rc.top)/rc.height*2+1);Vb.cam.updateMatrixWorld();t3k_rc.setFromCamera(t3k_nd,Vb.cam);
+  if(Vb.tree)t3k_pl.set(t3k_a.set(0,0,1),0);else t3k_pl.set(t3k_a.set(0,1,0),0);return t3k_rc.ray.intersectPlane(t3k_pl,t3k_p)?t3k_p:null;}
+function t3k_sd(cur,to,vo,k,om,dt){const x=om*dt,ex=1/(1+x+.48*x*x+.235*x*x*x),ch=cur-to,tmp=(vo[k]+om*ch)*dt;vo[k]=(vo[k]-om*tmp)*ex;return to+(ch+tmp)*ex;}
+function t3k_clear(tx,tz,yaw,p,dist){const mp=V.mp,W=mp.W,H=mp.H,hi=V.limits.pitch[1],sy=Math.sin(yaw),cy=Math.cos(yaw);
+  const wall=(x,z)=>{const cx=Math.floor(x+W/2),cz=Math.floor(z+H/2);if(cx<-3||cz<-3||cx>W+2||cz>H+2)return false;return cx<0||cz<0||cx>=W||cz>=H||mp.c(cx,cz)==="#";};
+  for(;p<hi;p+=.04){const cp=Math.cos(p)*dist,h=Math.sin(p)*dist;let ok=true;for(let i=3;i<=10&&ok;i++){const s=i/10;if(h*s<3.4&&wall(tx+sy*cp*s,tz+cy*cp*s))ok=false;}if(ok)break;}return Math.min(p,hi);}
 addEventListener("keydown",e=>{if(!t3on()||e.target.closest&&e.target.closest("input,textarea"))return;const k=e.key.toLowerCase();
   if(k==="q")t3turn(-Math.PI/4);else if(k==="e")t3turn(Math.PI/4);else if(k==="+"||k==="=")t3zoom(.85);else if(k==="-")t3zoom(1.18);else if(k==="home"||k==="h")t3home();});
 
@@ -5077,29 +5094,86 @@ function t3loop(now){t3raf=0;if(!V||!V.live()){return;}t3raf=requestAnimationFra
   if(V.render)V.render(dt);else V.r.render(V.scene,V.cam);}
 
 /* ---- OWNER: camera + animation. The camera eases to its goal and follows whoever acts; each mini walks, faces, lunges, falls, fades ---- */
-function t3camTick(dt,now){const G=V.goal,Vw=V.view;
+function t3camTick(dt,now){const G=V.goal,Vw=V.view,L=V.limits,vel=V.t3k_v,KS=t3k_KS;let user=now-V.userT<2600;
+  // the glide after a flick
+  const sp=V.t3k_spin;if(sp){let any=false;for(const k in sp){G[k]+=sp[k]*dt;sp[k]*=Math.exp(-dt*3.4);if(Math.abs(sp[k])>.02)any=true;}V.lim();V.userT=now;user=true;if(!any)V.t3k_spin=null;}
+  // a strike (a mini lunges): frame the attacker and the one it aims at; a hit shakes the table a little
+  for(const m of V.minis.values()){if(m.lunge&&m.lunge!==m.t3k_lg){m.t3k_lg=m.lunge;if(!user&&!V.intro)t3k_frame(m,now);}
+    if(m.hitT&&m.hitT!==m.t3k_ht){m.t3k_ht=m.hitT;V.t3k_sh=now;}}
+  const A=V.t3k_act;if(A&&now>A.end){V.t3k_act=null;if(!user){G.dist=A.dist;V.lim();}}
   // follow the one acting, unless someone just moved the camera by hand
-  if(B.cur&&now-V.userT>2600){const m=V.minis.get(B.cur);if(m){const p=m.g.position;const k=1-Math.exp(-dt*1.6);G.tx+=(p.x*.65-G.tx)*k;if(V.tree)G.ty+=(p.y*.7-G.ty)*k;else G.tz+=(p.z*.65-G.tz)*k;}}
-  const e=1-Math.exp(-dt*(V.intro?1.8:7));if(V.intro&&Math.abs(Vw.dist-G.dist)<.05*G.dist)V.intro=false;
-  for(const k of["tx","ty","tz","yaw","pitch","dist"])Vw[k]+=(G[k]-Vw[k])*e;
-  const cp=Math.cos(Vw.pitch);V.cam.position.set(Vw.tx+Math.sin(Vw.yaw)*cp*Vw.dist,Vw.ty+Math.sin(Vw.pitch)*Vw.dist,Vw.tz+Math.cos(Vw.yaw)*cp*Vw.dist);V.cam.lookAt(Vw.tx,Vw.ty,Vw.tz);
-  if(B.cur!==V.lastCur){V.lastCur=B.cur;if(B.cur&&now-V.userT>2600&&!V.intro)G.dist=V.home.dist*.86;}}
-function t3animMini(m,u,dt,tt,now){
-  const ew=1-Math.exp(-dt*11);
-  const want=V.unitPos(u),gone=!!(u.gone||u.ghost),down=u.hp<=0&&!gone;
-  const before=m.pos.clone();m.pos.lerp(want,ew);const mv=before.distanceTo(m.pos);
-  if(mv>.002){const dx=m.pos.x-before.x,dz=V.tree?0:m.pos.z-before.z;if(V.tree)m.faceT=dx>0?.6:dx<0?-.6:m.faceT;else m.faceT=Math.atan2(dx,dz);}
-  m.g.position.copy(m.pos);m.fig.position.y=mv>.004?Math.abs(Math.sin(tt*16+m.t0))*.07:0;
-  if(m.faceT!=null){let d=m.faceT-m.face;d=Math.atan2(Math.sin(d),Math.cos(d));m.face+=d*Math.min(1,dt*9);m.fig.rotation.y=m.face;}
-  if(m.lunge){const k=(now-m.lunge.t)/m.lunge.dur;if(k>=1)m.lunge=null;else{const s=Math.sin(k*Math.PI)*(m.lunge.small?.12:.38);m.g.position.addScaledVector(m.lunge.dir,s);}}
-  if(m.hitT){const k=(now-m.hitT)/260;if(k>1){m.hitT=0;for(const o of m.mats){o.m.emissive.copy(o.e);o.m.emissiveIntensity=o.ei;}}else{for(const o of m.mats){o.m.emissive.setRGB(1,.15,.05);o.m.emissiveIntensity=(1-k)*1.6;}m.g.position.x+=Math.sin(k*30)*.03*(1-k);}}
-  m.tilt+=((down?-1.45:0)-m.tilt)*Math.min(1,dt*6);m.fig.rotation.x=m.tilt;m.fig.position.z=down?-.12:0;
+  if(!V.t3k_act&&B.cur&&!user){const m=V.minis.get(B.cur);if(m){const p=m.pos;const k=1-Math.exp(-dt*1.6);G.tx+=(p.x*.65-G.tx)*k;if(V.tree)G.ty+=(p.y*.7-G.ty)*k;else G.tz+=(p.z*.65-G.tz)*k;}}
+  if(B.cur!==V.lastCur){V.lastCur=B.cur;if(B.cur&&!user&&!V.intro&&!V.t3k_act)G.dist=V.home.dist*.86;}
+  // the fly-in: one sweep from high and turned down to the table, then the springs take over
+  let F=V.t3k_fly;if(V.intro&&!F)F=V.t3k_fly={t0:now,from:Object.assign({},Vw)};
+  if(F&&!V.intro)F=V.t3k_fly=null;
+  if(F){const k=Math.min(1,(now-F.t0)/2800),eo=1-Math.pow(1-k,3),ei=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
+    for(const key of KS){Vw[key]=F.from[key]+(G[key]-F.from[key])*(key==="pitch"?ei:eo);vel[key]=0;}if(k>=1){V.intro=false;V.t3k_fly=null;}}
+  else{if(KS.every(k=>Vw[k]===G[k]))for(const k of KS)vel[k]=0; // set from outside (a test): stand still
+    const om=now-V.userT<350?16:5.5;for(const k of KS)Vw[k]=t3k_sd(Vw[k],G[k],vel,k,om,dt);}
+  // auto-tilt: lower and more cinematic close up, more top-down when pulled far out
+  const near=clamp((V.home.dist-Vw.dist)/Math.max(.1,V.home.dist-L.dist[0]),-1,1);
+  let p=Vw.pitch-(near>0?Math.pow(near,1.3)*(V.tree?.1:.42):near*.12);p=clamp(p,L.pitch[0],L.pitch[1]);
+  if(!V.tree){const need=t3k_clear(Vw.tx,Vw.tz,Vw.yaw,L.pitch[0],Vw.dist);V.t3k_pf+=(need-V.t3k_pf)*(1-Math.exp(-dt*6));p=Math.max(p,V.t3k_pf);}
+  const ly=V.tree?0:Math.max(0,near)*.35,cp=Math.cos(p);
+  t3k_a.set(Vw.tx,Vw.ty+ly,Vw.tz);V.cam.position.set(Vw.tx+Math.sin(Vw.yaw)*cp*Vw.dist,Vw.ty+ly+Math.sin(p)*Vw.dist,Vw.tz+Math.cos(Vw.yaw)*cp*Vw.dist);
+  if(V.t3k_sh&&!reduced){const k=(now-V.t3k_sh)/340;if(k<1){const a=.045*(1-k)*(1-k)*clamp(Vw.dist/9,.5,1.4);t3k_b.set(Math.sin(now*.093)*a,Math.sin(now*.117+1)*a,Math.cos(now*.081)*a);V.cam.position.add(t3k_b);t3k_a.add(t3k_b);}else V.t3k_sh=0;}
+  V.cam.lookAt(t3k_a);V.t3k_pitch=p;}
+function t3animMini(m,u,dt,tt,now){const rm=reduced,gone=!!(u.gone||u.ghost),down=u.hp<=0&&!gone,fig=m.fig,big=(u.size||1)>1,heart=u.key==="heart";
+  if(!m.t3k){m.t3k={v:{x:0,y:0,z:0},ph:0,fall:0,fv:0,s0:fig.scale.x,to:m.pos.clone(),len:0,hop:0,land:0,rd:new THREE.Vector3(),fl:false};fig.rotation.order="YXZ";}
+  const K=m.t3k,want=V.unitPos(u);
+  // walking: a damped chase of the square (no stops between steps), a hop for jumps, a jump cut for teleports
+  if(!want.equals(K.to)){const d=want.distanceTo(m.pos);if(d>3.6){m.pos.copy(want);K.v.x=K.v.y=K.v.z=0;K.hop=0;}else{K.len=Math.max(.01,d);K.hop=d>1.6?Math.min(.9,.28*d):0;}K.to.copy(want);}
+  for(const k of["x","y","z"])m.pos[k]=t3k_sd(m.pos[k],want[k],K.v,k,14,dt);
+  const spd=V.tree?Math.hypot(K.v.x,K.v.y):Math.hypot(K.v.x,K.v.z),moving=spd>.3,sf=Math.min(1,spd/3)*(down||gone?0:1);
+  let hy=0;if(K.hop){const pr=1-clamp(m.pos.distanceTo(K.to)/K.len,0,1);hy=Math.sin(pr*Math.PI)*K.hop;if(pr>.97){K.hop=0;K.land=now;}}
+  if(spd>.6&&!down){if(V.tree)m.faceT=K.v.x>.3?.6:K.v.x<-.3?-.6:m.faceT;else m.faceT=Math.atan2(K.v.x,K.v.z);}
+  if(m.faceT!=null){let d=m.faceT-m.face;d=Math.atan2(Math.sin(d),Math.cos(d));m.face+=d*Math.min(1,dt*10);}
+  K.ph+=spd*dt*Math.PI*2;
+  const bob=Math.abs(Math.sin(K.ph))*.075*sf*(rm?.25:1);let lean=.17*sf,roll=rm?0:Math.sin(K.ph)*.07*sf,sq=0;
+  m.g.position.copy(m.pos);m.g.position.y+=hy;
+  // the strike: draw back, snap forward, settle
+  const Lg=m.lunge;if(Lg){const k=(now-Lg.t)/Lg.dur;if(k>=1)m.lunge=null;else{const amp=(Lg.small?.12:big?.26:.42)*(rm?.6:1);let off;
+    if(k<.3){const t=k/.3,e=t*t*(3-2*t);off=-amp*.3*e;lean-=.2*e;sq-=.07*e;}
+    else if(k<.5){const t=(k-.3)/.2,e=1-(1-t)*(1-t);off=-amp*.3+amp*1.3*e;lean+=-.2+.5*e;sq+=.06*e;}
+    else{const t=(k-.5)/.5,e=t*t*(3-2*t);off=amp*(1-e)+Math.sin(t*Math.PI)*amp*.06;lean+=.3*(1-e);sq+=.06*(1-e);}
+    m.g.position.addScaledVector(Lg.dir,off);}}
+  // hit: a red flash, a knock back away from the attacker, then a settle
+  if(m.hitT){const kf=(now-m.hitT)/260,kr=(now-m.hitT)/420;
+    if(kr<.02||K.rdT!==m.hitT){K.rdT=m.hitT;const A=V.t3k_act;if(A&&A.t===m&&A.a!==m){K.rd.subVectors(m.pos,A.a.pos);if(V.tree)K.rd.z=0;else K.rd.y=0;}else K.rd.set(-Math.sin(m.face),0,-Math.cos(m.face));if(K.rd.lengthSq()<1e-4)K.rd.set(0,0,1);K.rd.normalize();}
+    if(kf<1){for(const o of m.mats){o.m.emissive.setRGB(1,.15,.05);o.m.emissiveIntensity=(1-kf)*1.6;}K.fl=true;}else if(K.fl){K.fl=false;for(const o of m.mats){o.m.emissive.copy(o.e);o.m.emissiveIntensity=o.ei;}}
+    if(kr>=1)m.hitT=0;else{const r=kr<.14?Math.sin(kr/.14*Math.PI/2):Math.pow(1-(kr-.14)/.86,2);m.g.position.addScaledVector(K.rd,r*(big?.08:.15)*(rm?.5:1));
+      const fw=Math.sin(m.face)*K.rd.x+Math.cos(m.face)*K.rd.z;lean+=r*.3*(V.tree?0:fw);roll+=r*.3*(V.tree?Math.sign(K.rd.x)*-1:0);sq-=r*.06;}}
+  else if(K.fl){K.fl=false;for(const o of m.mats){o.m.emissive.copy(o.e);o.m.emissiveIntensity=o.ei;}}
+  // down: topple with a little bounce; up again when healed. The Heart only sags
+  if(heart){K.fall+=((down?1:0)-K.fall)*Math.min(1,dt*3);}
+  else if(down){K.fv-=(5+14*Math.sin(Math.min(1.45,-K.fall)))*dt;K.fall+=K.fv*dt;if(K.fall<=-1.45){K.fall=-1.45;K.fv=rm?0:-K.fv*.3;if(K.fv<.6)K.fv=0;else K.land=now;}}
+  else{K.fall+=(0-K.fall)*Math.min(1,dt*5);K.fv=0;}
+  m.tilt=K.fall;const ff=heart?0:-K.fall/1.45;
+  if(K.land){const k=(now-K.land)/220;if(k<1)sq-=Math.sin(k*Math.PI)*.12*(rm?.3:1);else K.land=0;}
+  if(!moving&&!down&&!gone&&!rm&&!heart)sq+=Math.sin(tt*2.1+m.t0)*.012; // breathing
+  // gone: sink into the floor as it fades (the VFX crumble runs once, from t3death)
   const fadeT=gone?0:u.hidden?.38:1;m.fade+=(fadeT-m.fade)*Math.min(1,dt*(gone?2.5:6));
   if(gone&&!m.gone){m.gone=true;t3death(m,u);}
   if(!gone&&m.gone)m.gone=false;
+  const sink=gone?(1-m.fade)*.45:heart?K.fall*.25:0,fx=Math.sin(m.face),fz=Math.cos(m.face);
+  fig.position.set(V.tree?0:fx*.16*ff,bob-sink,V.tree?0:fz*.16*ff);
+  fig.rotation.y=m.face;fig.rotation.x=lean*(1-ff)+(V.tree?0:K.fall);fig.rotation.z=roll*(1-ff)+(V.tree?K.fall*(m.face>=0?-1:1):0)+(gone&&!rm?(1-m.fade)*.25:0);
+  const s0=K.s0;fig.scale.set(s0*(1-sq*.5),s0*(1+sq),s0*(1-sq*.5));
   for(const o of m.mats)o.m.opacity=m.fade;m.g.visible=m.fade>.02;m.g.scale.setScalar(gone?.6+.4*m.fade:1);
-  if(m.core){const s=1+Math.sin(tt*(u.key==="heart"?4.2:3))*.05;if(u.key==="heart")m.up.scale.setScalar(s);else m.core.material.emissiveIntensity=1.6+Math.sin(tt*5)*.8;}
-  if(m.anim)m.anim(dt,tt,now,{down,gone,moving:mv>.004});}  // a mini's own idle motion, if its builder gave one
+  if(m.core){const s=1+Math.sin(tt*(heart?4.2:3))*.05;if(heart)m.up.scale.setScalar(s);else m.core.material.emissiveIntensity=1.6+Math.sin(tt*5)*.8;}
+  if(m.anim)m.anim(dt,tt,now,{down,gone,moving});}  // a mini's own idle motion, if its builder gave one
+const t3k_KS=["tx","ty","tz","yaw","pitch","dist"];
+/* frame an exchange: the attacker and the mini it lunges toward, turned a little side-on */
+function t3k_frame(a,now){const G=V.goal,d=a.lunge.dir,pa=a.pos;let best=null,bs=1e9;
+  for(const o of V.minis.values()){if(o===a||o.gone||!o.g.visible)continue;const v=t3k_b.subVectors(o.pos,pa);if(V.tree)v.z=0;else v.y=0;const pr=v.dot(d);if(pr<=0)continue;
+    const pe=Math.sqrt(Math.max(0,v.lengthSq()-pr*pr)),s=pe*2+pr*.15;if(s<bs){bs=s;best=o;}}
+  const pt=best?best.pos:pa,sep=pa.distanceTo(pt);if(!V.t3k_act)V.t3k_act={dist:G.dist};const A=V.t3k_act;A.end=now+1800;A.a=a;A.t=best;
+  G.tx=(pa.x+pt.x)/2;if(V.tree)G.ty=(pa.y+pt.y)/2;else G.tz=(pa.z+pt.z)/2;
+  G.dist=clamp(sep*1.3+(V.tree?4.5:3.8),V.limits.dist[0],Math.min(A.dist,V.home.dist*.8));
+  if(!V.tree&&!reduced&&sep>.3){const base=Math.atan2(d.x,d.z);let yb=null;for(const s of[1,-1]){let y=base+s*Math.PI/2;y+=Math.round((G.yaw-y)/(2*Math.PI))*2*Math.PI;if(yb==null||Math.abs(y-G.yaw)<Math.abs(yb-G.yaw))yb=y;}
+    G.yaw+=clamp(yb-G.yaw,-.5,.5)*.6;}
+  V.lim();}
 
 /* ---- OWNER: UI on the board. Selection rings and name tags (see also t3mini's base and ring, t3hi, t3hoverTick, the .pl-3d CSS) ---- */
 const t3pp=new THREE.Vector3();
@@ -5136,7 +5210,7 @@ function t3start(){t3dispose();const host=h("div",{class:"pl-3d"}),tags=h("div",
   mapEl=host;tkLayer=tags;
   for(const u of B.units)V.minis.set(u,t3mini(V,u));
   t3fit();t3hi();t3last=0;cancelAnimationFrame(t3raf);t3raf=requestAnimationFrame(t3loop);return true;}
-if(/[?&]playtest/.test(location.search))window.__t3={settle(){if(V){V.intro=false;Object.assign(V.view,V.goal);}},zoom(f,y){if(V){V.goal.dist=V.home.dist*f;if(y!=null)V.goal.yaw+=y;this.settle();}}};
+if(/[?&]playtest/.test(location.search))window.__t3={settle(){if(V){V.intro=false;Object.assign(V.view,V.goal);}},zoom(f,y){if(V){V.goal.dist=V.home.dist*f;if(y!=null)V.goal.yaw+=y;this.settle();}},cam(){return V?{view:Object.assign({},V.view),pitch:V.t3k_pitch,pos:V.cam.position.toArray()}:null}};
 function t3sync(){if(!t3on())return;for(const u of B.units)if(!V.minis.has(u))V.minis.set(u,t3mini(V,u));}
 
 /* ---- geometry ---- */
