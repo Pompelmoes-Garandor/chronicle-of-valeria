@@ -3361,23 +3361,6 @@ function d10Geo(){const v=[0,1,0, 0,-1,0];for(let k=0;k<5;k++){const a=k*72*D2R,
   const U=k=>2+2*(k%5),L=k=>3+2*(k%5),ix=[];for(let k=0;k<5;k++){ix.push(0,U(k),L(k), 0,L(k),U(k+1), 1,U(k+1),L(k), 1,L(k+1),U(k+1));}
   const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.Float32BufferAttribute(v,3));g.setIndex(ix);const n=g.toNonIndexed();n.computeVertexNormals();return n;}
 function dieGeo(sides){const g=sides===4?new THREE.TetrahedronGeometry(1):sides===6?new THREE.BoxGeometry(1.25,1.25,1.25):sides===8?new THREE.OctahedronGeometry(1):sides===10?d10Geo():sides===12?new THREE.DodecahedronGeometry(1):new THREE.IcosahedronGeometry(1);return g;}
-/* ---- STUB, replaced by dice-faces: the makeDie contract with blank faces, faceQuat from a face-normal table.
-   throwDice calls makeDie whenever it exists, so after the merge this block can simply be deleted. ---- */
-function diceStubDie(sides,{dmg=false}={}){
-  const g=dieGeo(sides), mat=new THREE.MeshStandardMaterial({color:dmg?0xe8743b:0xd8b673,metalness:.55,roughness:.32,flatShading:true});
-  const mesh=new THREE.Mesh(g,mat), eg=new THREE.EdgesGeometry(g,1), em=new THREE.LineBasicMaterial({color:0x1a1307}); mesh.add(new THREE.LineSegments(eg,em));
-  const P=g.attributes.position, ix=g.index?g.index.array:null, nt=(ix?ix.length:P.count)/3, at=k=>ix?ix[k]:k, a=new THREE.Vector3(), b=new THREE.Vector3(), c=new THREE.Vector3(), dirs=[], verts=[];
-  for(let i=0;i<P.count;i++){a.fromBufferAttribute(P,i);if(!verts.some(v=>v.distanceTo(a)<1e-3))verts.push(a.clone());}
-  if(sides===4) for(const v of verts) dirs.push(v.clone().normalize());
-  else for(let t=0;t<nt;t++){a.fromBufferAttribute(P,at(3*t));b.fromBufferAttribute(P,at(3*t+1)).sub(a);c.fromBufferAttribute(P,at(3*t+2)).sub(a);const n=b.cross(c).normalize();if(!dirs.some(d=>d.dot(n)>.999))dirs.push(n.clone());}
-  dirs.sort((p,q)=>q.y-p.y||q.x-p.x||q.z-p.z);
-  mesh.userData={radius:verts.reduce((m,v)=>Math.max(m,v.length()),0),sides,glow:on=>mat.emissive.setHex(on?0x5a3a10:0)};
-  return {mesh, faceQuat(v){const d=dirs[(v-1)%dirs.length], q=new THREE.Quaternion().setFromUnitVectors(d,new THREE.Vector3(0,0,1));
-      let r=null,best=-2; for(const x of verts){const k=x.dot(d)/x.length(); if(k<.999&&k>best){best=k;r=x;}}       // the nearest corner off the value points up
-      r=r.clone().applyQuaternion(q); return new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),Math.PI/2-Math.atan2(r.y,r.x)).multiply(q);},
-    dispose(){g.dispose();mat.dispose();eg.dispose();em.dispose();}};
-}
-
 /* ---- THE ROLL: thrown in from the side onto an invisible table seen from a little in front.
    The whole throw is simulated first (gravity, bounces that lose energy, friction, tumbling over edges, dice bumping),
    then played back, so it is smooth on any device and we know where each die stops. The rolled number comes up by a
@@ -3652,10 +3635,9 @@ function throwDice(list){ // list: [{sides, value, dmg}] — the values are roll
   if(DICE.end) DICE.end();                                                        // a throw still in the air finishes at once
   const el=document.getElementById("dice"), sc=DICE.scene; el.hidden=false; el.classList.add("rolling"); el.querySelectorAll(".dn").forEach(n=>n.remove());
   for(const d of DICE.live){sc.remove(d.die.mesh,d.blob);d.die.dispose();d.blob.material.dispose();} DICE.live=[]; DICE.fx.live=[];
-  const mk=typeof makeDie==="function"?makeDie:diceStubDie;
   list=list.filter(d=>DIE_K[d.sides]); if(!list.length){el.hidden=true; return Promise.resolve();}
   const L=diceFrame(list), blobG=DICE.blobG||(DICE.blobG=new THREE.PlaneGeometry(1,1).rotateX(-Math.PI/2));
-  const D=list.map(d=>{const die=mk(d.sides,{dmg:!!d.dmg}), k=DIE_K[d.sides], v=((Math.round(d.value)-1)%d.sides+d.sides)%d.sides+1, H=dieHull(die,d.sides);
+  const D=list.map(d=>{const die=makeDie(d.sides,{dmg:!!d.dmg}), k=DIE_K[d.sides], v=((Math.round(d.value)-1)%d.sides+d.sides)%d.sides+1, H=dieHull(die,d.sides);
     die.mesh.scale.setScalar(k); die.mesh.traverse(o=>{if(o.isMesh)o.castShadow=true;}); sc.add(die.mesh);
     const blob=new THREE.Mesh(blobG,new THREE.MeshBasicMaterial({map:DICE.tex.blob,transparent:true,depthWrite:false,opacity:.5})); blob.renderOrder=-1; sc.add(blob);
     const h=new Float32Array(H.C.length*3); H.C.forEach((c,j)=>{h[j*3]=c.x*k;h[j*3+1]=c.y*k;h[j*3+2]=c.z*k;});
