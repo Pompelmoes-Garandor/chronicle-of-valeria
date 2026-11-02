@@ -3357,10 +3357,6 @@ function sayBtn(text,who){ if(!window.speechSynthesis) return null;
 /* =================== DICE: tap a line on a sheet, real 3D dice tumble over everything =================== */
 const DICE={r:null,scene:null,cam:null,live:[],raf:0,hideT:0};
 function rnd(n){const a=new Uint32Array(1);crypto.getRandomValues(a);return 1+a[0]%n;}
-function d10Geo(){const v=[0,1,0, 0,-1,0];for(let k=0;k<5;k++){const a=k*72*D2R,b=(k*72+36)*D2R;v.push(Math.cos(a),.105,Math.sin(a));v.push(Math.cos(b),-.105,Math.sin(b));}
-  const U=k=>2+2*(k%5),L=k=>3+2*(k%5),ix=[];for(let k=0;k<5;k++){ix.push(0,U(k),L(k), 0,L(k),U(k+1), 1,U(k+1),L(k), 1,L(k+1),U(k+1));}
-  const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.Float32BufferAttribute(v,3));g.setIndex(ix);const n=g.toNonIndexed();n.computeVertexNormals();return n;}
-function dieGeo(sides){const g=sides===4?new THREE.TetrahedronGeometry(1):sides===6?new THREE.BoxGeometry(1.25,1.25,1.25):sides===8?new THREE.OctahedronGeometry(1):sides===10?d10Geo():sides===12?new THREE.DodecahedronGeometry(1):new THREE.IcosahedronGeometry(1);return g;}
 /* ---- THE ROLL: thrown in from the side onto an invisible table seen from a little in front.
    The whole throw is simulated first (gravity, bounces that lose energy, friction, tumbling over edges, dice bumping),
    then played back, so it is smooth on any device and we know where each die stops. The rolled number comes up by a
