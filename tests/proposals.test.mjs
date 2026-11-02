@@ -72,3 +72,18 @@ test("Sam's own proposals are marked as the DM's", () => {
   const open = openProposals({ sam: { list: [tagP] } }, {}, {}, ["sam"]);
   assert.equal(open[0].by, "dm");
 });
+
+test("a sheet amendment is a proposal too, and reaches the public list with its sections", () => {
+  const sheetP = { id: "s1", kind: "sheet", sheet: "katy", edits: { flavor: { v: "Owes Gerda a favour.", ts: 5, by: "katy", b: 9 } }, at: 4 };
+  assert.ok(validProposal(sheetP));
+  assert.ok(!validProposal({ ...sheetP, edits: { secrets: { v: 1 } } }));
+  assert.ok(!validProposal({ ...sheetP, edits: {} }));
+  assert.ok(!validProposal({ ...sheetP, sheet: "../katy" }));
+  assert.ok(!validProposal({ ...sheetP, edits: { flavor: { v: "x".repeat(17000) } } }));
+  const open = openProposals({ ann: { list: [sheetP] } }, {}, { ann: "katy" });
+  const pub = publicAccepted(decide(open, {}, null, "accepted", 100).decided);
+  assert.equal(pub[0].kind, "sheet");
+  assert.equal(pub[0].sheet, "katy");
+  assert.deepEqual(pub[0].edits.flavor.v, "Owes Gerda a favour.");
+  assert.equal(pub[0].place, undefined);
+});

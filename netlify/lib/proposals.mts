@@ -1,4 +1,4 @@
-// Proposals: players propose changes to the lore, Sam accepts them with one tap, and accepted changes
+// Proposals: players propose changes to the lore (tags and notes for places, amended character sheets), Sam accepts them with one tap, and accepted changes
 // show on the site at once. Sam's Claude later writes them into source/chronicle.html and lists their
 // keys in FILED there, after which the site shows them from the repo instead (see CLAUDE.md).
 //
@@ -8,12 +8,14 @@
 // Pure: takes a store as an argument, so tests pass an in-memory one.
 import type { BlobStore } from "./table.mts";
 
-export type Proposal = { id: string; kind: "tags" | "note"; place: string; tags?: string[]; text?: string; at: number };
+export type Proposal = { id: string; kind: "tags" | "note" | "sheet"; place?: string; sheet?: string; tags?: string[]; text?: string; edits?: Record<string, unknown>; at: number };
 export type Decision = {
-  kind: "tags" | "note";
-  place: string;
+  kind: "tags" | "note" | "sheet";
+  place?: string;
+  sheet?: string; // the character, for kind "sheet"
   tags?: string[];
   text?: string;
+  edits?: Record<string, unknown>; // amended sheet sections, as in chronicle.html's sheetEdits
   by: string; // the proposer's character id, or "dm"
   at: number; // when it was proposed
   status: "accepted" | "rejected";
@@ -72,9 +74,9 @@ export function decide(
   const pick = keys ? open.filter((o) => keys.includes(o.key)) : open;
   const next = { ...decided };
   for (const o of pick) {
-    const d: Decision = { kind: o.kind, place: o.place, by: o.by, at: o.at, status, decidedAt: now };
-    if (o.kind === "tags") d.tags = o.tags;
-    else d.text = o.text;
+    const d: Decision = { kind: o.kind, by: o.by, at: o.at, status, decidedAt: now };
+    if (o.kind === "sheet") { d.sheet = o.sheet; d.edits = o.edits; }
+    else { d.place = o.place; if (o.kind === "tags") d.tags = o.tags; else d.text = o.text; }
     if (note) d.note = note.slice(0, 500);
     next[o.key] = d;
   }
@@ -86,5 +88,5 @@ export function publicAccepted(decided: Record<string, Decision>) {
   return Object.entries(decided)
     .filter(([, d]) => d.status === "accepted")
     .sort(([, a], [, b]) => a.decidedAt - b.decidedAt)
-    .map(([key, d]) => ({ key, kind: d.kind, place: d.place, tags: d.tags, text: d.text, by: d.by, at: d.at, acceptedAt: d.decidedAt }));
+    .map(([key, d]) => ({ key, kind: d.kind, place: d.place, sheet: d.sheet, tags: d.tags, text: d.text, edits: d.edits, by: d.by, at: d.at, acceptedAt: d.decidedAt }));
 }
