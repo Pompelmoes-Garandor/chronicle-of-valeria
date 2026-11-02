@@ -3992,8 +3992,8 @@ const T3Q={hi:!SMALL&&!/[?&]lowgfx/.test(location.search)};
 let V=null,T3R=null,T3fail=false;
 const t3on=()=>!!(V&&V.live());
 const t3want=()=>T3GL&&!T3fail&&!opt.flat;
-function t3renderer(){if(T3R)return T3R;const r=new THREE.WebGLRenderer({antialias:true,powerPreference:"high-performance"});
-  r.setPixelRatio(Math.min(devicePixelRatio||1,SMALL?1.5:2));r.outputColorSpace=THREE.SRGBColorSpace;r.toneMapping=THREE.ACESFilmicToneMapping;r.toneMappingExposure=1.4;
+function t3renderer(){if(T3R)return T3R;const r=new THREE.WebGLRenderer({antialias:!t3p_ok,powerPreference:"high-performance"});
+  r.setPixelRatio(Math.min(devicePixelRatio||1,SMALL||t3p_ok?1.5:2));r.outputColorSpace=THREE.SRGBColorSpace;r.toneMapping=THREE.ACESFilmicToneMapping;r.toneMappingExposure=1.4;
   r.shadowMap.enabled=!SMALL;r.shadowMap.type=THREE.PCFSoftShadowMap;r.setClearColor(0x07080b,1);T3R=r;return r;}
 
 /* ---- little geometry kit: tint, place, merge into one mesh per material ---- */
@@ -4151,7 +4151,71 @@ function t3lightTick(dt,tt){const Vw=V.view;
 
 /* ---- OWNER: post-processing. t3post runs once per board; it may set Vb.render(dt) (e.g. an EffectComposer) and Vb.onResize(w,h).
    Without it the board renders straight. Three.js add-ons from the same three@0.160.0 build are allowed. ---- */
-function t3post(Vb){}
+function t3post(Vb){if(!t3p_ok)return;const r=Vb.r,cam=Vb.cam,HF=THREE.HalfFloatType,LF=THREE.LinearFilter;
+  const rt=(o={})=>new THREE.WebGLRenderTarget(1,1,Object.assign({type:HF,minFilter:LF,magFilter:LF,depthBuffer:false},o));
+  // the scene in linear HDR with 4x MSAA and its depth; then ao (half), two blur levels for the lens (half, quarter), a bloom pyramid
+  const dtx=new THREE.DepthTexture(1,1,THREE.UnsignedIntType);
+  const rs=rt({samples:4,depthBuffer:true,depthTexture:dtx}),ao=rt(),d1=rt(),d2=rt(),bl=[rt(),rt(),rt(),rt()],all=[rs,ao,d1,d2,...bl];
+  const qs=new THREE.Scene(),qc=new THREE.OrthographicCamera(-1,1,1,-1,0,1),quad=new THREE.Mesh(new THREE.PlaneGeometry(2,2));quad.frustumCulled=false;qs.add(quad);
+  const nf={value:new THREE.Vector2(cam.near,cam.far)},tan={value:new THREE.Vector2(1,1)},tx=()=>({value:new THREE.Vector2()});
+  const mat=(fs,u,add)=>new THREE.ShaderMaterial({uniforms:u,vertexShader:"varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}",
+    fragmentShader:"varying vec2 vUv;\nuniform vec2 uNF;float vz(float d){return uNF.x*uNF.y/(uNF.y-d*(uNF.y-uNF.x));}\n"+fs,depthTest:false,depthWrite:false,blending:add?THREE.AdditiveBlending:THREE.NoBlending,toneMapped:false});
+  // ambient occlusion from depth alone: sample a small disc around each pixel, count what rises above its surface
+  const mAO=mat(`uniform sampler2D tDep;uniform vec2 uTan;uniform float uRad;
+vec3 vp(vec2 uv){float z=vz(texture2D(tDep,uv).r);return vec3((uv*2.-1.)*uTan*z,-z);}
+void main(){float d=texture2D(tDep,vUv).r;if(d>.9999){gl_FragColor=vec4(1.,1e4,0.,1.);return;}
+  vec3 P=vp(vUv),N=normalize(cross(dFdx(P),dFdy(P)));float z=-P.z,ru=min(uRad/(2.*z*uTan.y),.08),rot=fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233)))*43758.5453)*6.283,o=0.;
+  for(int i=0;i<10;i++){float fi=float(i),t=(fi+.6)/10.,a=fi*2.39996+rot;vec3 v=vp(vUv+vec2(cos(a)*uTan.y/uTan.x,sin(a))*t*ru)-P;float l=length(v);
+    o+=max(dot(N,v)/(l+1e-4)-.12,0.)*(1.-smoothstep(uRad*.5,uRad*1.6,l));}
+  gl_FragColor=vec4(clamp(1.-o*.16,0.,1.),z,0.,1.);}`,{tDep:{value:dtx},uNF:nf,uTan:tan,uRad:{value:.45}});
+  // a 4-tap box (each tap bilinear, so 4x4 texels): blurs and halves at once; with uTh it keeps only light brighter than the threshold
+  const mDn=mat(`uniform sampler2D tMap;uniform vec2 uTx;uniform float uTh;
+void main(){vec3 c=(texture2D(tMap,vUv+vec2(-uTx.x,-uTx.y)).rgb+texture2D(tMap,vUv+vec2(uTx.x,-uTx.y)).rgb+texture2D(tMap,vUv+vec2(-uTx.x,uTx.y)).rgb+texture2D(tMap,vUv+uTx).rgb)*.25;
+  if(uTh>0.){c=min(c,vec3(12.));float l=max(c.r,max(c.g,c.b));c*=smoothstep(uTh,uTh*1.8,l);}gl_FragColor=vec4(c,1.);}`,{tMap:{value:null},uTx:tx(),uTh:{value:0},uNF:nf});
+  // tent upsample, added onto the level above
+  const mUp=mat(`uniform sampler2D tMap;uniform vec2 uTx;
+void main(){vec3 c=texture2D(tMap,vUv).rgb*4.;c+=(texture2D(tMap,vUv+vec2(uTx.x,0.)).rgb+texture2D(tMap,vUv-vec2(uTx.x,0.)).rgb+texture2D(tMap,vUv+vec2(0.,uTx.y)).rgb+texture2D(tMap,vUv-vec2(0.,uTx.y)).rgb)*2.;
+  c+=texture2D(tMap,vUv+uTx).rgb+texture2D(tMap,vUv-uTx).rgb+texture2D(tMap,vUv+vec2(uTx.x,-uTx.y)).rgb+texture2D(tMap,vUv+vec2(-uTx.x,uTx.y)).rgb;gl_FragColor=vec4(c/16.,1.);}`,{tMap:{value:null},uTx:tx(),uNF:nf},true);
+  const U={tCol:{value:rs.texture},tDep:{value:dtx},tAO:{value:ao.texture},tD1:{value:d1.texture},tD2:{value:d2.texture},tBl:{value:bl[0].texture},uNF:nf,uAx:tx(),
+    uFocus:{value:10},uDof:{value:1.5},uExp:{value:1.4},uBloom:{value:.42},uAO:{value:.85},uTime:{value:0},uRes:tx(),uTree:{value:Vb.tree?1:0}};
+  const mC=mat(`uniform sampler2D tCol,tDep,tAO,tD1,tD2,tBl;uniform vec2 uAx,uRes;uniform float uFocus,uDof,uExp,uBloom,uAO,uTime,uTree;
+float hs(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}
+vec3 rrt(vec3 v){vec3 a=v*(v+.0245786)-.000090537;vec3 b=v*(.983729*v+.4329510)+.238081;return a/b;}
+vec3 aces(vec3 c){const mat3 I=mat3(vec3(.59719,.07600,.02840),vec3(.35458,.90834,.13383),vec3(.04823,.01566,.83777));const mat3 O=mat3(vec3(1.60475,-.10208,-.00327),vec3(-.53108,1.10813,-.07276),vec3(-.07367,-.00605,1.07602));return clamp(O*rrt(I*(c/.6)),0.,1.);}
+vec3 srgb(vec3 c){return mix(c*12.92,1.055*pow(c,vec3(1./2.4))-.055,step(.0031308,c));}
+void main(){vec3 c=texture2D(tCol,vUv).rgb;float z=vz(texture2D(tDep,vUv).r);
+  // ao: a depth-aware 5-tap upsample so it never bleeds across a mini's edge
+  float a=0.,w=0.;for(int i=0;i<5;i++){vec2 o=i==0?vec2(0.):vec2(i<3?-1.:1.,mod(float(i),2.)<.5?-1.:1.)*uAx;vec2 s=texture2D(tAO,vUv+o).rg;float k=exp(-abs(s.g-z)*8./z)+1e-3;a+=s.r*k;w+=k;}
+  float A=mix(1.,a/w,uAO);c*=A;
+  // tilt-shift: sharp around the point the camera looks at, softer in front and behind, like a macro photo of a model
+  float f=clamp((abs(z-uFocus)/uFocus-.1)*uDof,0.,1.);
+  c=mix(c,texture2D(tD1,vUv).rgb*A,smoothstep(0.,.45,f));c=mix(c,texture2D(tD2,vUv).rgb,smoothstep(.4,1.,f));
+  c+=texture2D(tBl,vUv).rgb*uBloom;
+  c*=uExp;
+  // grade: cool blue-green shadows, warm candle highlights, a touch more body in the mids
+  float l=dot(c,vec3(.2126,.7152,.0722));c*=mix(mix(vec3(.88,.97,1.1),vec3(.84,.94,1.16),uTree),vec3(1.07,1.,.89),smoothstep(.03,.7,l));
+  c=aces(c);l=dot(c,vec3(.2126,.7152,.0722));c=max(mix(vec3(l),c,1.08),0.);
+  vec2 q=vUv-.5;q.x*=uRes.x/uRes.y;c*=1.-.32*smoothstep(.38,1.05,length(q));
+  c=srgb(c);
+  c+=(hs(gl_FragCoord.xy+fract(uTime)*97.)-.5)*.045*(1.-.7*l);
+  gl_FragColor=vec4(c,1.);}`,U);
+  const ms=[mAO,mDn,mUp,mC],still=matchMedia("(prefers-reduced-motion: reduce)").matches,v=new THREE.Vector2();let W=0,H=0,T=0;
+  const draw=(m,t)=>{quad.material=m;r.setRenderTarget(t);r.render(qs,qc);};
+  const down=(src,dst,th)=>{mDn.uniforms.tMap.value=src.texture;mDn.uniforms.uTx.value.set(1/src.width,1/src.height);mDn.uniforms.uTh.value=th||0;draw(mDn,dst);};
+  const size=()=>{r.getDrawingBufferSize(v);if(v.x===W&&v.y===H)return;W=v.x;H=v.y;const z=(t,d)=>t.setSize(Math.max(1,W>>d),Math.max(1,H>>d));
+    z(rs,0);z(ao,1);z(d1,1);z(d2,2);bl.forEach((t,i)=>z(t,i+2));U.uAx.value.set(2/W,2/H);U.uRes.value.set(W,H);};
+  Vb.onResize=size;
+  Vb.render=dt=>{size();nf.value.set(cam.near,cam.far);const ty=Math.tan(cam.fov*Math.PI/360);tan.value.set(ty*cam.aspect,ty);
+    r.setRenderTarget(rs);r.render(Vb.scene,cam);
+    const ac=r.autoClear;r.autoClear=false;
+    draw(mAO,ao);down(rs,d1);down(d1,d2);
+    down(d1,bl[0],1.2);for(let i=1;i<bl.length;i++)down(bl[i-1],bl[i]);
+    for(let i=bl.length-1;i>0;i--){mUp.uniforms.tMap.value=bl[i].texture;mUp.uniforms.uTx.value.set(1/bl[i].width,1/bl[i].height);draw(mUp,bl[i-1]);}
+    if(!still)T+=dt;U.uTime.value=T;U.uExp.value=r.toneMappingExposure;U.uFocus.value=Math.max(1,Vb.view.dist);
+    draw(mC,null);r.autoClear=ac;};
+  Vb.disposePost=()=>{all.forEach(t=>t.dispose());dtx.dispose();ms.forEach(m=>m.dispose());quad.geometry.dispose();Vb.render=Vb.onResize=null;};}
+/* post runs on computers with WebGL2 and float colour buffers; elsewhere the board renders straight */
+const t3p_ok=T3Q.hi&&(()=>{try{const g=document.createElement("canvas").getContext("webgl2");const ok=!!(g&&g.getExtension("EXT_color_buffer_float"));g&&g.getExtension("WEBGL_lose_context")?.loseContext();return ok;}catch(e){return false;}})();
 
 /* drifting ash in the caves, fireflies at the tree */
 function t3motes(Vb,n,col,spot){const pos=new Float32Array(n*3),ph=new Float32Array(n);for(let i=0;i<n;i++){const p=spot();pos.set(p,i*3);ph[i]=Math.random()*10;}
@@ -4413,7 +4477,7 @@ function t3tag(m,u,W2,H2){const gone=!!(u.gone||u.ghost),down=u.hp<=0&&!gone,tt=
 /* ---- OWNER: VFX. A death: the mini crumbles (also see t3strike, t3hurt, t3float, t3sparks, DMG_COL) ---- */
 function t3death(m,u){const q=m.g.position.clone();q.y+=.4;V.sparks.spawn(q,u.side==="foe"?"#a49c90":"#e9e1cf",30,{sp:1,up:1.2,lf:1.1,gr:-1});}
 
-function t3dispose(){if(!V)return;cancelAnimationFrame(t3raf);t3raf=0;V.scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){const ms=Array.isArray(o.material)?o.material:[o.material];for(const m of ms){if(m.map&&m.map!==t3dot&&m.map!==t3tile)m.map.dispose();m.dispose();}}});
+function t3dispose(){if(!V)return;cancelAnimationFrame(t3raf);t3raf=0;V.disposePost&&V.disposePost();V.scene.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){const ms=Array.isArray(o.material)?o.material:[o.material];for(const m of ms){if(m.map&&m.map!==t3dot&&m.map!==t3tile)m.map.dispose();m.dispose();}}});
   V.r.renderLists.dispose();V=null;}
 /* build the 3D board for the battle B */
 function t3start(){t3dispose();const host=h("div",{class:"pl-3d"}),tags=h("div",{class:"pl-tags"});host.append(tags);
