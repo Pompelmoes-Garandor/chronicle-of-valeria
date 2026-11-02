@@ -4049,7 +4049,8 @@ function t3cave(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,S=seeded(mp.key.length*977+31),
   const stone=[],floor=[],roots=[],glow=[],ash=[],deep=[],keep=[],grit=[],tips=[];
   const wall=(x,y)=>"#".includes(mp.c(x,y)),open=(x,y)=>!wall(x,y)&&x>=0&&y>=0&&x<W&&y<H;
   t3w_cutSetup(Vb);
-  for(let y=-2;y<H+2;y++)for(let x=-2;x<W+2;x++){const ch=(x<0||y<0||x>=W||y>=H)?"#":mp.c(x,y),c=Vb.cell(x,y);
+  const od=t3v_openDist(mp,4);
+  for(let y=-5;y<H+5;y++)for(let x=-5;x<W+5;x++){const ch=(x<0||y<0||x>=W||y>=H)?"#":mp.c(x,y),c=Vb.cell(x,y);
     if(ch==="#"){let edge=false,ox=0,oz=0;for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++)if((dx||dy)&&open(x+dx,y+dy)){edge=true;ox+=dx;oz+=dy;}
       if(edge){const n=Math.hypot(ox,oz),ux=n?ox/n:0,uz=n?oz/n:0,px=-uz,pz=ux,ry=Math.atan2(ux,uz),band=pk(T3W_STRATA),L=3+(S()<.45?1:0);let hy=0,push=0,w=1,d=1;
         // the rock behind: a dark mass so the wall reads solid from above
@@ -4074,7 +4075,10 @@ function t3cave(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,S=seeded(mp.key.length*977+31),
         if(n&&lot(.6))for(let k=0,m=1+Math.floor(S()*2);k<m;k++){const s=rr(-.45,.45),bx=c.x+px*s,bz=c.z+pz*s,o=push+d/2-.05,yb=rr(.55,1.2),pts=[V3(bx+ux*(o-.15),top-.05,bz+uz*(o-.15)),V3(bx+ux*o,top-.25,bz+uz*o)];
           for(let yy=top-.5;yy>yb;yy-=.3)pts.push(V3(bx+ux*(o+rr(-.04,.06))+px*rr(-.05,.05),yy,bz+uz*(o+rr(-.04,.06))+pz*rr(-.05,.05)));pts.push(V3(bx+ux*(o+.08),yb,bz+uz*(o+.08)));
           roots.push(t3tint(t3tube(pts,rr(.012,.028),4),pk(["#7a7066","#8a8076","#6a6058"])));}}
-      else deep.push(t3at(t3tint(new THREE.BoxGeometry(1.02,1,1.02),pk(["#0c0b09","#0e0c0a"])),c.x,.98,c.z,{sy:rr(1.9,2.05)}));
+      else{// the mass behind the walls steps down toward the rim, so the diorama ends in a slope into the dark
+        const d=od(x,y),h=d<=2?rr(1.85,2.05):d===3?rr(1.2,1.55):d===4?rr(.65,.95):rr(.18,.42),k=Math.min(1,Math.max(0,(d-2)/3.2)),col=t3v_col.set(pk(T3V_MASS[mp.key==="cavern"?1:0])).lerp(t3v_blk,k).getHexString();
+        deep.push(t3at(t3tint(T3Q.hi||d<=2?t3w_slab(1.06,h,1.06,x*7+y*3,.1):new THREE.BoxGeometry(1.04,h,1.04),"#"+col),c.x+rr(-.04,.04),h/2-.03,c.z+rr(-.04,.04),{ry:rr(-.08,.08)}));
+        if(d<=4&&lot(.35)){const r=rr(.25,.42);ash.push(t3at(t3tint(t3rock(r,x*5+y*13,1),"#"+t3v_col.set(pk(T3V_DUST[mp.key==="cavern"?1:0])).lerp(t3v_blk,.25+k*.6).getHexString()),c.x+rr(-.3,.3),h-.02,c.z+rr(-.3,.3),{sy:rr(.12,.22),ry:rr(0,3)}));}}
       continue;}
     const nearW=[[1,0],[-1,0],[0,1],[0,-1]].some(([a,b])=>!open(x+a,y+b));
     floor.push(t3at(t3tint(new THREE.BoxGeometry(.99,.4,.99),ch===","?"#4b463f":ch==="r"?pk(["#241f1a","#27211b"]):pk(["#302a24","#342e27","#2b2620","#2f2923"])),c.x,-.2+rr(-.025,.01),c.z));
@@ -4107,14 +4111,15 @@ function t3cave(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,S=seeded(mp.key.length*977+31),
   if(grit.length){const g=t3tint(t3rock(1,5,0),"#ffffff"),im=new THREE.InstancedMesh(g,t3surf("rock",Vb),grit.length),m=new THREE.Matrix4(),col=new THREE.Color();
     grit.forEach(([x,z,r],i)=>{t3e.set(rr(0,3),rr(0,6),rr(0,3));m.compose(t3v.set(x,r*.3,z),t3q.setFromEuler(t3e),t3s.set(r,r*rr(.5,.9),r*rr(.8,1.2)));im.setMatrixAt(i,m);im.setColorAt(i,col.set(pk(["#3f3931","#332e28","#4a443b","#2a2621"])));});
     im.receiveShadow=true;Vb.root.add(im);}
-  const under=t3mesh(new THREE.PlaneGeometry(W+14,H+14),t3mat("#0a0908",{roughness:1}));under.rotation.x=-Math.PI/2;under.position.y=-.4;Vb.root.add(under);
+  const under=t3mesh(new THREE.PlaneGeometry(W+24,H+24),new THREE.MeshStandardMaterial({map:t3v_floorTex(mp.key==="cavern"?"#16190f":"#1b1814"),roughness:1}),{recv:true});under.rotation.x=-Math.PI/2;under.position.y=-.06;Vb.root.add(under);
   // torches on the walls by the way out
   const torch=(x,y)=>{const c=Vb.cell(x,y);const st=t3mesh(new THREE.CylinderGeometry(.03,.04,.5,5),t3mat("#3a2a1c"));st.position.set(c.x,1.1,c.z);st.rotation.z=.3;
     const fl=new THREE.Sprite(new THREE.SpriteMaterial({map:t3dotTex(),color:0xffa24a,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true}));fl.scale.set(.45,.6,1);fl.position.set(c.x+.08,1.42,c.z);
-    Vb.root.add(st,fl);Vb.flames.push(fl);Vb.t3wTorch.push([st,fl]);if(!SMALL||Vb.flames.length<2){const l=new THREE.PointLight(0xff9a48,7,6,1.7);l.position.set(c.x+.1,1.45,c.z);Vb.scene.add(l);Vb.flicker.push(l);}};
+    Vb.root.add(st,fl);Vb.flames.push(fl);Vb.t3wTorch.push([st,fl,null]);};
   const spots=[];for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(wall(x,y)&&[[1,0],[-1,0],[0,1],[0,-1]].some(([a,b])=>open(x+a,y+b)))spots.push([x,y]);
   const want=mp.key==="cavern"?[[0,9],[11,6],[2,12],[10,2]]:[[0,13],[8,13],[0,6],[8,3]];
   for(const [wx,wy] of want){let best=null,bd=1e9;for(const s of spots){const d=Math.hypot(s[0]-wx,s[1]-wy);if(d<bd){bd=d;best=s;}}if(best){torch(best[0],best[1]);spots.splice(spots.indexOf(best),1);}}
+  t3v_torchLights(Vb,T3Q.hi?2:1);
   if(mp.def.label)for(const [x,y,t] of mp.def.label){const s=t3label(t);s.material.depthTest=false;s.renderOrder=5;const c=Vb.cell(x,y);s.position.set(c.x,1.1,c.z);Vb.root.add(s);}
   Vb.motes=t3motes(Vb,90,"#bfb6a6",()=>[rr(-W/2,W/2),rr(.1,2.4),rr(-H/2,H/2)]);
   Vb.ticks.push((dt,tt)=>{for(const f of Vb.flames){const s=.55+.08*Math.sin(tt*17+f.id);f.scale.set(.42,s,1);}});
@@ -4145,6 +4150,10 @@ function t3dressTunnel(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,S=seeded(9091),rr=(a,b)=
     for(const g of parts)props.push(t3at(g,lx,.07,lz,{rz:Math.PI/2*.92,ry}));
     for(let i=0;i<5;i++)props.push(t3at(t3tint(new THREE.TetrahedronGeometry(rr(.015,.03)),"#4a3d27"),lx+rr(-.2,.2),.01,lz+rr(-.2,.2),{rx:rr(0,6),ry:rr(0,6),sy:.3}));}
   if(props.length)Vb.root.add(t3mesh(t3merge(props),t3surf("rock",Vb),{cast:T3Q.hi,recv:true}));
+  // ash banked against the walls, blown down the tunnel for years
+  const drift=[];for(const sp of take(side,Math.round(26*Q))){const [ax,az]=at(sp,.4,rr(-.3,.3)),r=rr(.24,.36),a=sp[2],b=sp[3];
+    drift.push(t3at(t3tint(t3rock(r,sp[0]*5+sp[1]*3,1),pk(["#8d887f","#7b766e","#9a958c","#6e6a63"])),ax,-.01,az,{sx:a?.5:1.35,sz:b?.5:1.35,sy:rr(.2,.34)}));}
+  if(drift.length)Vb.root.add(t3mesh(t3merge(drift),t3surf("ash",Vb),{recv:true}));
   // cobwebs across the corners
   const webs=take(corner,Math.round(6*Q));if(webs.length){const P=[],U=[],I=[];webs.forEach(([x,y,a,b],k)=>{const c=Vb.cell(x,y),cx=c.x+a*.5,cz=c.z+b*.5,s=rr(.55,.72),y0=rr(.45,.8),y1=y0+rr(.6,.9),A=[cx-a*s,cz],Bq=[cx,cz-b*s];
       P.push(A[0],y1,A[1],Bq[0],y1,Bq[1],Bq[0],y0,Bq[1],A[0],y0,A[1]);const f=S()<.5;U.push(f?1:0,1,f?0:1,1,f?0:1,0,f?1:0,0);I.push(k*4,k*4+1,k*4+2,k*4,k*4+2,k*4+3);});
@@ -4160,7 +4169,7 @@ function t3dressTunnel(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,S=seeded(9091),rr=(a,b)=
     const hg=new THREE.BufferGeometry();hg.setAttribute("position",new THREE.Float32BufferAttribute(halo,3));
     Vb.root.add(new THREE.Points(hg,new THREE.PointsMaterial({map:t3dotTex(),color:0x6fd8c0,size:.5,transparent:true,opacity:.22,depthWrite:false,blending:THREE.AdditiveBlending})));}
   // the waystone's runes breathe, faintly
-  if(Vb.t3wRune){const {sp,li}=Vb.t3wRune;Vb.ticks.push((dt,tt)=>{const k=.5+.5*Math.sin(tt*1.3);sp.material.opacity=.14+.16*k;if(li)li.intensity=.9+.9*k;});}
+  if(Vb.t3wRune){const {sp,li}=Vb.t3wRune;Vb.ticks.push((dt,tt)=>{const k=.5+.5*Math.sin(tt*1.3);sp.material.opacity=.14+.16*k;if(li)li.material.opacity=.12+.12*k;});}
   // water dripping from the stone teeth
   const tips=Vb.t3wTips||[];if(tips.length){const N=Math.min(tips.length,Math.round(8*Q)),pos=new Float32Array(N*3),st=[];
     for(let i=0;i<N;i++){const t=tips[Math.floor(S()*tips.length)];st.push({t,y:t[1]-t[3],v:0,w:rr(0,4)});}
@@ -4173,7 +4182,7 @@ const T3W_STRATA=[["#2a2621","#36302a","#2e2a26","#433c34"],["#26231f","#3a352e"
 function t3w_cutSetup(Vb){const mp=Vb.mp,U=Vb.t3wU={c:{value:new THREE.Vector4(0,0,0,1)},k:{value:new THREE.Vector3(99,1.3,.45)}};Vb.t3wTorch=[];
   Vb.ticks.push(()=>{const Vw=Vb.view,cp=Vb.cam.position;let dx=cp.x-Vw.tx,dz=cp.z-Vw.tz;const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;
     const ext=.5*(mp.W*Math.abs(dx)+mp.H*Math.abs(dz))-(Vw.tx*dx+Vw.tz*dz),a0=Math.max(.8,ext-2.7),hl=.35+.25*Math.max(0,Math.sin(Vw.pitch)-.5);U.c.value.set(Vw.tx,Vw.tz,dx,dz);U.k.value.set(a0,1.3,hl);
-    for(const [st,fl] of Vb.t3wTorch){const a=(st.position.x-Vw.tx)*dx+(st.position.z-Vw.tz)*dz;st.visible=fl.visible=a<a0+.5;}});}
+    for(const [st,fl,pl] of Vb.t3wTorch){const a=(st.position.x-Vw.tx)*dx+(st.position.z-Vw.tz)*dz;st.visible=fl.visible=a<a0+.5;if(pl)pl.visible=st.visible;}});}
 function t3w_cut(Vb,kind){const m=t3surf(kind,Vb),c=m.clone();c.onBeforeCompile=m.onBeforeCompile;if(Object.prototype.hasOwnProperty.call(m,"customProgramCacheKey"))c.customProgramCacheKey=m.customProgramCacheKey;return t3w_cutMat(Vb,c);}
 function t3w_cutMat(Vb,m){if(m.userData.t3wCut)return m;m.userData.t3wCut=1;const prev=m.onBeforeCompile,key=m.customProgramCacheKey()+"|t3wcut",U=Vb.t3wU;
   m.onBeforeCompile=function(sh,r){if(prev)prev.call(this,sh,r);if(!sh.vertexShader.includes("#include <project_vertex>")||!sh.fragmentShader.includes("void main() {"))return;sh.uniforms.t3wC=U.c;sh.uniforms.t3wK=U.k;
@@ -4201,12 +4210,27 @@ function t3w_waystone(Vb,c,keep,glow,roots,S){const rr=(a,b)=>a+(b-a)*S(),ry=.55
   // roots gripping the foot of the stone
   for(let i=0;i<6;i++){const a=rr(0,6.3),pts=[new THREE.Vector3(c.x+Math.cos(a)*.22,.55,c.z+Math.sin(a)*.12),new THREE.Vector3(c.x+Math.cos(a)*.4,.24,c.z+Math.sin(a)*.38),new THREE.Vector3(c.x+Math.cos(a)*.5,.1,c.z+Math.sin(a)*.5),new THREE.Vector3(c.x+Math.cos(a+.2)*.75,.02,c.z+Math.sin(a+.2)*.75)];roots.push(t3tint(t3tube(pts,rr(.025,.045)),S()<.5?"#4a4239":"#5b5249"));}
   const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:t3dotTex(),color:0x8fd3c8,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:.25}));sp.scale.set(1,1.7,1);sp.position.set(c.x,ph+1,c.z);Vb.root.add(sp);
-  let li=null;if(T3Q.hi){li=new THREE.PointLight(0x7fd0c4,1.2,3.2,2);li.position.set(c.x+Math.sin(ry)*.4,1.1,c.z+Math.cos(ry)*.4);Vb.scene.add(li);}Vb.t3wRune={sp,li};}
+  const li=t3v_pool(Vb,c.x+Math.sin(ry)*.3,c.z+Math.cos(ry)*.3,2.6,0x7fd0c4,.2);Vb.t3wRune={sp,li};}
 function t3w_webTex(){const cv=document.createElement("canvas");cv.width=cv.height=128;const g=cv.getContext("2d"),hx=58,hy=40,N=10,ang=[];for(let i=0;i<N;i++)ang.push(i/N*Math.PI*2+Math.sin(i*3.1)*.22);
   g.strokeStyle="#fff";g.lineWidth=1.1;g.globalAlpha=.85;for(const a of ang){g.beginPath();g.moveTo(hx,hy);g.lineTo(hx+Math.cos(a)*120,hy+Math.sin(a)*120);g.stroke();}
   g.globalAlpha=.6;g.lineWidth=.8;for(let r=5;r<90;r+=r<30?4.5:6.5){g.beginPath();ang.forEach((a,i)=>{const q=r*(1+.1*Math.sin(i*2.3+r*.3)),X=hx+Math.cos(a)*q,Y=hy+Math.sin(a)*q+r*.08;i?g.lineTo(X,Y):g.moveTo(X,Y);});g.closePath();g.stroke();}
   g.globalCompositeOperation="destination-out";const gr=g.createLinearGradient(0,60,0,128);gr.addColorStop(0,"#0000");gr.addColorStop(1,"#000f");g.fillStyle=gr;g.fillRect(0,0,128,128);
   const tx=new THREE.CanvasTexture(cv);tx.colorSpace=THREE.SRGBColorSpace;return tx;}
+/* set helpers (t3v_): how far a cell is from open floor, the rock colours, the ground under the diorama */
+const T3V_MASS=[["#2a251f","#26221d","#2e2822"],["#1f231a","#1c1f17","#242619"]],T3V_DUST=[["#5d5952","#4f4b45","#66625a"],["#2b3420","#262d1d","#343a26"]],t3v_col=new THREE.Color(),t3v_blk=new THREE.Color("#060605");
+function t3v_openDist(mp,M){const W=mp.W,H=mp.H,op=(x,y)=>x>=0&&y>=0&&x<W&&y<H&&mp.c(x,y)!=="#";return (x,y)=>{for(let r=1;r<=M;r++)for(let dx=-r;dx<=r;dx++)for(let dy=-r;dy<=r;dy++)if(Math.max(Math.abs(dx),Math.abs(dy))===r&&op(x+dx,y+dy))return r;return M+1;};}
+/* a soft pool of light baked onto the floor (additive, no real light) */
+function t3v_pool(Vb,x,z,r,col,op){const m=new THREE.Mesh(new THREE.PlaneGeometry(r,r),new THREE.MeshBasicMaterial({map:t3dotTex(),color:col,transparent:true,opacity:op,depthWrite:false,blending:THREE.AdditiveBlending,fog:false}));
+  m.rotation.x=-Math.PI/2;m.position.set(x,.03,z);m.renderOrder=1;Vb.root.add(m);return m;}
+/* only the n torches nearest the board centre carry a real light; the others get a halo and a pool that flicker with the flame */
+function t3v_torchLights(Vb,n){const T=Vb.t3wTorch.slice().sort((a,b)=>Math.hypot(a[0].position.x,a[0].position.z)-Math.hypot(b[0].position.x,b[0].position.z)),fake=[];
+  T.forEach((t,i)=>{const [st,fl]=t,x=fl.position.x,z=fl.position.z;if(i<n){const l=new THREE.PointLight(0xff9a48,7,6,1.7);l.position.set(x+.02,1.45,z);Vb.scene.add(l);Vb.flicker.push(l);return;}
+    const h=new THREE.Sprite(new THREE.SpriteMaterial({map:t3dotTex(),color:0xff8a3a,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:.35}));h.scale.set(2.2,2.2,1);fl.add(h);h.scale.set(2.2/.42,2.2/.6,1);
+    const p=t3v_pool(Vb,x,z,3.4,0xff9a48,.28);t[2]=p;fake.push([p,h,i]);});
+  if(fake.length)Vb.ticks.push((dt,tt)=>{for(const [p,h,i] of fake){const k=.85+.15*Math.sin(tt*13+i*7)+.08*Math.sin(tt*31+i);p.material.opacity=.28*k;h.material.opacity=.35*k;}});}
+function t3v_floorTex(col){const cv=document.createElement("canvas");cv.width=cv.height=256;const g=cv.getContext("2d"),gr=g.createRadialGradient(128,128,20,128,128,128);gr.addColorStop(0,col);gr.addColorStop(.55,col);gr.addColorStop(1,"#030303");
+  g.fillStyle=gr;g.fillRect(0,0,256,256);let sd=77;const r=()=>(sd=(sd*16807)%2147483647)/2147483647;for(let i=0;i<900;i++){g.fillStyle=r()<.5?"#ffffff0c":"#0000001a";const s=r()*5+1;g.fillRect(r()*256,r()*256,s,s);}
+  const t=new THREE.CanvasTexture(cv);t.colorSpace=THREE.SRGBColorSpace;return t;}
 
 /* ---- OWNER: cavern + heart. The Blight Heart's chamber: veins, glow light, its pulse ---- */
 function t3dressCavern(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,S=seeded(707),rr=(a,b)=>a+(b-a)*S(),pk=a=>a[Math.floor(S()*a.length)],hi=T3Q.hi;if(!mp.def.glow)return;
@@ -4253,12 +4277,12 @@ function t3dressCavern(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,S=seeded(707),rr=(a,b)=>
     fragmentShader:"varying float vA;void main(){float d=length(gl_PointCoord-.5);float a=smoothstep(.5,.0,d);a*=a;gl_FragColor=vec4(vec3(.62,.95,.38)*a*vA,a*vA);}"});
   const spp=new THREE.Points(sg,spm);spp.frustumCulled=false;spp.renderOrder=2;Vb.root.add(spp);
   // the green light breathes with each beat
-  const gl=new THREE.PointLight(0x7fd36a,26,12,1.5);gl.position.set(c.x+.4,3.6,c.z+1.9);Vb.scene.add(gl);Vb.pulseLight=gl;
+  const gl=new THREE.PointLight(0x7fd36a,12,13,1.4);gl.position.set(c.x+.4,4.6,c.z+3);Vb.scene.add(gl);Vb.pulseLight=gl;
   let life=1;
   Vb.ticks.push((dt,tt)=>{const hu=B&&B.units&&B.units.find(o=>o.key==="heart"),dead=hu?(hu.hp<=0||hu.gone||(B.sc&&B.sc.heartDead)):false;
     life+=((dead?0:1)-life)*Math.min(1,dt*(dead?.7:3));const b=t3hBeat(tt);
     U.ph.value=tt%T3H_P;U.beat.value=b;U.life.value=life;SU.uT.value=tt;SU.uS.value=Vb.r.domElement.height*.5;
-    gl.intensity=(14+22*b)*life+2;gp.material.opacity=(.3+.35*b)*life+.04;});}
+    gl.intensity=(6+11*b)*life+1;gp.material.opacity=(.3+.35*b)*life+.04;});}
 
 /* cavern + heart helpers: the heartbeat, a tapered root tube, a merge that keeps extra attributes, a little noise */
 const T3H_P=1.5;
@@ -5351,27 +5375,27 @@ const T3MINI={
     for(let i=0;i<ps.count;i++){const q=surf(ps.getX(i),ps.getY(i),ps.getZ(i));ps.setXYZ(i,q[0],q[1],q[2]);cav[i]=q[3];}
     geo.setAttribute("aCav",new THREE.BufferAttribute(cav,1));geo.computeVertexNormals();
     const HU={uT:{value:0},uBeat:{value:0},uLife:{value:1}};
-    const fm=hi?new THREE.MeshPhysicalMaterial({color:0xffffff,roughness:.42,metalness:0,clearcoat:.85,clearcoatRoughness:.22,emissive:0x000000}):new THREE.MeshStandardMaterial({color:0xffffff,roughness:.4,metalness:0,emissive:0x000000});
+    const fm=hi?new THREE.MeshPhysicalMaterial({color:0xffffff,roughness:.42,metalness:0,clearcoat:.55,clearcoatRoughness:.3,emissive:0x000000}):new THREE.MeshStandardMaterial({color:0xffffff,roughness:.4,metalness:0,emissive:0x000000});
     fm.onBeforeCompile=sh=>{Object.assign(sh.uniforms,{uT:HU.uT,uBeat:HU.uBeat,uLife:HU.uLife});
       sh.vertexShader="attribute float aCav;varying float vCav;varying vec3 vOP;uniform float uT,uBeat;\n"+sh.vertexShader.replace("#include <begin_vertex>","#include <begin_vertex>\nvCav=aCav;vOP=position;transformed+=normal*uBeat*(.025+.03*sin(position.y*7.+position.x*3.));");
       sh.fragmentShader="varying float vCav;varying vec3 vOP;uniform float uT,uBeat,uLife;\n"+T3H_GLSL+"\n"+sh.fragmentShader
         .replace("#include <color_fragment>",`#include <color_fragment>
-        vec3 q=vOP*vec3(1.,1.15,1.);float n1=h3n(q*2.1),n2=h3n(q*5.3+7.),rot=smoothstep(.15,.55,h3n(q*1.3+3.)+vCav*.8);
-        float vein=(1.-smoothstep(.0,.075,abs(n1)))*.9+(1.-smoothstep(.0,.06,abs(n2)))*.45*smoothstep(-.2,.3,n1);vein*=smoothstep(.4,.62,vOP.y);
-        vec3 flesh=mix(vec3(.30,.035,.04),vec3(.52,.09,.08),smoothstep(-.25,.3,vCav));flesh=mix(flesh,vec3(.07,.06,.035),rot*.85);flesh*=.75+.25*h3n(q*11.);
+        vec3 q=vOP*vec3(1.,1.15,1.);float n1=h3n(q*2.1),n2=h3n(q*5.3+7.),rot=smoothstep(-.05,.45,h3n(q*1.3+3.)+vCav*.8);
+        float vein=(1.-smoothstep(.0,.1,abs(n1)))*.9+(1.-smoothstep(.0,.06,abs(n2)))*.45*smoothstep(-.2,.3,n1);vein*=smoothstep(.4,.62,vOP.y);
+        vec3 flesh=mix(vec3(.15,.02,.025),vec3(.3,.045,.045),smoothstep(-.25,.3,vCav));flesh=mix(flesh,vec3(.035,.03,.02),rot*.9);flesh*=.75+.25*h3n(q*11.);
         flesh=mix(flesh,vec3(.38,.5,.2),vein*.55*(1.-rot*.6));
         diffuseColor.rgb*=mix(vec3(.2,.19,.17)*(.7+.3*h3n(q*7.)),flesh,uLife);float tV=vein;`)
         .replace("#include <roughnessmap_fragment>","#include <roughnessmap_fragment>\nroughnessFactor=mix(.85,roughnessFactor+rot*.35,uLife);")
         .replace("#include <emissivemap_fragment>",`#include <emissivemap_fragment>
         float fr=pow(1.-abs(dot(normal,normalize(vViewPosition))),2.2);
-        totalEmissiveRadiance+=uLife*(vec3(.45,1.,.28)*tV*(.25+1.6*uBeat)*(1.-rot*.7)+vec3(.5,.05,.04)*fr*(.35+.4*uBeat)*(1.-rot)+vec3(.25,.6,.12)*fr*uBeat*.35);`);};
+        totalEmissiveRadiance+=uLife*(vec3(.45,1.,.28)*tV*(.55+1.9*uBeat)*(1.-rot*.6)+vec3(.5,.05,.04)*fr*(.35+.4*uBeat)*(1.-rot)+vec3(.25,.6,.12)*fr*uBeat*.35);`);};
     const body=new THREE.Mesh(geo,fm);up.add(body);
     // black roots knotted around it, gripping the flesh from the ground up
     const wrap=[],pt=(az,el,k=1.04)=>{const x=Math.cos(el)*Math.cos(az),y=Math.sin(el),z=Math.cos(el)*Math.sin(az),q=surf(x,y,z);return new THREE.Vector3((q[0])*k,(q[1]-Y0)*k+Y0,q[2]*k);};
-    for(let i=0,n=hi?13:8;i<n;i++){const a=i/n*6.283+rr(-.2,.2),tw=rr(-.9,.9),e1=rr(.5,1.35),pts=[new THREE.Vector3(Math.cos(a)*1.55,.03,Math.sin(a)*1.55)];
+    for(let i=0,n=hi?22:12;i<n;i++){const a=i/n*6.283+rr(-.2,.2),tw=rr(-.9,.9),e1=rr(.5,1.35),pts=[new THREE.Vector3(Math.cos(a)*1.55,.03,Math.sin(a)*1.55)];
       for(let k=0;k<=6;k++){const t=k/6;pts.push(pt(a+tw*t,-.35+t*(e1+.35),1.03+.02*Math.sin(k*2.1+i)));}
       if(i%3===0)pts.push(pt(a+tw,e1,1.25),pt(a+tw*1.1,e1+.1,1.5));// a few break free and point at the dark
-      wrap.push(t3tint(t3hTube(pts,rr(.07,.12),.02,hi),["#120c09","#1a120d","#0d0907"][i%3]));}
+      wrap.push(t3tint(t3hTube(pts,rr(.09,.16),.02,hi),["#120c09","#1a120d","#0d0907"][i%3]));}
     const bark=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.62,metalness:0});up.add(new THREE.Mesh(t3merge(wrap),bark));
     // the flared base: roots plunging into the floor (they stay put while the flesh beats)
     const base=[];for(let i=0,n=hi?14:9;i<n;i++){const a=i/n*6.283+rr(-.15,.15),pts=[new THREE.Vector3(Math.cos(a)*.75,.45,Math.sin(a)*.75),new THREE.Vector3(Math.cos(a)*1.15,.18,Math.sin(a)*1.15),new THREE.Vector3(Math.cos(a+.08)*1.45,.06,Math.sin(a+.08)*1.45),new THREE.Vector3(Math.cos(a+.12)*1.7,.02,Math.sin(a+.12)*1.7)];
