@@ -4963,7 +4963,10 @@ function t3surf(kind,Vb){
     case "glow":Object.assign(o,{emissive:0xffffff,emissiveIntensity:.55,roughness:.5});break;case "glowTree":Object.assign(o,{emissive:0xffffff,emissiveIntensity:.9,roughness:.6,side:THREE.DoubleSide});break;}
   const m=t3vmat(o);if(kind==="deep")return C[kind]=m;
   const hi=T3Q.hi,body=T3S_BODY[kind]||T3S_BODY.rock,U=Vb.t3sU;if(hi)m.defines={T3HI:""};
-  m.customProgramCacheKey=()=>"t3s_"+kind+(hi?1:0);
+  const LM=(t3look(Vb.mp)||{}).mat,lk=LM?Vb.mp.kind:"";
+  if(LM){m.defines=Object.assign(m.defines||{},{T3LOOK:""},LM.glyph&&(kind==="rock"||kind==="floor")?{T3GLYPH:""}:{},LM.wet&&(kind==="floor"||kind==="ash")?{T3WET:""}:{});
+    if(!U.t3Lk)U.t3Lk={value:new THREE.Vector4(...LM.tint,LM.sat)},U.t3Lw={value:LM.wet||1};}
+  m.customProgramCacheKey=()=>"t3s_"+kind+(hi?1:0)+lk;
   m.onBeforeCompile=sh=>{Object.assign(sh.uniforms,U);
     sh.vertexShader=sh.vertexShader.replace("#include <common>","#include <common>\nvarying vec3 t3P;varying vec3 t3Nw;")
       .replace("#include <worldpos_vertex>","#include <worldpos_vertex>\nt3P=(modelMatrix*vec4(transformed,1.0)).xyz;t3Nw=normalize(mat3(modelMatrix)*objectNormal);");
@@ -4973,6 +4976,9 @@ function t3surf(kind,Vb){
       .replace("#include <normal_fragment_maps>","#include <normal_fragment_maps>\n#ifdef T3HI\nnormal=t3pert(-vViewPosition,normal,vec2(dFdx(t3h),dFdy(t3h)),faceDirection);\n#endif")
       .replace("#include <emissivemap_fragment>","#include <emissivemap_fragment>\ntotalEmissiveRadiance*=vColor*t3g;");
     if(kind==="leaf")f=f.replace("#include <lights_physical_pars_fragment>","#include <lights_physical_pars_fragment>\n"+T3S_WRAP);
+    if(LM)f=f.replace("#include <common>","#include <common>\nuniform vec4 t3Lk;uniform float t3Lw;")
+      .replace("#include <roughnessmap_fragment>","#ifdef T3LOOK\ndiffuseColor.rgb=mix(vec3(dot(diffuseColor.rgb,vec3(.3,.59,.11))),diffuseColor.rgb,t3Lk.w)*t3Lk.rgb;\n#endif\n#include <roughnessmap_fragment>\n#ifdef T3WET\nroughnessFactor*=t3Lw;\n#endif")
+      .replace("totalEmissiveRadiance*=vColor*t3g;","totalEmissiveRadiance*=vColor*t3g;\n#ifdef T3GLYPH\n{vec4 gA=t3tri(P*.42+vec3(0.,t3T*.012,0.),t3w),gB=t3tri(P*.13+.4,t3w);float gl=(1.0-smoothstep(.0,.05,gA.g))*smoothstep(.56,.72,gB.a)*smoothstep(2.4,.2,P.y);\ntotalEmissiveRadiance+=vec3(.42,.28,1.0)*gl*(.6+.4*sin(t3T*.7+P.x*1.3+P.z));}\n#endif");
     sh.fragmentShader=f;};
   return C[kind]=m;}
 
@@ -5108,7 +5114,29 @@ glowTree:`float ph=t3hs(floor(P.xy*4.0));t3g=.82+.14*sin(t3T*1.2+ph*6.2832)+.05*
 
 /* ---- OWNER: lighting. Fog, sky/ground light, the key light with shadows, the lantern over whoever acts, the headlight.
    t3lights runs once per board after the world is built; t3lightTick every frame. ---- */
-function t3lights(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,tree=Vb.tree,scene=Vb.scene,hi=T3Q.hi,cav=mp.key==="cavern",L=Vb.l3={shafts:[],pulse:null,i0:0};
+/* the interludes' fight sets (map kinds imemory ipatron iprayer ifire) each get a look: light, fog, backdrop, grade, surfaces.
+   The source (candle, patron, lamp, fire) stands on the map's light:[x,y] (else glow, else the middle). Any other kind keeps the cave look below.
+   fill/srcI/lanI/rimI are [computer, phone]; post is the grade (computers only); mat tints every surface (see t3surf) */
+const T3_LOOK={
+  imemory:{fog:0x1c130c,fogK:[1.15,2.6],bg:["#3a2818","#160e08","#060403"],sky:0x8a7462,ground:0x2e1c10,fill:[.55,1],
+    src:0xffb062,srcI:[22,20],srcD:11,srcY:1.3,flick:.6,pool:[4.2,.22,.42],key:{col:0xffb870,i:60,ang:1.25,at:[.4,2.6,-.6]},
+    lan:0xffc890,lanI:[12,12],rim:0xffd8a8,rimI:[.9,.8],head:0xffe0c0,
+    post:{sh:[.98,.9,.82],hl:[1.1,1,.84],sat:.78,vig:.4,dream:1,bloom:.62,exp:1},mat:{tint:[1.06,.98,.88],sat:.8}},
+  ipatron:{fog:0x0e0a16,fogK:[1.05,2.4],bg:["#22183a","#0c0816","#040208"],sky:0x5a4c8a,ground:0x140c1e,fill:[.36,.8],
+    src:0x9a7cff,srcI:[10,10],srcD:7,srcY:1.6,flick:0,pool:[3.2,.18,.32],sun:{col:0xb8c8ff,i:.85,at:[.2,8,-.8]},
+    lan:0xc0b0ff,lanI:[9,10],rim:0xc8d4ff,rimI:[2.2,1.6],head:0xc8c0ff,breathe:.6,
+    post:{sh:[.92,.86,1.18],hl:[1,.96,1.08],sat:.95,vig:.42,dream:0,bloom:.55,exp:.95},mat:{tint:[.9,.86,1.08],sat:.7,glyph:1}},
+  iprayer:{fog:0x0d0f11,fogK:[1,2.3],bg:["#1a1c20","#0a0b0d","#030404"],sky:0x6a7480,ground:0x1a1c1e,fill:[.45,.9],
+    src:0xffd7a0,srcI:[16,15],srcD:7.5,srcY:.9,flick:.4,pool:[3,.2,.38],key:{col:0xffdcb0,i:40,ang:1.2,at:[.3,2.2,.3]},
+    grey:{col:0x8a96a4,i:[.5,.6]},lan:0xe8dcc8,lanI:[12,12],rim:0x9aa6b4,rimI:[1.1,.9],head:0xd0d8e0,
+    post:{sh:[.9,.95,1.02],hl:[1.04,1,.94],sat:.55,vig:.38,dream:0,bloom:.5,exp:.95},mat:{tint:[.92,.94,.96],sat:.55,wet:.75}},
+  ifire:{fog:0x150c07,fogK:[1.15,2.7],bg:["#3a2010","#140a05","#050302"],sky:0x6a5a58,ground:0x3a1e0c,fill:[.5,.95],
+    src:0xff9a48,srcI:[34,30],srcD:13,srcY:1,flick:1,pool:[5,.3,.5],key:{col:0xffa860,i:90,ang:1.3,at:[0,2.4,0]},embers:1,
+    lan:0xffc080,lanI:[10,11],rim:0x8090c0,rimI:[.7,.6],head:0xffd8b0,
+    post:{sh:[.92,.9,.98],hl:[1.12,1,.82],sat:1.12,vig:.36,dream:0,bloom:.7,exp:1},mat:{tint:[1.04,.98,.92],sat:1}}};
+const t3look=mp=>mp&&T3_LOOK[mp.kind]||null;
+function t3lights(Vb){if(t3look(Vb.mp))return t3l_inter(Vb,t3look(Vb.mp));
+  const mp=Vb.mp,W=mp.W,H=mp.H,tree=Vb.tree,scene=Vb.scene,hi=T3Q.hi,cav=mp.key==="cavern",L=Vb.l3={shafts:[],pulse:null,i0:0};
   // fog: near and far follow the camera distance (see t3lightTick)
   scene.fog=new THREE.Fog(tree?0x0a1120:cav?0x0b130d:0x0c1017,10,30);Vb.fogK=tree?[1.2,2.9]:cav?[1.1,2.8]:[1.1,2.9];
   // caves: the board sits on a dark table, not in a void: a faint glow behind it in the scene's colour
@@ -5145,13 +5173,49 @@ function t3lights(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,tree=Vb.tree,scene=Vb.scene,h
   // caves: a rim from behind the minis (opposite the camera, see t3lightTick) so they lift off the floor
   if(!tree){Vb.rim=new THREE.DirectionalLight(cav?0xb8e89a:0xa8c0ff,hi?1.6:1.1);scene.add(Vb.rim,Vb.rim.target);}
   t3l_blobs(Vb);}
+/* an interlude set's light: the source (with its flicker), a shadowing key on computers, the lantern, headlight and rim, its own slow tick */
+function t3l_inter(Vb,K){const mp=Vb.mp,scene=Vb.scene,hi=T3Q.hi,j=hi?0:1,L=Vb.l3={shafts:[],pulse:null,i0:0,tick:null};
+  const at=mp.def.light||mp.def.glow,c=at?Vb.cell(at[0],at[1]):new THREE.Vector3();
+  scene.fog=new THREE.Fog(K.fog,10,30);Vb.fogK=K.fogK;scene.background=t3l_bg(K.bg);
+  scene.add(new THREE.HemisphereLight(K.sky,K.ground,K.fill[j]));
+  const src=new THREE.PointLight(K.src,K.srcI[j],K.srcD,1.6);src.position.set(c.x,K.srcY,c.z);scene.add(src);
+  const fl=[];if(K.flick)fl.push(src);
+  if(hi&&K.key){const q=K.key,k=new THREE.SpotLight(q.col,q.i,0,q.ang,.85,1.3);k.position.set(c.x+q.at[0],q.at[1],c.z+q.at[2]);k.target.position.set(c.x,0,c.z);Vb.key(k);if(K.flick)fl.push(k);}
+  if(K.sun){const q=K.sun,d=new THREE.DirectionalLight(q.col,q.i*(hi?1:.8));d.position.set(mp.W*q.at[0],q.at[1],mp.H*q.at[2]);d.target.position.set(0,0,0);if(hi)Vb.key(d);else scene.add(d,d.target);}
+  let grey=null;if(K.grey){grey=new THREE.DirectionalLight(K.grey.col,K.grey.i[j]);grey.position.set(mp.W*.3,9,-mp.H*.6);scene.add(grey,grey.target);}
+  t3l_pool(Vb,c,K.pool[0],K.src,hi?K.pool[1]:K.pool[2],false);
+  Vb.lantern=new THREE.PointLight(K.lan,K.lanI[j],8.5,1.5);Vb.lantern.position.set(0,2,0);scene.add(Vb.lantern);
+  Vb.head=new THREE.DirectionalLight(hi?0xffeedd:K.head,hi?.6:1.1);scene.add(Vb.head,Vb.head.target);
+  Vb.rim=new THREE.DirectionalLight(K.rim,K.rimI[j]);scene.add(Vb.rim,Vb.rim.target);
+  const emb=K.embers?t3l_embers(Vb,c,hi?90:40):null;
+  // flames flicker by their own amount (the tick below), a presence breathes, the grey light comes and goes
+  const i0=fl.map(l=>l.intensity),p0=src.position.clone(),pool=L.shafts[L.shafts.length-1],k0=pool.k0;
+  L.tick=(dt,tt)=>{const f=K.flick?1+K.flick*(.11*Math.sin(tt*7.3)+.07*Math.sin(tt*13.1+1.3)+.05*Math.sin(tt*23.7+2.1)+.04*Math.sin(tt*41.3+.7)):1;
+    fl.forEach((l,i)=>{l.intensity=i0[i]*f;});pool.uniforms.uK.value=k0*f;
+    if(K.flick>=1)src.position.set(p0.x+Math.sin(tt*5.3)*.08,p0.y+Math.sin(tt*9.1)*.06,p0.z+Math.cos(tt*6.7)*.08);
+    if(K.breathe){const b=.8+.2*Math.sin(tt*K.breathe);src.intensity=K.srcI[j]*b;pool.uniforms.uK.value=k0*b;}
+    if(grey)grey.intensity=K.grey.i[j]*(.75+.25*Math.sin(tt*.42));
+    if(emb)emb(tt);};
+  t3l_blobs(Vb);}
+/* sparks lifting off a fire: they rise, wander, glow and go out (one draw call) */
+function t3l_embers(Vb,c,N){const S=seeded(N*7+3),pos=new Float32Array(N*3),R=new Float32Array(N*4);
+  for(let i=0;i<N;i++){pos.set([c.x+(S()-.5)*.6,0,c.z+(S()-.5)*.6],i*3);R.set([S(),.35+S()*.5,1.4+S()*1.6,.5+S()*.5],i*4);}
+  const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.BufferAttribute(pos,3));g.setAttribute("aR",new THREE.BufferAttribute(R,4));
+  const U={uT:{value:0},uH:{value:800}};
+  const pts=new THREE.Points(g,new THREE.ShaderMaterial({uniforms:U,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false,
+    vertexShader:`attribute vec4 aR;uniform float uT,uH;varying float vA;
+void main(){float ph=fract(uT*aR.y/aR.z+aR.x);vec3 p=position;float w=aR.x*6.283;p.y=.25+ph*aR.z;p.x+=sin(uT*1.7+w)*.25*ph+sin(w*3.)*.2*ph;p.z+=cos(uT*1.3+w*1.7)*.25*ph;
+  vA=aR.w*smoothstep(0.,.08,ph)*(1.-smoothstep(.45,1.,ph))*(.7+.3*sin(uT*9.+w*5.));vec4 mv=modelViewMatrix*vec4(p,1.);gl_Position=projectionMatrix*mv;gl_PointSize=clamp(.035*projectionMatrix[1][1]*uH*.5/-mv.z,1.5,10.);}`,
+    fragmentShader:`varying float vA;void main(){float d=length(gl_PointCoord-.5)*2.;float a=smoothstep(1.,0.,d);gl_FragColor=vec4(vec3(1.,.5,.16)*a*vA*.9,1.);}`}));
+  pts.frustumCulled=false;Vb.root.add(pts);const v2=new THREE.Vector2();
+  return tt=>{U.uT.value=tt;U.uH.value=Vb.r.getDrawingBufferSize(v2).y;};}
 function t3lightTick(dt,tt){const Vw=V.view,L=V.l3;
   V.head.position.copy(V.cam.position);V.head.target.position.set(Vw.tx,Vw.ty,Vw.tz);
   if(V.rim){const r=V.rim;r.target.position.set(Vw.tx,Vw.ty,Vw.tz);r.position.set(Vw.tx-Math.sin(Vw.yaw)*8,Vw.ty+5,Vw.tz-Math.cos(Vw.yaw)*8);}
   if(V.fogK){V.scene.fog.near=Vw.dist*V.fogK[0];V.scene.fog.far=Vw.dist*V.fogK[1];}
   if(B.cur){const m=V.minis.get(B.cur);if(m){V.lantern.position.lerp(t3v.set(m.g.position.x,m.g.position.y+(V.tree?1.4:2.2),m.g.position.z+(V.tree?1.2:0)),1-Math.exp(-dt*4));}}
   for(const l of V.flicker)l.intensity=(l.userData.i0??(l.userData.i0=l.intensity))*(.85+.15*Math.sin(tt*13+l.id)+.08*Math.sin(tt*31+l.id*3));
-  if(!L)return;
+  if(!L)return;if(L.tick)L.tick(dt,tt);
   // the heart beats: the green key swells with it (same beat as its glow)
   const beat=Math.max(0,Math.sin(tt*4.2));if(L.pulse)L.pulse.intensity=L.i0*(.72+.42*beat);
   for(const s of L.shafts){s.uniforms.uT.value=tt;if(s.beat)s.uniforms.uK.value=s.k0*(.7+.5*beat);}
@@ -5229,8 +5293,12 @@ void main(){vec3 c=(texture2D(tMap,vUv+vec2(-uTx.x,-uTx.y)).rgb+texture2D(tMap,v
 void main(){vec3 c=texture2D(tMap,vUv).rgb*4.;c+=(texture2D(tMap,vUv+vec2(uTx.x,0.)).rgb+texture2D(tMap,vUv-vec2(uTx.x,0.)).rgb+texture2D(tMap,vUv+vec2(0.,uTx.y)).rgb+texture2D(tMap,vUv-vec2(0.,uTx.y)).rgb)*2.;
   c+=texture2D(tMap,vUv+uTx).rgb+texture2D(tMap,vUv-uTx).rgb+texture2D(tMap,vUv+vec2(uTx.x,-uTx.y)).rgb+texture2D(tMap,vUv+vec2(-uTx.x,uTx.y)).rgb;gl_FragColor=vec4(c/16.,1.);}`,{tMap:{value:null},uTx:tx(),uNF:nf},true);
   const U={tCol:{value:rs.texture},tDep:{value:dtx},tAO:{value:ao.texture},tD1:{value:d1.texture},tD2:{value:d2.texture},tBl:{value:bl[0].texture},uNF:nf,uAx:tx(),
-    uFocus:{value:10},uDof:{value:1.5},uExp:{value:1.4},uBloom:{value:.42},uAO:{value:.85},uTime:{value:0},uRes:tx(),uTree:{value:Vb.tree?1:0}};
-  const mC=mat(`uniform sampler2D tCol,tDep,tAO,tD1,tD2,tBl;uniform vec2 uAx,uRes;uniform float uFocus,uDof,uExp,uBloom,uAO,uTime,uTree;
+    uFocus:{value:10},uDof:{value:1.5},uExp:{value:1.4},uBloom:{value:.42},uAO:{value:.85},uTime:{value:0},uRes:tx(),uTree:{value:Vb.tree?1:0},
+    uSh:{value:new THREE.Vector3(...(Vb.tree?[.84,.94,1.16]:[.88,.97,1.1]))},uHl:{value:new THREE.Vector3(1.07,1,.89)},uSat:{value:1.08},uVig:{value:Vb.tree?.32:.24},uDream:{value:0}};
+  // an interlude set grades its own way: a remembered room goes soft and pale at the edges, the patron's dark goes violet, the prayer grey
+  const PK=(t3look(Vb.mp)||{}).post;if(PK){U.uSh.value.set(...PK.sh);U.uHl.value.set(...PK.hl);U.uSat.value=PK.sat;U.uVig.value=PK.vig;U.uDream.value=PK.dream;U.uBloom.value=PK.bloom;}
+  const xK=PK?PK.exp:1;
+  const mC=mat(`uniform sampler2D tCol,tDep,tAO,tD1,tD2,tBl;uniform vec2 uAx,uRes;uniform float uFocus,uDof,uExp,uBloom,uAO,uTime,uTree,uSat,uVig,uDream;uniform vec3 uSh,uHl;
 float hs(vec2 p){return fract(sin(dot(mod(p,289.),vec2(12.9898,78.233)))*43758.5453);}
 vec3 rrt(vec3 v){vec3 a=v*(v+.0245786)-.000090537;vec3 b=v*(.983729*v+.4329510)+.238081;return a/b;}
 vec3 aces(vec3 c){const mat3 I=mat3(vec3(.59719,.07600,.02840),vec3(.35458,.90834,.13383),vec3(.04823,.01566,.83777));const mat3 O=mat3(vec3(1.60475,-.10208,-.00327),vec3(-.53108,1.10813,-.07276),vec3(-.07367,-.00605,1.07602));return clamp(O*rrt(I*(c/.6)),0.,1.);}
@@ -5243,11 +5311,15 @@ void main(){vec3 c=texture2D(tCol,vUv).rgb;float z=vz(texture2D(tDep,vUv).r);
   float f=clamp((abs(z-uFocus)/uFocus-.1)*uDof,0.,1.);
   c=mix(c,texture2D(tD1,vUv).rgb*A,smoothstep(0.,.45,f));c=mix(c,texture2D(tD2,vUv).rgb,smoothstep(.4,1.,f));
   c+=texture2D(tBl,vUv).rgb*uBloom;
+  // a memory: the edges blur and glow, like something half remembered
+  vec2 q=vUv-.5;q.x*=uRes.x/uRes.y;float de=uDream*smoothstep(.22,.82,length(q));
+  if(uDream>0.)c=mix(c,texture2D(tD2,vUv).rgb*1.1+texture2D(tBl,vUv).rgb*.5,de);
   c*=uExp;
   // grade: cool blue-green shadows, warm candle highlights, a touch more body in the mids
-  float l=dot(c,vec3(.2126,.7152,.0722));c*=mix(mix(vec3(.88,.97,1.1),vec3(.84,.94,1.16),uTree),vec3(1.07,1.,.89),smoothstep(.03,.7,l));
-  c=aces(c);l=dot(c,vec3(.2126,.7152,.0722));c=max(mix(vec3(l),c,1.08),0.);
-  vec2 q=vUv-.5;q.x*=uRes.x/uRes.y;c*=1.-mix(.24,.32,uTree)*smoothstep(.4,1.05,length(q));
+  float l=dot(c,vec3(.2126,.7152,.0722));c*=mix(uSh,uHl,smoothstep(.03,.7,l));
+  c=aces(c);l=dot(c,vec3(.2126,.7152,.0722));c=max(mix(vec3(l),c,uSat),0.);
+  if(uDream>0.)c=mix(c,vec3(l)*vec3(1.08,.98,.86)+.03,de*.55);
+  c*=1.-uVig*smoothstep(.4,1.05,length(q));
   c=srgb(c);
   c+=(hs(gl_FragCoord.xy+fract(uTime)*97.)-.5)*.045*(1.-.7*l);
   gl_FragColor=vec4(c,1.);}`,U);
@@ -5263,7 +5335,7 @@ void main(){vec3 c=texture2D(tCol,vUv).rgb;float z=vz(texture2D(tDep,vUv).r);
     draw(mAO,ao);down(rs,d1);down(d1,d2);
     down(d1,bl[0],1.2);for(let i=1;i<bl.length;i++)down(bl[i-1],bl[i]);
     for(let i=bl.length-1;i>0;i--){mUp.uniforms.tMap.value=bl[i].texture;mUp.uniforms.uTx.value.set(1/bl[i].width,1/bl[i].height);draw(mUp,bl[i-1]);}
-    if(!still)T+=dt;U.uTime.value=T;U.uExp.value=r.toneMappingExposure;U.uFocus.value=Math.max(1,Vb.view.dist);
+    if(!still)T+=dt;U.uTime.value=T;U.uExp.value=r.toneMappingExposure*xK;U.uFocus.value=Math.max(1,Vb.view.dist);
     draw(mC,null);r.autoClear=ac;};
   Vb.disposePost=()=>{all.forEach(t=>t.dispose());dtx.dispose();ms.forEach(m=>m.dispose());quad.geometry.dispose();Vb.render=Vb.onResize=null;};}
 /* post runs on computers with WebGL2 and float colour buffers; elsewhere the board renders straight */
@@ -6946,7 +7018,7 @@ async function dialogue(intro,qs,{spk,enough="Enough talking",min=0}={}){const u
 async function crewCheck(id,skill,dc,{adv=false,dis=false,label}={}){const mod=skillMod(id,skill);return crewRoll(id,label||cap(skill),mod,dc,{adv,dis});}
 
 /* ---- painted backdrops for the story scenes ---- */
-function paintArt(cv,kind){const g=cv.getContext("2d"),W=cv.width,H=cv.height,R=seeded(kind.length*131+7),rr=(a,b)=>a+(b-a)*R();
+function paintArt(cv,kind){if(IART[kind])return paintInterludeArt(cv,kind);const g=cv.getContext("2d"),W=cv.width,H=cv.height,R=seeded(kind.length*131+7),rr=(a,b)=>a+(b-a)*R();
   const root=(x,y,ang,len,w,col,step=14)=>{g.strokeStyle=col;g.lineWidth=w;g.lineCap="round";g.beginPath();g.moveTo(x,y);for(let i=0;i<len;i++){ang+=rr(-.45,.45);const nx=x+Math.cos(ang)*step,ny=y+Math.sin(ang)*step;g.quadraticCurveTo((x+nx)/2+rr(-4,4),(y+ny)/2+rr(-4,4),nx,ny);x=nx;y=ny;}g.stroke();};
   const glow=(x,y,r,c)=>{const gr=g.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,c);gr.addColorStop(1,c.slice(0,7)+"00");g.fillStyle=gr;g.fillRect(0,0,W,H);};
   const P={hans:["#0a0d12","#19202a"],cave:["#0b0a09","#25211c"],heart:["#060807","#18261a"],father:["#0a0b0c","#262019"],stone:["#0b0c0d","#23272a"],road:["#060b08","#13261a"],forest:["#1c1407","#5a4417"],tree:["#070b16","#1a2438"],dawn:["#1a1220","#5a3a3a"]}[kind]||["#0b0d12","#1b1f27"];
@@ -6974,6 +7046,381 @@ function paintArt(cv,kind){const g=cv.getContext("2d"),W=cv.width,H=cv.height,R=
     [[W/2-150,H*.25],[W/2+110,H*.4],[W/2-130,H*.58],[W/2+120,H*.7],[W/2-40,H*.1]].forEach(([x,y],i)=>{g.fillStyle="#3b2a1c";g.fillRect(x,y,60,42);g.fillStyle="#5e3a5c";g.beginPath();g.moveTo(x-6,y);g.lineTo(x+30,y-40);g.lineTo(x+66,y);g.fill();if(kind==="tree"||i)glow(x+30,y+22,50,"#f0b85a55");});
     g.fillStyle="#050403";g.beginPath();g.ellipse(W/2,H,36,60,0,Math.PI,0);g.fill();for(let i=0;i<14;i++){g.fillStyle="#b8402a";g.beginPath();g.ellipse(W/2+(i-7)*34,H-10,9,7,0,Math.PI,0);g.fill();}}
 }
+/* ---- painted backdrops for the interludes: memory, patron, prayer, fire.
+   Each scene paints its surfaces once (the albedo), then every frame lays its light over them (multiply), adds what glows
+   (flames, glyphs, a window, a dagger) and the drifting ash. A small loop (about 30 fps, 25 on phones) runs only while
+   the canvas is on screen and the tab is visible; reduced motion gets one still frame. ---- */
+const ia_cv=(W,H)=>{const c=document.createElement("canvas");c.width=W;c.height=H;return c;};
+const ia_a=(hex,a)=>{const n=parseInt(hex.slice(1),16);return `rgba(${n>>16},${n>>8&255},${n&255},${Math.max(0,Math.min(1,a)).toFixed(3)})`;};
+const ia_fl=(t,s=1)=>1+s*(.05*Math.sin(t*7.3)+.035*Math.sin(t*13.1+1.3)+.025*Math.sin(t*23.7+2.1)+.02*Math.sin(t*41.3+.7));
+const ia_wrap=(v,a,b)=>a+((v-a)%(b-a)+(b-a))%(b-a);
+function ia_path(g,pts){g.beginPath();g.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)g.lineTo(pts[i][0],pts[i][1]);g.closePath();}
+function ia_fill(g,pts,col){ia_path(g,pts);g.fillStyle=col;g.fill();}
+/* a closed (or open) smooth curve through the points */
+function ia_smooth(g,pts,closed=true){const n=pts.length,m=(a,b)=>[(a[0]+b[0])/2,(a[1]+b[1])/2];g.beginPath();
+  if(closed){const s=m(pts[n-1],pts[0]);g.moveTo(s[0],s[1]);for(let i=0;i<n;i++){const p=pts[i],q=m(p,pts[(i+1)%n]);g.quadraticCurveTo(p[0],p[1],q[0],q[1]);}g.closePath();}
+  else{g.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<n-1;i++){const q=m(pts[i],pts[i+1]);g.quadraticCurveTo(pts[i][0],pts[i][1],q[0],q[1]);}g.lineTo(pts[n-1][0],pts[n-1][1]);}}
+function ia_blob(g,pts,col){ia_smooth(g,pts);g.fillStyle=col;g.fill();}
+/* a radial light over the whole canvas (a light map: beyond r it keeps the last colour) */
+function ia_rad(g,x,y,r,stops,W,H){const gr=g.createRadialGradient(x,y,0,x,y,Math.max(1,r));for(const [o,c] of stops)gr.addColorStop(o,c);g.fillStyle=gr;g.fillRect(0,0,W,H);}
+/* a glow that fades to nothing by r: only its own box is filled (ry squashes it into an ellipse) */
+function ia_glow(g,x,y,r,stops,ry=1){r=Math.max(1,r);const gr=g.createRadialGradient(0,0,0,0,0,r);for(const [o,c] of stops)gr.addColorStop(o,c);g.save();g.translate(x,y);g.scale(1,ry);g.fillStyle=gr;g.fillRect(-r,-r,r*2,r*2);g.restore();}
+/* paint texture: soft translucent dabs of nearby tones, inside the polygon (or the whole canvas) */
+function ia_dabs(g,R,pts,n,cols,r0,r1,a){g.save();let x0=0,y0=0,x1=g.canvas.width,y1=g.canvas.height;
+  if(pts){ia_path(g,pts);g.clip();const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);x0=Math.min(...xs);x1=Math.max(...xs);y0=Math.min(...ys);y1=Math.max(...ys);}
+  for(let i=0;i<n;i++){const r=r0+(r1-r0)*R();g.globalAlpha=a*(.35+.65*R());g.fillStyle=cols[Math.floor(R()*cols.length)];
+    g.beginPath();g.ellipse(x0+(x1-x0)*R(),y0+(y1-y0)*R(),r,r*(.35+.4*R()),R()*Math.PI,0,7);g.fill();}
+  g.restore();}
+function ia_root(g,R,x,y,ang,len,w,col,step=14){const rr=(a,b)=>a+(b-a)*R();g.strokeStyle=col;g.lineWidth=w;g.lineCap="round";g.beginPath();g.moveTo(x,y);
+  for(let i=0;i<len;i++){ang+=rr(-.45,.45);const nx=x+Math.cos(ang)*step,ny=y+Math.sin(ang)*step;g.quadraticCurveTo((x+nx)/2+rr(-4,4),(y+ny)/2+rr(-4,4),nx,ny);x=nx;y=ny;}g.stroke();}
+function ia_grain(g,W,H,R,a){const N=160,n=ia_cv(N,N),ng=n.getContext("2d"),d=ng.createImageData(N,N);
+  for(let i=0;i<d.data.length;i+=4){const v=R()*255;d.data[i]=d.data[i+1]=d.data[i+2]=v;d.data[i+3]=255;}ng.putImageData(d,0,0);
+  g.save();g.globalAlpha=a;g.globalCompositeOperation="overlay";g.fillStyle=g.createPattern(n,"repeat");g.fillRect(0,0,W,H);g.restore();}
+/* a soft blur that needs no ctx.filter (older Safari): down by halves, then back up smoothly */
+function ia_blur(src,k){let c=src;const st=[];for(let i=0;i<k;i++){const d=ia_cv(Math.max(1,c.width>>1),Math.max(1,c.height>>1)),dg=d.getContext("2d");dg.imageSmoothingQuality="high";dg.drawImage(c,0,0,d.width,d.height);st.push(d);c=d;}
+  for(let i=st.length-2;i>=-1;i--){const s=i<0?src:st[i],t=ia_cv(s.width,s.height),tg=t.getContext("2d");tg.imageSmoothingQuality="high";tg.drawImage(c,0,0,t.width,t.height);c=t;}return c;}
+/* sharp in the middle, softer toward the edges, like something remembered */
+function ia_soft(src,cx,cy,r0,r1,k){const W=src.width,H=src.height,o=ia_cv(W,H),g=o.getContext("2d"),s=ia_cv(W,H),sg=s.getContext("2d");g.drawImage(ia_blur(src,k),0,0);
+  sg.drawImage(src,0,0);sg.globalCompositeOperation="destination-in";ia_rad(sg,cx,cy,r1,[[r0/r1,"#000"],[1,"rgba(0,0,0,0)"]],W,H);g.drawImage(s,0,0);return o;}
+function ia_vig(W,H,col,a,cx,cy,r0,r1,haze){const c=ia_cv(W,H),g=c.getContext("2d"),gr=g.createRadialGradient(cx,cy,W*r0,cx,cy,W*r1);
+  gr.addColorStop(0,ia_a(col,0));if(haze)gr.addColorStop(.5,ia_a(haze,.05));gr.addColorStop(1,ia_a(col,a));g.fillStyle=gr;g.fillRect(0,0,W,H);return c;}
+/* a flame: a teardrop with a hot core, added as light */
+function ia_flame(g,x,y,w,h,sw,core="#fffbe8",mid="#ffc860",edge="#ff7a20",k=1){const tx=x+sw,ty=y-h,gr=g.createLinearGradient(x,y,x,ty);
+  gr.addColorStop(0,ia_a(edge,0));gr.addColorStop(.14,ia_a(mid,.85*k));gr.addColorStop(.55,ia_a(mid,.7*k));gr.addColorStop(1,ia_a(edge,0));g.fillStyle=gr;
+  g.beginPath();g.moveTo(x-w,y-h*.18);g.bezierCurveTo(x-w,y+h*.1,x+w,y+h*.1,x+w,y-h*.18);g.bezierCurveTo(x+w*.85,y-h*.55,tx+w*.15,ty+h*.18,tx,ty);g.bezierCurveTo(tx-w*.15,ty+h*.18,x-w*.85,y-h*.55,x-w,y-h*.18);g.fill();
+  const cx=x+sw*.25,cy=y-h*.28,cg=g.createRadialGradient(cx,cy,0,cx,cy,Math.max(w,h*.4));cg.addColorStop(0,ia_a(core,.95*k));cg.addColorStop(1,ia_a(core,0));
+  g.fillStyle=cg;g.beginPath();g.ellipse(cx,cy,w*.72,h*.34,sw*.01,0,7);g.fill();}
+
+/* Katy's memory: the narrow room under the eaves at Valethorn, a candle stub on the sill, the bow on its peg, a light on the stair */
+function iaMemory(W,H,R){const rr=(a,b)=>a+(b-a)*R(),a=ia_cv(W,H),g=a.getContext("2d");
+  // P(t,h,dx): a point by the right-hand wall, t deep (0 the back corner, more toward you), h high (0 floor, 1 eaves), dx in from that wall
+  const P=(t,h,dx=0)=>[510+(1+t)*(150-dx),325+(1+t)*(80-155*h)],vx=510,vy=325;
+  const LW=[[-10,-10],[330,140],[330,405],[-10,600]],BW=[[330,140],[570,140],[660,250],[660,405],[330,405]],CE=[[-10,-10],[700,-10],[570,140],[330,140]],
+    SL=[[570,140],[700,-10],[970,-10],[970,95],[660,250]],RW=[[660,250],[970,95],[970,571],[660,405]],FL=[[330,405],[660,405],[1100,640],[-200,640]];
+  const plaster=["#c4a582","#a88a68","#b89874","#9c7c5c","#d0b290"];
+  g.fillStyle="#6b5240";g.fillRect(0,0,W,H);
+  ia_fill(g,LW,"#9f8264");ia_dabs(g,R,LW,260,plaster,8,40,.16);
+  ia_fill(g,BW,"#b4977a");ia_dabs(g,R,BW,240,plaster,6,30,.2);
+  ia_fill(g,CE,"#76604c");ia_dabs(g,R,CE,140,["#8a6e56","#5e4a3a"],10,40,.22);
+  ia_fill(g,SL,"#8a6e56");ia_dabs(g,R,SL,160,["#9a7c60","#6e5644"],8,34,.22);
+  ia_fill(g,RW,"#ab8e6e");ia_dabs(g,R,RW,240,plaster,8,36,.2);
+  // floorboards, running to the back wall
+  g.save();ia_path(g,FL);g.clip();const ext=(x,y,s)=>[vx+(x-vx)*s,vy+(y-vy)*s];
+  for(let i=0;i<11;i++){const x0=330+i*30;ia_fill(g,[[x0,405],[x0+30,405],ext(x0+30,405,4),ext(x0,405,4)],["#5a4230","#644a36","#523b2a","#6a4e38"][i%4]);}
+  ia_dabs(g,R,null,240,["#7a5a40","#3e2c1e","#6a4c34"],4,24,.14);
+  g.strokeStyle="#2a1c12";for(let i=0;i<=11;i++){const x=330+i*30,e=ext(x,405,4);g.lineWidth=1.3;g.beginPath();g.moveTo(x,405);g.lineTo(e[0],e[1]);g.stroke();}
+  for(let k=0;k<26;k++){const i=Math.floor(R()*11),s=1.05+R()*2.4,x0=330+i*30,p=ext(x0,405,s),q=ext(x0+30,405,s);g.lineWidth=.8*s;g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(q[0],q[1]);g.stroke();}
+  g.restore();
+  // rafters down the slope, the wall plates, a tie beam
+  const rid=t=>[570+60*t,140-185*t],eav=t=>[660+150*t,250-75*t];
+  g.save();ia_path(g,SL);g.clip();g.lineCap="butt";
+  for(const t of[.18,.48,.86,1.36,2]){const p=rid(t),q=eav(t),w=7*(1+t);g.strokeStyle="#3a2a1c";g.lineWidth=w;g.beginPath();g.moveTo(p[0],p[1]);g.lineTo(q[0],q[1]);g.stroke();
+    g.strokeStyle="#86644a";g.lineWidth=w*.25;g.beginPath();g.moveTo(p[0]+w*.4,p[1]+w*.1);g.lineTo(q[0]+w*.3,q[1]+w*.3);g.stroke();}
+  g.restore();
+  g.lineCap="round";g.strokeStyle="#3a2a1c";g.lineWidth=9;g.beginPath();g.moveTo(570,140);g.lineTo(660,250);g.stroke();
+  g.lineWidth=14;g.beginPath();g.moveTo(660,250);g.lineTo(975,92);g.stroke();
+  g.lineWidth=11;g.beginPath();g.moveTo(330,140);g.lineTo(572,140);g.stroke();g.strokeStyle="#7a5a40";g.lineWidth=2.5;g.beginPath();g.moveTo(332,145);g.lineTo(568,145);g.stroke();
+  g.strokeStyle="rgba(30,18,10,.5)";g.lineWidth=5;g.beginPath();g.moveTo(330,146);g.lineTo(330,405);g.moveTo(660,252);g.lineTo(660,405);g.stroke();
+  g.strokeStyle="#3a281a";g.lineWidth=5;g.beginPath();g.moveTo(330,404);g.lineTo(660,404);g.stroke();
+  // the door, shut, a plank door with its latch
+  ia_fill(g,[[358,224],[455,224],[455,405],[358,405]],"#33231a");
+  ["#6e4e32","#644630","#72523a","#5e432c"].forEach((c,i)=>{const x=366+i*20.5;ia_fill(g,[[x,233],[x+20,233],[x+20,405],[x,405]],c);});
+  ia_dabs(g,R,[[366,233],[448,233],[448,405],[366,405]],70,["#7a5a3e","#4e3622","#86664a"],2,10,.22);
+  g.strokeStyle="#3a2818";g.lineWidth=6;g.beginPath();g.moveTo(366,262);g.lineTo(448,262);g.moveTo(366,374);g.lineTo(448,374);g.moveTo(370,370);g.lineTo(444,266);g.stroke();
+  g.fillStyle="#241a12";g.fillRect(426,311,18,4);g.beginPath();g.arc(430,313,4,0,7);g.fill();
+  // her shortbow on its peg, unstrung, the string hanging loose
+  g.fillStyle="#2a1c12";g.beginPath();g.arc(478,240,4,0,7);g.fill();
+  g.strokeStyle="#4a2e1a";g.lineWidth=5;g.beginPath();g.moveTo(477,244);g.quadraticCurveTo(492,305,470,374);g.stroke();
+  g.strokeStyle="#9a6c40";g.lineWidth=1.6;g.beginPath();g.moveTo(479,250);g.quadraticCurveTo(492,305,473,368);g.stroke();
+  g.fillStyle="#2e2016";g.fillRect(482,296,6,18);
+  g.strokeStyle="rgba(214,198,166,.75)";g.lineWidth=1;g.beginPath();g.moveTo(478,244);g.bezierCurveTo(470,280,486,300,474,334);g.stroke();
+  // the crack in the plaster shaped like a running dog
+  g.strokeStyle="rgba(58,40,26,.75)";g.lineWidth=1.3;ia_smooth(g,[[512,186],[522,181],[533,185],[544,180],[553,186],[560,181],[556,190],[549,193],[553,203],[546,197],[536,196],[527,198],[519,206],[522,196]],false);g.stroke();
+  // her other dress, on its hook on the left wall, its shadow thrown away from the candle
+  g.fillStyle="rgba(40,26,16,.35)";ia_smooth(g,[[226,216],[212,222],[204,290],[186,370],[230,366],[248,300],[244,222]]);g.fill();
+  g.fillStyle="#2a1c12";g.beginPath();g.arc(244,206,3.5,0,7);g.fill();
+  ia_blob(g,[[244,210],[226,218],[230,240],[224,280],[204,362],[230,372],[262,366],[284,356],[266,280],[260,240],[264,216]],"#56634e");
+  g.strokeStyle="rgba(30,36,26,.55)";g.lineWidth=2;for(const [x0,x1] of[[238,224],[246,244],[254,268]]){g.beginPath();g.moveTo(x0,248);g.quadraticCurveTo((x0+x1)/2+3,310,x1,364);g.stroke();}
+  // the window under the eaves: casing, sill, the candle stub in a dish of its own wax
+  ia_fill(g,[P(.26,.88),P(.66,.88),P(.66,.36),P(.26,.36)],"#5a4432");
+  const WQ=[P(.3,.84),P(.62,.84),P(.62,.4),P(.3,.4)];ia_fill(g,WQ,"#141820");
+  ia_fill(g,[P(.24,.385),P(.68,.385),P(.68,.385,18),P(.24,.385,18)],"#c8a888");
+  ia_fill(g,[P(.24,.385,18),P(.68,.385,18),P(.68,.35,18),P(.24,.35,18)],"#6e523a");
+  const D=P(.46,.385,8),F=[D[0],D[1]-24];
+  g.fillStyle="#7e7468";g.beginPath();g.ellipse(D[0],D[1],15,4.6,0,0,7);g.fill();g.fillStyle="#efe4cc";g.beginPath();g.ellipse(D[0],D[1]-1.5,11,3.3,0,0,7);g.fill();
+  g.fillStyle="#f2e8d2";g.fillRect(D[0]-4.5,D[1]-14,9,13);g.beginPath();g.ellipse(D[0],D[1]-14,4.5,1.6,0,0,7);g.fill();
+  g.strokeStyle="#e8dcc0";g.lineWidth=2;g.beginPath();g.moveTo(D[0]+3.5,D[1]-13);g.lineTo(D[0]+4.5,D[1]-6);g.stroke();
+  g.strokeStyle="#1a120c";g.lineWidth=1.4;g.beginPath();g.moveTo(D[0],D[1]-14);g.lineTo(D[0]+.6,D[1]-18);g.stroke();
+  // the bed along the low wall: headboard, side, the blanket, two pillows' worth of pillow, and a small someone pretending to sleep
+  const bt=(t,dx,h=.2)=>P(t,h,dx);
+  ia_fill(g,[bt(0,108,0),bt(1.25,108,0),bt(1.25,108),bt(0,108)],"#3a2818");
+  ia_fill(g,[bt(0,108,0),bt(1.25,108,0),bt(1.4,130,0),bt(0,140,0)],"rgba(20,12,8,.4)");
+  ia_fill(g,[bt(-.03,-2,.44),bt(-.03,110,.44),bt(-.03,110,0),bt(-.03,-2,0)],"#4a3220");
+  ia_fill(g,[bt(.02,2),bt(1.25,2),bt(1.25,108),bt(.02,108)],"#7e5e50");
+  g.strokeStyle="#9a7466";g.lineWidth=3;g.beginPath();const e0=bt(.02,108),e1=bt(1.25,108);g.moveTo(e0[0],e0[1]+1);g.lineTo(e1[0],e1[1]+1);g.stroke();
+  const pc=bt(.13,55,.235);g.fillStyle="#d6c8b0";g.beginPath();g.ellipse(pc[0],pc[1],60,13,.05,0,7);g.fill();
+  g.fillStyle="#b8a890";g.beginPath();g.ellipse(pc[0]+6,pc[1]+5,54,7,.05,0,7);g.fill();
+  const hc=bt(.15,58,.27);g.fillStyle="#3c2818";g.beginPath();g.ellipse(hc[0]-4,hc[1]+1,26,10,.12,0,7);g.fill();g.beginPath();g.ellipse(hc[0],hc[1],18,15,.2,0,7);g.fill();
+  g.fillStyle="#d4b29a";g.beginPath();g.ellipse(hc[0]+4,hc[1]+7,12,7,.2,0,7);g.fill();
+  g.fillStyle="#3c2818";g.beginPath();g.ellipse(hc[0]-2,hc[1]-3,17,9,.2,0,7);g.fill();
+  const b0=bt(.26,56,.21),b1=bt(.95,56,.21),bx=(b0[0]+b1[0])/2,by=(b0[1]+b1[1])/2,ba=Math.atan2(b1[1]-b0[1],b1[0]-b0[0]);
+  g.fillStyle="#94706a";g.beginPath();g.ellipse(bx,by-3,58,17,ba,0,7);g.fill();g.strokeStyle="rgba(214,170,150,.55)";g.lineWidth=3;g.beginPath();g.ellipse(bx,by-5,54,14,ba,Math.PI*1.1,Math.PI*1.75);g.stroke();
+  g.fillStyle="#e0d4bc";ia_smooth(g,[bt(.2,6,.215),bt(.21,56,.245),bt(.22,106,.215),bt(.27,106,.205),bt(.26,56,.23),bt(.25,6,.205)]);g.fill();
+  g.strokeStyle="rgba(60,36,30,.28)";g.lineWidth=7;for(const s of[.62,1.1]){const p=bt(s,10),q=bt(s+.18,60),r2=bt(s+.06,104);g.beginPath();g.moveTo(p[0],p[1]);g.quadraticCurveTo(q[0],q[1]-6,r2[0],r2[1]);g.stroke();}
+  ia_dabs(g,R,[bt(.3,2),bt(1.25,2),bt(1.25,108),bt(.3,108)],60,["#9a786a","#6a4c42"],4,16,.2);
+  ia_fill(g,[bt(1.25,-2,0),bt(1.25,110,0),bt(1.25,110,.27),bt(1.25,-2,.27)],"#4a3220");g.strokeStyle="#6e4c30";g.lineWidth=3;const f0=bt(1.25,110,.27),f1=bt(1.25,-2,.27);g.beginPath();g.moveTo(f0[0],f0[1]);g.lineTo(f1[0],f1[1]);g.stroke();
+  ia_grain(g,W,H,R,.12);
+  const base=ia_soft(a,F[0]-70,F[1]+10,130,560,3);
+  // the night in the window: blue, a few stars, a far tower of the palace still awake; the candle's twin in the glass
+  const win=ia_cv(W,H),wg=win.getContext("2d");wg.save();ia_path(wg,WQ);wg.clip();
+  const sk=wg.createLinearGradient(0,WQ[0][1]-30,0,WQ[3][1]);sk.addColorStop(0,"#1c2a4c");sk.addColorStop(1,"#2c3a58");wg.fillStyle=sk;wg.fillRect(0,0,W,H);
+  for(let i=0;i<14;i++){wg.fillStyle=ia_a("#e8e4f0",rr(.3,.9));wg.fillRect(rr(WQ[0][0],WQ[1][0]),rr(WQ[1][1],WQ[2][1]-30),1.3,1.3);}
+  const tx=WQ[0][0]+20,ty=WQ[3][1];wg.fillStyle="#0c1222";wg.fillRect(tx,ty-58,13,58);wg.beginPath();wg.moveTo(tx-3,ty-58);wg.lineTo(tx+6.5,ty-78);wg.lineTo(tx+16,ty-58);wg.fill();wg.fillRect(tx-30,ty-24,80,24);
+  wg.fillStyle="#ffcf80";wg.fillRect(tx+5,ty-44,3,4);wg.fillRect(tx-18,ty-16,3,3);wg.fillRect(tx+30,ty-14,3,3);
+  wg.globalCompositeOperation="lighter";const rf=P(.5,.5,0);ia_glow(wg,rf[0],rf[1],22,[[0,ia_a("#ffc070",.35)],[1,ia_a("#ffc070",0)]]);wg.restore();
+  wg.strokeStyle="#3a2a1c";wg.lineWidth=4;const m1=P(.46,.84),m2=P(.46,.4),m3=P(.3,.62),m4=P(.62,.62);wg.beginPath();wg.moveTo(m1[0],m1[1]);wg.lineTo(m2[0],m2[1]);wg.moveTo(m3[0],m3[1]);wg.lineTo(m4[0],m4[1]);wg.stroke();
+  const vig=ia_vig(W,H,"#140a05",.9,W*.55,H*.5,.2,.74,"#ffd2a0");
+  const motes=Array.from({length:44},()=>[rr(500,960),rr(100,540),rr(.4,1),rr(0,6.28),rr(.7,1.9)]);
+  return (g,t)=>{const f=ia_fl(t),jx=Math.sin(t*5.1)*1.6+Math.sin(t*11.3)*.8;
+    g.drawImage(base,0,0);
+    g.globalCompositeOperation="multiply";
+    ia_rad(g,F[0]+jx,F[1]+4,700*(.93+.07*f),[[0,"#fff6e2"],[.05,"#ffe4b4"],[.18,"#eaa868"],[.42,"#8e5c3a"],[.72,"#3c2818"],[1,"#1c120b"]],W,H);
+    g.globalCompositeOperation="source-over";g.drawImage(win,0,0);
+    g.globalCompositeOperation="lighter";
+    ia_glow(g,F[0]+jx,F[1],200*f,[[0,ia_a("#ffb060",.3*f)],[.35,ia_a("#ff9040",.09)],[1,ia_a("#ff9040",0)]]);
+    // someone on the stair: light under the door, breathing as the candle down there moves
+    const st=.55+.25*Math.sin(t*.9)+.12*Math.sin(t*3.1);g.strokeStyle=ia_a("#ffb868",.55*st);g.lineWidth=2;g.beginPath();g.moveTo(367,403.5);g.lineTo(447,403.5);g.stroke();
+    g.strokeStyle=ia_a("#ffb868",.25*st);g.lineWidth=1.2;g.beginPath();g.moveTo(448.5,236);g.lineTo(448.5,402);g.stroke();
+    ia_glow(g,407,412,70,[[0,ia_a("#ff9a50",.16*st)],[1,ia_a("#ff9a50",0)]],.28);
+    for(const [x0,y0,s,ph,sz] of motes){const x=x0+Math.sin(t*.21*s+ph)*16,y=ia_wrap(y0-t*4*s,90,540),d=Math.hypot(x-F[0],y-F[1]),k=Math.max(0,1-d/250);if(k<=0)continue;
+      g.fillStyle=ia_a("#ffd8a0",.55*k*(.6+.4*Math.sin(t*1.3+ph)));g.beginPath();g.arc(x,y,sz,0,7);g.fill();}
+    ia_flame(g,F[0],F[1]+10,4.6,20*(.9+.1*f),Math.sin(t*2.3)*1.4+Math.sin(t*7.9)*.7);
+    g.globalCompositeOperation="source-over";g.drawImage(vig,0,0);};}
+
+/* Saphira's visitor: the cave gone dark and still, a tall robed woman with no face in the light, tattoos drifting on her hands,
+   the pact dagger humming, the eye in the cloak wide open, the ash hanging in the air */
+function iaPatron(W,H,R){const rr=(a,b)=>a+(b-a)*R(),a=ia_cv(W,H),g=a.getContext("2d");
+  g.fillStyle="#2c2634";g.fillRect(0,0,W,H);ia_dabs(g,R,null,320,["#3a3244","#241e2c","#433a4c","#1c1822"],10,60,.3);
+  for(let i=0;i<150;i++){const l=R()<.5;ia_root(g,R,l?rr(-40,270):rr(690,1000),rr(-40,560),rr(0,6.3),rr(6,18),rr(1.5,7),R()<.5?"#18131e":"#3e3448");}
+  for(let i=0;i<46;i++)ia_root(g,R,rr(0,W),rr(-30,80),rr(1,2.2),rr(6,14),rr(1.5,5),R()<.5?"#1e1926":"#342c3e");
+  const FL=[[-10,430],[300,412],[700,408],[W+10,424],[W+10,H+10],[-10,H+10]];ia_fill(g,FL,"#4a4450");ia_dabs(g,R,FL,220,["#5a5462","#3a3440","#625a6a"],6,30,.25);
+  const fb=g.createLinearGradient(0,380,0,470);fb.addColorStop(0,"rgba(36,30,44,0)");fb.addColorStop(.4,"rgba(36,30,44,.8)");fb.addColorStop(1,"rgba(36,30,44,0)");g.fillStyle=fb;g.fillRect(0,380,W,90);
+  ia_grain(g,W,H,R,.1);
+  const base=a;
+  // the figure: a silhouette, a cold rim from behind, folds, hands, the hood with nothing in it
+  const fig=ia_cv(W,H),fg=fig.getContext("2d"),out=[[500,58],[546,92],[554,140],[596,168],[614,236],[622,322],[598,326],[602,384],[626,468],[660,508],[600,500],[560,512],[520,500],[480,514],[430,500],[386,512],[340,506],[372,462],[392,378],[388,318],[350,304],[346,282],[378,210],[408,170],[446,140],[454,94]];
+  fg.fillStyle="#0b0711";ia_smooth(fg,out);fg.fill();
+  fg.save();ia_smooth(fg,out);fg.clip();
+  fg.lineCap="round";for(let i=0;i<16;i++){const x=rr(380,620),w=rr(2,9);fg.strokeStyle=ia_a(R()<.5?"#1c1428":"#050308",rr(.4,.8));fg.lineWidth=w;fg.beginPath();fg.moveTo(500+(x-500)*.35,rr(150,200));fg.quadraticCurveTo(x+rr(-10,10),360,x+(x-500)*.25,520);fg.stroke();}
+  ia_glow(fg,560,170,260,[[0,ia_a("#3a3060",.5)],[1,ia_a("#3a3060",0)]]);
+  fg.restore();
+  fg.fillStyle="#020104";fg.beginPath();fg.ellipse(500,116,23,31,0,0,7);fg.fill();
+  fg.strokeStyle=ia_a("#2a2240",.9);fg.lineWidth=3;fg.beginPath();fg.ellipse(500,114,27,35,0,Math.PI*1.05,Math.PI*1.95);fg.stroke();
+  // hands, palm down, with the skin the tattoos move on
+  const hand=(x,y,ang,s)=>{fg.save();fg.translate(x,y);fg.rotate(ang);fg.scale(s,1);
+    fg.fillStyle="#3c344c";ia_smooth(fg,[[-5,-5],[5,-5],[7,5],[8,14],[6,24],[2,32],[-2,31],[-5,25],[-8,17],[-13,11],[-10,6],[-6,3]]);fg.fill();
+    fg.strokeStyle="#1a1424";fg.lineWidth=.9;for(const xx of[-2.4,1,4.2]){fg.beginPath();fg.moveTo(xx,16);fg.lineTo(xx*.8,29);fg.stroke();}
+    fg.strokeStyle="#a496cc";fg.lineWidth=1.3;fg.beginPath();fg.moveTo(5,-4);fg.quadraticCurveTo(9.5,12,3,31);fg.stroke();fg.restore();};
+  fg.save();fg.translate(368,312);fg.scale(1.3,1.3);fg.translate(-368,-312);hand(368,312,.55,1);fg.restore();fg.save();fg.translate(610,326);fg.scale(1.3,1.3);fg.translate(-610,-326);hand(610,326,-.15,-1);fg.restore();
+  // the rim: the figure's own edge, lit from behind and to the right
+  const msk=ia_cv(W,H),mg=msk.getContext("2d");mg.fillStyle="#fff";ia_smooth(mg,out);mg.fill();mg.globalCompositeOperation="destination-out";mg.translate(-3.5,3.5);ia_smooth(mg,out);mg.fill();
+  const msk2=ia_cv(W,H),m2=msk2.getContext("2d");m2.fillStyle="#fff";ia_smooth(m2,out);m2.fill();m2.globalCompositeOperation="destination-out";m2.translate(3,2);ia_smooth(m2,out);m2.fill();
+  const rim=ia_blur(msk,1),rg=rim.getContext("2d");rg.globalCompositeOperation="source-in";const rgr=rg.createLinearGradient(0,60,0,520);rgr.addColorStop(0,"#d8dcff");rgr.addColorStop(.6,"#8a80d0");rgr.addColorStop(1,"rgba(90,70,160,0)");rg.fillStyle=rgr;rg.fillRect(0,0,W,H);
+  const rim2=ia_blur(msk2,1),r2=rim2.getContext("2d");r2.globalCompositeOperation="source-in";r2.fillStyle="#6a58b0";r2.fillRect(0,0,W,H);
+  fg.globalCompositeOperation="lighter";fg.globalAlpha=.8;fg.drawImage(rim,0,0);fg.globalAlpha=.35;fg.drawImage(rim2,0,0);fg.globalAlpha=1;
+  // the hem goes into shadow rather than ending
+  fg.globalCompositeOperation="destination-out";const hg=fg.createLinearGradient(0,430,0,512);hg.addColorStop(0,"rgba(0,0,0,0)");hg.addColorStop(1,"rgba(0,0,0,.95)");fg.fillStyle=hg;fg.fillRect(0,0,W,H);
+  // the pact dagger, point up in a dark hand at the bottom left
+  const dg=ia_cv(W,H),dd=dg.getContext("2d");
+  dd.fillStyle="#120e18";ia_smooth(dd,[[150,560],[168,512],[198,494],[238,500],[252,530],[246,560]]);dd.fill();
+  dd.fillStyle="#2a2230";dd.save();dd.translate(214,498);dd.rotate(.36);dd.fillRect(-30,-4,60,8);dd.restore();
+  const tip=[262,352],b0=[200,492],b1=[228,503];const bgr=dd.createLinearGradient(b0[0],b0[1]-6,b1[0],b1[1]-10);bgr.addColorStop(0,"#1e1c28");bgr.addColorStop(.6,"#4a4660");bgr.addColorStop(1,"#8a84a8");dd.fillStyle=bgr;dd.beginPath();dd.moveTo(b0[0],b0[1]);dd.lineTo(tip[0],tip[1]);dd.lineTo(b1[0],b1[1]);dd.closePath();dd.fill();
+  dd.strokeStyle="#e4dcff";dd.lineWidth=1.4;dd.beginPath();dd.moveTo(b1[0]-1,b1[1]-2);dd.lineTo(tip[0],tip[1]+1);dd.stroke();
+  dd.strokeStyle=ia_a("#8a78c8",.6);dd.lineWidth=1;dd.beginPath();dd.moveTo((b0[0]+b1[0])/2,(b0[1]+b1[1])/2-4);dd.lineTo(tip[0]-1,tip[1]+8);dd.stroke();
+  // the cloak across the bottom right, and the eye in it
+  const ck=ia_cv(W,H),cg=ck.getContext("2d");cg.fillStyle="#150f1d";ia_smooth(cg,[[640,560],[700,470],[800,410],[960,360],[990,380],[990,560]]);cg.fill();
+  cg.lineCap="round";for(let i=0;i<7;i++){cg.strokeStyle=ia_a(i%2?"#2a2238":"#07050a",.7);cg.lineWidth=rr(3,9);const y=rr(420,520);cg.beginPath();cg.moveTo(rr(690,760),y+60);cg.quadraticCurveTo(rr(820,880),y,990,y-rr(30,70));cg.stroke();}
+  cg.strokeStyle=ia_a("#8a86c8",.5);cg.lineWidth=2;ia_smooth(cg,[[700,474],[800,412],[962,362]],false);cg.stroke();
+  const E=[856,470],eye=c=>{c.beginPath();c.moveTo(E[0]-34,E[1]);c.quadraticCurveTo(E[0],E[1]-26,E[0]+34,E[1]);c.quadraticCurveTo(E[0],E[1]+22,E[0]-34,E[1]);c.closePath();};
+  const vig=ia_vig(W,H,"#05030a",.96,500,250,.2,.68);
+  // tattoo marks: little runes that drift over the hands and along the hem
+  const GL=Array.from({length:40},(_,i)=>{const on=i<14?[362,326,14]:i<24?[614,340,12]:[rr(360,640),rr(390,470),0];
+    const s=[];for(let k=0;k<2+Math.floor(R()*3);k++)s.push([rr(-1,1),rr(-1,1),rr(-1,1),rr(-1,1),R()<.4]);
+    return {x:on[0]+(on[2]?rr(-on[2],on[2]):0),y:on[1]+(on[2]?rr(-on[2]*.6,on[2]*.6):0),sz:on[2]?rr(2.4,3.6):rr(3,5),rot:rr(0,6.3),ph:rr(0,6.3),s,a:on[2]?rr(.45,.8):rr(.15,.35)};});
+  const ash=Array.from({length:80},()=>[rr(0,W),rr(0,H),rr(.8,2.6),rr(0,6.3),rr(.05,.3)]);
+  return (g,t)=>{g.drawImage(base,0,0);
+    g.globalCompositeOperation="multiply";
+    ia_rad(g,540,190,620,[[0,"#c4c0ec"],[.18,"#7a70a4"],[.45,"#3a2e52"],[.75,"#1c1428"],[1,"#100b16"]],W,H);
+    g.globalCompositeOperation="lighter";
+    ia_glow(g,110,350,70,[[0,ia_a("#ffb070",.22)],[.5,ia_a("#ff9050",.06)],[1,ia_a("#ff9050",0)]]);
+    const br=.88+.12*Math.sin(t*.55);ia_glow(g,515,190,330,[[0,ia_a("#8a6cf0",.24*br)],[.5,ia_a("#5a40b0",.08*br)],[1,ia_a("#5a40b0",0)]],1.25);
+    g.globalCompositeOperation="source-over";g.drawImage(fig,0,0);
+    // the tattoos, settling like ink in water
+    g.globalCompositeOperation="lighter";g.lineCap="round";
+    for(const q of GL){const al=q.a*(.55+.45*Math.sin(t*.7+q.ph));g.save();g.translate(q.x+Math.sin(t*.23+q.ph)*4,q.y+Math.cos(t*.17+q.ph*1.3)*3);g.rotate(q.rot+Math.sin(t*.1+q.ph)*.4);g.scale(q.sz,q.sz);
+      g.strokeStyle=ia_a("#a88cff",al);g.lineWidth=.9/q.sz*2;g.beginPath();for(const [x0,y0,x1,y1,arc] of q.s){g.moveTo(x0,y0);if(arc)g.quadraticCurveTo(0,0,x1,y1);else g.lineTo(x1,y1);}g.stroke();g.restore();}
+    // the dagger hums: a glow that flutters, rings going out from the blade
+    const hum=.72+.18*Math.sin(t*9.1)*Math.sin(t*1.3)+.1*Math.sin(t*2.2);
+    g.save();g.translate(234,428);g.rotate(.4);ia_glow(g,0,0,110,[[0,ia_a("#c0a8ff",.42*hum)],[.4,ia_a("#7a5cf0",.14*hum)],[1,ia_a("#7a5cf0",0)]],.42);g.restore();
+    for(let i=0;i<3;i++){const r=ia_wrap(t*16+i*32,0,96);g.strokeStyle=ia_a("#a890ff",.16*(1-r/96)*hum);g.lineWidth=1.2;g.beginPath();g.ellipse(234,428,12+r,(12+r)*.5,-1.17,0,7);g.stroke();}
+    g.globalCompositeOperation="source-over";g.drawImage(dg,0,0);g.globalCompositeOperation="lighter";
+    g.strokeStyle=ia_a("#f0e8ff",.45*hum);g.lineWidth=1.6;g.beginPath();g.moveTo(225,499);g.lineTo(262,352);g.stroke();
+    g.globalCompositeOperation="source-over";g.drawImage(ck,0,0);
+    // the eye: wide open, never blinking, looking at the dagger; it glances, now and then
+    const k=Math.floor(t/2.6),hs=Math.sin(k*91.7)*43758.5,j=hs-Math.floor(hs),ix=E[0]-9+(j-.5)*6,iy=E[1]-2+(Math.sin(k*13.1)*2);
+    g.save();eye(g);g.clip();g.fillStyle="#b8b0c4";g.fillRect(E[0]-40,E[1]-30,80,60);ia_glow(g,E[0],E[1],40,[[0,"rgba(0,0,0,0)"],[1,"rgba(20,10,30,.7)"]]);
+    const ir=g.createRadialGradient(ix,iy,1,ix,iy,11);ir.addColorStop(0,"#d8c4ff");ir.addColorStop(.5,"#7a58d0");ir.addColorStop(1,"#2a1850");g.fillStyle=ir;g.beginPath();g.arc(ix,iy,11,0,7);g.fill();
+    g.fillStyle="#05030a";g.beginPath();g.ellipse(ix,iy,2.6,7,0,0,7);g.fill();g.fillStyle="rgba(255,255,255,.8)";g.beginPath();g.arc(ix+3,iy-4,1.6,0,7);g.fill();g.restore();
+    g.strokeStyle="#07040c";g.lineWidth=3;eye(g);g.stroke();
+    g.globalCompositeOperation="lighter";ia_glow(g,E[0],E[1],70,[[0,ia_a("#9a78ff",.12*(.8+.2*Math.sin(t*.8)))],[1,ia_a("#9a78ff",0)]],.6);
+    // ash hanging in the air, turning over slowly, hardly falling
+    for(const [x0,y0,s,ph,v] of ash){const x=x0+Math.sin(t*.07+ph)*3,y=ia_wrap(y0+t*v*4,0,H),ro=t*v*2+ph,d=Math.hypot(x-520,y-200),l=.18+.5*Math.max(0,1-d/420);
+      g.fillStyle=ia_a("#cfc8e0",l);g.beginPath();g.ellipse(x,y,s,Math.max(.4,s*Math.abs(Math.cos(ro))),ph,0,7);g.fill();}
+    g.globalCompositeOperation="source-over";g.drawImage(vig,0,0);};}
+
+/* Stig's watch: the dark edge of the cavern, a big man kneeling by a lamp on a flat stone, the booklet beside it,
+   a grey slow light, and out in the dark the hint of a tide and of scales */
+function iaPrayer(W,H,R){const rr=(a,b)=>a+(b-a)*R(),a=ia_cv(W,H),g=a.getContext("2d");
+  g.fillStyle="#4c4e50";g.fillRect(0,0,W,H);ia_dabs(g,R,[[-10,-10],[W+10,-10],[W+10,350],[-10,350]],320,["#64666a","#45484c","#3a3c40","#5a5c5e"],8,46,.32);
+  for(let i=0;i<70;i++)ia_root(g,R,rr(-30,480),rr(-30,300),rr(0,6.3),rr(5,14),rr(1.2,5),R()<.5?"#2c2e30":"#4e5052");
+  const bg=g.createLinearGradient(170,0,730,0);bg.addColorStop(0,"rgba(11,13,15,0)");bg.addColorStop(.6,"rgba(11,13,15,.75)");bg.addColorStop(1,"#0b0d0f");g.fillStyle=bg;g.fillRect(0,0,W,H);
+  const edge=[[-10,316],[140,326],[300,338],[440,354],[520,364],[566,380],[604,402],[628,424],[650,452],[668,480],[690,522],[700,H+10]].map((p,i)=>i&&p[1]<H?[p[0]+rr(-4,4),p[1]+rr(-3,3)]:p);
+  const LG=[...edge,[-10,H+10]];ia_fill(g,LG,"#5a5854");ia_dabs(g,R,LG,320,["#6a6862","#4a4844","#72706a","#3e3c3a"],5,30,.3);
+  const lb=g.createLinearGradient(0,240,0,410);lb.addColorStop(0,"rgba(22,24,26,0)");lb.addColorStop(.5,"rgba(22,24,26,.9)");lb.addColorStop(1,"rgba(22,24,26,0)");g.fillStyle=lb;g.fillRect(0,240,W,170);
+  // (the drop: only what lies past the edge stays dark)
+  g.save();g.beginPath();g.moveTo(edge[3][0],edge[3][1]);for(const p of edge.slice(3))g.lineTo(p[0],p[1]);g.lineTo(W+10,H+10);g.lineTo(W+10,edge[3][1]-30);g.closePath();g.clip();g.fillStyle="#08090a";g.fillRect(0,0,W,H);g.restore();
+  g.strokeStyle="#2a2826";g.lineWidth=5;g.beginPath();for(const [i,p] of edge.slice(3).entries()){i?g.lineTo(p[0]+3,p[1]+6):g.moveTo(p[0]+3,p[1]+6);}g.stroke();
+  // the flat stone, the lamp on it, the booklet open beside it
+  g.fillStyle="#4a4844";g.beginPath();g.ellipse(446,458,58,15,0,0,7);g.fill();g.fillStyle="#7a7670";g.beginPath();g.ellipse(446,453,56,12,0,0,7);g.fill();
+  g.fillStyle="#d8d0bc";ia_path(g,[[396,452],[418,445],[424,452],[402,459]]);g.fill();ia_path(g,[[424,452],[446,446],[450,453],[428,459]]);g.fill();
+  g.strokeStyle="#7a705e";g.lineWidth=1;g.beginPath();g.moveTo(424,452);g.lineTo(426,459);g.stroke();for(let i=0;i<4;i++){g.beginPath();g.moveTo(402+i*1.5,450+i*2);g.lineTo(416+i*1.5,446+i*2);g.stroke();}
+  g.fillStyle="#7a5a3c";g.beginPath();g.ellipse(466,446,14,6,0,0,7);g.fill();g.beginPath();g.moveTo(474,442);g.quadraticCurveTo(486,436,488,440);g.lineTo(478,448);g.fill();
+  g.fillStyle="#9a7a54";g.beginPath();g.ellipse(464,443,9,2.6,0,0,7);g.fill();
+  const F=[486,430];
+  // Stig: a big man kneeling back on his heels, head bowed, hands on his knees, facing the dark
+  g.fillStyle="#34322e";g.beginPath();g.ellipse(292,452,48,12,0,0,7);g.fill();
+  const torso=[[270,446],[262,402],[268,352],[282,318],[306,300],[340,292],[366,300],[390,318],[400,350],[404,392],[396,422],[360,438],[310,448]];
+  ia_blob(g,torso,"#4a4842");g.save();ia_smooth(g,torso);g.clip();ia_dabs(g,R,null,70,["#56544c","#3a3834","#5e5a50"],4,16,.3);
+  ia_glow(g,480,410,180,[[0,ia_a("#c8b89a",.5)],[1,ia_a("#c8b89a",0)]]);g.restore();
+  ia_blob(g,[[310,440],[350,420],[400,416],[428,428],[432,448],[412,460],[330,462],[296,456]],"#45433d");
+  g.strokeStyle="#b8ab94";g.lineWidth=2.5;ia_smooth(g,[[392,322],[400,352],[404,392],[398,414]],false);g.stroke();ia_smooth(g,[[402,418],[428,428],[432,446]],false);g.stroke();
+  g.lineCap="round";g.strokeStyle="#3e3c36";g.lineWidth=24;g.beginPath();g.moveTo(324,322);g.quadraticCurveTo(316,386,390,424);g.stroke();
+  g.strokeStyle="#a89c86";g.lineWidth=2.4;g.beginPath();g.moveTo(342,368);g.quadraticCurveTo(350,402,396,414);g.stroke();
+  g.fillStyle="#a88c74";g.beginPath();g.ellipse(400,424,11,7,.3,0,7);g.fill();
+  g.fillStyle="#9e9c98";ia_smooth(g,[[352,290],[354,272],[366,264],[382,266],[392,278],[393,292],[386,302],[370,304],[358,300]]);g.fill();
+  g.fillStyle="#a88c74";g.beginPath();g.ellipse(389,297,7,12,-.35,0,7);g.fill();g.beginPath();g.ellipse(372,291,3,5,0,0,7);g.fill();
+  g.fillStyle="#bcbab4";ia_smooth(g,[[384,304],[396,300],[398,312],[388,316]]);g.fill();
+  g.strokeStyle="#d8d6d0";g.lineWidth=1.3;for(let i=0;i<6;i++){g.beginPath();g.moveTo(356+i*4,284-i*2.5);g.quadraticCurveTo(364+i*4,268,378+i*2,268+i*1.2);g.stroke();}
+  ia_grain(g,W,H,R,.1);
+  const base=a,vig=ia_vig(W,H,"#040506",.94,430,330,.16,.68);
+  const TD=[[470,300],[W+10,288],[W+10,H+10],[700,H+10],...edge.slice(3).reverse()];
+  const ash=Array.from({length:70},()=>[rr(0,W),rr(0,H),rr(.8,2.2),rr(0,6.3),rr(5,12)]);
+  return (g,t)=>{const f=ia_fl(t,.5),jx=Math.sin(t*4.3)*1;g.drawImage(base,0,0);
+    g.globalCompositeOperation="multiply";
+    ia_rad(g,F[0]+jx,F[1],560*(.95+.05*f),[[0,"#fff2dc"],[.05,"#f2e0c4"],[.22,"#a49a88"],[.5,"#464a50"],[1,"#22282f"]],W,H);
+    g.globalCompositeOperation="lighter";
+    // the grey slow light: no moon, no sky, only a breathing grey from out in the dark
+    const br=.7+.3*Math.sin(t*.42);ia_glow(g,780,130,560,[[0,ia_a("#8a96a2",.12*br)],[.6,ia_a("#6a7682",.04*br)],[1,ia_a("#6a7682",0)]]);
+    // a tide out there, far below: broken silver crests that come and go
+    g.save();ia_path(g,TD);g.clip();g.lineCap="round";
+    for(let i=0;i<13;i++){const d=i/12,y0=300+d*d*230,amp=1+d*5,wl=50+d*130,sp=.25+d*.35,al=(.04+.11*d)*(.55+.45*Math.sin(t*.35+i*1.7));
+      g.strokeStyle=ia_a("#b4c2cc",al);g.lineWidth=.8+d*1.6;g.setLineDash([18+d*60,26+d*50]);g.lineDashOffset=-t*(6+d*14)+i*37;g.beginPath();
+      for(let x=460;x<=W+10;x+=10){const y=y0+Math.sin(x/wl*6.283+t*sp+i)*amp+Math.sin(t*.3+i)*2;x===460?g.moveTo(x,y):g.lineTo(x,y);}g.stroke();}
+    g.setLineDash([]);g.restore();
+    // scales, faint, in the dark above: they never quite settle
+    const sa=Math.sin(t*.33)*.07+Math.sin(t*.13+1)*.03,cx=742,cy=112,L=82,ex=Math.cos(sa)*L,ey=Math.sin(sa)*L;
+    for(const [lw,al] of[[4,.025],[1.1,.08]]){g.strokeStyle=ia_a("#ccd6de",al*(.8+.2*br));g.lineWidth=lw;g.beginPath();g.moveTo(cx,cy-8);g.lineTo(cx,cy+150);g.moveTo(cx-26,cy+152);g.lineTo(cx+26,cy+152);
+      g.moveTo(cx-ex,cy-ey);g.lineTo(cx+ex,cy+ey);
+      for(const s of[-1,1]){const px=cx+s*ex,py=cy+s*ey,sw=Math.sin(t*.5+s)*2.5;g.moveTo(px,py);g.lineTo(px-22+sw,py+64);g.moveTo(px,py);g.lineTo(px+22+sw,py+64);
+        g.moveTo(px-25+sw,py+64);g.quadraticCurveTo(px+sw,py+80,px+25+sw,py+64);}
+      g.stroke();}
+    ia_glow(g,F[0]+jx,F[1],150*f,[[0,ia_a("#ffd090",.24*f)],[.4,ia_a("#ffb070",.06)],[1,ia_a("#ffb070",0)]]);
+    for(const [x0,y0,s,ph,v] of ash){const x=x0+Math.sin(t*.3+ph)*8,y=ia_wrap(y0+t*v,-5,H+5),d=Math.hypot(x-F[0],y-F[1]),l=.07+.6*Math.max(0,1-d/230);
+      g.fillStyle=ia_a("#ece4d4",l);g.beginPath();g.ellipse(x,y,s,s*.6,t*.4+ph,0,7);g.fill();}
+    ia_flame(g,F[0],F[1]+6,3.4,13*(.92+.08*f),Math.sin(t*1.9)*1.1,"#fff8e8","#ffd890","#ff9a40");
+    g.globalCompositeOperation="source-over";g.drawImage(vig,0,0);};}
+
+/* Empty hands: a small fire of dead root wood, everyone closer to it without deciding to, the ash lifting and glowing in its heat */
+function iaFire(W,H,R){const rr=(a,b)=>a+(b-a)*R(),a=ia_cv(W,H),g=a.getContext("2d"),X=480,Y=410;
+  g.fillStyle="#4a3c30";g.fillRect(0,0,W,H);ia_dabs(g,R,null,260,["#5a4a3a","#3a2e24","#64523e"],10,50,.3);
+  for(let i=0;i<170;i++)ia_root(g,R,rr(-30,W+30),rr(-30,340),rr(0,6.3),rr(6,22),rr(1.5,7),R()<.5?"#2e241c":"#6a5642");
+  const tg=g.createLinearGradient(0,0,0,240);tg.addColorStop(0,"rgba(20,14,10,.85)");tg.addColorStop(1,"rgba(20,14,10,0)");g.fillStyle=tg;g.fillRect(0,0,W,240);
+  const FL=[[-10,334],[160,326],[300,320],[470,316],[640,318],[800,324],[W+10,330],[W+10,H+10],[-10,H+10]].map((p,i)=>p[1]<H?[p[0],p[1]+rr(-5,5)]:p);ia_fill(g,FL,"#6a625a");ia_dabs(g,R,FL,300,["#7a7268","#58504a","#847c70","#4a443e"],5,28,.3);
+  g.save();ia_path(g,FL);g.clip();const fb=g.createLinearGradient(0,308,0,372);fb.addColorStop(0,"rgba(58,46,36,.95)");fb.addColorStop(1,"rgba(58,46,36,0)");g.fillStyle=fb;g.fillRect(0,0,W,H);g.restore();
+  // the stones round the fire, the wood, its embers
+  for(let i=0;i<11;i++){const an=i/11*6.283,x=X+Math.cos(an)*54,y=Y+Math.sin(an)*15;g.fillStyle=i%2?"#5a524a":"#6e665c";g.beginPath();g.ellipse(x,y,13,8,0,0,7);g.fill();}
+  g.fillStyle="#1a120c";g.beginPath();g.ellipse(X,Y,42,11,0,0,7);g.fill();
+  g.lineCap="round";for(const [x0,y0,x1,y1] of[[X-38,Y+4,X+24,Y-10],[X+36,Y+5,X-18,Y-12],[X-10,Y+8,X+6,Y-22]]){g.strokeStyle="#2a1c12";g.lineWidth=9;g.beginPath();g.moveTo(x0,y0);g.lineTo(x1,y1);g.stroke();g.strokeStyle="#5a3c24";g.lineWidth=2.5;g.beginPath();g.moveTo(x0,y0-3);g.lineTo(x1,y1-3);g.stroke();}
+  // a face lit from the fire's side, the far side in shadow
+  const head=(x,y,rx,ry,skin,dir)=>{g.save();g.fillStyle=skin;g.beginPath();g.ellipse(x,y,rx,ry,0,0,7);g.fill();g.clip();
+    const sg=g.createLinearGradient(x+dir*rx*.2,0,x-dir*rx,0);sg.addColorStop(0,"rgba(40,20,12,0)");sg.addColorStop(1,"rgba(40,20,12,.7)");g.fillStyle=sg;g.fillRect(x-rx,y-ry,rx*2,ry*2);
+    g.restore();};
+  const grp=(cx,cy,k,fn)=>{g.save();g.translate(cx,cy);g.scale(k,k);g.translate(-cx,-cy);fn();g.restore();};
+  // Matthew, propped against a stone in Stig's blanket, the lute in his lap, grey to the elbow; Katy beside him, the ukulele across her knees
+  grp(350,395,1.28,()=>{
+    g.fillStyle="#4e463e";g.beginPath();g.ellipse(292,352,58,48,0,0,7);g.fill();
+    ia_blob(g,[[282,318],[314,312],[352,328],[368,372],[352,394],[300,398],[268,386],[266,344]],"#7a6650");
+    g.strokeStyle="#5a4a38";g.lineWidth=2;for(let i=0;i<4;i++){g.beginPath();g.moveTo(280+i*16,330);g.quadraticCurveTo(292+i*16,362,286+i*18,392);g.stroke();}
+    g.strokeStyle="#e0b080";g.lineWidth=2;ia_smooth(g,[[330,318],[352,328],[368,372],[352,394]],false);g.stroke();
+    g.save();g.translate(330,368);g.rotate(-.5);g.fillStyle="#8a5a30";g.beginPath();g.ellipse(0,0,19,13,0,0,7);g.fill();g.fillStyle="#2a1a10";g.beginPath();g.arc(2,0,4,0,7);g.fill();g.fillStyle="#6a4424";g.fillRect(16,-2.5,34,5);g.restore();
+    g.fillStyle="#8e8c86";g.beginPath();g.ellipse(322,374,7,4,0,0,7);g.ellipse(346,360,6,4,.4,0,7);g.fill();
+    head(308,294,14,17,"#d2a88a",1);g.fillStyle="#a8a49c";ia_smooth(g,[[293,292],[296,278],[310,274],[320,282],[314,282],[302,286]]);g.fill();
+    g.fillStyle="#b8b4ac";ia_smooth(g,[[302,304],[318,302],[322,316],[310,322],[300,312]]);g.fill();
+    ia_blob(g,[[380,318],[402,314],[420,336],[426,374],[406,390],[380,386],[370,352]],"#4a3a46");
+    g.strokeStyle="#e8b488";g.lineWidth=2;ia_smooth(g,[[404,316],[420,336],[426,374]],false);g.stroke();
+    head(400,300,12,14,"#d8ac90",1);g.fillStyle="#3a2618";ia_smooth(g,[[386,302],[387,288],[398,282],[410,288],[402,290],[393,294],[390,316]]);g.fill();
+    g.save();g.translate(404,366);g.rotate(-.22);g.fillStyle="#a87a40";g.beginPath();g.ellipse(0,0,13,9,0,0,7);g.fill();g.fillStyle="#d8a860";g.beginPath();g.ellipse(-3,-2,4,3,0,0,7);g.fill();g.fillStyle="#7a5228";g.fillRect(10,-2,26,4);g.restore();
+    g.fillStyle="#d8ac90";g.beginPath();g.ellipse(398,358,4,3,0,0,7);g.fill();});
+  // Hans on his heels by the wood, keeper of the fire by his own appointment, headphones on
+  grp(590,392,1.26,()=>{
+    for(let i=0;i<7;i++){g.strokeStyle=i%2?"#2a1e14":"#3e2c1c";g.lineWidth=6;g.beginPath();g.moveTo(626+rr(-6,6),392-i*4);g.lineTo(676+rr(-6,6),386-i*4+rr(-4,4));g.stroke();}
+    ia_blob(g,[[566,322],[606,318],[622,348],[618,388],[586,394],[556,384],[552,350]],"#3e4048");
+    g.strokeStyle="#e8b488";g.lineWidth=2;ia_smooth(g,[[566,322],[552,350],[556,384]],false);g.stroke();
+    g.fillStyle="#b08a40";ia_smooth(g,[[566,334],[596,330],[602,356],[582,366],[564,358]]);g.fill();
+    head(582,300,12,14,"#d0bca8",-1);g.fillStyle="#3a3a40";ia_smooth(g,[[570,296],[573,284],[586,281],[596,288],[590,290],[580,289]]);g.fill();
+    g.strokeStyle="#2c4a90";g.lineWidth=3;g.beginPath();g.arc(582,298,14.5,Math.PI*1.05,Math.PI*1.95);g.stroke();g.fillStyle="#3a6ad0";g.beginPath();g.ellipse(569,302,4,7,0,0,7);g.ellipse(595,302,4,7,0,0,7);g.fill();});
+  // Thorn at the edge of the light, bow in hand, watching the tunnel
+  ia_blob(g,[[792,240],[816,238],[824,290],[826,352],[810,356],[794,352],[786,290]],"#2e3428");g.fillStyle="#5e5046";g.beginPath();g.ellipse(806,226,8,10,0,0,7);g.fill();
+  g.strokeStyle="#4a3a26";g.lineWidth=2;g.beginPath();g.moveTo(832,222);g.quadraticCurveTo(848,288,832,352);g.stroke();g.strokeStyle="rgba(200,180,150,.4)";g.lineWidth=.8;g.beginPath();g.moveTo(832,222);g.lineTo(832,352);g.stroke();
+  // backs to us in front: Stig, broad, grey-haired; Saphira, hooded
+  ia_blob(g,[[70,570],[88,486],[134,450],[184,434],[250,434],[296,452],[326,494],[342,570]],"#2a221e");
+  g.fillStyle="#2a221e";g.fillRect(196,416,36,26);g.beginPath();g.ellipse(214,404,27,29,0,0,7);g.fill();
+  g.fillStyle="#6e6a62";ia_smooth(g,[[186,410],[188,388],[200,376],[216,372],[232,378],[242,394],[240,412],[228,402],[214,398],[198,402]]);g.fill();
+  g.strokeStyle="#e8b888";g.lineWidth=3;ia_smooth(g,[[236,388],[241,408],[232,428]],false);g.stroke();ia_smooth(g,[[250,436],[296,452],[326,494]],false);g.stroke();
+  ia_blob(g,[[630,570],[646,492],[690,460],[732,450],[786,454],[818,482],[836,570]],"#241c26");
+  ia_blob(g,[[714,458],[708,424],[722,396],[744,380],[764,394],[772,426],[770,456]],"#241c26");
+  g.strokeStyle="#e8b080";g.lineWidth=3;ia_smooth(g,[[742,382],[722,396],[708,424],[712,452]],false);g.stroke();ia_smooth(g,[[690,460],[646,492],[634,540]],false);g.stroke();
+  ia_grain(g,W,H,R,.1);
+  const base=a,vig=ia_vig(W,H,"#0a0605",.9,X,Y-60,.2,.66);
+  const emb=Array.from({length:64},()=>({p:rr(2.6,5.5),o:rr(0,1),dx:rr(-26,26),rise:rr(150,320),sw:rr(8,30),ph:rr(0,6.3),s:rr(1,2.4)}));
+  const smoke=Array.from({length:6},(_,i)=>({p:rr(6,9),o:i/6,dx:rr(-14,14)}));
+  const tongues=Array.from({length:7},(_,i)=>({dx:(i-3)*9+rr(-3,3),h:rr(56,98)*(1-Math.abs(i-3)*.12),w:rr(11,16),sp:rr(4,7),ph:rr(0,6.3)}));
+  return (g,t)=>{const f=ia_fl(t,1.7),jx=Math.sin(t*6.1)*2.2+Math.sin(t*13.7)*1.2;g.drawImage(base,0,0);
+    g.globalCompositeOperation="multiply";
+    ia_rad(g,X+jx,Y-26,640*(.9+.1*f),[[0,"#fff4dc"],[.07,"#ffdaa4"],[.22,"#ec9c5c"],[.46,"#7c462a"],[.75,"#2a1810"],[1,"#120c0a"]],W,H);
+    g.globalCompositeOperation="source-over";
+    for(const s of smoke){const ph=ia_wrap(t/s.p+s.o,0,1),y=Y-80-ph*230,r=24+ph*70;g.fillStyle=ia_a("#2a221e",.09*Math.sin(ph*Math.PI));g.beginPath();g.ellipse(X+s.dx+Math.sin(t*.4+s.o*6)*20*ph,y,r,r*.7,0,0,7);g.fill();}
+    g.globalCompositeOperation="lighter";
+    ia_glow(g,X+jx,Y-30,240*f,[[0,ia_a("#ffa040",.3*f)],[.4,ia_a("#ff7a30",.08)],[1,ia_a("#ff7a30",0)]]);
+    // Hans's chest plate keeps its own faint teal
+    g.strokeStyle=ia_a("#8fd3c8",.3+.1*Math.sin(t*2));g.lineWidth=1.2;g.beginPath();g.moveTo(572,340);g.lineTo(596,338);g.moveTo(574,348);g.lineTo(590,352);g.stroke();
+    for(let i=0;i<9;i++){const x=X-30+i*7.5,y=Y-2+Math.sin(i*2.1)*4,k=.5+.5*Math.sin(t*(2+i*.3)+i);g.fillStyle=ia_a("#ff7a30",.5*k);g.beginPath();g.arc(x,y,2.2,0,7);g.fill();}
+    for(const q of tongues){const h=q.h*(.72+.22*Math.sin(t*q.sp+q.ph)+.1*Math.sin(t*13.7+q.ph*2))*f,sw=Math.sin(t*(q.sp*.6)+q.ph)*6;
+      ia_flame(g,X+q.dx,Y,q.w,h,sw,"#fff0c0","#ffa040","#e04a10",.75);}
+    for(const q of tongues.slice(2,5)){const h=q.h*.55*(.8+.2*Math.sin(t*q.sp*1.3+q.ph))*f;ia_flame(g,X+q.dx*.7,Y-2,q.w*.55,h,Math.sin(t*q.sp+q.ph)*3,"#ffffff","#ffe08a","#ffa040",.9);}
+    // ash lifts in the heat and glows for a moment before it goes out
+    for(const e of emb){const ph=ia_wrap(t/e.p+e.o,0,1),x=X+e.dx*(1+ph)+Math.sin(ph*6+e.ph+t*.5)*e.sw*ph,y=Y-16-ph*e.rise;
+      if(ph<.6){g.globalCompositeOperation="lighter";g.fillStyle=ia_a(ph<.3?"#ffd080":"#ff8a3a",(1-ph/.6)*.9);g.beginPath();g.arc(x,y,e.s,0,7);g.fill();}
+      else{g.globalCompositeOperation="source-over";g.fillStyle=ia_a("#9a928a",.45*(1-ph)/.4);g.beginPath();g.ellipse(x,y,e.s*1.2,e.s*.7,ph*9,0,7);g.fill();}}
+    g.globalCompositeOperation="source-over";g.drawImage(vig,0,0);};}
+
+const IART={memory:iaMemory,patron:iaPatron,prayer:iaPrayer,fire:iaFire};
+function paintInterludeArt(cv,kind){const W=cv.width,H=cv.height,g=cv.getContext("2d"),draw=IART[kind](W,H,seeded(kind.length*977+kind.charCodeAt(0)*31));
+  const id=cv.__ia=(cv.__ia||0)+1,t0=performance.now(),gap=typeof SMALL!=="undefined"&&SMALL?39:32;let last=-1e9;
+  const frame=t=>{g.save();draw(g,t);g.restore();};frame(3.7);
+  if(reduced)return;
+  const loop=now=>{if(cv.__ia!==id||!cv.isConnected&&now-t0>1500)return;requestAnimationFrame(loop);if(document.hidden||!cv.isConnected||now-last<gap)return;last=now;frame(3.7+(now-t0)/1000);};
+  requestAnimationFrame(loop);}
 
 
 /* =================== THE SCENES OF SESSION 10 =================== */
