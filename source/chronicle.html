@@ -7471,7 +7471,7 @@ const ICUE={
   "s10-together":{T1:{art:"cave",mood:""},T2:{art:"fire",mood:"fire",ms:1400,flash:"fire",snd:"strike"}}};
 function iDrone(f,dur,vol){const a=pAc();if(!a)return;const t=a.currentTime,o=a.createOscillator(),g=a.createGain();o.type="sine";o.frequency.value=f;
   g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+dur*.35);g.gain.linearRampToValueAtTime(0,t+dur);o.connect(g).connect(pOut);o.start(t);o.stop(t+dur+.05);}
-function iSnd(k){if(!opt.sound)return;const N=NOTE;
+function iSnd(k){if(!opt.sound)return;const N=NOTE;if(typeof iScoreSnd==="function"&&iScoreSnd(k))return;if(typeof iFoleySnd==="function"&&iFoleySnd(k))return;
   ({song:()=>fourNotes(false,.95),warm:()=>{pluck(N.D4,0,2.6,.1);pluck(N.F4,.14,2.6,.08);pluck(N.A4,.28,2.8,.07);},
     bell:()=>{pluck(1568,0,2.8,.07,"sine");pluck(1568*2.76,0,1.2,.02,"sine");},fold:()=>{pluck(N.A3,0,2.4,.1);pluck(N.E4,.45,2.4,.08);},
     hum:()=>{iDrone(110,3.2,.07);iDrone(165.5,3.2,.03);},heart:()=>thump(),release:()=>{pluck(N.A4,0,1.2,.06,"sine");pluck(N.E4,.05,1.4,.05,"sine");},
@@ -7508,6 +7508,8 @@ function iCine(S,p){if(!S||!S.I||!storyEl)return;const I=S.I;
   storyEl.classList.add("ic");
   if(!S.cine){S.cine={art:I.art,last:null,mood:""};iTitle(I);}
   if(S.at!==S.cine.last){S.cine.last=S.at;const c=(ICUE[I.id]||{})[S.at];if(c)iApply(S,c);}
+  if(typeof iFoley==="function")try{iFoley(I.id,S.at);}catch(e){console.error(e);}
+  if(typeof iScore==="function")try{iScore(I.id,S.at);}catch(e){console.error(e);}
   const html=p&&p.html||"";
   if(html.includes("pl-echo")||html.includes("pl-lore")||p&&p.tie)Promise.resolve().then(()=>iAfter(p));}
 window.__iset=iCine;
@@ -7515,6 +7517,396 @@ window.__iset=iCine;
 function iSeal(){const s=h("div",{class:"ic-seal","aria-hidden":"true"},h("div",{},h("b",{},"H"),h("span",{},"FILED")));root.append(s);
   setTimeout(()=>iSnd("seal"),reduced?0:300);setTimeout(()=>s.classList.add("out"),1500);setTimeout(()=>s.remove(),2100);}
 if(devPlay())window.__icine={seal:iSeal,cues:ICUE,ist:()=>IST};
+
+/* ---- the score: music for the interludes, all of it synthesized here (no files) ----
+   iScore(id,pid) runs from iCine on every passage and does nothing when the passage hasn't changed. Each interlude has a bed
+   (ISCORE) that layers in and out by passage id. Voices: a plucked nylon string baked once per note (Karplus-Strong: Matthew's
+   lute, Elodie's song, Katy's ukulele an octave up), a closed-mouth hum, warm and string pads, a rubbed-glass tone, a singing
+   bowl, a dark swell. The Foxglove Lullaby is D minor in 3/4, Dm C F Dm | F Gm C A | Dm Dm Bb F | Gm C A7 Dm, opening A D F E.
+   Every line is played by a person: it breathes between lines, bends its tempo, slows into each line's end and lands a little
+   off the grid. Nothing has vibrato and nothing is locked to a beat.
+   It stops by itself (a watchdog): play sound off, play closed, another interlude, or the interlude over. While an interlude
+   fight runs (PLAY.inter) it steps aside for the battle, and comes back with the Echo. It plays into iBus() (sound-foley's
+   mix bus, which ducks under Hans's voice) when there is one, else into its own limiter. iSnd hands it "echo" and "seal". */
+let ISC=null,ISC_CTX=null,ISC_RAW=0,ISC_LAST=null;const ISC_SHOTS=new Set(); // ISC_CTX/ISC_RAW: an OfflineAudioContext for the render test
+const SCHZ=m=>440*Math.pow(2,(m-69)/12),SCCT=c=>Math.pow(2,c/1200);
+// the melody as [midi, beats]: the pickup A, then sixteen bars of three beats
+const SCMEL=[[57,1],[62,2],[65,1],[64,2],[60,1],[65,1],[69,1],[67,1],[62,2],[60,1],[65,2],[67,1],[70,2],[69,1],[67,2],[64,1],[64,2],[57,1],
+  [62,2],[65,1],[69,2],[65,1],[74,2],[70,1],[69,2],[72,1],[70,2],[69,1],[67,2],[64,1],[65,1],[64,1],[61,1],[62,3]];
+const SCSONG=(()=>{let b=-1;return SCMEL.map(([m,d])=>{const n={m,b,d};b+=d;return n;});})(); // b: onset in beats, the pickup at -1
+const SCC={Dm:[50,57,62,65],C:[48,55,60,64],F:[53,57,60,65],Gm:[55,58,62,67],A:[45,57,61,64],Bb:[46,58,62,65],A7:[45,55,61,64]};
+const SCCHD=[SCC.Dm,SCC.C,SCC.F,SCC.Dm,SCC.F,SCC.Gm,SCC.C,SCC.A,SCC.Dm,SCC.Dm,SCC.Bb,SCC.F,SCC.Gm,SCC.C,SCC.A7,SCC.Dm];
+const SCKATY=[69,74,77,76]; // A D F E on Katy's ukulele
+const SC_CACHE=new WeakMap(),scMap=(a,k,make)=>{let M=SC_CACHE.get(a);if(!M)SC_CACHE.set(a,M=new Map());if(!M.has(k))M.set(k,make(a));return M.get(k);};
+
+/* a plucked nylon string, baked once per note and instrument: a soft thumb (low-passed noise), plucked a little way along
+   the string, ringing in a tuned loop that loses its highs first */
+function scKS(a,m,kind){return scMap(a,kind+m,a=>scKSbake(a,m,kind));}
+function scKSbake(a,m,kind){
+  const sr=22050,f=SCHZ(m),uke=kind==="uke",T60=uke?1.6:Math.max(1.9,Math.min(4.6,5.2-(m-45)*.11)),dur=Math.min(uke?2.2:3.6,T60*.85+.5),n=dur*sr|0;
+  let b=null;try{b=a.createBuffer(1,n,sr);}catch(e){return null;}
+  const d=b.getChannelData(0),P=sr/f,S=Math.max(.3,Math.min(.5,.5-(m-57)*.008)),L=Math.floor(P-S-.1),fr=P-S-L,c=(1-fr)/(1+fr),line=new Float32Array(L);
+  for(let i=0;i<L;i++)line[i]=Math.random()*2-1;
+  for(let k=0;k<(uke?1:3);k++)for(let i=1;i<L;i++)line[i]=(line[i]+line[i-1])*.5;
+  const pp=Math.max(1,Math.round(L*(uke?.22:.14))),ex=line.slice();let mean=0;
+  for(let i=0;i<L;i++){line[i]=ex[i]-.85*ex[(i-pp+L)%L];mean+=line[i];}mean/=L;for(let i=0;i<L;i++)line[i]-=mean;
+  const rho=Math.min(.99995,Math.pow(10,-3/(f*T60))/Math.cos(Math.PI*f/sr));let idx=0,prev=0,x1=0,y1=0,pk=0;
+  for(let i=0;i<n;i++){const cur=line[idx];d[i]=cur;const av=(1-S)*cur+S*prev;prev=cur;const ap=c*av+x1-c*y1;x1=av;y1=ap;line[idx]=ap*rho;if(++idx>=L)idx=0;const q=cur<0?-cur:cur;if(q>pk)pk=q;}
+  const on=sr*.002|0,sc=.9/(pk||1);for(let i=0;i<n;i++)d[i]*=sc*(i<on?i/on:1);
+  return b;}
+function scWaves(a){return scMap(a,"w",a=>{
+  const mk=fn=>{const re=new Float32Array(32),im=new Float32Array(32);for(let k=1;k<32;k++)im[k]=fn(k);return a.createPeriodicWave(re,im);};
+  const W={warm:mk(k=>k>14?0:Math.pow(k,-1.7)*(k%2?1.15:1)),str:mk(k=>k>26?0:1/k),hum:mk(k=>[0,1,.34,.15,.07,.045,.02,.012][k]||0)};return W;});}
+function scNoise(a){return scMap(a,"n",a=>{const n=a.sampleRate*2|0,b=a.createBuffer(1,n,a.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1;return b;});}
+// a room's tail: noise that darkens as it dies away
+function scIR(a,sec,bright){return scMap(a,"ir"+sec,a=>{const sr=a.sampleRate,n=sec*sr|0,b=a.createBuffer(2,n,sr),pre=sr*.012|0;
+  for(let ch=0;ch<2;ch++){const d=b.getChannelData(ch);let lp=0;for(let i=pre;i<n;i++){const x=(i-pre)/sr,c=Math.max(.035,bright*Math.exp(-x*6/sec));lp+=c*((Math.random()*2-1)-lp);d[i]=lp*Math.exp(-6.9*x/sec);}}return b;});}
+
+/* ---- the score's own mixer: groups (a little EQ, a low-pass, a pulse gain, a level, sends to the cave and the room) ---- */
+function scGrp(S,n,o){const a=S.a;let head=null,tail=null,fm=null;const add=x=>{if(tail)tail.connect(x);else head=x;tail=x;return x;};
+  for(const [ty,fr,gn,q] of o.eq||[]){const b=add(a.createBiquadFilter());b.type=ty;b.frequency.value=fr;b.gain.value=gn;b.Q.value=q;fm=fm||b;}
+  const f=add(a.createBiquadFilter());f.type="lowpass";f.frequency.value=o.lp;f.Q.value=o.q??.5;
+  const pg=add(a.createGain()),g=add(a.createGain());g.gain.value=o.vol??1;g.connect(S.mix);
+  if(o.cave){const s=a.createGain();s.gain.value=o.cave;g.connect(s).connect(S.cave);}
+  if(o.room&&S.room){const s=a.createGain();s.gain.value=o.room;g.connect(s).connect(S.room);}
+  S.G[n]={in:head,f,fm,pg,g,base:o.vol??1,lvl:1,lp0:o.lp,nodes:new Set()};}
+function iScoreOut(a){
+  if(ISC_CTX&&ISC_RAW)return {node:ISC_CTX.destination,own:null};
+  if(!ISC_CTX&&typeof iBus==="function"){try{const b=iBus("music");if(b)return {node:b,own:null};}catch(e){}}
+  const c=a.createDynamicsCompressor();c.threshold.value=-8;c.knee.value=4;c.ratio.value=16;c.attack.value=.003;c.release.value=.2;
+  c.connect(ISC_CTX?ISC_CTX.destination:pOut);return {node:c,own:c};}
+function iScoreInit(a,id,mini){const S={a,id,ist:IST,test:!!ISC_CTX,at:null,q:[],nodes:new Set(),G:{},L:{},det:0,want:1,fight:0,W:scWaves(a)};
+  S.T=d=>a.currentTime+.05+(d||0);
+  const out=iScoreOut(a),t=a.currentTime;S.own=out.own;
+  S.master=a.createGain();if(mini)S.master.gain.value=1;else{S.master.gain.setValueAtTime(0,t);S.master.gain.setTargetAtTime(1,t,.3);}S.master.connect(out.node);
+  const glue=a.createDynamicsCompressor();glue.threshold.value=-20;glue.knee.value=14;glue.ratio.value=2.5;glue.attack.value=.02;glue.release.value=.45;
+  S.hp=a.createBiquadFilter();S.hp.type="highpass";S.hp.frequency.value=45;S.hp.Q.value=.5;          // keeps the low drones off the woofer's floor
+  S.lp=a.createBiquadFilter();S.lp.type="lowpass";S.lp.frequency.value=16000;S.lp.Q.value=.4;         // a memory's dulled edge
+  S.mix=a.createGain();S.mix.gain.value=.55;S.mix.connect(S.hp).connect(S.lp).connect(glue).connect(S.master);
+  S.cave=a.createConvolver();S.cave.buffer=scIR(a,mini?1.6:3.4,.5);S.caveR=a.createGain();S.cave.connect(S.caveR).connect(S.mix);
+  if(id==="s10-katy"){S.room=a.createConvolver();S.room.buffer=scIR(a,1.1,.75);S.roomR=a.createGain();S.roomR.gain.value=0;S.room.connect(S.roomR).connect(S.mix);}
+  const g=(n,o)=>scGrp(S,n,o);
+  g("lute",{lp:4200,eq:[["peaking",200,3.5,1.1],["peaking",2600,-2.5,1]],cave:.3,room:.5,vol:1});
+  g("uke",{lp:5600,eq:[["peaking",420,2,1.2]],cave:.26,room:.45,vol:1.25});
+  g("hum",{lp:1700,eq:[["peaking",2700,3,1.4]],cave:.3,room:.55,vol:1});
+  g("pad",{lp:1150,cave:.32,room:.5,vol:.3});
+  g("drone",{lp:540,eq:[["peaking",620,7,2.6]],cave:.4,vol:.25});
+  g("glass",{lp:9000,cave:.6,room:.4,vol:1.4});
+  g("bell",{lp:7000,cave:.5,room:.3,vol:1});
+  g("str",{lp:420,q:.7,cave:.36,room:.2,vol:.3});
+  g("swell",{lp:160,q:.9,cave:.4,vol:.5});
+  if(!S.test&&!mini)scLoop(S);
+  return S;}
+
+/* ---- scheduling: everything goes through a short queue so a passage change, a cut or a stop can drop what hasn't started ---- */
+function scQ(S,t,fn,g,tag){S.q.push({t,fn,g,tag});} // tag "tail": a bed that settles in after a phrase, dropped if the reader moves on first
+// when a song is still playing (or about to), the next line waits for it; one that hasn't started yet gives way
+function scSongStart(S,min,gap=1){const s=S.song,now=S.a.currentTime;if(s&&s.t0>now+.3){S.q=S.q.filter(e=>e.g!==s.g&&e.g!=="pad");S.song=null;}return Math.max(S.T(min),S.song?S.song.end+gap:0);}
+function scSong(S,r,g){S.song={t0:r.ev.length?r.ev[0].t:r.end,end:r.end,g};return r;}
+function scSrc(S,g,n,t0,t1){n._end=t1;S.nodes.add(n);const G=S.G[g];if(G)G.nodes.add(n);
+  n.onended=()=>{S.nodes.delete(n);if(G)G.nodes.delete(n);try{n.disconnect();}catch(e){}};n.start(t0);n.stop(t1);return n;}
+function scStopAt(n,t){try{if(n._end>t){n._end=t;n.stop(t);}}catch(e){}}
+function scTick(S){const a=S.a,now=a.currentTime,H=now+.4;
+  for(let k=0;k<6;k++){S.q.sort((x,y)=>x.t-y.t);let ran=0;
+    while(S.q.length&&S.q[0].t<H){const e=S.q.shift();ran++;if(e.t<now-.6&&!S.test)continue;try{e.fn(Math.max(e.t,now+.01));}catch(err){console.error(err);}}
+    if(!ran)break;}
+  for(const k of Object.keys(S.L)){const L=S.L[k];if(L&&L.tick)try{L.tick(S,L,now,H);}catch(err){console.error(err);}}}
+function scLoop(S){const run=()=>{if(ISC!==S)return;scGuard(S);if(ISC!==S)return;scTick(S);S.timer=setTimeout(run,110);};S.timer=setTimeout(run,110);}
+function scGuard(S){if(!opt.sound||!PLAY.on||IST!==S.ist){iScoreStop(false);return;}
+  if(PLAY.inter&&!S.fight)scFightMode(S,1);else if(!PLAY.inter&&S.fight)scFightMode(S,0);
+  const w=(document.hidden||S.fight?0:1)*(S.own?(SND.duck||1):1); // iBus ducks under Hans's voice itself
+  if(Math.abs(w-S.want)>.01){S.master.gain.setTargetAtTime(w,S.a.currentTime,w<S.want?.2:.5);S.want=w;}}
+// an interlude fight: the score steps aside (the battle has its own sounds) and waits for the Echo
+function scFightMode(S,on){S.fight=on?1:0;if(on){S.q.length=0;S.L={};scCut(S,Object.keys(S.G),2.4);}}
+function scFade(S,f){const a=S.a,t=a.currentTime,g=S.master.gain;try{g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);g.linearRampToValueAtTime(0,t+f);}catch(e){}
+  for(const n of S.nodes)scStopAt(n,t+f+.05);
+  if(S.test)return;setTimeout(()=>{try{S.master.disconnect();}catch(e){}if(S.own)try{S.own.disconnect();}catch(e){}},(f+.4)*1000);}
+function iScoreStop(fast){const S=ISC;if(!S)return;ISC=null;ISC_LAST=S;clearTimeout(S.timer);S.q.length=0;S.L={};scFade(S,fast?.06:1.2);} // inside the mix bus's own 1.4 s fade
+// fade a few groups out now, stop what they're playing, drop what they had queued, then open them again for what comes next
+function scCut(S,gs,f=1){const t=S.a.currentTime;
+  for(const k of gs){const G=S.G[k];if(!G)continue;const p=G.g.gain;
+    try{p.cancelScheduledValues(t);p.setValueAtTime(p.value,t);p.linearRampToValueAtTime(0,t+f);p.setValueAtTime(0,t+f+.04);p.linearRampToValueAtTime(G.base*G.lvl,t+f+.08);}catch(e){}
+    for(const n of G.nodes)scStopAt(n,t+f+.02);
+    S.q=S.q.filter(e=>e.g!==k);for(const [n,L] of Object.entries(S.L))if(L.g===k)delete S.L[n];}}
+function scLvl(S,k,v,sec=2){const G=S.G[k];if(!G)return;G.lvl=v;G.g.gain.setTargetAtTime(G.base*v,S.a.currentTime,Math.max(.01,sec/3));}
+function scFilt(S,k,f,sec=2){const G=S.G[k];if(!G)return;G.lp0=f;G.f.frequency.setTargetAtTime(f,S.a.currentTime,Math.max(.01,sec/3));}
+function scMem(S,on,sec=3){const t=S.a.currentTime,tc=Math.max(.01,sec/3);S.det=on?-14:0;S.lp.frequency.setTargetAtTime(on?2300:16000,t,tc);
+  if(S.roomR)S.roomR.gain.setTargetAtTime(on?1:0,t,tc);S.caveR.gain.setTargetAtTime(on?.25:1,t,tc);}
+function scSpace(S,k){const t=S.a.currentTime;S.caveR.gain.setTargetAtTime(k==="dry"?.2:1,t,.3);if(S.roomR)S.roomR.gain.setTargetAtTime(k==="room"?1:0,t,.3);}
+function scThin(S,f,sec){S.hp.frequency.setTargetAtTime(f,S.a.currentTime,Math.max(.01,sec/3));}
+
+/* ---- voices ---- */
+function scPluck(S,g,m,t,o={}){const a=S.a,G=S.G[g];if(!G)return;const uke=g==="uke",b=scKS(a,m,uke?"uke":"lute");if(!b)return;
+  const v=o.vel??.5,mute=!!o.mute,len=mute?.16:Math.min(b.duration,o.dur||b.duration),end=t+len,det=(S.det||0)+(o.det||0)+(Math.random()-.5)*2.4;
+  const lp=a.createBiquadFilter();lp.type="lowpass";lp.frequency.value=mute?700:(uke?1500:950)+v*v*(uke?6500:4400);lp.Q.value=.35;
+  const env=a.createGain();env.gain.setValueAtTime(v,t);env.gain.setTargetAtTime(0,end-(mute?.12:.35),mute?.03:.07);lp.connect(env);
+  let tail=env;if(a.createStereoPanner&&o.pan!==0){const p=a.createStereoPanner();p.pan.value=o.pan??(Math.random()-.5)*.3;env.connect(p);tail=p;}tail.connect(G.in);
+  const s=a.createBufferSource();s.buffer=b;s.playbackRate.value=SCCT(det);s.connect(lp);scSrc(S,g,s,t,end+.02);
+  if(o.course&&!mute){const s2=a.createBufferSource(),g2=a.createGain();s2.buffer=b;s2.playbackRate.value=SCCT(det+.8+Math.random()*.8);g2.gain.value=.35;s2.connect(g2).connect(lp);scSrc(S,g,s2,t+.006+Math.random()*.007,end+.02);}}
+function scPadNote(S,g,m,t,dur,o={}){const a=S.a,G=S.G[g];if(!G)return null;const att=o.att??3,rel=o.rel??4,v=o.vol??.05,hold=Math.max(att,dur),end=t+hold+rel;
+  const env=a.createGain();env.gain.setValueAtTime(0,t);env.gain.setTargetAtTime(v,t,att/3);env.gain.setTargetAtTime(0,t+hold,rel/4);env.connect(G.in);
+  const f=SCHZ(m)*SCCT((S.det||0)+(o.det||0)),oscs=[];
+  for(const side of[-1,1]){const os=a.createOscillator();os.setPeriodicWave(S.W[o.wave||"warm"]);os.frequency.value=f;os.detune.value=side*(.35+Math.random()*.4);
+    let n=os;if(a.createStereoPanner){const p=a.createStereoPanner();p.pan.value=side*(o.wide??.3);os.connect(p);n=p;}n.connect(env);
+    oscs.push(scSrc(S,g,os,t+Math.random()*.03,end+.05));}
+  return {env,oscs};}
+function scChord(S,g,ms,t,dur,o={}){return ms.map((m,i)=>scPadNote(S,g,m,t+(o.roll||0)*i,dur,{...o,vol:(o.vol??.05)*(i?1:1.15)*(.88+Math.random()*.2)})).filter(Boolean);}
+function scRel(S,ch,t,rel){for(const n of ch||[]){try{n.env.gain.cancelScheduledValues(t);n.env.gain.setTargetAtTime(0,t,rel/4);}catch(e){}n.oscs.forEach(o=>scStopAt(o,t+rel+.1));}}
+// a rubbed glass: a pure tone with a slow shimmer, nearly no overtones
+function scGlass(S,m,t,o={}){const a=S.a,G=S.G.glass,f=SCHZ(m)*SCCT((S.det||0)+(o.det||0)),att=o.att??1,hold=o.hold??3,rel=o.rel??3,v=o.vol??.02,end=t+att+hold+rel;
+  const env=a.createGain();env.gain.setValueAtTime(0,t);env.gain.setTargetAtTime(v,t,att/3);env.gain.setTargetAtTime(0,t+att+hold,rel/4);env.connect(G.in);
+  for(const [r,amp] of [[1,1],[1.00025,.2],[2.001,.1],[3.003,.03]]){const os=a.createOscillator(),gg=a.createGain();os.frequency.value=f*r;gg.gain.value=amp;os.connect(gg).connect(env);scSrc(S,"glass",os,t,end+.1);}}
+// a singing bowl: struck once, then the rim keeps singing the same note
+function scBowl(S,m,t,v=.06,o={}){const a=S.a,G=S.G.bell,f=SCHZ(m)*SCCT(S.det||0),hold=o.hold??8;
+  for(const [r,amp,T] of [[1,1,10],[2.71,.4,5.5],[5.15,.17,2.8],[8.43,.06,1.4]]){const os=a.createOscillator(),gg=a.createGain();os.frequency.value=f*r*(1+(Math.random()-.5)*.0006);
+    gg.gain.setValueAtTime(0,t);gg.gain.linearRampToValueAtTime(v*amp,t+.005);gg.gain.setTargetAtTime(0,t+.005,T/6.9);os.connect(gg).connect(G.in);scSrc(S,"bell",os,t,t+T*1.1);}
+  const os=a.createOscillator(),gg=a.createGain();os.frequency.value=f*1.0003;gg.gain.setValueAtTime(0,t);gg.gain.setTargetAtTime(v*.32,t+.4,1.3);gg.gain.setTargetAtTime(0,t+hold,2.2);
+  os.connect(gg).connect(G.in);scSrc(S,"bell",os,t,t+hold+10);}
+// a closed-mouth hum: one voice for the whole line, gliding note to note, breathing between lines. No vibrato.
+function scHum(S,ev,o={}){if(!ev.length)return;const a=S.a,g=o.g||"hum",G=S.G[g];if(!G)return;
+  const det=(S.det||0)+(o.det||0),oc=o.oct||0,F=m=>SCHZ(m+oc)*SCCT(det+(Math.random()-.5)*6),v=o.vol??.1,t0=ev[0].t,last=ev[ev.length-1],tEnd=last.t+last.d;
+  const os=a.createOscillator(),env=a.createGain(),fq=os.frequency;os.setPeriodicWave(S.W.hum);env.gain.value=0;env.gain.setValueAtTime(0,t0-.03);
+  let f=F(ev[0].m);fq.setValueAtTime(f*SCCT(-35),t0-.03);fq.setTargetAtTime(f,t0,.045);env.gain.setTargetAtTime(v*ev[0].v,t0,.1);
+  for(let i=1;i<ev.length;i++){const e=ev[i],p=ev[i-1],gap=e.t-(p.t+p.d);f=F(e.m);
+    if(gap>.12){env.gain.setTargetAtTime(0,p.t+p.d-.05,.07);fq.setValueAtTime(f*SCCT(-30),e.t-.02);fq.setTargetAtTime(f,e.t,.045);env.gain.setTargetAtTime(v*e.v,e.t,.1);}
+    else{fq.setTargetAtTime(f,e.t-.035,.028);env.gain.setTargetAtTime(v*e.v*.78,e.t-.05,.025);env.gain.setTargetAtTime(v*e.v,e.t+.03,.09);}}
+  env.gain.setTargetAtTime(0,tEnd-.1,.22);
+  const n=a.createBufferSource(),nb=a.createBiquadFilter(),ng=a.createGain();n.buffer=scNoise(a);n.loop=true;nb.type="bandpass";nb.frequency.value=1200;nb.Q.value=.9;ng.gain.value=.05;
+  n.connect(nb).connect(ng).connect(env);os.connect(env);env.connect(G.in);scSrc(S,g,os,t0-.04,tEnd+1.6);scSrc(S,g,n,t0-.04,tEnd+1.6);}
+
+/* ---- playing the lullaby like a person: timing first (so the pad follows the same rubato), then the notes ---- */
+function scTiming(o){const ev=[],bars={},beat=60/(o.bpm||66),notes=SCSONG.filter(n=>n.b>=(o.from??-1)&&n.b<(o.to??48));let t=o.t,drift=0,lb=-9;
+  notes.forEach((n,i)=>{const bar=Math.floor(n.b/3);
+    if(i>0&&(n.b+12)%12===11)t+=(o.breath??.3)*(.6+Math.random()*.8);                     // a breath before each line
+    let slip=null;if(o.slip&&Math.random()<o.slip){const k=o.slips||"ghdb";slip=k[Math.floor(Math.random()*k.length)];if(slip==="h")t+=.3+Math.random()*.55;}
+    if(n.b>=0&&bar!==lb){lb=bar;bars[bar]=t;drift=Math.max(-.07,Math.min(.07,drift*.7+(Math.random()-.5)*.05));}
+    const pos=((n.b+13)%12)/12,rit=1+Math.max(0,pos-.62)*.5*(o.rit??1),d=n.d*beat*(1+drift)*rit*(n.b%3===0?1.04:1)*(o.hold?o.hold(n):1);
+    const v=(o.vel??.5)*(n.b%3===0?1.08:.95)*(.88+Math.random()*.16)*(.9+.14*Math.sin(Math.PI*pos));
+    ev.push({t:t+(Math.random()-.5)*(o.jit??.04),m:n.m,b:n.b,bar,d,v,slip});t+=d;});
+  return {ev,bars,end:t};}
+// slips (Matthew's tired hands): g a neighbour note caught at once, d a note that doesn't sound, b a buzzed string played again
+function scPlay(S,ev,o={}){const g=o.g||"lute",oc=o.oct||0,vs=o.vs??1;
+  for(const e of ev){const t=e.t+(o.off||0),m=e.m+oc,v=e.v*vs;if(e.slip==="d")continue;
+    if(e.slip==="g"){const w=m+(Math.random()<.5?-1:1)*(Math.random()<.65?1:2);scQ(S,t-.09,x=>scPluck(S,g,w,x,{vel:v*.45,dur:.5,det:o.det}),g);}
+    if(e.slip==="b")scQ(S,t-.17,x=>scPluck(S,g,m,x,{vel:v*.55,mute:1,det:o.det}),g);
+    scQ(S,t,x=>scPluck(S,g,m,x,{vel:v,course:o.course,det:o.det,dur:Math.min(3.4,e.d+(o.ring??1.6)),pan:o.pan}),g);
+    if(o.bass&&e.b>=0&&e.b%3===0){const c=SCCHD[e.bar],bm=(c[0]>=52?c[0]-12:c[0])+oc;scQ(S,t-.02,x=>scPluck(S,g,bm,x,{vel:v*.5,det:o.det,dur:3}),g);}}}
+function scPadSong(S,r,o={}){const g=o.g||"pad",ks=Object.keys(r.bars).map(Number).filter(k=>k>=(o.fromBar||0)).sort((x,y)=>x-y);
+  ks.forEach((k,i)=>{const t=r.bars[k],nx=i+1<ks.length?r.bars[ks[i+1]]:r.end;scQ(S,t-.05,x=>scChord(S,g,SCCHD[k],x,Math.max(.8,nx-t),{vol:o.vol??.04,att:o.att??.7,rel:o.rel??1.8,wave:o.wave}),g);});}
+function scMotif(S,g,ms,t,gaps,o={}){let tt=t;ms.forEach((m,i)=>{const at=tt+(Math.random()-.5)*.04,v=(o.vel??.5)*(.92+Math.random()*.12)*(i?1:1.05);
+  scQ(S,at,x=>scPluck(S,g,m,x,{vel:v,course:o.course,det:o.det,dur:o.dur||3.2,pan:o.pan}),g);tt+=gaps[Math.min(i,gaps.length-1)];});return tt;}
+
+/* ---- layers that keep going until a passage changes them: chord beds, the tide, the pulse, a drifting formant, fragments ---- */
+function scPadL(S,name,o){let L=S.L[name];
+  if(L){const now=o.now;Object.assign(L,o);delete L.now;if(now!=null){scRel(S,L.cur,now,L.xf||3.5);L.next=now;L.i=0;}return L;}
+  L=S.L[name]={g:"pad",prog:[SCC.Dm],durs:[10,14],vol:.05,att:4,rel:5,wave:"warm",det:0,i:0,cur:null,...o,tick:scPadTick};L.next=o.start??o.now??S.T();delete L.now;return L;}
+function scPadTick(S,L,now,H){if(L.next<now-1)L.next=now+.05;
+  while(L.next<H){const t=L.next,d=L.durs[0]+Math.random()*(L.durs[1]-L.durs[0]);L.cur=scChord(S,L.g,L.prog[L.i++%L.prog.length],t,d,{vol:L.vol,att:L.att,rel:L.rel,wave:L.wave,det:L.det});L.next=t+d;}}
+function scOff(S,name,f=3){const L=S.L[name];if(!L)return;delete S.L[name];if(L.cur)scRel(S,L.cur,S.a.currentTime,f);}
+function scDrone(S,o={}){return scPadL(S,"drone",{g:"drone",prog:[o.prog||[38,45,50]],durs:[24,30],att:o.att??6,rel:8,wave:"str",vol:o.vol??.06,...(o.start!=null?{start:o.start}:{})});}
+// the slow grey tide: a string bed that rises and falls like surf, never twice the same
+function scTide(S,o={}){const T=S.L.tide||(S.L.tide={g:"str",next:o.start??S.T(),per:[10,14],lo:.45,hi:1,fLo:300,fHi:720,big:0,tick:scTideTick});
+  for(const k of["per","lo","hi","fLo","fHi"])if(o[k]!=null)T[k]=o[k];
+  if(o.big){T.big=o.big;T.next=Math.min(T.next,S.T(1.5));}
+  const p=S.L.tideP;
+  if(!p)scPadL(S,"tideP",{g:"str",prog:[o.prog||[38,45,50,57]],durs:[18,24],vol:o.vol??.06,att:6,rel:7,wave:o.wave||"str",start:o.start??S.T()});
+  else if(o.prog||o.wave)scPadL(S,"tideP",{prog:o.prog?[o.prog]:p.prog,wave:o.wave||p.wave,now:o.now??S.T(1)});}
+function scTideTick(S,L,now,H){const G=S.G.str;if(L.next<now-1)L.next=now;
+  while(L.next<H){const t=L.next,b=L.big;L.big=0;const per=(L.per[0]+Math.random()*(L.per[1]-L.per[0]))*(1+b*.4),up=per*(.36+Math.random()*.12);
+    for(const [p,hi,lo] of [[G.pg.gain,L.hi*(1+b*.6),L.lo],[G.f.frequency,L.fHi*(1+b*.8),L.fLo]]){p.cancelScheduledValues(t);p.setTargetAtTime(hi,t,up/3);p.setTargetAtTime(lo,t+up,(per-up)/3);}
+    L.next=t+per;}}
+// Saphira's held heartbeat: the drone swells with it; with a shadow that runs late, a second, smaller swell behind it
+function scPulse(S,o={}){const L=S.L.pulse||(S.L.pulse={g:"drone",next:S.T(.6),per:[2.5,3],depth:.5,lag:0,skip:0,tick:scPulseTick});Object.assign(L,o);}
+function scPulseTick(S,L,now,H){const G=S.G.drone;if(L.next<now-1)L.next=now+.1;
+  while(L.next<H){const t=L.next;if(L.skip>0)L.skip--;else{scBump(G,t,L.depth);if(L.lag)scBump(G,t+.42,L.depth*L.lag);}L.next=t+L.per[0]+Math.random()*(L.per[1]-L.per[0]);}}
+function scBump(G,t,d){const p=G.pg.gain,f=G.f.frequency;p.setTargetAtTime(1+d,t,.045);p.setTargetAtTime(1,t+.16,.32);f.setTargetAtTime(G.lp0*(1+d*.9),t,.05);f.setTargetAtTime(G.lp0,t+.18,.35);}
+function scDrift(S,o){const L=S.L.drift||(S.L.drift={g:"drone",next:S.T(),lo:500,hi:900,tick:(S,L,now,H)=>{if(L.next<now-1)L.next=now;
+  while(L.next<H){S.G.drone.fm.frequency.setTargetAtTime(L.lo+Math.random()*(L.hi-L.lo),L.next,1.6);L.next+=3.5+Math.random()*3.5;}}});Object.assign(L,o);L.next=Math.min(L.next,S.T());}
+function scSwellUp(S,ms,t,o={}){S.G.swell.f.frequency.setTargetAtTime(o.f1||1000,t,(o.rise||6)/3);S.swl=scChord(S,"swell",ms,t,60,{att:o.rise||6,rel:6,vol:o.vol||.05,wave:"str"});}
+function scSwellDown(S,sec){const t=S.a.currentTime;S.G.swell.f.frequency.setTargetAtTime(150,t,sec/3);scRel(S,S.swl,t,sec);S.swl=null;scOff(S,"shadow",sec);}
+// Katy counting the room: single notes, further and further apart
+function scSparse(S,o){S.L.sparse={g:"lute",next:o.start??S.T(2),gap:o.gap||4,grow:o.grow||1.2,notes:o.notes,vel:o.vel||.2,left:o.max||8,
+  tick:(S,L,now,H)=>{if(L.next<now-1)L.next=now;while(L.next<H&&L.left>0){scPluck(S,"lute",L.notes[Math.floor(Math.random()*L.notes.length)],L.next,{vel:L.vel*(.8+Math.random()*.3),course:1});L.left--;L.next+=L.gap*(.8+Math.random()*.4);L.gap*=L.grow;}}};}
+// Matthew's lute by the fire: a line of the song now and then, quiet, not quite steady; sometimes his hands stop before the end
+function scFrag(S,o){const L=S.L.frag||(S.L.frag={g:"lute",next:S.T(4),wait:[10,20],vel:.3,slip:.14,lines:[[-1,11],[11,23],[35,48],[-1,23]],tick:scFragTick});
+  const st=o.start;Object.assign(L,o);delete L.start;if(st!=null)L.next=st;}
+function scFragTick(S,L,now,H){if(L.next<now-1)L.next=now+.5;if(L.next>=H)return;const ln=L.lines[Math.floor(Math.random()*L.lines.length)];
+  const r=scTiming({t:L.next,from:ln[0],to:ln[1],bpm:58+Math.random()*8,vel:L.vel,slip:L.slip,breath:.5,rit:1.3});
+  let ev=r.ev;if(Math.random()<.25)ev=ev.slice(0,Math.max(3,Math.floor(ev.length*(.4+Math.random()*.4))));
+  scPlay(S,ev,{g:"lute",course:1,bass:Math.random()<.6});const e=ev[ev.length-1];L.next=(e?e.t+e.d:r.end)+L.wait[0]+Math.random()*(L.wait[1]-L.wait[0]);}
+
+/* ---- the four beds, passage by passage ---- */
+const SCHOLD=n=>(n.d===1&&n.b%3===2&&(n.b+12)%12!==11)?1.5:((n.b+2)%12===11?1.35:1); // the hum waits on the notes the song hurried past
+const ISCORE={
+"s10-katy":{ // the song, played slowly enough to hear her in it; the memory sounds remembered (a shade flat, dulled, a small room)
+  K1:S=>{scSpace(S,"cave");const e=scMotif(S,"uke",SCKATY,S.T(3.2),[1.1,1,1.3],{vel:.5});const e2=scMotif(S,"uke",SCKATY,e+2.6,[1.45,1.5,2.2],{vel:.42});
+    scPadL(S,"pad",{prog:[SCC.Dm],durs:[16,20],vol:.035,att:7,rel:6,start:e2+1,det:-14});},
+  K2:S=>{scMem(S,1,4);scPadL(S,"pad",{prog:[SCC.Dm,SCC.F,SCC.Dm,SCC.C],durs:[11,15],vol:.055,att:4,rel:5,det:0,now:S.T(.5)});scQ(S,S.T(7),x=>scPluck(S,"lute",62,x,{vel:.22,course:1}),"lute");},
+  K2b:S=>{scSparse(S,{notes:[57,62,65,64,60,67,69],gap:4.2,grow:1.2,vel:.2,max:8,start:S.T(3)});},
+  K3:S=>{scOff(S,"sparse");scLvl(S,"pad",.4,1.2);scPadL(S,"pad",{prog:[SCC.F,SCC.Dm],durs:[12,15],vol:.06,now:S.T(6)});scQ(S,S.T(6),()=>scLvl(S,"pad",1,5),"x");},
+  K4a:S=>{scPadL(S,"pad",{prog:[SCC.Dm,SCC.C,SCC.F,SCC.Dm],durs:[8,11]});scMotif(S,"lute",[57,62,65],S.T(5),[.7,.8],{vel:.22,course:1});},
+  K4b:S=>{scLvl(S,"pad",.6,3);let t=S.T(8);for(let i=0;i<7;i++){t+=.32+Math.random()*.45;const m=[62,65,57,62,64][i%5];scQ(S,t,x=>scPluck(S,"lute",m,x,{vel:.12,mute:1}),"lute");}
+    scQ(S,t+3,()=>scLvl(S,"pad",1,4),"x");},
+  K4c:S=>{const t=S.T(5);scQ(S,t,()=>scOff(S,"pad",2.5),"x","tail");scQ(S,t+8,()=>scPadL(S,"pad",{prog:[SCC.F,SCC.Dm],durs:[10,13],vol:.055,att:4,start:S.T()}),"x","tail");}, // the candle's long breath
+  K5:S=>{scOff(S,"pad",4);scOff(S,"sparse");const r=scSong(S,scTiming({t:S.T(2.4),bpm:70,vel:.46}),"lute");scPlay(S,r.ev,{g:"lute",course:1,bass:1});scPadSong(S,r,{vol:.04});
+    scPlay(S,r.ev.filter(e=>e.b>=35),{g:"uke",oct:12,off:.24,det:-12,vs:.45}); // the child sings the last line with her, a beat late
+    scQ(S,r.end+1,()=>{scPadL(S,"pad",{prog:[SCC.Dm,SCC.F],durs:[12,16],vol:.045,start:S.T()});scThin(S,170,8);},"x","tail");}, // the room goes thin, like paper
+  K6:S=>{scOff(S,"pad",3);const r=scSong(S,scTiming({t:scSongStart(S,1.6,1.4),bpm:56,vel:.5,hold:SCHOLD,breath:.45,jit:.02}),"hum");scQ(S,r.ev[0].t-.2,()=>scHum(S,r.ev,{vol:.11}),"hum");scPadSong(S,r,{vol:.026,att:1.2,rel:2.5});
+    const r2=scTiming({t:r.end+4.5,bpm:52,vel:.4,hold:SCHOLD,breath:.55,jit:.02});scQ(S,r2.ev[0].t-.2,()=>scHum(S,r2.ev,{vol:.085}),"hum");scPadSong(S,r2,{vol:.02,att:1.4,rel:3});},
+  K7a:S=>{S.G.hum.lvl=1;S.song=null;scCut(S,["hum","pad","lute"],.7);const r=scSong(S,scTiming({t:S.T(2),to:23,bpm:64,vel:.4,slip:.14,slips:"h",breath:.5}),"uke"); // her mother stops; the child sings
+    scPlay(S,r.ev,{g:"uke",oct:12,det:-18,vs:.75});},
+  K8a:S=>{const r=scTiming({t:scSongStart(S,1.2,.8),from:23,to:48,bpm:62,vel:.4,slip:.08,slips:"h",breath:.6});
+    scPlay(S,r.ev,{g:"uke",oct:12,det:-18,vs:.72,off:.03});          // seven years old and slightly flat
+    scPlay(S,r.ev.filter(e=>e.b>=35),{g:"lute",course:1,bass:1});   // and she sings the last line with you
+    scPadSong(S,r,{vol:.042,fromBar:12});scQ(S,r.end+.5,()=>scPadL(S,"pad",{prog:[SCC.Dm,SCC.F,SCC.Dm],durs:[12,16],vol:.045,att:3,start:S.T()}),"x","tail");},
+  K7b:S=>{scLvl(S,"hum",.65,4);scLvl(S,"pad",.7,4);scQ(S,S.T(13.5),()=>{S.G.hum.lvl=1;scCut(S,["hum"],2);},"x");
+    const r=scSong(S,scTiming({t:S.T(14),to:11,bpm:58,vel:.36,slip:.35,slips:"h",breath:.6}),"lute");scPlay(S,r.ev,{g:"lute",course:1});}, // the hum opens into words
+  K8b:S=>{const st=scSongStart(S,2,1.2);S.G.hum.lvl=1;S.G.pad.lvl=1;scCut(S,["hum","pad"],1.5);
+    const r=scTiming({t:st,bpm:60,vel:.42,slip:.22,slips:"h",breath:.9});scPlay(S,r.ev,{g:"lute",course:1,bass:1});scPadSong(S,r,{vol:.032});
+    const r2=scTiming({t:r.end+3,bpm:66,vel:.46,breath:.35});scPlay(S,r2.ev,{g:"lute",course:1,bass:1});scPadSong(S,r2,{vol:.042}); // the second time she changes nothing
+    scQ(S,r2.end+.8,()=>scPadL(S,"pad",{prog:[SCC.Dm,SCC.Bb,SCC.Dm],durs:[12,15],vol:.045,start:S.T()}),"x","tail");},
+  K7c:S=>{S.G.hum.lvl=1;S.G.pad.lvl=1;S.song=null;scCut(S,["hum","pad","lute"],.45);scPadL(S,"pad",{prog:[SCC.F,SCC.C,SCC.Dm],durs:[9,12],vol:.05,now:S.T(1.5)});scLvl(S,"pad",.85,2);
+    scQ(S,S.T(5.5),x=>scPluck(S,"uke",81,x,{vel:.16,dur:1.2}),"uke");},
+  K8c:S=>{scLvl(S,"pad",.6,3);S.song=null;const prog=[SCC.Dm,SCC.Gm,SCC.Dm,SCC.A,SCC.Dm,SCC.Gm,SCC.A7,SCC.Dm],beat=60/84;let t=S.T(4); // a dance step, for court
+    prog.forEach((c,i)=>{const bt=beat*(1+(Math.random()-.5)*.06)*(i===prog.length-1?1.25:1),bm=c[0]>=52?c[0]-12:c[0];
+      scQ(S,t,x=>scPluck(S,"lute",bm,x,{vel:.3,dur:2.2}),"lute");scQ(S,t+bt+(Math.random()-.5)*.03,x=>scPluck(S,"lute",c[2],x,{vel:.17,dur:1.2}),"lute");
+      scQ(S,t+bt*2+(Math.random()-.5)*.03,x=>scPluck(S,"lute",c[3],x,{vel:.15,dur:1.2}),"lute");t+=bt*3;});
+    scQ(S,t+1,()=>scLvl(S,"pad",1,4),"x");},
+  K9:S=>{S.song=null;S.G.pad.lvl=1;scCut(S,["lute","uke","hum","pad"],1.1);scOff(S,"sparse");scPadL(S,"pad",{prog:[[45,50,52,57]],durs:[18,22],vol:.045,att:5,rel:6,start:S.T(2.8)});}, // two people in one body
+  K10a:S=>{const r=scTiming({t:S.T(4),from:35,to:48,bpm:52,vel:.3,breath:.6,jit:.03});scPlay(S,r.ev,{g:"lute",course:1}); // the last line, mostly breath
+    scQ(S,r.end,()=>scPadL(S,"pad",{prog:[SCC.Dm],now:S.T(),durs:[10,10],vol:.04}),"x","tail");
+    scQ(S,r.end+6,()=>{scOff(S,"pad",9);scGlass(S,81,S.T(),{att:3,hold:6,rel:8,vol:.01});},"x","tail");}, // the door doesn't quite close
+  K10b:S=>{scPadL(S,"pad",{prog:[[41,53,57,60,65]],now:S.T(3),durs:[9,9],vol:.055,att:4}); // cold, then warm
+    scQ(S,S.T(12),()=>scPadL(S,"pad",{prog:[SCC.Dm],now:S.T(),durs:[10,10],vol:.04}),"x","tail");scQ(S,S.T(20),()=>{scOff(S,"pad",9);scGlass(S,81,S.T(),{att:3,hold:6,rel:8,vol:.01});},"x","tail");},
+  K11:S=>{S.lp.frequency.setTargetAtTime(320,S.a.currentTime,1);scCut(S,["lute","uke","hum","pad","glass"],3.4);scOff(S,"sparse"); // the memory folds up like a letter
+    scQ(S,S.T(3.7),()=>{scMem(S,0,.05);scSpace(S,"dry");scThin(S,45,.05);},"x");
+    scQ(S,S.T(5.2),x=>scMotif(S,"uke",SCKATY,x,[.95,.9,1.15],{vel:.5,pan:0}),"x");   // and the song is back in the cave: dry, close, in tune
+    scPadL(S,"cold",{g:"str",prog:[[38,45,50]],durs:[22,28],vol:.028,att:8,rel:8,wave:"str",start:S.T(10)});},
+  K11b:S=>{scQ(S,S.T(12),x=>scPluck(S,"uke",74,x,{vel:.2,pan:0}),"uke");}},
+"s10-saphira":{ // near silence: a low violet drone, a slow pulse like a held heartbeat, glass when the eye wakes
+  S1:S=>{scSpace(S,"cave");scDrone(S,{vol:.045,start:S.T(3)});},
+  S2:S=>{scDrone(S,{vol:.07});scLvl(S,"drone",1.4,8);scPulse(S,{per:[2.5,3],depth:.55});scDrift(S,{lo:520,hi:900});scGlass(S,81,S.T(5),{att:1.6,hold:6,rel:5,vol:.02});},
+  S3a:S=>{scDrift(S,{lo:380,hi:620});scLvl(S,"drone",1.1,6);},
+  S3b:S=>{scDrift(S,{lo:560,hi:760});},
+  S3c:S=>{scCut(S,["drone"],.22);scGlass(S,88,S.T(3),{att:1.2,hold:3,rel:4,vol:.018});       // the hum stops; then the eye turns to you
+    scQ(S,S.T(5),()=>{scDrone(S,{vol:.06,start:S.T()});scPulse(S,{per:[2.6,3.1],depth:.45});scDrift(S,{lo:480,hi:820});},"x");},
+  S4:S=>{scDrift(S,{lo:600,hi:1050});scFilt(S,"swell",420,4);scPadL(S,"shadow",{g:"swell",prog:[[39,51]],durs:[20,26],vol:.03,att:7,rel:8,wave:"str",start:S.T(1)});scPulse(S,{per:[2.8,3.3]});},
+  S6:S=>{scPulse(S,{per:[3.2,3.8]});},
+  S6b:S=>{scPadL(S,"warm",{g:"pad",prog:[[53,57,60,65]],durs:[30,30],vol:.026,att:5,rel:2,start:S.T(1)});scQ(S,S.T(13),()=>scCut(S,["pad"],.35),"x");}, // shut like a drawer
+  S7b:S=>{if(S.L.pulse)S.L.pulse.skip=1;scLvl(S,"drone",1,3);},
+  S7c:S=>{scDrift(S,{lo:700,hi:1150});},
+  S8:S=>{scGlass(S,81,S.T(3),{att:3,hold:12,rel:6,vol:.014});},
+  S9a:S=>{scPulse(S,{lag:.4});scFilt(S,"drone",440,4);},                                  // a shadow a heartbeat late
+  S9b:S=>{scLvl(S,"drone",.85,4);scGlass(S,86,S.T(4),{att:2.5,hold:8,rel:6,vol:.016});},
+  "S10-1":S=>{const t=S.T(.4);[81,86,88].forEach((m,i)=>scGlass(S,m,t+i*.07,{att:.3,hold:5,rel:6,vol:.018}));scPulse(S,{lag:.45});},
+  "S10-2":S=>{scPulse(S,{lag:0});scGlass(S,81,S.T(1.5),{att:.8,hold:2,rel:4,vol:.012});},
+  "S10-3":S=>{scGlass(S,86,S.T(2),{att:2.6,hold:.6,rel:3.8,vol:.018});},                   // the slow blink
+  "S10-4":S=>{const t=S.T(.8);scPadNote(S,"str",45,t,4,{att:.6,rel:4,vol:.05,wave:"str"});[86,89,93,88].forEach((m,i)=>scGlass(S,m,t+1.2+i*.13,{att:.08,hold:.25,rel:2.2,vol:.011}));},
+  "S10-5":S=>{const t=S.T(1.2);scGlass(S,88,t,{att:.03,hold:.12,rel:.9,vol:.018});scGlass(S,81,t+.22,{att:.03,hold:.1,rel:1.4,vol:.016});}, // a wink
+  "S10-6":S=>{scGlass(S,81,S.T(3),{att:4,hold:14,rel:8,vol:.008});},
+  S11:S=>{scSwellUp(S,[38,39,45,50],S.T(1),{rise:7,vol:.055,f1:1100});scPulse(S,{depth:.75});scLvl(S,"glass",.3,4);},   // drawn out of her own shadow
+  S12:S=>{scSwellDown(S,9);scLvl(S,"drone",.7,6);scLvl(S,"glass",1,6);scPulse(S,{per:[3.6,4.3],depth:.5});scQ(S,S.T(12),()=>scLvl(S,"drone",.4,6),"x");},
+  S13:S=>{S.q.length=0;S.L={};scCut(S,Object.keys(S.G),.07);const p=S.caveR.gain,t=S.a.currentTime; // the cave's echo goes too
+    p.cancelScheduledValues(t);p.setValueAtTime(p.value,t);p.linearRampToValueAtTime(0,t+.07);p.setValueAtTime(0,t+3.6);p.linearRampToValueAtTime(1,t+3.8);}},                           // time again: all of it drops away at once
+"s10-stig":{ // the slow grey tide, a bowl for the scales, warming at the lamp
+  G1:S=>{scSpace(S,"cave");scTide(S,{prog:[38,45,50,57],vol:.06,start:S.T(.5),per:[10,14],lo:.45,hi:1,fLo:300,fHi:720});},
+  G2:S=>{scTide(S,{prog:[38,45,52,57],now:S.T(1),fHi:560});},
+  G3a:S=>{scTide(S,{prog:[38,45,50,57],now:S.T(1),lo:.8,hi:.95,per:[16,20],fLo:330,fHi:430});},
+  G4a:S=>{scTide(S,{lo:.88,hi:.94,per:[18,22]});scBowl(S,62,S.T(5),.06,{hold:9});},          // a pair of scales coming level
+  G3b:S=>{scTide(S,{lo:.3,hi:1.15,per:[9,12],fLo:280,fHi:900});},
+  G3b2:S=>{scTide(S,{prog:[38,45,50,53,57],now:S.T(2)});},
+  G4b:S=>{scTide(S,{big:1});},
+  G3c:S=>{scTide(S,{prog:[38,45,50,53,57],now:S.T(1),lo:.6,hi:.85,fHi:620});},
+  G4c:S=>{scTide(S,{big:.6});scPadL(S,"warm",{g:"pad",prog:[[53,57,60,65]],durs:[10,10],vol:.035,att:4,rel:6,start:S.T(8)});scQ(S,S.T(17),()=>scOff(S,"warm",6),"x");}, // so I can come back in
+  G5:S=>{scOff(S,"warm",4);scTide(S,{prog:[38,45,50,57],now:S.T(1),lo:.5,hi:.85,per:[12,16],fHi:520});},
+  "G6A-a":S=>{scBowl(S,62,S.T(3),.06,{hold:9});},                                          // the scales stay level
+  "G6A-b":S=>{scTide(S,{per:[12,12.4],lo:.4,hi:1,fHi:720});},                               // the same as it always has
+  "G6A-c":S=>{scTide(S,{big:.5});},
+  "G7-1":S=>{const t=S.T(1.5);scSwellUp(S,[50,51,57],t,{rise:6,vol:.04,f1:950});scQ(S,t+9,()=>{scSwellDown(S,4);scGlass(S,86,S.T(.5),{att:2,hold:5,rel:5,vol:.009});},"x");},
+  "G7-2":S=>{scLvl(S,"str",.25,8);scQ(S,S.T(10),()=>{scTide(S,{prog:[38,45,50,53,57],now:S.T(),lo:.5,hi:.8});scLvl(S,"str",1,6);},"x");},
+  "G7-3":S=>{scTide(S,{lo:.62,hi:.85,per:[7,8.2],fHi:640});},
+  "G7-4":S=>{scLvl(S,"str",.6,5);scPadL(S,"warm",{g:"pad",prog:[[62,65,69]],durs:[16,20],vol:.026,att:6,rel:8,start:S.T(2)});},
+  G8:S=>{scLvl(S,"str",1,4);scTide(S,{prog:[38,50,53,57,62],wave:"warm",now:S.T(.5),lo:.7,hi:1,per:[12,16],fLo:520,fHi:1150});
+    scPadL(S,"warm",{g:"pad",prog:[[53,57,60,65],SCC.Dm],durs:[12,16],vol:.035,att:5,rel:6,start:S.T(1.5)});}},
+"s10-together":{ // the fire's warmth: Matthew's lute, quiet and not quite steady; a pad when the crew writes its verse
+  T1:S=>{scSpace(S,"cave");scPadL(S,"cold",{g:"str",prog:[[38,45]],durs:[20,26],vol:.032,att:6,rel:8,wave:"str",start:S.T(1)});
+    scQ(S,S.T(9),x=>scPluck(S,"lute",45,x,{vel:.14,dur:1.4}),"lute");scQ(S,S.T(9.4),x=>scPluck(S,"lute",57,x,{vel:.08,mute:1}),"lute");},
+  T2:S=>{scPadL(S,"fire",{g:"pad",prog:[[41,53,57,60],[50,53,57,62]],durs:[12,16],vol:.026,att:6,rel:7,start:S.T(4.5)});scQ(S,S.T(4),()=>scOff(S,"cold",8),"x");},
+  T2b:S=>{scFrag(S,{start:S.T(5),wait:[9,18],vel:.32,slip:.14});},
+  T3:S=>{scOff(S,"frag");scCut(S,["lute"],1.6);scLvl(S,"pad",.7,3);},
+  T4:S=>{scLvl(S,"pad",1,4);scFrag(S,{start:S.T(8),wait:[14,28],vel:.28,slip:.14});},
+  T5a:S=>{scFilt(S,"pad",1400,4);scFrag(S,{});},
+  T5b:S=>{scOff(S,"frag");scCut(S,["lute"],.8);const t=S.T(3);[50,57,62,65].forEach((m,i)=>scQ(S,t+i*.05,x=>scPluck(S,"lute",m,x,{vel:.16,mute:1}),"lute")); // he can't lift it
+    scOff(S,"fire",5);scPadL(S,"verse",{g:"pad",prog:SCCHD,durs:[3.6,4.3],vol:.024,att:1.4,rel:2.4,start:S.T(5)});},
+  T6b:S=>{scOff(S,"verse",2.5);const r=scTiming({t:S.T(3),bpm:62,vel:.42,slip:.14,slips:"h",breath:.6,rit:1.4}),fix=e=>e.b>=30&&e.b<35;
+    scPlay(S,r.ev.filter(e=>!fix(e)),{g:"uke",pan:.15});scPadSong(S,r,{vol:.024});
+    const f=r.ev.filter(fix);if(f.length)scQ(S,f[0].t-.2,()=>scHum(S,f,{oct:-12,vol:.09,det:-4}),"hum");        // Matthew hums the fix
+    scQ(S,r.end+1,()=>scPadL(S,"fire",{g:"pad",prog:[SCC.Dm,[41,53,57,60]],durs:[12,16],vol:.026,att:4,rel:7,start:S.T()}),"x","tail");},
+  T5c:S=>{scFrag(S,{wait:[16,30]});},
+  T6c:S=>{scQ(S,S.T(10),()=>scPadL(S,"fire",{prog:[[41,53,57,60],[50,53,57,62]],now:S.T()}),"x","tail");},
+  T7:S=>{scFrag(S,{slip:.22,vel:.24,wait:[16,30]});},
+  T8a:S=>{scQ(S,S.T(2),x=>scPluck(S,"uke",74,x,{vel:.22}),"uke");},
+  T8b:S=>{const t=S.T(1.5);scPadNote(S,"str",38,t,5,{att:2.5,rel:5,vol:.04,wave:"warm"});scPadNote(S,"str",50,t,5,{att:2.5,rel:5,vol:.03,wave:"warm"});},
+  T8c:S=>{scGlass(S,81,S.T(2),{att:1.5,hold:2,rel:4,vol:.011});},
+  T8d:S=>{const t=S.T(3);scQ(S,t,x=>scPluck(S,"lute",50,x,{vel:.26}),"lute");scQ(S,t+.9,x=>scPluck(S,"lute",45,x,{vel:.2}),"lute");},
+  T9:S=>{scOff(S,"frag");scCut(S,["lute"],1.2);scFilt(S,"pad",800,5);scLvl(S,"pad",.7,4);       // his voice runs out; his hands go loose on the lute
+    const r=scTiming({t:S.T(3),to:11,bpm:56,vel:.28,breath:.6,rit:1.6}),ev=r.ev.slice(0,6),l=ev[ev.length-1];scPlay(S,ev,{g:"lute",course:1});
+    scQ(S,l.t+l.d*.6,()=>scCut(S,["pad"],.9),"x");scQ(S,l.t+l.d*.6+5,()=>scPadL(S,"fire",{g:"pad",prog:[SCC.Dm],durs:[9,9],vol:.024,att:3,rel:4,start:S.T()}),"x");}}
+};
+/* the Echo: a short phrase for how it ended, then a bed that dies away by itself. Returns when the phrase is done. */
+const SCEND={
+  "s10-katy":(S,ek,t)=>{
+    if(ek==="A"){const r=scTiming({t,to:23,bpm:70,vel:.42});scPlay(S,r.ev,{g:"uke",oct:12,pan:0});scPadSong(S,r,{vol:.032,fromBar:2});return r.end;}
+    if(ek==="B"){scQ(S,t-.3,()=>scMem(S,1,2),"x");const r=scTiming({t,from:35,to:48,bpm:56,vel:.4,breath:.5});scQ(S,t-.2,()=>scHum(S,r.ev,{vol:.07}),"hum");scPadSong(S,r,{vol:.028});scQ(S,r.end+1,()=>scMem(S,0,4),"x");return r.end;}
+    const e=scMotif(S,"uke",SCKATY,t,[.9,.85,1.2],{vel:.45,pan:0});
+    for(let i=0;i<6;i++)scQ(S,e-.6+i*(.26+Math.random()*.2),x=>scPluck(S,"uke",[69,74][i%2],x,{vel:.1,mute:1}),"uke");
+    scQ(S,e+2.6,x=>scPluck(S,"uke",74,x,{vel:.3}),"uke");return e+3;},
+  "s10-saphira":(S,ek,t)=>{const k=+ek||6,ms=k===4?[69,74,77,76]:[81,86,89,88],gap=k===3?1.5:k===5?.6:1.1;let tt=t;
+    ms.forEach((m,i)=>{scGlass(S,m,tt,{att:k===5?.06:.35,hold:i===3&&k===6?6:.9,rel:2.6,vol:.016});if(k===1)scGlass(S,m,tt+.42,{att:.35,hold:.6,rel:2,vol:.006});tt+=gap;});
+    if(k===2)scGlass(S,86,tt+.2,{att:.5,hold:2,rel:4,vol:.014});if(k===4)scPadNote(S,"str",45,t,6,{att:2,rel:5,vol:.04,wave:"str"});if(k===5)scGlass(S,88,tt-.25,{att:.03,hold:.1,rel:.8,vol:.011});
+    scDrone(S,{vol:.035,start:t});return tt+2;},
+  "s10-stig":(S,ek,t)=>{scBowl(S,62,t,.05,{hold:6});const e=scMotif(S,"lute",[57,62,65,64],t+2,[1.2,1.1,1.5],{vel:.3,course:1});
+    if(ek==="1")scPadL(S,"warm",{g:"pad",prog:[SCC.Dm],durs:[14,14],vol:.04,att:4,start:e});
+    else if(ek==="2")scTide(S,{prog:[38,45,50,53,57],start:e-2,vol:.05,big:.6,per:[12,14],lo:.4,hi:.9});
+    else if(ek==="3")scPadL(S,"warm",{g:"pad",prog:[[53,57,60,65]],durs:[14,14],vol:.035,att:4,start:e});
+    else scPadL(S,"warm",{g:"pad",prog:[[62,65,69]],durs:[16,16],vol:.026,att:5,start:e});
+    return e+2;},
+  "s10-together":(S,ek,t)=>{
+    if(ek==="B"){const ws=[[0,0,.07],[-12,-6,.06],[0,10,.05]];let end=t;                 // the crew hums it, badly, out of time
+      for(const [oc,det,v] of ws){const r=scTiming({t:t+Math.random()*.35,from:35,to:48,bpm:58+Math.random()*6,vel:.4,jit:.09});scQ(S,r.ev[0].t-.2,()=>scHum(S,r.ev,{oct:oc,det,vol:v}),"hum");end=Math.max(end,r.end);}
+      [50,57,62,65].forEach((m,i)=>scQ(S,end+1.2+i*.06,x=>scPluck(S,"lute",m,x,{vel:.18,course:1}),"lute"));       // his fingers move on the strings, once
+      scPadL(S,"fire",{g:"pad",prog:[SCC.Dm],durs:[14,14],vol:.022,att:4,start:t+1});return end+2;}
+    if(ek==="A"){[50,57,62,65].forEach((m,i)=>scQ(S,t+i*.07,x=>scPluck(S,"lute",m,x,{vel:.28,course:1}),"lute"));scPadL(S,"fire",{g:"pad",prog:[[41,53,57,60],SCC.Dm],durs:[10,12],vol:.026,att:3,start:t+.5});return t+4;}
+    scPadL(S,"fire",{g:"pad",prog:[[38,50,57,62]],durs:[14,14],vol:.028,att:3,start:t});return t+4;},
+  _:(S,ek,t)=>{let tt=t;[81,86,89,88].forEach(m=>{scGlass(S,m,tt,{att:.35,hold:.9,rel:2.6,vol:.016});tt+=1.1;});return tt;}};
+function scEcho(S,ek){if(ek==null&&IST&&IST.I)ek=(Object.entries(IST.I.endBy||{}).find(([k])=>IST.seen.includes(k))||[])[1];
+  S.end=1;S.fight=0;S.q.length=0;S.L={};S.swl=null;scCut(S,Object.keys(S.G),1.2);scMem(S,0,.4);scThin(S,45,.4);
+  const t=S.a.currentTime;S.master.gain.cancelScheduledValues(t);S.master.gain.setTargetAtTime(S.own?(SND.duck||1):1,t,.3);S.want=1;
+  if(S.id==="s10-katy")scSpace(S,"dry");
+  const end=(SCEND[S.id]||SCEND._)(S,ek,t+1.45);scQ(S,end+22,()=>{for(const k of Object.keys(S.L))scOff(S,k,9);},"x");scTick(S);}
+/* Send to Sam: Hans presses his seal. A soft press of wax and paper, then one warm rolled chord. Plays on its own, after the score. */
+function scSeal(){const a=ISC_CTX||pAc();if(!a)return;const M=iScoreInit(a,"seal",1),t=a.currentTime+.04;ISC_SHOTS.add(M);
+  const o=a.createOscillator(),g=a.createGain();o.setPeriodicWave(M.W.warm);o.frequency.setValueAtTime(130,t);o.frequency.exponentialRampToValueAtTime(70,t+.22);
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.32,t+.01);g.gain.setTargetAtTime(0,t+.02,.07);o.connect(g).connect(M.mix);scSrc(M,"",o,t,t+.6);
+  const n=a.createBufferSource(),nb=a.createBiquadFilter(),ng=a.createGain();n.buffer=scNoise(a);nb.type="bandpass";nb.frequency.value=900;nb.Q.value=.7;
+  ng.gain.setValueAtTime(0,t);ng.gain.linearRampToValueAtTime(.12,t+.006);ng.gain.setTargetAtTime(0,t+.01,.035);n.connect(nb).connect(ng).connect(M.mix);scSrc(M,"",n,t,t+.35);
+  [50,57,62,65].forEach((m,i)=>scPluck(M,"lute",m,t+.34+i*.05,{vel:[.3,.25,.23,.25][i],course:1,dur:3}));scGlass(M,81,t+.55,{att:.6,hold:.8,rel:3,vol:.008});
+  if(!M.test)setTimeout(()=>{ISC_SHOTS.delete(M);try{M.master.disconnect();}catch(e){}if(M.own)try{M.own.disconnect();}catch(e){}},7000);}
+/* the entry points (iCine calls iScore after iFoley; iSnd asks iScoreSnd first) */
+function iScore(id,pid){
+  if(!ISC_CTX&&(!opt.sound||!PLAY.on)){iScoreStop(true);return;}
+  const a=ISC_CTX||pAc();if(!a)return;
+  if(!ISC||ISC.id!==id||(!ISC.test&&ISC.ist!==IST)){iScoreStop(true);ISC=iScoreInit(a,id);}
+  const S=ISC;if(S.at===pid||S.end)return;S.at=pid;S.q=S.q.filter(e=>e.tag!=="tail");
+  const f=(ISCORE[id]||{})[pid];if(f)try{f(S,pid);}catch(e){console.error(e);}
+  scTick(S);}
+const ISC_MUSIC=new Set(["song","warm","fold","release","low"]);
+function iScoreSnd(k){
+  if(k==="seal"){scSeal();return true;}
+  if(k==="echo"){if(ISC){scEcho(ISC);return true;}return false;}
+  return ISC_MUSIC.has(k)&&!!(ISC||IST);} // the score plays these moments itself
+if(devPlay())window.__iscore={score:iScore,stop:iScoreStop,snd:iScoreSnd,echo:ek=>ISC&&scEcho(ISC,ek),tick:()=>ISC&&scTick(ISC),fight:on=>ISC&&scFightMode(ISC,on),
+  use:(ctx,raw)=>{ISC_CTX=ctx;ISC_RAW=raw?1:0;},st:()=>ISC,last:()=>ISC_LAST,shots:()=>[...ISC_SHOTS],map:ISCORE,song:SCSONG};
 
 /* ---- the hub: what this device may play ---- */
 async function interludeHub(){
