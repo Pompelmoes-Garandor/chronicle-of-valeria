@@ -510,9 +510,15 @@ body:not(.cinema) #cine{bottom:calc(var(--bot) + 96px)}
 .rollable .skl span:hover,.rollable .atk>div:hover,.rollable .sb-ab:hover{background:#c9a35c14}
 .roll-hint{font:400 11px/1.4 var(--mono);letter-spacing:.08em;color:var(--parch-dim);margin:4px 0 0}
 #dice{position:fixed;inset:0;z-index:30;pointer-events:none}
-#dice canvas{width:100%;height:100%;display:block}
-#dice .dn{position:absolute;transform:translate(-50%,-50%);font:600 22px/1 var(--mono);color:#1a1307;background:var(--parch);border-radius:999px;min-width:34px;padding:6px 8px;text-align:center;box-shadow:0 4px 14px #000a;animation:rise .2s ease-out}
+#dice::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 75% 42% at 50% 46%,#07080b70,#07080b30 55%,#07080b00 85%);opacity:0;transition:opacity .3s}
+#dice.rolling::before{opacity:1}
+#dice canvas{position:relative;width:100%;height:100%;display:block}
+#dice .dn{position:absolute;z-index:1;transform:translate(-50%,-50%);font:600 15px/1 var(--mono);color:#1a1307;background:var(--parch);border-radius:999px;min-width:26px;box-sizing:border-box;padding:5px 7px;text-align:center;box-shadow:0 3px 10px #000a;animation:dn-in .22s ease-out}
 #dice .dn.dmg{background:var(--ember)}
+#dice .dn.n20{background:var(--brass-hi);box-shadow:0 0 0 2px var(--ember),0 3px 10px #000a}
+#dice .dn.n1{background:var(--mist)}
+#dice .dn.tot{font:600 20px/1 var(--mono);color:var(--ember);background:var(--housing);border:1px solid var(--ember);padding:6px 11px;letter-spacing:.04em}
+@keyframes dn-in{from{opacity:0;transform:translate(-50%,-30%)}}
 #roll{position:fixed;z-index:31;left:50%;top:calc(var(--top) + 84px);transform:translateX(-50%);min-width:220px;max-width:calc(100vw - 32px);box-sizing:border-box;text-align:center;
   background:var(--brk),linear-gradient(#1b1f27,#13161c);border:1px solid var(--brass);border-radius:14px;padding:12px 18px 14px;box-shadow:0 20px 60px #000c;cursor:pointer}
 #roll .who{font:400 11px/1.4 var(--mono);letter-spacing:.1em;color:var(--brass)}
@@ -3355,41 +3361,347 @@ function d10Geo(){const v=[0,1,0, 0,-1,0];for(let k=0;k<5;k++){const a=k*72*D2R,
   const U=k=>2+2*(k%5),L=k=>3+2*(k%5),ix=[];for(let k=0;k<5;k++){ix.push(0,U(k),L(k), 0,L(k),U(k+1), 1,U(k+1),L(k), 1,L(k+1),U(k+1));}
   const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.Float32BufferAttribute(v,3));g.setIndex(ix);const n=g.toNonIndexed();n.computeVertexNormals();return n;}
 function dieGeo(sides){const g=sides===4?new THREE.TetrahedronGeometry(1):sides===6?new THREE.BoxGeometry(1.25,1.25,1.25):sides===8?new THREE.OctahedronGeometry(1):sides===10?d10Geo():sides===12?new THREE.DodecahedronGeometry(1):new THREE.IcosahedronGeometry(1);return g;}
+/* ---- STUB, replaced by dice-faces: the makeDie contract with blank faces, faceQuat from a face-normal table.
+   throwDice calls makeDie whenever it exists, so after the merge this block can simply be deleted. ---- */
+function diceStubDie(sides,{dmg=false}={}){
+  const g=dieGeo(sides), mat=new THREE.MeshStandardMaterial({color:dmg?0xe8743b:0xd8b673,metalness:.55,roughness:.32,flatShading:true});
+  const mesh=new THREE.Mesh(g,mat), eg=new THREE.EdgesGeometry(g,1), em=new THREE.LineBasicMaterial({color:0x1a1307}); mesh.add(new THREE.LineSegments(eg,em));
+  const P=g.attributes.position, ix=g.index?g.index.array:null, nt=(ix?ix.length:P.count)/3, at=k=>ix?ix[k]:k, a=new THREE.Vector3(), b=new THREE.Vector3(), c=new THREE.Vector3(), dirs=[], verts=[];
+  for(let i=0;i<P.count;i++){a.fromBufferAttribute(P,i);if(!verts.some(v=>v.distanceTo(a)<1e-3))verts.push(a.clone());}
+  if(sides===4) for(const v of verts) dirs.push(v.clone().normalize());
+  else for(let t=0;t<nt;t++){a.fromBufferAttribute(P,at(3*t));b.fromBufferAttribute(P,at(3*t+1)).sub(a);c.fromBufferAttribute(P,at(3*t+2)).sub(a);const n=b.cross(c).normalize();if(!dirs.some(d=>d.dot(n)>.999))dirs.push(n.clone());}
+  dirs.sort((p,q)=>q.y-p.y||q.x-p.x||q.z-p.z);
+  mesh.userData={radius:verts.reduce((m,v)=>Math.max(m,v.length()),0),sides,glow:on=>mat.emissive.setHex(on?0x5a3a10:0)};
+  return {mesh, faceQuat(v){const d=dirs[(v-1)%dirs.length], q=new THREE.Quaternion().setFromUnitVectors(d,new THREE.Vector3(0,0,1));
+      let r=null,best=-2; for(const x of verts){const k=x.dot(d)/x.length(); if(k<.999&&k>best){best=k;r=x;}}       // the nearest corner off the value points up
+      r=r.clone().applyQuaternion(q); return new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),Math.PI/2-Math.atan2(r.y,r.x)).multiply(q);},
+    dispose(){g.dispose();mat.dispose();eg.dispose();em.dispose();}};
+}
+
+/* ---- THE ROLL: thrown in from the side onto an invisible table seen from a little in front.
+   The whole throw is simulated first (gravity, bounces that lose energy, friction, tumbling over edges, dice bumping),
+   then played back, so it is smooth on any device and we know where each die stops. The rolled number comes up by a
+   symmetry of the die's own shape (the body that rolled is the same shape, only its faces swap) plus a slow turn about
+   the upright while it tumbles, so nothing snaps. A tap skips to the end. ---- */
+const DIE_K={4:1.22,6:1.04,8:1,10:1.02,12:1.02,20:1.1};                  // size on the table, per circumradius
+const DPH={g:190,dt:1/240,T:1.6,e:.32,mu:.42,ed:.5,mud:.18,ok:1.45,ang:0,stag:.09,rowStag:.05,rr:1.2,rr2:6,lt:.75,lk:10,side:6,crowd:3};   // radii and seconds; ok: every die still by then
+const dV=(x=0,y=0,z=0)=>new THREE.Vector3(x,y,z), dQ=()=>new THREE.Quaternion(), dY=dV(0,1,0);
+function diceTex(w,hgt,draw){const cv=document.createElement("canvas");cv.width=w;cv.height=hgt;draw(cv.getContext("2d"),w,hgt);const t=new THREE.CanvasTexture(cv);t.colorSpace=THREE.SRGBColorSpace;return t;}
+const dRad=(g,x,y,r,stops)=>{const q=g.createRadialGradient(x,y,0,x,y,r);for(const [o,c] of stops)q.addColorStop(o,c);g.fillStyle=q;g.fillRect(x-r,y-r,2*r,2*r);};
+function diceRoom(r){ // a warm room for the dice to reflect: a soft window behind and to the left, a lamp to the right, a dim fill from the viewer
+  const t=diceTex(256,128,(g,w,hh)=>{const gr=g.createLinearGradient(0,0,0,hh);gr.addColorStop(0,"#2e2a27");gr.addColorStop(.46,"#5a4a3b");gr.addColorStop(.54,"#251c15");gr.addColorStop(1,"#0b0806");g.fillStyle=gr;g.fillRect(0,0,w,hh);
+    g.save();g.translate(30,34);g.scale(1.7,1);dRad(g,0,0,26,[[0,"#fffaf0"],[.35,"#ffe9c8"],[1,"#ffe9c800"]]);g.restore();
+    dRad(g,98,44,16,[[0,"#ffd9a0"],[1,"#ffb86a00"]]); g.save();g.translate(192,30);g.scale(2.4,1);dRad(g,0,0,22,[[0,"#8d9ab855"],[1,"#8d9ab800"]]);g.restore();});
+  t.mapping=THREE.EquirectangularReflectionMapping; const pm=new THREE.PMREMGenerator(r), e=pm.fromEquirectangular(t).texture; pm.dispose(); t.dispose(); return e;}
 function diceStage(){
   if(DICE.r) return true;
-  try{ const el=document.getElementById("dice"); const r=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true}); r.setPixelRatio(Math.min(devicePixelRatio||1,2)); r.setClearColor(0,0); el.appendChild(r.domElement);
-    const sc=new THREE.Scene(); sc.add(new THREE.HemisphereLight(0xfff1d6,0x20242c,1.4)); const dl=new THREE.DirectionalLight(0xffffff,1.6); dl.position.set(3,6,8); sc.add(dl);
-    const cam=new THREE.PerspectiveCamera(35,1,.1,100); cam.position.set(0,0,14);
-    DICE.r=r; DICE.scene=sc; DICE.cam=cam; return true; }catch(e){ return false; } }
-function diceSize(){const w=innerWidth,h=innerHeight;DICE.r.setSize(w,h,false);DICE.cam.aspect=w/h;DICE.cam.updateProjectionMatrix();
-  const vh=2*Math.tan(DICE.cam.fov*D2R/2)*DICE.cam.position.z; return {hw:vh*DICE.cam.aspect/2,hh:vh/2};}
+  try{ const el=document.getElementById("dice"); const r=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true}); r.setPixelRatio(Math.min(devicePixelRatio||1,2)); r.setClearColor(0,0);
+    r.outputColorSpace=THREE.SRGBColorSpace; r.toneMapping=THREE.ACESFilmicToneMapping; r.toneMappingExposure=1.1; r.shadowMap.enabled=true; r.shadowMap.type=THREE.PCFShadowMap; el.appendChild(r.domElement);
+    const sc=new THREE.Scene(); sc.environment=diceRoom(r); sc.add(new THREE.HemisphereLight(0xfff1d6,0x1a1d24,.45));
+    const key=new THREE.DirectionalLight(0xfff0dc,2.3), s=key.shadow; key.castShadow=true; s.mapSize.set(SMALL?1024:2048,SMALL?1024:2048); s.radius=4; s.bias=-.0005; s.normalBias=.03; sc.add(key,key.target);
+    const rim=new THREE.DirectionalLight(0xa9bbff,.7); rim.position.set(4,3,-8); sc.add(rim);
+    const glint=new THREE.PointLight(0xffc870,0,0,2); sc.add(glint);                       // the natural 20's flash; always in the scene so it never recompiles a shader
+    const floor=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.ShadowMaterial({opacity:.36,depthWrite:false})); floor.rotation.x=-Math.PI/2; floor.receiveShadow=true; floor.renderOrder=-2; sc.add(floor);
+    const cam=new THREE.PerspectiveCamera(30,1,.5,600);
+    const tex={blob:diceTex(64,64,(g)=>dRad(g,32,32,32,[[0,"#000000d0"],[.45,"#00000070"],[1,"#00000000"]])),
+      glow:diceTex(128,128,(g)=>dRad(g,64,64,64,[[0,"#ffffff"],[.18,"#fff1c8e0"],[.45,"#ffb34a55"],[1,"#ff8a0000"]])),
+      rays:diceTex(256,256,(g)=>{g.translate(128,128);for(let i=0;i<14;i++){g.rotate(Math.PI*2/14+(i%2?.09:-.05));const L=70+(i*37%5)*12,q=g.createLinearGradient(0,0,L+50,0);q.addColorStop(0,"#fff4d0cc");q.addColorStop(1,"#ffb34a00");g.fillStyle=q;g.beginPath();g.moveTo(0,-3.5);g.lineTo(L+50,0);g.lineTo(0,3.5);g.fill();}}),
+      dust:diceTex(64,64,(g)=>{for(let i=0;i<9;i++)dRad(g,24+Math.random()*16,24+Math.random()*16,12+Math.random()*8,[[0,"#ffffff58"],[1,"#ffffff00"]]);}),   // puffs kept inside the square, so no hard edge
+      crack:diceTex(256,256,(g)=>{g.translate(128,128);g.strokeStyle="#000";g.lineCap="round";
+        const arm=(a,len,wd,d)=>{let x=0,y=0;g.lineWidth=wd;g.beginPath();g.moveTo(x,y);for(let s=0;s<6;s++){a+=(Math.random()-.5)*.7;x+=Math.cos(a)*len/6;y+=Math.sin(a)*len/6;g.lineTo(x,y);
+          if(d<1&&Math.random()<.35){g.stroke();g.save();g.translate(x,y);arm(a+(Math.random()<.5?-.8:.8),len*.4,wd*.6,d+1);g.restore();g.lineWidth=wd;g.beginPath();g.moveTo(x,y);}}g.stroke();};
+        for(let i=0;i<7;i++)arm(i*.9+Math.random()*.5,60+Math.random()*55,3.2,0);dRad(g,0,0,26,[[0,"#000000aa"],[1,"#00000000"]]);})};
+    // effect pieces made once and kept (hidden), so a natural 20 or 1 never stalls on a first-time shader compile
+    const add=o=>{o.visible=false;sc.add(o);return o;}, sp=(map,blend,c)=>add(new THREE.Sprite(new THREE.SpriteMaterial({map,color:c,blending:blend,transparent:true,depthWrite:false,toneMapped:false})));
+    const fx={flash:sp(tex.glow,THREE.AdditiveBlending,0xffffff), rays:sp(tex.rays,THREE.AdditiveBlending,0xffe2a0), dust:[], live:[]};
+    const NS=56, sg=new THREE.BufferGeometry(); sg.setAttribute("position",new THREE.BufferAttribute(new Float32Array(NS*3),3));
+    fx.sparks=add(new THREE.Points(sg,new THREE.PointsMaterial({map:tex.glow,color:0xffcf6a,size:.5,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false}))); fx.sv=new Float32Array(NS*3);
+    for(let i=0;i<14;i++) fx.dust.push(sp(tex.dust,THREE.NormalBlending,0xc4b498));
+    fx.crack=add(new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({map:tex.crack,color:0x1a120a,transparent:true,depthWrite:false,opacity:0})));fx.crack.rotation.x=-Math.PI/2;fx.crack.renderOrder=-1;
+    fx.flash.renderOrder=fx.rays.renderOrder=fx.sparks.renderOrder=5;
+    DICE.r=r; DICE.scene=sc; DICE.cam=cam; DICE.key=key; DICE.floor=floor; DICE.glint=glint; DICE.tex=tex; DICE.fx=fx; DICE.elev=62*D2R;
+    sc.traverse(o=>{if(o.isSprite||o.isPoints||o===fx.crack)o.visible=true;}); r.setSize(2,2,false); r.compile(sc,cam); sc.traverse(o=>{if(o.isSprite||o.isPoints||o===fx.crack)o.visible=false;});
+    return true; }catch(e){ return false; } }
+
+/* the camera and where each die comes to rest: plain dice in a row, damage dice in rows in front of them, all centred above the dock */
+function diceFrame(list){
+  const W=innerWidth,H=innerHeight,phone=W<=700, cam=DICE.cam, el=DICE.elev;
+  DICE.r.setSize(W,H,false);
+  const plain=[],dmg=[]; list.forEach((d,i)=>(d.dmg?dmg:plain).push(i));
+  const cols=Math.max(3,Math.min(8,Math.floor(W/(phone?84:118)))), rowsOf=a=>{const o=[];for(let i=0;i<a.length;i+=cols)o.push(a.slice(i,i+cols));return o;};
+  const rows=[...rowsOf(plain),...rowsOf(dmg)], nr=rows.length, wide=Math.max(1,...rows.map(r=>r.length)), SP=2.6, RG=nr>1?3.2:2.95, tot=dmg.length>1;
+  const f=(H/2)/Math.tan(cam.fov*D2R/2);
+  const rpx=Math.min(phone?Math.min(W*.13,H*.068):Math.min(62,H*.07), .9*W/(wide*SP+.3), .46*H/(nr*RG*.88+(tot?1.3:0)+.5));
+  const dist=f/rpx, fy=phone?.45:.47;
+  cam.position.set(0,Math.sin(el)*dist,Math.cos(el)*dist); cam.up.set(0,1,0); cam.lookAt(0,0,0); cam.aspect=W/H;
+  cam.setViewOffset(W,H,0,(.5-fy)*H,W,H); cam.updateProjectionMatrix(); cam.updateMatrixWorld();
+  const z0=-(nr-1)*RG/2-(tot?.55:0), slots=[];
+  rows.forEach((row,ri)=>row.forEach((di,k)=>{slots[di]=dV((k-(row.length-1)/2)*SP+(Math.random()-.5)*.3,0,z0+ri*RG+(Math.random()-.5)*.3);}));
+  const th=Math.tan(cam.fov*D2R/2), edge=z=>(dist-z*Math.cos(el))*th*W/H;   // half the visible table at depth z
+  const S=Math.max(12,edge(-12)+6); DICE.floor.scale.set(S*2.4,S*2.4,1);
+  const key=DICE.key, sc=key.shadow.camera; key.position.set(-.5,1,.42).normalize().multiplyScalar(60); key.target.position.set(0,0,0);
+  sc.left=-S;sc.right=S;sc.top=S;sc.bottom=-S;sc.near=1;sc.far=140;sc.updateProjectionMatrix();
+  const vis=(p,r)=>{const v=p.clone().project(cam), d=dist-p.z*Math.cos(el)-p.y*Math.sin(el), rx=r/(Math.max(.5,d)*th*W/H), ry=r/(Math.max(.5,d)*th);return Math.abs(v.x)<1+rx&&Math.abs(v.y)<1+ry;};
+  return {W,H,dist,fy,slots,edge,vis,tot,side:Math.random()<.5?-1:1};
+}
+
+/* the die's own shape for the physics, read from its mesh: the value directions (from faceQuat), the face planes, the corners */
+function dieHull(die,sides){
+  const u=[]; for(let v=1;v<=sides;v++) u.push(dV(0,0,1).applyQuaternion(die.faceQuat(v).clone().invert()));
+  const pts=[], m=new THREE.Matrix4(), x=dV(); die.mesh.updateMatrixWorld(true); const inv=die.mesh.matrixWorld.clone().invert();
+  die.mesh.traverse(o=>{if(!o.isMesh||o.userData.fx||!o.geometry?.attributes?.position)return;m.multiplyMatrices(inv,o.matrixWorld);const P=o.geometry.attributes.position;for(let i=0;i<P.count;i++)pts.push(x.fromBufferAttribute(P,i).applyMatrix4(m).clone());});
+  const R=pts.reduce((a,p)=>Math.max(a,p.length()),0)||1;
+  const N=sides===4?u.map(d=>d.clone().negate()):u, hgt=N.map(n=>pts.reduce((a,p)=>Math.max(a,p.dot(n)),-9)), C=[], A=dV(), B=dV(), D=dV();
+  for(let i=0;i<N.length;i++)for(let j=i+1;j<N.length;j++)for(let k=j+1;k<N.length;k++){        // corners: three face planes meet, inside all the others
+    A.crossVectors(N[j],N[k]); const det=N[i].dot(A); if(Math.abs(det)<1e-4) continue;
+    const p=A.clone().multiplyScalar(hgt[i]).add(B.crossVectors(N[k],N[i]).multiplyScalar(hgt[j])).add(D.crossVectors(N[i],N[j]).multiplyScalar(hgt[k])).divideScalar(det);
+    if(p.length()>R*2.2||N.some((n,l)=>p.dot(n)>hgt[l]+1e-3*R)||C.some(c=>c.distanceTo(p)<1e-2*R)) continue; C.push(p);}
+  if(C.length<4) for(const p of pts) if(p.length()>.9*R&&!C.some(c=>c.distanceTo(p)<.2*R)) C.push(p);   // an odd mesh: its outermost points
+  return {u,C,R,rIn:Math.min(...hgt)};
+}
+const dFrame=(a,b)=>{const y=b.clone().addScaledVector(a,-b.dot(a)).normalize();return new THREE.Matrix4().makeBasis(a,y,a.clone().cross(y));};
+function dieSyms(H,T,F){ // the turns of the die's shape that carry value T's direction onto F's (so T comes up where F landed)
+  const {u,C,R}=H, uT=u[T-1], uF=u[F-1]; let m=null,c=-2;
+  u.forEach((d,i)=>{const k=d.dot(uT);if(i!==T-1&&k<.999&&k>c){c=k;m=d;}});
+  const out=[], At=dFrame(uT,m).transpose(), tol=(.03*R)**2, q=dV();
+  u.forEach((d,j)=>{if(j===F-1||Math.abs(d.dot(uF)-c)>.02)return; const M=dFrame(uF,d).multiply(At);
+    if(C.every(p=>{q.copy(p).applyMatrix4(M);return C.some(r=>r.distanceToSquared(q)<tol);})) out.push(dQ().setFromRotationMatrix(M));});
+  return out;
+}
+
+/* the physics: rigid polyhedra on a plane (impulses at the corners, so contact turns into roll), dice as spheres against each other */
+function diceSim(B){
+  const {g,dt,T,e,mu,ed,mud}=DPH, N=Math.round(T/dt)+1, n=B.length, fr=B.map(()=>new Float32Array(N*7)), ev=[], CT=[];
+  for(const b of B){b.sleep=-1;b.calm=0;b.Jp=0;b.es=-99;b.nc=0;b.wr=new Float64Array(b.h.length);}
+  let s=0;
+  for(;s<N;s++){
+    for(let i=0;i<n;i++){const b=B[i],f=fr[i],o=s*7;f[o]=b.p.x;f[o+1]=b.p.y;f[o+2]=b.p.z;f[o+3]=b.q.x;f[o+4]=b.q.y;f[o+5]=b.q.z;f[o+6]=b.q.w;}
+    if(s===N-1) break; const t=s*dt; let awake=0;
+    for(let i=0;i<n;i++){const b=B[i]; if(b.sleep>=0) continue; awake++; if(t<b.t0) continue;          // t0: thrown a moment after the others
+      const p=b.p,v=b.v,w=b.w,q=b.q,iI=b.iI,h=b.h,wr=b.wr;
+      v.y-=g*dt; p.x+=v.x*dt; p.y+=v.y*dt; p.z+=v.z*dt;
+      {const qx=q.x,qy=q.y,qz=q.z,qw=q.w,k=.5*dt;q.set(qx+k*(w.x*qw+w.y*qz-w.z*qy),qy+k*(w.y*qw+w.z*qx-w.x*qz),qz+k*(w.z*qw+w.x*qy-w.y*qx),qw-k*(w.x*qx+w.y*qy+w.z*qz)).normalize();}
+      const qx=q.x,qy=q.y,qz=q.z,qw=q.w; let mn=9;
+      for(let k=0;k<h.length;k+=3){const hx=h[k],hy=h[k+1],hz=h[k+2],tx=2*(qy*hz-qz*hy),ty=2*(qz*hx-qx*hz),tz=2*(qx*hy-qy*hx);
+        wr[k]=hx+qw*tx+qy*tz-qz*ty; wr[k+1]=hy+qw*ty+qz*tx-qx*tz; wr[k+2]=hz+qw*tz+qx*ty-qy*tx; if(wr[k+1]<mn)mn=wr[k+1];}
+      b.nc=0; if(p.y+mn>=0){b.Jp=0;continue;}
+      p.y=-mn; CT.length=0;
+      for(let k=0;k<h.length;k+=3) if(wr[k+1]-mn<.012){const rx=wr[k],ry=wr[k+1],rz=wr[k+2],vn0=v.y+w.z*rx-w.x*rz;
+        CT.push({rx,ry,rz,kn:1+iI*(rx*rx+rz*rz),tg:vn0<-1.5?-e*vn0:0,an:0,ax:0,az:0});}
+      for(let it=0;it<6;it++) for(const c of CT){const {rx,ry,rz}=c;
+        let dj=(c.tg-(v.y+w.z*rx-w.x*rz))/c.kn, na=Math.max(0,c.an+dj); dj=na-c.an; c.an=na; v.y+=dj; w.x-=iI*dj*rz; w.z+=iI*dj*rx;
+        const vx=v.x+w.y*rz-w.z*ry, vz=v.z+w.x*ry-w.y*rx, vt=Math.hypot(vx,vz); if(vt<1e-6) continue;          // friction along the slip, the same whichever way the die faces
+        const tx=vx/vt, tz=vz/vt, cr=rz*tx-rx*tz, kt=1+iI*(ry*ry+cr*cr); let nx=c.ax-tx*vt/kt, nz=c.az-tz*vt/kt; const lim=mu*c.an, L=Math.hypot(nx,nz); if(L>lim){nx*=lim/L;nz*=lim/L;}
+        const jx=nx-c.ax, jz=nz-c.az; c.ax=nx; c.az=nz; v.x+=jx; v.z+=jz; w.y+=iI*(jx*rz-jz*rx); w.z-=iI*jx*ry; w.x+=iI*jz*ry;}
+      let J=0; for(const c of CT) J+=c.an; b.nc=CT.length;
+      if(J>1.4&&b.Jp<.5*J&&s-b.es>8){ev.push({t,i,k:"t",J});b.es=s;} b.Jp=J;
+      const sp=1-3*dt, rl=1-(DPH.rr+DPH.rr2*Math.max(0,t-.5))*b.rk*dt; w.x*=rl; w.z*=rl; w.y*=sp;             // rolling and spinning friction, stronger as the throw ages
+      if(t>DPH.lt&&b.nc>=3){const a=1-DPH.lk*(t-DPH.lt)*dt; v.multiplyScalar(a); w.multiplyScalar(a);}     // late: a flat die stops sliding
+    }
+    for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){const A=B[i],C=B[j]; if(A.sleep>=0&&C.sleep>=0||t<A.t0||t<C.t0) continue;
+      const dx=C.p.x-A.p.x,dy=C.p.y-A.p.y,dz=C.p.z-A.p.z,rr=A.rb+C.rb,d2=dx*dx+dy*dy+dz*dz; if(d2>=rr*rr||d2<1e-8) continue;
+      const d=Math.sqrt(d2),nx=dx/d,ny=dy/d,nz=dz/d,pen=(rr-d)/2; A.p.x-=nx*pen;A.p.y-=ny*pen;A.p.z-=nz*pen;C.p.x+=nx*pen;C.p.y+=ny*pen;C.p.z+=nz*pen;
+      const ra=A.rb,rb=C.rb, ax=nx*ra,ay=ny*ra,az=nz*ra, bx=-nx*rb,by=-ny*rb,bz=-nz*rb, Aw=A.w,Cw=C.w;
+      const vrx=(C.v.x+Cw.y*bz-Cw.z*by)-(A.v.x+Aw.y*az-Aw.z*ay), vry=(C.v.y+Cw.z*bx-Cw.x*bz)-(A.v.y+Aw.z*ax-Aw.x*az), vrz=(C.v.z+Cw.x*by-Cw.y*bx)-(A.v.z+Aw.x*ay-Aw.y*ax);
+      const vn=vrx*nx+vry*ny+vrz*nz; if(vn>=0) continue;
+      const jn=-(1+ed)*vn/2; A.v.x-=nx*jn;A.v.y-=ny*jn;A.v.z-=nz*jn; C.v.x+=nx*jn;C.v.y+=ny*jn;C.v.z+=nz*jn;
+      let tx=vrx-vn*nx,ty=vry-vn*ny,tz=vrz-vn*nz; const tl=Math.hypot(tx,ty,tz);
+      if(tl>1e-3){tx/=tl;ty/=tl;tz/=tl;const jt=Math.min(tl/(2+A.iI*ra*ra+C.iI*rb*rb),mud*jn);
+        A.v.x+=tx*jt;A.v.y+=ty*jt;A.v.z+=tz*jt; C.v.x-=tx*jt;C.v.y-=ty*jt;C.v.z-=tz*jt;
+        A.w.x+=A.iI*jt*(ay*tz-az*ty);A.w.y+=A.iI*jt*(az*tx-ax*tz);A.w.z+=A.iI*jt*(ax*ty-ay*tx);
+        C.w.x-=C.iI*jt*(by*tz-bz*ty);C.w.y-=C.iI*jt*(bz*tx-bx*tz);C.w.z-=C.iI*jt*(bx*ty-by*tx);}
+      if(jn>1)ev.push({t:s*dt,i,j,k:"d",J:jn}); A.sleep=C.sleep=-1;}
+    for(const b of B){ if(b.sleep>=0||t<b.t0) continue;
+      if(b.nc>=3&&b.v.lengthSq()<.05&&b.w.lengthSq()<.35){b.calm+=dt;if(b.calm>.08){b.sleep=(s+1)*dt;b.v.set(0,0,0);b.w.set(0,0,0);}} else b.calm=0;}
+    if(!awake) break;
+  }
+  for(let i=0;i<n;i++){const f=fr[i];for(let k=s+1;k<N;k++)f.copyWithin(k*7,s*7,s*7+7);}   // everyone still: hold the last pose
+  return {fr,ev,N,sleep:B.map(b=>b.sleep)};
+}
+
+/* aim the throw, from off screen at the side. For the dice thrown together: pass 1 scales the speed so each die travels
+   far enough, pass 2 shifts each start so the die stops in its place, pass 3 turns each die's whole throw about the upright
+   through its place (on a flat table that only turns the outcome), so it lands with the number reading the right way up.
+   A few dice fly together and may bump (what a bump leaves over is steered while they tumble); a crowd gets a clear path
+   per die, thrown a moment apart, so each one lands exactly. */
+function dicePlan(D,L){
+  const t0=performance.now(), {T,ok}=DPH; let tries=0;
+  const body=(d,o)=>({p:o.p.clone(),v:o.v.clone(),q:o.q.clone(),w:o.w.clone(),h:d.h,rb:d.rb,iI:d.iI,t0:o.t0,rk:d.d.sides>=12?1.4:1}), end=(res,k)=>{const n=(res.N-1)*7;return [res.fr[k][n],res.fr[k][n+2]];};
+  const setup=(side,stg=DPH.stag,rsg=DPH.rowStag,own=false)=>{const th=DPH.ang*(.7+Math.random()*.6), dir=dV(-side*Math.cos(th),0,-Math.sin(th)), nrm=dV(-dir.z,0,dir.x);   // the way the handful travels
+    // dice whose paths share a lane leave one after another, the one going furthest first; each row a moment after the one beyond it
+    const lag=D.map((d,i)=>{const s=L.slots[i];let r=0;D.forEach((e,j)=>{const o=L.slots[j].clone().sub(s);if(j!==i&&Math.abs(o.dot(nrm))<2.2&&o.dot(dir)>.3)r++;});return r;});
+    const rows=[...new Set(L.slots.map(s=>Math.round(s.z*10)))].sort((a,b)=>a-b), st=Math.min(stg,.3/Math.max(1,...lag));
+    const reach=D.map((d,i)=>{let r=4;while(r<80&&L.vis(L.slots[i].clone().addScaledVector(dir,-r),2.6*d.k))r+=.5;return r;}), far=Math.max(...reach), sp=.42+Math.random()*.14;
+    const Tr=reach.map(r=>(own?r:far)+.4+Math.random()*.8);   // together: the group keeps its shape; alone: each die starts just off screen
+    return {side,dir,lag,cap:own?.35:9,Tr,V:Tr.map(r=>r/sp),t0:D.map((d,i)=>lag[i]*st+rows.indexOf(Math.round(L.slots[i].z*10))*rsg),order:D.map((d,i)=>i).sort((a,b)=>lag[a]-lag[b])};};
+  const aim=(ids,S,later=0)=>{ // throw dice ids together; their paths come back aimed at their places
+    const {dir}=S;
+    const init=ids.map(i=>{const s=L.slots[i], u1=Math.random(),u2=Math.random()*6.2832,u3=Math.random()*6.2832;
+      const w=dV(0,1,0).cross(dir).multiplyScalar(10+Math.random()*12).addScaledVector(dY,(Math.random()-.5)*16).addScaledVector(dir,(Math.random()-.5)*DPH.side);   // mostly a forward roll and a twist: little sideways wander
+      return {p:s.clone().addScaledVector(dir,-S.Tr[i]-Math.random()*.5).add(dV(0,1.6+Math.random()*2.4,0)), v:dir.clone().multiplyScalar(S.V[i]*(.94+Math.random()*.12)).add(dV(0,-2+Math.random()*5,0)),
+        q:new THREE.Quaternion(Math.sqrt(1-u1)*Math.sin(u2),Math.sqrt(1-u1)*Math.cos(u2),Math.sqrt(u1)*Math.sin(u3),Math.sqrt(u1)*Math.cos(u3)), w, t0:S.t0[i]+later+Math.random()*.02};});
+    let res=null, over=false;   // over: the throw would have to turn more than a crowd allows (paths would cross)
+    for(let pass=0;pass<4;pass++){
+      res=diceSim(ids.map((i,k)=>body(D[i],init[k])));
+      if(pass===3) break;
+      init.forEach((o,k)=>{const i=ids[k], [ex,ez]=end(res,k), s=L.slots[i];
+        if(pass===0){const need=(s.x-o.p.x)*dir.x+(s.z-o.p.z)*dir.z, went=(ex-o.p.x)*dir.x+(ez-o.p.z)*dir.z, f=Math.min(1.9,Math.max(.55,need/Math.max(.4,went))); o.v.x*=f; o.v.z*=f;}
+        else if(pass===1){o.p.x+=s.x-ex; o.p.z+=s.z-ez;}
+        else {const a0=diceLand(D[i],res,k).dp, a=Math.abs(a0)<=S.cap||Math.abs(a0)>=Math.PI-S.cap?a0:Math.max(-S.cap,Math.min(S.cap,a0)); if(a!==a0)over=true; /* near 180: from the other side, along its own row */ if(Math.abs(a)>.002){const R=dQ().setFromAxisAngle(dY,a); o.p.sub(s).applyQuaternion(R).add(s); o.v.applyQuaternion(R); o.w.applyQuaternion(R); o.q.premultiply(R);}}});
+    }
+    const settle=res.sleep.map(t=>t<0?T:t), late=settle.some(t=>t>ok), seen=init.some((o,k)=>L.vis(o.p,D[ids[k]].R*D[ids[k]].k));
+    const resid=Math.max(...ids.map((i,k)=>{const [ex,ez]=end(res,k);return Math.hypot(L.slots[i].x-ex,L.slots[i].z-ez);})), turn=Math.max(...ids.map((i,k)=>Math.abs(diceLand(D[i],res,k).dp)))/D2R;
+    return {ids,res,init,late,seen,resid,turn,score:(late?10:0)+(seen?4:0)+resid+turn/30+Math.max(...settle)*.5,good:!late&&!seen&&!over&&resid<1&&turn<25};};
+  let best=null; const all=D.map((d,i)=>i);
+  if(D.length<=DPH.crowd) for(;tries<3&&!(best&&best.good);tries++){const r=aim(all,setup(tries%2?-L.side:L.side)); if(!best||r.score<best.score) best=r;}
+  if(!best||!best.good){ // a crowd, or a handful that kept bumping: one clear path per die, each sent off once its way is clear
+    const S=setup(L.side,0,0,true), N=Math.round(T/DPH.dt)+1, slow={12:0,20:1,10:2,6:3,8:4,4:5}, paths=[];
+    const later=(r,tau)=>{const n=Math.round(tau/DPH.dt), f=r.res.fr[0], g=new Float32Array(f.length); for(let k=0;k<N;k++)g.set(f.subarray(Math.max(0,k-n)*7,Math.max(0,k-n)*7+7),k*7);   // the same throw, tau later
+      return {i:r.ids[0],r,fr:g,t0:tau,sleep:r.res.sleep[0]<0?-1:Math.min(T,r.res.sleep[0]+tau),ev:r.res.ev.map(e=>Object.assign({},e,{t:e.t+tau,i:r.ids[0]})),init:Object.assign({},r.init[0],{t0:r.init[0].t0+tau})};};
+    const near=(A,B)=>{const a=A.fr,b=B.fr,r=D[A.i].rb+D[B.i].rb+.1;          // a die still waiting off screen touches nothing; off screen they may pass through each other: nobody sees it
+      for(let o=Math.ceil(Math.max(A.init.t0,B.init.t0)/DPH.dt)*7;o<a.length;o+=14){const dx=a[o]-b[o],dy=a[o+1]-b[o+1],dz=a[o+2]-b[o+2];if(dx*dx+dy*dy+dz*dz<r*r&&L.vis(dV(a[o],a[o+1],a[o+2]),r))return true;}return false;};
+    for(const i of all.slice().sort((a,b)=>S.lag[a]-S.lag[b]||slow[D[a].d.sides]-slow[D[b].d.sides])){let pick=null;   // leaders first, then the slow rollers
+      for(let a=0;a<6&&!(pick&&pick.ok);a++){tries++; const r=aim([i],S), rel=r.res.sleep[0]<0?T:r.res.sleep[0]; let c=null;
+        for(let tau=0;tau<=DPH.ok-rel+1e-6;tau+=.02){const x=later(r,tau); if(!paths.some(g=>near(g,x))){c=x;break;}}
+        if(c){c.ok=r.good; c.score=r.score+c.t0;} else {c=later(r,0); c.ok=false; c.score=r.score+20;}
+        if(!pick||c.score<pick.score) pick=c;}
+      paths.push(pick);}
+    const at=[]; paths.forEach(g=>at[g.i]=g); const ev=paths.flatMap(g=>g.ev).sort((x,y)=>x.t-y.t);
+    best={res:{fr:at.map(g=>g.fr),ev,N,sleep:at.map(g=>g.sleep)},init:at.map(g=>g.init),late:paths.some(g=>g.r.late||g.sleep<0||g.sleep>DPH.ok),seen:paths.some(g=>g.r.seen),
+      resid:Math.max(...paths.map(g=>g.r.resid)),turn:Math.max(...paths.map(g=>g.r.turn)),solo:true,good:paths.every(g=>g.ok)};}
+  best.ms=Math.round(performance.now()-t0); best.tries=tries; return best;
+}
+
+/* where die i of a simulated throw stopped, which value it shows, and the shape symmetry and turn that put the rolled value up, readable */
+function diceLand(d,res,i){
+  const {dt,T}=DPH, f=res.fr[i], tR=res.sleep[i]<0?T:res.sleep[i], k=Math.min(res.N-1,Math.round(tR/dt))*7, H=d.H;
+  const qe=dQ().fromArray(f,k+3), up=dY.clone().applyQuaternion(qe.clone().invert());
+  let F=1,bd=-2; H.u.forEach((x,j)=>{const c=x.dot(up);if(c>bd){bd=c;F=j+1;}});
+  const base=d.base||(d.base=dQ().setFromAxisAngle(dV(1,0,0),-Math.PI/2).multiply(d.die.faceQuat(d.v))), bi=base.clone().invert();
+  let Ds=dieSyms(H,d.v,F), sym=Ds.length>0; if(!sym) Ds=[dQ().setFromUnitVectors(H.u[d.v-1],H.u[F-1])];
+  const YAW=(d.d.sides===10?35:20)*D2R, wrap=a=>Math.atan2(Math.sin(a),Math.cos(a)), x=dV(); let pick=null;
+  for(const D of Ds){const M=qe.clone().multiply(D).multiply(bi); x.set(1,0,0).applyQuaternion(M); const be=Math.atan2(-x.z,x.x), bt=Math.max(-YAW,Math.min(YAW,be)), dp=wrap(bt-be);
+    if(!pick||Math.abs(dp)<Math.abs(pick.dp)) pick={D,be,bt,dp};}
+  return {tR,qe,pe:dV(f[k],f[k+1],f[k+2]),F,sym,base,...pick};
+}
+/* from the simulated path to the one we show: the landing face swapped for the rolled one, the last of the turn and place steered in, then still */
+function diceTrack(d,res,i,slot){
+  const l=diceLand(d,res,i), x=dV();
+  const goal=dQ().setFromAxisAngle(dY,l.bt).multiply(l.base), now=dQ().setFromAxisAngle(dY,l.dp).multiply(l.qe).multiply(l.D), fix=goal.clone().multiply(now.clone().invert());
+  let mn=9; for(const c of d.H.C){x.copy(c).multiplyScalar(d.k).applyQuaternion(goal); mn=Math.min(mn,x.y);}
+  return {f:res.fr[i],N:res.N,tR:l.tR,D:l.D,dp:l.dp,fix,goal,yRest:-mn,drift:dV(slot.x-l.pe.x,0,slot.z-l.pe.z),dy:-mn-l.pe.y,F:l.F,sym:l.sym,fixDeg:2*Math.acos(Math.min(1,Math.abs(fix.w)))/D2R};
+}
+const dS={a:[0,0,0,1],q:dQ(),y:dQ()}, dSmooth=x=>x<=0?0:x>=1?1:x*x*(3-2*x);
+function dicePose(tk,t,P,Q){ // where die tk is at time t (seconds into the throw)
+  if(t>=tk.tR){const k=(tk.N-1)*7; P.set(tk.f[k]+tk.drift.x,tk.yRest,tk.f[k+2]+tk.drift.z); Q.copy(tk.goal); return;}
+  const f=tk.f, s=Math.max(0,t)/DPH.dt, i0=Math.min(tk.N-2,Math.floor(s)), a=Math.min(1,s-i0), o=i0*7, o2=o+7;
+  const A=dSmooth(t/(tk.tR*.85)), C=dSmooth((t-(tk.tR-.24))/.24);
+  P.set(f[o]+(f[o2]-f[o])*a+tk.drift.x*A, f[o+1]+(f[o2+1]-f[o+1])*a+tk.dy*C, f[o+2]+(f[o2+2]-f[o+2])*a+tk.drift.z*A);
+  THREE.Quaternion.slerpFlat(dS.a,0,f,o+3,f,o2+3,a); dS.q.fromArray(dS.a);
+  Q.identity().slerp(tk.fix,C).multiply(dS.y.setFromAxisAngle(dY,tk.dp*A)).multiply(dS.q).multiply(tk.D);
+}
+
+/* natural 20: a burst of light, sparks, glowing numbers. natural 1: a dull thud, a puff of dust, a crack in the table */
+function diceFxStart(kind,pos,k,now){ // now: the throw's clock in s, so a held or skipped throw shows the same effect
+  const fx=DICE.fx;
+  if(kind===20){ fx.live.push({kind,t0:now,pos:pos.clone(),k});
+    const sv=fx.sv, P=fx.sparks.geometry.attributes.position.array;
+    for(let i=0;i<sv.length;i+=3){const a=Math.random()*6.2832,u=Math.random()*.9+.1,sp=(4+Math.random()*7)*k;sv[i]=Math.cos(a)*sp*(1-u*.5);sv[i+1]=u*sp*1.2+2;sv[i+2]=Math.sin(a)*sp*(1-u*.5);P[i]=pos.x;P[i+1]=pos.y+.6*k;P[i+2]=pos.z;}
+    fx.sparks.geometry.attributes.position.needsUpdate=true; diceSting(20);}
+  else { fx.live.push({kind,t0:now,pos:pos.clone(),k,shake:1});
+    fx.dust.forEach((s,i)=>{const a=i/fx.dust.length*6.2832+Math.random()*.4;s.userData.v=dV(Math.cos(a)*(1.6+Math.random()*1.6),.5+Math.random()*.9,Math.sin(a)*(1.6+Math.random()*1.6)).multiplyScalar(k);s.userData.d=Math.random()*.08;});
+    diceSting(1);}
+}
+function diceFxTick(now){ // returns true while an effect is still playing
+  const fx=DICE.fx, r=DICE.r; let on=false, exp=1.1, glint=0, shake=0;
+  fx.flash.visible=fx.rays.visible=fx.sparks.visible=fx.crack.visible=false; fx.dust.forEach(s=>s.visible=false);
+  fx.live=fx.live.filter(e=>now-e.t0<(e.kind===20?1.3:1.6));
+  for(const e of fx.live){const t=now-e.t0, p=e.pos, k=e.k; on=true;
+    if(e.kind===20){const a=Math.min(1,t/.08)*Math.max(0,1-t/.75);
+      fx.flash.visible=true; fx.flash.position.set(p.x,p.y+.4*k,p.z); fx.flash.scale.setScalar(k*(2.5+9*dSmooth(t/.5))); fx.flash.material.opacity=a;
+      fx.rays.visible=t<1; fx.rays.position.copy(fx.flash.position); fx.rays.scale.setScalar(k*(4+8*dSmooth(t/.7))); fx.rays.material.rotation=t*.5; fx.rays.material.opacity=Math.min(1,t/.1)*Math.max(0,1-t/1)*.9;
+      fx.sparks.visible=true; fx.sparks.material.opacity=Math.max(0,1-t/1.2); fx.sparks.material.size=.42*k;
+      const P=fx.sparks.geometry.attributes.position.array, sv=fx.sv, dt=Math.min(.05,t-(e.lt||0)); e.lt=t;
+      for(let i=0;i<P.length;i+=3){sv[i+1]-=9*k*dt; sv[i]*=1-1.5*dt; sv[i+2]*=1-1.5*dt; P[i]+=sv[i]*dt; P[i+1]=Math.max(.05,P[i+1]+sv[i+1]*dt); P[i+2]+=sv[i+2]*dt;}
+      fx.sparks.geometry.attributes.position.needsUpdate=true;
+      exp+=.45*a; glint=Math.max(glint,a*28*k*k); DICE.glint.position.set(p.x,p.y+1.6*k,p.z+.8*k);}
+    else { const c=fx.crack; c.visible=true; c.position.set(p.x,.004,p.z); c.scale.setScalar(k*(3+.6*dSmooth(t/.15))); c.material.opacity=.85*Math.min(1,t/.06)*Math.max(0,Math.min(1,(1.55-t)/.5));
+      fx.dust.forEach(s=>{const u=Math.max(0,t-s.userData.d); if(u<=0||u>1.4)return; const v=s.userData.v, dr=1-Math.exp(-u*4); s.visible=true;   // a ring of dust puffing out from the foot of the die
+        s.position.set(p.x+v.x*(.25+dr*.6),.2*k+v.y*dr*.5,p.z+v.z*(.25+dr*.6)); s.scale.setScalar(k*(1+2.2*dr)); s.material.opacity=.55*Math.min(1,u/.05)*Math.max(0,1-u/1.2);});
+      shake=Math.max(shake,Math.max(0,1-t/.22));}}
+  r.toneMappingExposure=exp; DICE.glint.intensity=glint; DICE.shake=shake; return on;
+}
+
+/* sound: a wooden table under the dice. Each corner that hits clicks, harder hits louder and brighter; dice on dice clack */
+function diceAu(){ if(PLAY.on) return DICE.au?DICE.au():null; const n=SND.nodes; return n?{a:n.a,out:n.out}:null; }
+function diceNoise(a){ if(DICE.nb&&DICE.nb.ctx===a) return DICE.nb.b; const n=a.sampleRate*.5|0, b=a.createBuffer(1,n,a.sampleRate), d=b.getChannelData(0); for(let i=0;i<n;i++)d[i]=Math.random()*2-1; DICE.nb={ctx:a,b}; return b; }
+function diceClick(v,kind){const au=diceAu();if(!au)return;const a=au.a,t=a.currentTime+.005,hard=Math.max(.04,Math.min(1,v)),dice=kind==="d",env=(node,peak,len)=>{const g=a.createGain();g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(peak,t+.0025);g.gain.exponentialRampToValueAtTime(.0001,t+len);node.connect(g).connect(au.out);return g;};
+  const s=a.createBufferSource(),bp=a.createBiquadFilter(); s.buffer=diceNoise(a); bp.type="bandpass"; bp.frequency.value=(dice?2400:900)+Math.random()*(dice?1600:900)+hard*1400; bp.Q.value=dice?5:1.8;
+  s.connect(bp); env(bp,.03+.42*hard,.025+.035*hard); s.start(t,Math.random()*.4,.09);
+  if(!dice){const o=a.createOscillator(),f=150+Math.random()*110; o.type="sine"; o.frequency.setValueAtTime(f*1.3,t); o.frequency.exponentialRampToValueAtTime(f,t+.025); env(o,.02+.3*hard,.06+.08*hard); o.start(t); o.stop(t+.2);}  // the table's wood
+  else for(const f of [2900+Math.random()*700,4600+Math.random()*1300]){const o=a.createOscillator();o.type="sine";o.frequency.value=f;env(o,.02+.12*hard,.03+.03*hard);o.start(t);o.stop(t+.09);}}  // resin on resin
+function diceSting(kind){const au=diceAu();if(!au)return;const a=au.a,t=a.currentTime+.01;
+  if(kind===20){[880,1318.5,1760,2637].forEach((f,i)=>{const o=a.createOscillator(),g=a.createGain(),d=t+i*.05;o.type="sine";o.frequency.value=f;g.gain.setValueAtTime(.0001,d);g.gain.exponentialRampToValueAtTime(.09-.015*i,d+.01);g.gain.exponentialRampToValueAtTime(.0001,d+1.4);o.connect(g).connect(au.out);o.start(d);o.stop(d+1.5);});
+    const s=a.createBufferSource(),bp=a.createBiquadFilter(),g=a.createGain();s.buffer=diceNoise(a);bp.type="bandpass";bp.Q.value=2;bp.frequency.setValueAtTime(600,t);bp.frequency.exponentialRampToValueAtTime(5000,t+.35);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.12,t+.05);g.gain.exponentialRampToValueAtTime(.0001,t+.45);s.connect(bp).connect(g).connect(au.out);s.start(t,0,.5);}
+  else {const o=a.createOscillator(),g=a.createGain();o.type="sine";o.frequency.setValueAtTime(92,t);o.frequency.exponentialRampToValueAtTime(40,t+.3);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.55,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+.42);o.connect(g).connect(au.out);o.start(t);o.stop(t+.45);
+    const s=a.createBufferSource(),lp=a.createBiquadFilter(),g2=a.createGain();s.buffer=diceNoise(a);lp.type="lowpass";lp.frequency.value=380;g2.gain.setValueAtTime(.0001,t);g2.gain.exponentialRampToValueAtTime(.35,t+.01);g2.gain.exponentialRampToValueAtTime(.0001,t+.25);s.connect(lp).connect(g2).connect(au.out);s.start(t,.1,.3);
+    const c=a.createBufferSource(),hp=a.createBiquadFilter(),g3=a.createGain();c.buffer=diceNoise(a);hp.type="highpass";hp.frequency.value=2500;g3.gain.setValueAtTime(.0001,t+.02);g3.gain.exponentialRampToValueAtTime(.08,t+.025);g3.gain.exponentialRampToValueAtTime(.0001,t+.07);c.connect(hp).connect(g3).connect(au.out);c.start(t+.02,.2,.06);}}
+
 function throwDice(list){ // list: [{sides, value, dmg}] — the values are rolled first; the dice only perform them
   if(reduced||!diceStage()) return Promise.resolve();
-  const el=document.getElementById("dice"); el.hidden=false; el.querySelectorAll(".dn").forEach(n=>n.remove());
-  for(const d of DICE.live){DICE.scene.remove(d.m);d.m.geometry.dispose();} DICE.live=[];
-  const {hw,hh}=diceSize(), floor=hh*(innerWidth<=700?.18:.05), n=list.length;
-  list.forEach((d,i)=>{
-    const mat=new THREE.MeshStandardMaterial({color:d.dmg?0xe8743b:0xd8b673,metalness:.55,roughness:.32,flatShading:true});
-    const m=new THREE.Mesh(dieGeo(d.sides),mat); m.add(new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry,1),new THREE.LineBasicMaterial({color:0x1a1307})));
-    const s=Math.min(hw,hh)*(n>4?.13:.17); m.scale.setScalar(s); const x=(i-(n-1)/2)*Math.min(2.6,hw*1.6/Math.max(1,n));
-    m.position.set(x-hw*.9+Math.random()*.6,hh+2,0); DICE.scene.add(m);
-    DICE.live.push({m,d,v:new THREE.Vector3(hw*.9/0.9+Math.random()*2,-2,0),w:new THREE.Vector3(Math.random()*14-7,Math.random()*14-7,Math.random()*10-5),tx:x,floor,s,b:0});});
-  return new Promise(res=>{ let last=performance.now(), sim=0; const t0=last; cancelAnimationFrame(DICE.raf);
-    const step=now=>{ const dt=Math.min(.05,(now-last)/1000); last=now; sim+=dt; let moving=false;
-      for(const L of DICE.live){ const p=L.m.position; L.v.y-=38*dt; L.v.x+=(L.tx-p.x)*4*dt; L.v.x*=.985; p.addScaledVector(L.v,dt);
-        if(p.y<L.floor){p.y=L.floor; if(L.v.y<0){L.v.y*=-.42; L.b++; L.w.multiplyScalar(.6); if(SND.nodes) diceClick(.4/(L.b));}}
-        L.m.rotation.x+=L.w.x*dt; L.m.rotation.y+=L.w.y*dt; L.m.rotation.z+=L.w.z*dt; L.w.multiplyScalar(.985);
-        if(Math.abs(L.v.y)>.4||L.w.length()>.6||Math.abs(L.tx-p.x)>.05) moving=true; }
-      DICE.r.render(DICE.scene,DICE.cam);
-      if(moving&&sim<3&&now-t0<7000) DICE.raf=requestAnimationFrame(step);
-      else { if(moving){for(const L of DICE.live){L.m.position.set(L.tx,L.floor,0);} DICE.r.render(DICE.scene,DICE.cam);}   // a slow device: land them now
-        for(const L of DICE.live){ const q=L.m.position.clone().project(DICE.cam);
-          el.append(h("span",{class:"dn"+(L.d.dmg?" dmg":""),style:`left:${(q.x*.5+.5)*innerWidth}px;top:${(-q.y*.5+.5)*innerHeight-L.s/hh*innerHeight*.5-22}px`},String(L.d.value)));}
-        res(); } };
-    DICE.raf=requestAnimationFrame(step); });
+  if(DICE.end) DICE.end();                                                        // a throw still in the air finishes at once
+  const el=document.getElementById("dice"), sc=DICE.scene; el.hidden=false; el.classList.add("rolling"); el.querySelectorAll(".dn").forEach(n=>n.remove());
+  for(const d of DICE.live){sc.remove(d.die.mesh,d.blob);d.die.dispose();d.blob.material.dispose();} DICE.live=[]; DICE.fx.live=[];
+  const mk=typeof makeDie==="function"?makeDie:diceStubDie;
+  list=list.filter(d=>DIE_K[d.sides]); if(!list.length){el.hidden=true; return Promise.resolve();}
+  const L=diceFrame(list), blobG=DICE.blobG||(DICE.blobG=new THREE.PlaneGeometry(1,1).rotateX(-Math.PI/2));
+  const D=list.map(d=>{const die=mk(d.sides,{dmg:!!d.dmg}), k=DIE_K[d.sides], v=((Math.round(d.value)-1)%d.sides+d.sides)%d.sides+1, H=dieHull(die,d.sides);
+    die.mesh.scale.setScalar(k); die.mesh.traverse(o=>{if(o.isMesh)o.castShadow=true;}); sc.add(die.mesh);
+    const blob=new THREE.Mesh(blobG,new THREE.MeshBasicMaterial({map:DICE.tex.blob,transparent:true,depthWrite:false,opacity:.5})); blob.renderOrder=-1; sc.add(blob);
+    const h=new Float32Array(H.C.length*3); H.C.forEach((c,j)=>{h[j*3]=c.x*k;h[j*3+1]=c.y*k;h[j*3+2]=c.z*k;});
+    return {d,die,blob,k,v,H,h,R:H.R,rb:.5*(H.R+H.rIn)*k,iI:1/(.24*k*k*H.R*H.R)};});
+  DICE.live=D;
+  const plan=dicePlan(D,L), tr=D.map((x,i)=>diceTrack(x,plan.res,i,L.slots[i]));
+  const n20=D.map(x=>!x.d.dmg&&x.d.sides===20&&x.v===20), n1=D.map(x=>!x.d.dmg&&x.d.sides===20&&x.v===1), dmgI=D.map((x,i)=>i).filter(i=>D[i].d.dmg);
+  const last=Math.max(0,...tr.map(t=>t.tR)), fxAt=Math.max(-1,...tr.filter((t,i)=>n20[i]||n1[i]).map(t=>t.tR-.04));
+  const done=Math.max(last+.12+(dmgI.length>1?.18:0),fxAt>=0?fxAt+.4:0), endT=done;
+  DICE.rep={plan:{ms:plan.ms,tries:plan.tries,resid:+plan.resid.toFixed(2),late:plan.late,seen:plan.seen,solo:!!plan.solo,good:!!plan.good,done:+done.toFixed(2)},frames:[],
+    dice:D.map((x,i)=>({sides:x.d.sides,value:x.v,dmg:!!x.d.dmg,landed:tr[i].F,sym:tr[i].sym,turnDeg:Math.round(tr[i].dp/D2R),fixDeg:+tr[i].fixDeg.toFixed(2),settle:+tr[i].tR.toFixed(2)}))};
+  const P=dV(), Q=dQ(), shown=new Set(), evs=plan.res.ev.slice(); let tot=null, totNow=0, totGoal=0;
+  const spot=i=>{const p=dV(), q=dQ(); dicePose(tr[i],tr[i].tR,p,q); const c=p.clone().project(DICE.cam), e=p.clone().add(dV(D[i].k*.95,0,0)).project(DICE.cam);
+    return {x:(c.x*.5+.5)*L.W, y:(-c.y*.5+.5)*L.H, r:Math.abs(e.x-c.x)*.5*L.W};};          // a die at rest, on screen: centre and radius in px
+  const pill=(i,txt,cls)=>{const s=spot(i); el.append(h("span",{class:"dn"+cls,style:`left:${s.x}px;top:${s.y+s.r*.92+14}px`},txt));};
+  D.forEach((x,i)=>{dicePose(tr[i],0,P,Q);x.die.mesh.position.copy(P);x.die.mesh.quaternion.copy(Q);});
+  try{DICE.r.compile(sc,DICE.cam);}catch(e){}                                      // build the dice shaders now, before the clock starts, so the throw never skips ahead
+  return new Promise(res=>{ let t0=performance.now(), lastF=t0, resolved=false, skip=false, raf=0;
+    const finish=()=>{ if(!resolved){resolved=true; if(tot){tot.n.textContent="= "+totGoal;} res();} };
+    const onTap=()=>{skip=true;};
+    addEventListener("pointerdown",onTap,{capture:true,passive:true});
+    DICE.end=()=>{cancelAnimationFrame(raf);removeEventListener("pointerdown",onTap,{capture:true});DICE.end=null;finish();};
+    const frame=now=>{
+      if(skip){skip=false; t0=Math.min(t0,now-endT*1000); evs.length=0;}
+      const t=DICE.hold!=null?DICE.hold:(now-t0)/1000, fdt=now-lastF; lastF=now; if(DICE.rep.frames.length<400) DICE.rep.frames.push(Math.round(fdt*10)/10);
+      if(innerWidth!==L.W||innerHeight!==L.H){DICE.r.setSize(innerWidth,innerHeight,false);DICE.cam.aspect=innerWidth/innerHeight;DICE.cam.setViewOffset(innerWidth,innerHeight,0,(.5-L.fy)*innerHeight,innerWidth,innerHeight);DICE.cam.updateProjectionMatrix();}
+      D.forEach((x,i)=>{dicePose(tr[i],t,P,Q); x.die.mesh.position.copy(P); x.die.mesh.quaternion.copy(Q);
+        const y=Math.max(0,P.y-tr[i].yRest); x.blob.position.set(P.x,.003,P.z); x.blob.scale.setScalar(x.k*2.5*(1+.12*y)); x.blob.material.opacity=.55*Math.max(0,1-y/(5*x.k));
+        if(t>=tr[i].tR-.04&&!shown.has(i)){shown.add(i);
+          if(n20[i]){x.die.mesh.userData.glow?.(true); diceFxStart(20,P,x.k,t);} else if(n1[i]) diceFxStart(1,P,x.k,t);
+          pill(i,String(x.d.value),(x.d.dmg?" dmg":"")+(n20[i]?" n20":n1[i]?" n1":""));
+          if(x.d.dmg&&dmgI.length>1){totGoal+=x.d.value; if(!tot){const S=dmgI.map(spot), mx=Math.max(...S.map(s=>s.y+s.r)), sx=(Math.min(...S.map(s=>s.x))+Math.max(...S.map(s=>s.x)))/2;
+            tot={n:h("span",{class:"dn tot",style:`left:${sx}px;top:${mx+50}px`},"= 0")}; el.append(tot.n);}}}});
+      while(evs.length&&evs[0].t<=t){const e=evs.shift(); diceClick((e.J-1)/(e.k==="d"?8:14),e.k);}
+      if(tot){totNow+=(totGoal-totNow)*Math.min(1,fdt/1000*14); if(Math.abs(totGoal-totNow)<.5)totNow=totGoal; tot.n.textContent="= "+Math.round(totNow);}
+      const fxOn=diceFxTick(t);
+      const sh=DICE.shake?DICE.shake*5*(Math.random()-.5):0; DICE.cam.setViewOffset(innerWidth,innerHeight,sh,(.5-L.fy)*innerHeight+sh,innerWidth,innerHeight); DICE.cam.updateProjectionMatrix();
+      DICE.r.render(sc,DICE.cam);
+      if(t>=done&&!resolved){ D.forEach((x,i)=>{const q=x.die.mesh.quaternion, u=x.H.u[x.v-1].clone().applyQuaternion(q); DICE.rep.dice[i].upErrDeg=+(Math.acos(Math.min(1,u.y))/D2R).toFixed(3);
+          const m=q.clone().multiply(dQ().setFromAxisAngle(dV(1,0,0),-Math.PI/2).multiply(x.die.faceQuat(x.v)).invert()), xx=dV(1,0,0).applyQuaternion(m); DICE.rep.dice[i].yawDeg=Math.round(Math.atan2(-xx.z,xx.x)/D2R);});
+        finish(); }
+      if(!el.hidden&&(t<endT||fxOn||!resolved||DICE.hold!=null)) raf=requestAnimationFrame(frame); else {removeEventListener("pointerdown",onTap,{capture:true}); if(DICE.end&&resolved) DICE.end=null; if(!resolved) finish();}
+    };
+    raf=requestAnimationFrame(frame); });
 }
-function diceClick(v){const n=SND.nodes;if(!n)return;const a=n.a,t=a.currentTime,o=a.createOscillator(),g=a.createGain();o.type="triangle";o.frequency.setValueAtTime(900+Math.random()*700,t);
-  g.gain.setValueAtTime(Math.min(.5,v),t);g.gain.exponentialRampToValueAtTime(.001,t+.05);o.connect(g).connect(n.out);o.start(t);o.stop(t+.06);}
+if(BENCH) window.__dice={throw:l=>throwDice(l),report:()=>DICE.rep,hold:t=>{DICE.hold=t;}};   // tests: throw a list, read how it landed, hold the throw at a moment for a screenshot
 function parseDmg(txt){ // "1d6 + 2 piercing · +1d6 radiant" -> dice groups and a flat bonus
   const dice=[];let flat=0; const clean=String(txt||"").replace(/−/g,"-");
   for(const m of clean.matchAll(/(\d*)d(\d+)/g)){const c=Math.min(8,parseInt(m[1]||"1",10)),s=parseInt(m[2],10);if([4,6,8,10,12,20].includes(s))for(let i=0;i<c;i++)dice.push(s);}
@@ -4581,6 +4893,7 @@ addEventListener("pointerdown",e=>{if(menuEl&&!e.target.closest(".pl-menu")&&e.t
 
 /* ---- rolling for the crew: the d20 (and damage) tumble in 3D, then the number stays in the log ---- */
 async function show3d(list){if(opt.dice&&list.length)await throwDice(list.slice(0,10));}
+DICE.au=()=>{const a=pAc();return a?{a,out:pOut}:null;};   // the dice clatter through the play sound while it is on
 function hide3d(){const el=document.getElementById("dice");el.hidden=true;el.querySelectorAll(".dn").forEach(n=>n.remove());}
 function d20(adv,dis,lucky){let a=rnd(20),b=rnd(20);if(lucky){if(a===1)a=rnd(20);if(b===1)b=rnd(20);}const mode=adv&&!dis?1:dis&&!adv?-1:0;return {v:mode===1?Math.max(a,b):mode===-1?Math.min(a,b):a,a,b,mode};}
 const modeTxt=r=>r.mode===1?` (adv ${r.a}/${r.b})`:r.mode===-1?` (dis ${r.a}/${r.b})`:"";
