@@ -65,8 +65,9 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
-- [x] **Interludes before the table finishes session 10: a solo piece per player plus a shared one, each with a small fight, an Echo and Send to Sam** · New · Sam · PR (this one)
-- [x] **Real numbered dice, a slower and weightier fight pace, a phone camera that follows the action, cleaner fight controls, Blight Heart cinematics** · Changed · Sam · PR (this one)
+- [x] **Interludes play without sign-in too (GitHub Pages or signed out): nothing is sent to Sam then** · Changed · Sam · PR (this one)
+- [x] **Interludes before the table finishes session 10: a solo piece per player plus a shared one, each with a small fight, an Echo and Send to Sam** · New · Sam · PR #47
+- [x] **Real numbered dice, a slower and weightier fight pace, a phone camera that follows the action, cleaner fight controls, Blight Heart cinematics** · Changed · Sam · PR #47
 - [x] **Hardcore graphics for the 3D battle table: lighting, materials, post effects, minis, spell effects, phone layout** · Changed · Sam · PR #46
 - [x] **The flying city looks crude up close:** rebuilt as a lit, painted miniature · Fixed · Niels · PR #44
 - [x] **Get tag edits to everyone:** players propose tags and notes, Sam accepts with one tap · New · Niels · PR #43
