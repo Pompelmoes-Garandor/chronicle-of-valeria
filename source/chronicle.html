@@ -4266,7 +4266,7 @@ async function goOnline(){
   if(account.isDm) db.collection("proposals").onSnapshot(s=>{allProps={};s.docs.forEach(d=>allProps[d.id]=d.data());},()=>{});
   let lastDecided="";
   db.doc("accepted/lore").onSnapshot(d=>{decidedMap=d.exists?(d.data().items||{}):{};const sig=Object.keys(decidedMap).length+"";if(sig!==lastDecided){lastDecided=sig;loadAccepted();}},()=>{});
-  iWatch();
+  iWatchDoc();
 }
 async function loadAccount(){
   const r=await fetch("/api/me",{cache:"no-store"}); if(!r.ok)return false;
@@ -4292,12 +4292,12 @@ function iLocal(){try{const o=JSON.parse(store.get(ILOCAL)||"{}");return o&&type
 function iSaveLocal(all){try{store.set(ILOCAL,JSON.stringify(all));}catch(e){}}
 const iOnline=()=>typeof NETLIFY!=="undefined"&&NETLIFY&&!!account&&!!netdb;
 let iSig="";
-function iWatch(){if(!iOnline()||window.__iWatch)return;window.__iWatch=true;
+function iWatchDoc(){if(!iOnline()||window.__iWatch)return;window.__iWatch=true;
   netdb.doc("interludes/"+account.id).onSnapshot(d=>{const v=d.exists&&d.data()&&typeof d.data()==="object"?d.data():{done:{}};
     window.__myInterludes={done:v.done&&typeof v.done==="object"?v.done:{}};
     const sig=JSON.stringify(window.__myInterludes);if(sig!==iSig){iSig=sig;if(tab==="sheets"&&!editing&&!sBody.contains(document.activeElement))showSheets(true);}},()=>{});}
 /* the server's copy, once it has arrived (null if it doesn't within ms) */
-async function iServerDoc(ms=8000){iWatch();const t0=Date.now();
+async function iServerDoc(ms=8000){iWatchDoc();const t0=Date.now();
   while(!window.__myInterludes&&Date.now()-t0<ms)await new Promise(r=>setTimeout(r,200));return window.__myInterludes||null;}
 /* exactly the fields validInterlude accepts, within its limits (local copies also carry "sent") */
 function iClean(r){r=r||{};const e=r.echo||{},L=(a,n,m)=>(Array.isArray(a)?a:[]).slice(0,n).map(s=>String(s??"").slice(0,m));
