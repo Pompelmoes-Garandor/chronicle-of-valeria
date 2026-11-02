@@ -4557,47 +4557,193 @@ const DMG_COL={fire:"#ff8a3a",necrotic:"#9b6cff",radiant:"#ffe08a",poison:"#8fe0
 /* ---- the minis: carved and painted, one per creature.
    OWNER crew minis: t3body, katy, stig, saphira, hans. OWNER monster minis: hollower husk vine needle grey warden thorn matthew (own helpers allowed).
    OWNER cavern + heart: heart. A builder returns {up,top,hand,head?,core?,big?,anim?(dt,tt,now,state)} ---- */
-function t3body(fig,o){const {h=.78,cloth="#555",cloak=null,skin="#d9b08c",hair=null,hood=false,bulk=1,ears=false,eyes=null,hunch=0,arm=1,metal=0}=o;
-  const legH=h*.4,torH=h*.33,hr=h*.095,up=new THREE.Group();
-  const cm=t3mat(cloth,{metalness:metal,roughness:metal?.45:.8}),sk=t3mat(skin);
-  const legs=new THREE.Mesh(new THREE.CylinderGeometry(.12*bulk,.17*bulk,legH,8),cm);legs.position.y=legH/2+.07;fig.add(legs);
-  up.position.y=legH+.07;fig.add(up);up.rotation.x=hunch;
-  const tor=new THREE.Mesh(new THREE.CylinderGeometry(.15*bulk,.115*bulk,torH,8),cm);tor.position.y=torH/2;up.add(tor);
-  for(const s of[-1,1]){const a=new THREE.Mesh(new THREE.CapsuleGeometry(.038*bulk,torH*.75*arm,3,6),cm);a.position.set(s*.175*bulk,torH*.55-torH*.38*arm,.02);a.rotation.z=s*.18;a.rotation.x=-.25;up.add(a);
-    const hd=new THREE.Mesh(new THREE.SphereGeometry(.035*bulk,6,5),sk);hd.position.set(s*(.19*bulk+torH*.75*arm*.18),torH*.55-torH*.78*arm-.02,.08);up.add(hd);}
-  const head=new THREE.Mesh(new THREE.SphereGeometry(hr,12,10),sk);head.position.y=torH+hr*.95;up.add(head);
-  if(hair){const hm=new THREE.Mesh(new THREE.SphereGeometry(hr*1.08,12,8,0,Math.PI*2,0,Math.PI*.6),t3mat(hair));hm.position.copy(head.position);hm.rotation.x=-.35;up.add(hm);}
-  if(ears)for(const s of[-1,1]){const e=new THREE.Mesh(new THREE.ConeGeometry(.018,.08,4),sk);e.position.set(head.position.x+s*hr*.95,head.position.y+.01,0);e.rotation.z=-s*1.15;up.add(e);}
-  if(cloak){const cl=new THREE.Mesh(new THREE.ConeGeometry(.24*bulk,legH+torH*.95,12,1,true,Math.PI*.15,Math.PI*1.7),t3mat(cloak,{side:THREE.DoubleSide}));cl.position.set(0,(legH+torH*.95)/2+.06,-.03);cl.rotation.y=Math.PI;fig.add(cl);}
-  if(hood){const hm=new THREE.Mesh(new THREE.SphereGeometry(hr*1.35,12,10,0,Math.PI*2,0,Math.PI*.62),t3mat(cloak||cloth));hm.position.set(0,head.position.y+.01,-.012);hm.rotation.x=-.5;up.add(hm);
-    const face=new THREE.Mesh(new THREE.CircleGeometry(hr*.8,12),new THREE.MeshBasicMaterial({color:0x050505}));face.position.set(0,head.position.y-.005,hr*.9);up.add(face);}
-  if(eyes)for(const s of[-1,1]){const e=new THREE.Mesh(new THREE.SphereGeometry(.014,6,4),new THREE.MeshBasicMaterial({color:eyes}));e.position.set(s*hr*.38,head.position.y+.01,hr*(hood?1.0:.88));up.add(e);}
-  return {up,top:legH+.07+torH+hr*2,hand:new THREE.Vector3(.2*bulk,torH*.55-torH*.78*arm,.12),head};}
+function t3body(fig,o){const {h=.78,cloth="#555",cloak=null,skin="#d9b08c",hair=null,hood=false,bulk=1,ears=false,eyes=null,hunch=0,arm=1,metal=0,
+    pants=null,boots="#2b2118",belt="#3a2818",gloves=null,hairStyle="cap",hands=null,cloakLen=1,hoodDown=false,capelet=true,add=null}=o;
+  // heroic 28mm proportions: legs, a lathed torso, jointed arms, a head with a face; parts merge into one mesh per material
+  const legH=h*.4,torH=h*.33,hr=h*.095,up=new THREE.Group(),bk=bulk,Y0=legH+.07,top=Y0+torH+hr*2,hi=T3Q.hi,sg=hi?14:9,V3=t3c_V;
+  const M={},ms=k=>M[k]||(M[k]=k==="body"?(metal?t3c_mat("armor",{metalness:Math.max(.55,metal)}):t3c_mat("cloth")):k==="glow"?t3c_glow(eyes||0xffffff):t3c_mat(k));
+  const F=t3c_kit(),U=t3c_kit(),Hd=t3c_kit(),dk=t3c_dark,lc=metal?cloth:(pants||dk(cloth,.68)),bt=metal?"body":"leather";
+  // legs and boots
+  for(const s of[-1,1]){const hip=V3(s*.06*bk,Y0-.01,0),kn=V3(s*.068*bk,.07+legH*.5,.018),an=V3(s*.072*bk,.15,0);
+    F.add("body",t3c_limb(hip,kn,.056*bk,.047*bk,sg),lc).add("body",t3c_ball(.047*bk,sg,7),lc,kn.x,kn.y,kn.z).add("body",t3c_limb(kn,an,.046*bk,.037*bk,sg),lc)
+     .add(bt,new THREE.CylinderGeometry(.049*bk,.052*bk,.11,sg),boots,an.x,.125,0).add(bt,t3c_ball(.047*bk,sg,7),boots,an.x,.095,.035,{sy:.6,sz:1.55})
+     .add(bt,new THREE.TorusGeometry(.05*bk,.011,5,sg),dk(boots,1.25),an.x,.18,0,{rx:Math.PI/2});}
+  // the tunic skirt over the hips
+  F.add("body",t3c_lathe([[.112*bk,Y0+.03],[.128*bk,Y0-.02],[.152*bk,Y0-.1]],sg+6),cloth,0,0,0,{sz:.85});
+  // torso, belt, pouch, shoulders
+  U.add("body",t3c_lathe([[.112,-.03],[.118,.03],[.132,torH*.42],[.15,torH*.7],[.148,torH*.86],[.1,torH*.97],[.045,torH*1.02]].map(([r,y])=>[r*bk,y]),sg+6),cloth,0,0,0,{sz:.8})
+   .add("leather",new THREE.CylinderGeometry(.122*bk,.124*bk,.036,sg+6),belt,0,.02,0,{sz:.84}).add("metal",new THREE.BoxGeometry(.036,.03,.01),"#b9a06a",0,.02,.124*bk*.84+.004)
+   .add("leather",new THREE.BoxGeometry(.05,.05,.03),dk(belt,1.2),-.09*bk,-.012,.085*bk,{ry:-.6});
+  for(const s of[-1,1])U.add("body",t3c_ball(.052*bk,sg,8),cloth,s*.155*bk,torH*.84,0);
+  // arms: shoulder, elbow, hand (hands can be posed by the builder)
+  const dh=s=>[s*(.19*bk+torH*.75*arm*.18),torH*.55-torH*.78*arm-.02,.08],HND=hands||[dh(-1),dh(1)];
+  [-1,1].forEach((s,i)=>{const S=V3(s*.162*bk,torH*.82,0),Hh=V3(...HND[i]),E=S.clone().lerp(Hh,.5).add(V3(s*.035,0,-.03));
+    U.add("body",t3c_limb(S,E,.044*bk,.038*bk,sg),cloth).add("body",t3c_ball(.038*bk,sg,7),cloth,E.x,E.y,E.z).add("body",t3c_limb(E,Hh,.038*bk,.031*bk,sg),cloth);
+    if(gloves)U.add(bt,t3c_ball(.038*bk,sg,7),gloves,Hh.x,Hh.y,Hh.z,{sy:1.1,sz:1.2});else U.add("skin",t3c_ball(.034*bk,sg,7),skin,Hh.x,Hh.y,Hh.z,{sy:1.15,sz:1.1});});
+  U.add("skin",new THREE.CylinderGeometry(.034,.04,.07,sg),skin,0,torH+.01,0);
+  // capelet over the shoulders, or a hood pushed back
+  if(cloak&&!hood&&capelet){U.add("cape",t3c_lathe([[.172*bk,torH*.68],[.17*bk,torH*.8],[.14*bk,torH*.93],[.07*bk,torH*1.0]],sg+6,.85,Math.PI*2-1.7),cloak,0,0,0,{sx:1.06,sz:.8});
+    if(hoodDown)U.add("cape",new THREE.TorusGeometry(hr*.95,hr*.42,7,sg),dk(cloak,.92),0,torH*.98,-.075*bk,{rx:1.25,sy:.8});}
+  // the head and face
+  Hd.add("skin",t3c_ball(hr,hi?18:12,hi?14:10),hood?dk(skin,.16):skin,0,0,0,{sx:.92,sy:1.04,sz:.97});
+  if(!hood){Hd.add("skin",t3c_ball(hr*.52,10,7),skin,0,-hr*.5,hr*.3,{sx:1.2,sy:.9,sz:1.1}).add("skin",new THREE.ConeGeometry(hr*.14,hr*.34,6),dk(skin,.97),0,-hr*.1,hr*.98,{rx:Math.PI/2})
+    .add("skin",new THREE.BoxGeometry(hr*.22,hr*.04,hr*.04),dk(skin,.8),0,-hr*.48,hr*.86);
+    for(const s of[-1,1]){if(!eyes)Hd.add("skin",t3c_ball(hr*.13,8,6),"#1b130e",s*hr*.34,hr*.06,hr*.82,{sz:.6});
+      Hd.add("skin",new THREE.BoxGeometry(hr*.34,hr*.045,hr*.08),hair||dk(skin,.55),s*hr*.34,hr*.25,hr*.86,{rz:-s*.12});
+      if(ears)Hd.add("skin",new THREE.ConeGeometry(hr*.2,hr*1.15,5),skin,s*hr*1.05,hr*.2,-hr*.12,{rz:-s*1.05,rx:-.35,sz:.45});
+      else Hd.add("skin",t3c_ball(hr*.2,6,5),skin,s*hr*.9,0,-hr*.05,{sx:.5});}}
+  if(eyes)for(const s of[-1,1])Hd.add("glow",t3c_ball(hr*.13,8,6),"#fff",s*hr*.32,hr*.04,hood?hr*1.0:hr*.84,{sz:.6});
+  if(hair&&!hood){const cap=(r,tl,rx)=>Hd.add("hair",new THREE.SphereGeometry(r,hi?16:10,hi?10:7,0,Math.PI*2,0,Math.PI*tl),hair,0,hr*.04,-hr*.02,{rx,sx:.95});
+    if(hairStyle==="short")cap(hr*1.06,.5,-.3);
+    else if(hairStyle==="long"){cap(hr*1.1,.56,-.4);
+      Hd.add("hair",t3c_lathe([[hr*.55,-hr*2.4],[hr*.85,-hr*1.7],[hr*1.05,-hr*.8],[hr*1.1,0],[hr*1.02,hr*.45]],hi?16:10,Math.PI*.5,Math.PI),hair,0,0,-hr*.05,{sz:.8});
+      for(const s of[-1,1])Hd.add("hair",t3c_limb(V3(s*hr*.78,hr*.35,hr*.32),V3(s*hr*.86,-hr*1.15,hr*.2),hr*.24,hr*.12,6),hair);}
+    else cap(hr*1.08,.6,-.35);}
+  if(hood){const hc=cloak||cloth;Hd.add("hood",new THREE.SphereGeometry(hr*1.4,hi?18:12,hi?12:8,0,Math.PI*2,0,Math.PI*.72),hc,0,hr*.1,-hr*.18,{rx:-1.05,sz:1.08})
+    .add("hood",new THREE.ConeGeometry(hr*.55,hr*1.1,8),dk(hc,.9),0,hr*.55,-hr*1.2,{rx:-2.2})
+    .add("hood",t3c_lathe([[hr*3.25,-hr*1.8],[hr*2.2,-hr*1.25],[hr*1.45,-hr*.5]],hi?18:12),hc,0,0,-hr*.12,{sz:.82})
+    .add("dark",t3c_ball(hr*.95,10,8),"#050407",0,-hr*.06,hr*.2,{sz:.75});}
+  if(add)add({F,U,Hd},{legH,torH,hr,Y0,bk,top,H:HND});
+  up.position.y=Y0;up.rotation.x=hunch;fig.add(up);
+  F.build(fig,ms,0,top);U.build(up,ms,-Y0,top-Y0);
+  const head=new THREE.Mesh(t3c_paint(t3merge(Hd.B.skin),-hr*1.6,hr),ms("skin"));delete Hd.B.skin;head.position.y=torH+hr*.95;up.add(head);Hd.build(head,ms,-hr*2.4,hr*1.4);
+  let cl=null;if(cloak){cl=t3c_cloak(cloak,{top:Y0+torH*.9,bot:.1+(1-cloakLen)*legH,r0:.158*bk,r1:.25*bk,seed:h*31});fig.add(cl.mesh);}
+  return {up,top,hand:hands?V3(HND[1][0],HND[1][1],HND[1][2]+.04):V3(.2*bk,torH*.55-torH*.78*arm,.12),head,cloak:cl,mats:M};}
+/* crew minis kit (t3c_): smooth painted parts, merged into one mesh per material; a soft image of a lit cave for metal to reflect */
+let t3c_envT;
+function t3c_env(){if(t3c_envT!==undefined)return t3c_envT;t3c_envT=null;
+  try{if(!T3R)return null;const cv=document.createElement("canvas");cv.width=128;cv.height=64;const g=cv.getContext("2d"),gr=g.createLinearGradient(0,0,0,64);
+    gr.addColorStop(0,"#2c3446");gr.addColorStop(.42,"#7a6a56");gr.addColorStop(.52,"#3a2e24");gr.addColorStop(1,"#0a0807");g.fillStyle=gr;g.fillRect(0,0,128,64);
+    for(const [x,y,r,c] of [[30,22,8,"#ffd29a"],[92,14,6,"#b8c6ff"],[64,30,4,"#ffb070"]]){const q=g.createRadialGradient(x,y,0,x,y,r);q.addColorStop(0,c);q.addColorStop(1,c+"00");g.fillStyle=q;g.fillRect(x-r,y-r,r*2,r*2);}
+    const t=new THREE.CanvasTexture(cv);t.mapping=THREE.EquirectangularReflectionMapping;t.colorSpace=THREE.SRGBColorSpace;const pm=new THREE.PMREMGenerator(T3R);t3c_envT=pm.fromEquirectangular(t).texture;pm.dispose();t.dispose();}catch(e){t3c_envT=null;}
+  return t3c_envT;}
+const t3c_V=(x,y,z)=>new THREE.Vector3(x,y,z);
+const t3c_dark=(c,k)=>"#"+t3c.set(c).multiplyScalar(k).getHexString();
+const t3c_ball=(r,w=10,hh=8)=>new THREE.SphereGeometry(r,w,hh);
+const t3c_M=(x,y,z,rx=0,ry=0,rz=0,s=1)=>new THREE.Matrix4().compose(t3c_V(x,y,z),new THREE.Quaternion().setFromEuler(new THREE.Euler(rx,ry,rz)),t3c_V(s,s,s));
+function t3c_mat(k,o={}){const P={cloth:{roughness:.88},cape:{roughness:.85},leather:{roughness:.62},skin:{roughness:.55},hair:{roughness:.68},hood:{roughness:.9,side:THREE.DoubleSide},dark:{roughness:1,envMapIntensity:0},
+    metal:{metalness:.9,roughness:.3,envMapIntensity:1.2},armor:{metalness:.78,roughness:.36,envMapIntensity:1.1},iron:{metalness:.6,roughness:.5,envMapIntensity:.8},
+    tabard:{roughness:.8,side:THREE.DoubleSide},paint:{metalness:.3,roughness:.5,envMapIntensity:.7},plate:{metalness:.5,roughness:.16,envMapIntensity:1.3},gloss:{metalness:.05,roughness:.3,envMapIntensity:.8}}[k]||{};
+  return new THREE.MeshStandardMaterial(Object.assign({vertexColors:true,flatShading:false,metalness:0,envMap:t3c_env(),envMapIntensity:.3},P,o));}
+const t3c_glow=(col,i=2.2)=>new THREE.MeshStandardMaterial({color:0x000000,emissive:col,emissiveIntensity:i,roughness:.4});
+// paint like a mini: darker toward the feet, a top light on upward faces
+function t3c_paint(g,y0,y1){const p=g.attributes.position,n=g.attributes.normal,c=g.attributes.color;
+  for(let i=0;i<p.count;i++){const t=Math.min(1,Math.max(0,(p.getY(i)-y0)/(y1-y0))),k=(.66+.34*t)*(1+.2*Math.max(0,n.getY(i)));c.setXYZ(i,c.getX(i)*k,c.getY(i)*k,c.getZ(i)*k);}return g;}
+function t3c_kit(){const B={};return {B,add(k,g,col,x=0,y=0,z=0,r,Mx){const q=t3at(t3tint(g,col),x,y,z,r);if(Mx)q.applyMatrix4(Mx);(B[k]||(B[k]=[])).push(q);return this;},
+  build(par,ms,y0,y1){const out={};for(const k in B){if(!B[k].length)continue;const m=new THREE.Mesh(t3c_paint(t3merge(B[k]),y0,y1),ms(k));par.add(m);out[k]=m;}return out;}};}
+function t3c_limb(a,b,r0,r1,seg=8){const d=t3c_V(b.x-a.x,b.y-a.y,b.z-a.z),L=d.length(),g=new THREE.CylinderGeometry(r1,r0,L,seg,1);g.translate(0,L/2,0);
+  g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(t3c_V(0,1,0),d.normalize()));g.translate(a.x,a.y,a.z);return g;}
+function t3c_lathe(pr,seg=16,ps=0,pl=Math.PI*2){return new THREE.LatheGeometry(pr.slice().sort((a,b)=>a[1]-b[1]).map(([r,y])=>new THREE.Vector2(Math.max(r,1e-4),y)),seg,ps,pl);}
+// a cloak hanging from the shoulders: lathed, open in front, with folds that darken in the hollows; t3c_sway moves its hem
+function t3c_cloak(col,{top,bot,r0,r1,open=Math.PI*.92,folds=7,back=.07,seed=1,sx=1.2,sz=.85}){const hi=T3Q.hi,rows=hi?10:6,pr=[];
+  for(let i=0;i<=rows;i++){const t=i/rows;pr.push([r0+(r1-r0)*Math.pow(t,.75),top-(top-bot)*t]);}
+  const g=t3c_lathe(pr,hi?30:16,open/2,Math.PI*2-open),p=g.attributes.position,n=p.count,T=new Float32Array(n),Ph=new Float32Array(n),C=new Float32Array(n*3),c0=new THREE.Color(col);
+  for(let i=0;i<n;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i),t=Math.min(1,Math.max(0,(top-y)/(top-bot))),ph=Math.atan2(x,z),w=Math.sin(ph*folds+seed+Math.sin(ph*3)*.6),f=1+.12*w*Math.pow(t,.7);
+    p.setXYZ(i,x*f*sx,y,z*f*sz-back*t*t);T[i]=t;Ph[i]=ph;const k=(.8+.2*w*Math.pow(t,.5))*(1.08-.32*t);C[i*3]=c0.r*k;C[i*3+1]=c0.g*k;C[i*3+2]=c0.b*k;}
+  g.setAttribute("color",new THREE.BufferAttribute(C,3));g.computeVertexNormals();
+  return {mesh:new THREE.Mesh(g,t3c_mat("cloth",{side:THREE.DoubleSide})),base:p.array.slice(),T,Ph};}
+function t3c_sway(c,tt,amt){const a=c.mesh.geometry.attributes.position,A=a.array,B=c.base,n=a.count;
+  for(let i=0;i<n;i++){const t=c.T[i],w=t*t,ph=c.Ph[i],j=i*3;A[j]=B[j]+w*.014*Math.sin(tt*1.6+ph*2+t*3);A[j+1]=B[j+1]+w*amt*.35;A[j+2]=B[j+2]-w*(amt+.012*Math.sin(tt*1.2+ph*3+t*2.5));}a.needsUpdate=true;}
+// idle life for a hero: breathing, a slow look around, cloak sway (more when walking), a slump when down
+function t3c_anim(b,{breath=.016,look=.3,hunch=0,extra=null}={}){const ph=Math.random()*6.28;let dn=0,mv=0;
+  return (dt,tt,now,st)=>{const k=Math.min(1,dt*5);dn+=((st.down?1:0)-dn)*k;mv+=((st.moving?1:0)-mv)*k;const br=Math.sin(tt*1.8+ph);
+    b.up.scale.set(1+br*breath*.4,1+br*breath,1+br*breath*.6);b.up.rotation.x=hunch+dn*.4+mv*.08;
+    if(b.head)b.head.rotation.set(dn*.45-br*.02,(1-dn)*look*Math.sin(tt*.41+ph)*Math.sin(tt*.13+ph*2),dn*.35);
+    if(b.cloak)t3c_sway(b.cloak,tt+ph,.012+.006*br+mv*.07);
+    if(extra)extra(dt,tt,dn,br,st);};}
 const T3MINI={
-  katy(f){const b=t3body(f,{cloth:"#3f6b45",cloak:"#e7a3b8",skin:"#e8c3a0",hair:"#8a3b22",ears:true});
-    const uk=new THREE.Group(),bm=t3mat("#b07a3a",{metalness:.6,roughness:.35});const bd=new THREE.Mesh(new THREE.SphereGeometry(.075,10,8),bm);bd.scale.set(1,1.25,.45);uk.add(bd);
-    const nk=new THREE.Mesh(new THREE.BoxGeometry(.03,.18,.02),t3mat("#3a2414"));nk.position.y=.15;uk.add(nk);uk.position.set(.05,.12,.16);uk.rotation.z=-.9;b.up.add(uk);return b;},
-  stig(f){const b=t3body(f,{cloth:"#8a96a3",cloak:"#2b3a4a",skin:"#d8b08a",hair:"#3a2a1c",bulk:1.12,metal:.55});
-    const tab=new THREE.Mesh(new THREE.BoxGeometry(.16,.3,.02),t3mat("#7fb8dc"));tab.position.set(0,.06,.135);b.up.add(tab);
-    const sh=new THREE.Mesh(new THREE.CylinderGeometry(.15,.15,.03,16),t3mat("#5e7d96",{metalness:.5,roughness:.4}));sh.rotation.z=Math.PI/2;sh.rotation.y=.3;sh.position.set(-.23,.05,.06);b.up.add(sh);
-    const rim=new THREE.Mesh(new THREE.TorusGeometry(.15,.012,5,20),t3mat("#c9a35c",{metalness:.7,roughness:.3}));rim.rotation.y=Math.PI/2+.3;rim.position.copy(sh.position);b.up.add(rim);
-    const mace=new THREE.Group();const hd=new THREE.Mesh(new THREE.IcosahedronGeometry(.055,0),t3mat("#9aa3ad",{metalness:.7,roughness:.3}));hd.position.y=.2;mace.add(hd,new THREE.Mesh(new THREE.CylinderGeometry(.012,.012,.32,5),t3mat("#3a2a1c")));
-    mace.position.set(.24,0,.1);mace.rotation.x=.5;b.up.add(mace);return b;},
-  saphira(f){const b=t3body(f,{cloth:"#3b2f52",cloak:"#211a2e",skin:"#d9b8a0",hood:true,eyes:0xb39af0});
-    const bl=new THREE.Mesh(new THREE.BoxGeometry(.018,.3,.04),new THREE.MeshStandardMaterial({color:0xb39af0,emissive:0x8a6cf0,emissiveIntensity:1.6}));bl.position.set(.22,-.08,.2);bl.rotation.x=1.1;b.up.add(bl);b.blade=bl;
-    const dg=new THREE.Mesh(new THREE.BoxGeometry(.014,.16,.03),t3mat("#c8ccd4",{metalness:.8,roughness:.25}));dg.position.set(-.22,-.08,.14);dg.rotation.x=1.3;b.up.add(dg);return b;},
-  hans(f){const br=t3mat("#c9a35c",{metalness:.75,roughness:.35}),dk=t3mat("#2a2418",{metalness:.4,roughness:.6}),up=new THREE.Group();
-    for(const s of[-1,1]){const l=new THREE.Mesh(new THREE.CylinderGeometry(.075,.09,.36,8),dk);l.position.set(s*.1,.25,0);f.add(l);const ft=new THREE.Mesh(new THREE.BoxGeometry(.14,.06,.2),br);ft.position.set(s*.1,.1,.03);f.add(ft);}
-    up.position.y=.43;f.add(up);const tor=new THREE.Mesh(new THREE.BoxGeometry(.46,.4,.32),br);tor.position.y=.2;up.add(tor);
-    const core=new THREE.Mesh(new THREE.CircleGeometry(.07,16),new THREE.MeshStandardMaterial({color:0xe8743b,emissive:0xe8743b,emissiveIntensity:2.2}));core.position.set(0,.22,.165);up.add(core);
-    for(let i=0;i<3;i++){const v=new THREE.Mesh(new THREE.BoxGeometry(.3,.015,.01),dk);v.position.set(0,.08+i*.03,.165);up.add(v);}
-    for(const s of[-1,1]){const a=new THREE.Mesh(new THREE.CapsuleGeometry(.06,.26,3,6),br);a.position.set(s*.3,.12,0);a.rotation.z=s*.12;up.add(a);const fs=new THREE.Mesh(new THREE.BoxGeometry(.12,.12,.12),dk);fs.position.set(s*.32,-.08,.02);up.add(fs);}
-    const head=new THREE.Mesh(new THREE.SphereGeometry(.15,14,12),br);head.scale.set(1,.92,.95);head.position.y=.53;up.add(head);
-    const face=new THREE.Mesh(new THREE.CircleGeometry(.11,16),t3mat("#16130e",{roughness:.3,metalness:.3}));face.position.set(0,.52,.142);up.add(face);
-    for(const s of[-1,1]){const e=new THREE.Mesh(new THREE.CircleGeometry(.022,10),new THREE.MeshBasicMaterial({color:0x8fd3ff}));e.position.set(s*.045,.54,.144);up.add(e);}
-    const bm=t3mat("#2f6fd6",{roughness:.35,metalness:.2});const band=new THREE.Mesh(new THREE.TorusGeometry(.165,.022,6,20,Math.PI),bm);band.position.y=.54;up.add(band);
-    for(const s of[-1,1]){const cup=new THREE.Mesh(new THREE.CylinderGeometry(.065,.065,.06,14),bm);cup.rotation.z=Math.PI/2;cup.position.set(s*.165,.53,0);up.add(cup);}
-    return {up,top:.43+.7,hand:new THREE.Vector3(.32,-.08,.1),head,core};},
+  katy(f){const b=t3body(f,{h:.76,bulk:.94,cloth:"#3f6b45",cloak:"#e7a3b8",skin:"#e8c3a0",hair:"#8a3b22",ears:true,hairStyle:"long",pants:"#4a3a2c",boots:"#5a3a22",belt:"#6b4a2a",hoodDown:true,
+      hands:[[-.13,.2,.17],[.07,.055,.19]],
+      add({U},d){const Mx=t3c_M(.02,d.torH*.34,.15,0,0,.85),bz="#b07a3a",wd="#3a2414";  // the bronze ukulele, held to play
+        U.add("metal",t3c_ball(.082,16,10),bz,0,0,0,{sy:.95,sz:.32},Mx).add("metal",t3c_ball(.064,16,10),bz,0,.09,0,{sz:.32},Mx)
+         .add("dark",new THREE.CylinderGeometry(.022,.022,.01,12),"#1a120a",0,.05,.028,{rx:Math.PI/2},Mx).add("leather",new THREE.BoxGeometry(.026,.16,.016),wd,0,.2,.01,{},Mx)
+         .add("leather",new THREE.BoxGeometry(.04,.05,.014),wd,0,.3,.006,{},Mx).add("leather",new THREE.BoxGeometry(.034,.012,.012),"#1a120a",0,-.035,.032,{},Mx)
+         .add("metal",new THREE.BoxGeometry(.016,.31,.004),"#efe3c4",0,.12,.03,{},Mx);
+        for(const s of[-1,1])U.add("leather",new THREE.BoxGeometry(.04,.045,.028),"#5a3a22",s*.1,-.015,.07,{ry:s*.7});}});
+    b.anim=t3c_anim(b,{look:.35});return b;},
+  stig(f){const st="#8a96a3",lt="#b4bec8",gd="#c9a35c";
+    const b=t3body(f,{h:.8,bulk:1.12,cloth:st,cloak:"#2b3a4a",skin:"#d8b08a",hair:"#3a2a1c",hairStyle:"short",metal:.8,gloves:"#6f7b88",boots:"#6a7682",belt:"#3a2818",cloakLen:.88,capelet:false,
+      hands:[[-.22,.04,.1],[.235,-.05,.12]],
+      add({F,U},d){const bk=d.bk,T=d.torH,Y0=d.Y0,kz=.07+d.legH*.5;
+        // breastplate and gorget, plates over the hips, knee cops
+        U.add("metal",t3c_lathe([[.125,T*.05],[.14,T*.4],[.16,T*.68],[.152,T*.84],[.11,T*.95]].map(([r,y])=>[r*bk,y]),20),lt,0,0,.004,{sz:.82})
+         .add("metal",new THREE.TorusGeometry(.058,.02,6,14),lt,0,T*.98,0,{rx:Math.PI/2});
+        for(let i=0;i<3;i++)F.add("metal",t3c_lathe([[.133*bk+i*.01,Y0-.04-i*.038],[.122*bk+i*.01,Y0-.004-i*.038]],18),i%2?st:lt,0,0,0,{sz:.86});
+        for(const s of[-1,1]){F.add("metal",t3c_ball(.05,10,7),lt,s*.068*bk,kz,.04,{sz:.7});
+          // layered pauldrons
+          for(let i=0;i<3;i++)U.add("metal",new THREE.SphereGeometry(.066*bk-i*.006,12,6,0,Math.PI*2,0,Math.PI*.42),i?st:lt,s*(.165*bk+i*.016),T*.9-i*.036,0,{rz:-s*(.5+i*.3),sz:.95});}
+        // the blue tabard, front and back, a belt over it
+        for(const a of[0,Math.PI])U.add("tabard",t3c_lathe([[.14,-.16],[.142,-.05],[.135,T*.08],[.152,T*.4],[.172,T*.66],[.162,T*.8]].map(([r,y])=>[r*bk,y]),8,a-.5,1),"#7fb8dc",0,0,0,{sz:.84});
+        U.add("leather",new THREE.TorusGeometry(.142*bk,.014,5,22),"#3a2818",0,.02,0,{rx:Math.PI/2,sy:.86}).add("metal",new THREE.BoxGeometry(.04,.034,.012),gd,0,.02,.142*bk*.86+.006)
+         .add("tabard",t3c_lathe([[.142*bk+.002,-.162],[.142*bk+.002,-.14]],8,-.5,1),gd,0,0,0,{sz:.84});
+        // round shield on the left arm
+        const Sx=t3c_M(-.255,.05,.1,0,.55,Math.PI/2);
+        U.add("paint",t3c_lathe([[.16,0],[.14,.014],[.09,.032],[0,.042]],22),"#5e7d96",0,0,0,{},Sx).add("leather",new THREE.CylinderGeometry(.158,.158,.012,22),"#3a2a1c",0,-.006,0,{},Sx)
+         .add("metal",new THREE.TorusGeometry(.16,.013,6,28),gd,0,.002,0,{rx:Math.PI/2},Sx).add("metal",t3c_ball(.036,12,8),gd,0,.04,0,{sy:.7},Sx)
+         .add("metal",new THREE.TorusGeometry(.095,.006,4,24),gd,0,.03,0,{rx:Math.PI/2},Sx);
+        // mace in the right hand
+        const Mx=t3c_M(.235,-.05,.12,.35,0,0);U.add("leather",new THREE.CylinderGeometry(.012,.013,.3,6),"#3a2a1c",0,.07,0,{},Mx).add("metal",t3c_ball(.018,8,6),gd,0,-.085,0,{},Mx)
+         .add("metal",new THREE.IcosahedronGeometry(.042,0),"#9aa3ad",0,.245,0,{},Mx).add("metal",new THREE.CylinderGeometry(.02,.016,.03,8),gd,0,.205,0,{},Mx);
+        for(let i=0;i<6;i++){const a=i/6*Math.PI*2;U.add("metal",new THREE.BoxGeometry(.01,.075,.034),"#a8b2bd",Math.sin(a)*.04,.245,Math.cos(a)*.04,{ry:a},Mx);}}});
+    b.anim=t3c_anim(b,{breath:.012,look:.22});return b;},
+  saphira(f){let bl=null,sh=null;
+    const b=t3body(f,{h:.78,bulk:.93,cloth:"#33294a",cloak:"#2e2244",skin:"#d9b8a0",hood:true,eyes:0xb39af0,pants:"#241d30",boots:"#1d1722",belt:"#2a1e18",gloves:"#1f1a22",
+      hands:[[-.2,-.04,.1],[.2,-.01,.15]],
+      add({U},d){const T=d.torH;
+        // a strap across the chest, pouches, the dagger point down in the left hand
+        U.add("leather",t3tube([t3c_V(-.12,T*.86,.07),t3c_V(0,T*.45,.128),t3c_V(.11,.02,.108)],.011,5),"#2a1e18")
+         .add("metal",new THREE.BoxGeometry(.02,.02,.008),"#9a8a6a",0,T*.45,.136);
+        for(const s of[-1,1])U.add("leather",new THREE.BoxGeometry(.04,.05,.03),"#33261c",s*.1,-.015,.07,{ry:s*.7});
+        const Dx=t3c_M(-.2,-.04,.1,.25,0,0);U.add("metal",new THREE.BoxGeometry(.012,.14,.026),"#c8ccd4",0,-.095,0,{},Dx).add("metal",new THREE.BoxGeometry(.06,.012,.016),"#8a7a5a",0,-.02,0,{},Dx)
+         .add("leather",new THREE.CylinderGeometry(.011,.011,.06,6),"#1a1418",0,.015,0,{},Dx).add("metal",t3c_ball(.014,6,5),"#8a7a5a",0,.05,0,{},Dx);
+        // hilt of the shadow blade in the right hand
+        const Bx=t3c_M(.2,-.01,.15,1.4,0,0);U.add("metal",new THREE.BoxGeometry(.075,.014,.02),"#6a5a8a",0,.02,0,{},Bx).add("leather",new THREE.CylinderGeometry(.011,.011,.07,6),"#1a1418",0,-.025,0,{},Bx)
+         .add("metal",t3c_ball(.016,8,6),"#6a5a8a",0,-.065,0,{},Bx);}});
+    // the shadow blade: a curved violet edge with a shimmering haze around it
+    const s=new THREE.Shape();s.moveTo(-.016,0);s.lineTo(.016,0);s.quadraticCurveTo(.032,.19,0,.37);s.quadraticCurveTo(-.012,.2,-.016,0);
+    const bg=new THREE.ExtrudeGeometry(s,{depth:.006,bevelEnabled:true,bevelThickness:.003,bevelSize:.003,bevelSegments:1,curveSegments:T3Q.hi?10:5});bg.translate(0,.026,-.003);
+    const G=new THREE.Group();G.position.set(.2,-.01,.15);G.rotation.x=1.4;b.up.add(G);
+    bl=new THREE.Mesh(bg,new THREE.MeshStandardMaterial({color:0x2a1f44,emissive:0x8a6cf0,emissiveIntensity:1.6,roughness:.25,metalness:.2}));G.add(bl);
+    sh=new THREE.Mesh(bg,new THREE.MeshStandardMaterial({color:0x000000,emissive:0xb39af0,emissiveIntensity:.4,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));sh.scale.set(2.1,1.07,3);sh.position.y=-.004;G.add(sh);
+    b.blade=bl;b.anim=t3c_anim(b,{look:.25,extra(dt,tt,dn){sh.castShadow=false;const k=1-dn*.7,w=Math.sin(tt*6.3)*.5+Math.sin(tt*13.1+1)*.3;
+      bl.material.emissiveIntensity=k*(1.5+w*.5);sh.material.emissiveIntensity=k*(.32+w*.18);sh.scale.x=2.1+Math.sin(tt*4.7)*.25;}});
+    return b;},
+  hans(f){const hi=T3Q.hi,sg=hi?16:10,br="#c9a35c",db="#8a6a34",ir="#2a2418",V3=t3c_V,M={},Y0=.38;
+    const ms=k=>M[k]||(M[k]=k==="glow"?t3c_glow(0x6fc4ff,1.5):t3c_mat(k)),F=t3c_kit(),U=t3c_kit(),Hd=t3c_kit(),up=new THREE.Group();up.position.y=Y0;f.add(up);
+    // feet, piston legs, brass greaves and knees, the hip ring
+    for(const s of[-1,1]){const x=s*.11;
+      F.add("metal",new THREE.BoxGeometry(.15,.07,.2),db,x,.105,.025).add("metal",t3c_ball(.075,sg,8),br,x,.11,.09,{sy:.5,sz:.6})
+       .add("iron",t3c_limb(V3(x,.13,0),V3(x*1.02,.25,.01),.05,.045,sg),ir).add("metal",t3c_lathe([[.062,.14],[.074,.19],[.064,.235]],sg),br,x,0,0)
+       .add("metal",t3c_ball(.058,sg,8),br,x*1.02,.25,.025).add("iron",t3c_limb(V3(x*1.02,.25,.01),V3(s*.1,.37,0),.05,.056,sg),ir);}
+    F.add("metal",new THREE.CylinderGeometry(.16,.15,.08,sg+4),db,0,.37,0,{sz:.8});
+    // barrel chest with rivets, vents and the bezel round the core
+    U.add("metal",t3c_lathe([[.15,0],[.19,.06],[.218,.16],[.225,.24],[.2,.31],[.1,.345]],sg+8),br,0,0,0,{sz:.8})
+     .add("iron",new THREE.TorusGeometry(.17,.016,6,sg+4),ir,0,.045,0,{rx:Math.PI/2,sy:.82}).add("metal",new THREE.TorusGeometry(.074,.014,8,22),db,0,.19,.176)
+     .add("iron",new THREE.CylinderGeometry(.066,.066,.02,22),ir,0,.19,.17,{rx:Math.PI/2}).add("iron",new THREE.CylinderGeometry(.05,.065,.07,sg),ir,0,.36,0);
+    for(let i=0;i<11;i++){const a=(i/10-.5)*2.4;U.add("metal",t3c_ball(.009,6,4),db,Math.sin(a)*.226,.255,Math.cos(a)*.226*.8);}
+    for(let i=0;i<3;i++)U.add("iron",new THREE.BoxGeometry(.12-i*.015,.011,.012),ir,0,.08+i*.022,.166-i*.003);
+    // big arms: shoulder ball and cap, iron elbow, brass forearm, heavy fists
+    for(const s of[-1,1]){const S=V3(s*.25,.28,0),E=V3(s*.29,.12,-.01),W=V3(s*.3,-.03,.05);
+      U.add("metal",t3c_ball(.085,sg,10),br,S.x,S.y+.01,0).add("metal",new THREE.SphereGeometry(.096,sg,8,0,Math.PI*2,0,Math.PI*.42),db,S.x,S.y+.02,0,{rz:-s*.35})
+       .add("iron",t3c_limb(S,E,.042,.04,sg),ir).add("iron",t3c_ball(.048,sg,8),ir,E.x,E.y,E.z).add("metal",t3c_limb(E,W,.066,.058,sg),br)
+       .add("iron",new THREE.BoxGeometry(.105,.1,.11),ir,W.x,W.y-.06,W.z+.01).add("metal",new THREE.BoxGeometry(.112,.028,.118),db,W.x,W.y-.022,W.z+.01);}
+    // head: brass dome, dark face plate, glowing eyes, and his blue headphones
+    const head=new THREE.Group();head.position.y=.455;up.add(head);
+    Hd.add("metal",t3c_ball(.12,sg+4,sg),br,0,0,0,{sx:1.08,sy:.92,sz:.98}).add("plate",new THREE.SphereGeometry(.123,sg+4,sg,Math.PI/2-.8,1.6,Math.PI*.3,Math.PI*.42),"#151210",0,0,0,{sx:1.08,sy:.92,sz:.98})
+     .add("gloss",new THREE.TorusGeometry(.14,.015,6,sg+6,Math.PI),"#2f6fd6",0,0,0).add("iron",new THREE.BoxGeometry(.07,.018,.034),"#1a1a22",0,.146,0);
+    for(const s of[-1,1]){Hd.add("glow",t3c_ball(.02,10,8),"#fff",s*.043,.012,.116,{sz:.5})
+      .add("gloss",new THREE.CylinderGeometry(.056,.056,.05,sg+4),"#2f6fd6",s*.137,-.005,0,{rz:Math.PI/2}).add("gloss",new THREE.CylinderGeometry(.04,.044,.014,sg+4),"#5b95ec",s*.167,-.005,0,{rz:Math.PI/2})
+      .add("iron",new THREE.TorusGeometry(.046,.014,6,sg+2),"#16161c",s*.112,-.005,0,{ry:Math.PI/2});}
+    F.build(f,ms,0,1);U.build(up,ms,-Y0,.62);const hm=Hd.build(head,ms,-.15,.15);
+    const core=new THREE.Mesh(t3c_ball(.058,sg,10),t3c_glow(0xe8743b,1.4));core.scale.z=.4;core.position.set(0,.19,.178);up.add(core);
+    const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:t3dotTex(),color:0xff8a40,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:.45}));halo.scale.set(.3,.3,1);halo.position.set(0,.19,.21);up.add(halo);
+    const b={up,top:.98,hand:V3(.3,-.09,.1),head,core};let dn=0,blink=3;const ph=Math.random()*6;
+    b.anim=(dt,tt,now,st)=>{dn+=((st.down?1:0)-dn)*Math.min(1,dt*4);const br2=Math.sin(tt*1.4+ph);
+      up.position.y=Y0+br2*.004*(1-dn);up.rotation.x=dn*.5;
+      head.rotation.set(dn*.5,(1-dn)*.3*Math.sin(tt*.37+ph),(1-dn)*.13*Math.sin(tt*.9+ph)+dn*.25);  // a slow nod and tilt, as if listening
+      const p=(1-dn*.85)*(1.3+.45*Math.sin(tt*3.1+ph)+.1*Math.sin(tt*11));core.material.emissiveIntensity=p;halo.material.opacity=.18*p;halo.visible=!st.gone;
+      blink-=dt;if(blink<0)blink=2.5+Math.random()*4;if(hm.glow){hm.glow.scale.y=blink<.12?.15:1;hm.glow.material.emissiveIntensity=1.5*(1-dn*.85);}};
+    return b;},
   hollower(f){return t3body(f,{cloth:"#55574f",skin:"#8b8c86",eyes:0xcfe8ff,hunch:.45,arm:1.45,bulk:.9});},
   husk(f){const b=t3body(f,{cloth:"#4b4743",skin:"#5c5751",eyes:0xff8a3a,hunch:.2,bulk:1.35});const em=new THREE.MeshStandardMaterial({color:0xff6a2a,emissive:0xff6a2a,emissiveIntensity:1.8});
     for(let i=0;i<6;i++){const c=new THREE.Mesh(new THREE.BoxGeometry(.012,.09,.012),em);const a=i*1.05;c.position.set(Math.cos(a)*.19,.05+(i%3)*.07,Math.sin(a)*.19);c.rotation.z=i;b.up.add(c);}return b;},
