@@ -9412,11 +9412,21 @@ const sentDone=()=>(window.__myInterludes||{}).done||{};
 let IFK=null; // the fight in progress: {keep} holds the session 10 state while the interlude has its own
 function iLeave(){if(IFK){ST=IFK.keep;IFK=null;}PLAY.inter=false;IST=null;}
 const devPlay=()=>/[?&](interlude|playtest)(=|&|$)/.test(location.search);
+/* without the table site (GitHub Pages, or Netlify signed out) the interludes still play: the player says on this
+   device who they are (chron-inter-me), plays their own and the shared one, and the result stays on the device.
+   Nothing is sent to Sam; the Echo still shows on the character sheet. */
+const IME="chron-inter-me";
+const localMe=()=>{const c=store.get(IME);return PCS.includes(c)?c:null;};
+const localMode=()=>!online()&&!devPlay();
 /* whose interludes this device may play: the signed-in player's own, plus the shared one. Sam (DM) may test all. */
 function playable(){
-  if(online()){if(account.isDm)return INTERLUDES;const c=myChar;return INTERLUDES.filter(i=>i.who===c||(i.who==="all"&&PCS.includes(c)));}
-  return devPlay()?INTERLUDES:[];}
-
+  const own=c=>INTERLUDES.filter(i=>i.who===c||(i.who==="all"&&PCS.includes(c)));
+  if(online()){if(account.isDm)return INTERLUDES;return own(myChar);}
+  if(devPlay())return INTERLUDES;
+  return localMe()?own(localMe()):[];}
+const isSent=id=>!!sentDone()[id]||!!(myResults()[id]||{}).sent;
+async function pickMe(){const i=await choose("Which one are you? Hans opens your interlude, and the shared one round the fire.",[...PCS.map(c=>({t:CREW[c].short})),{t:"Back"}]);
+  if(i<PCS.length){store.set(IME,PCS[i]);return true;}return false;}
 /* ---- the reading screen: a passage is several paragraphs, so it gets a div, not read()'s <p> ---- */
 function iFill(html){const v=IST&&IST.verse||{};return html.replace(/\{line(\d)\}/g,(_,n)=>v[n]?escapeHtml(v[n]):"…");}
 function escapeHtml(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
@@ -9501,7 +9511,7 @@ async function runInterlude(I){
   const lore=[...Object.entries(T.extra||{}).filter(([k])=>IST.seen.includes(k)).map(([,t])=>t),e.lore]
     .map(t=>t.replace(/\[Name\]/g,speaker?SPEAKER[speaker]:"Someone").replace(/\[The four lines\.\]/g,IST.verse[1]?`"Foxglove bells over the sleeping roots, / ${IST.verse[1]} / ${IST.verse[2]} / ${IST.verse[3]}"`:"").trim()).filter(Boolean).slice(0,8);
   const who=I.who==="all"?(PCS.includes(myChar)?myChar:"katy"):I.who;
-  const r={character:I.who==="all"?(online()&&myChar?myChar:"crew"):who,title:T.title,path:IST.path.slice(0,40).map(s=>s.slice(0,120)),ending:ek,
+  const r={character:I.who==="all"?(online()&&myChar?myChar:(!online()&&localMe())||"crew"):who,title:T.title,path:IST.path.slice(0,40).map(s=>s.slice(0,120)),ending:ek,
     echo:{id:I.id+"-"+ek,text:(e.echo.name+": "+e.echo.text).slice(0,300),used:false},lore:lore.map(s=>s.slice(0,1000)),finishedAt:Date.now()};
   if(IST.verse[1])r.verse=["Foxglove bells over the sleeping roots",IST.verse[1],IST.verse[2],IST.verse[3]].map(s=>String(s||"").slice(0,200));
   if(fight)r.fight=fight;
@@ -9521,14 +9531,18 @@ async function iFight(I){const mine={keep:ST};IFK=mine;ST=freshState();PLAY.inte
 /* ---- Send to Sam: finalize ---- */
 async function iFinalize(I,r){
   if(online())await iServerDoc(4000);
-  const already=!!sentDone()[I.id];
+  const already=isSent(I.id);
   if(!already)saveMine(I.id,r); // a replay of one already sent stays a replay: what Sam has is final
   storyView(I.art);
   const what=`<p>Hans folds it into his log:</p><ul class="pl-lore">${r.lore.map(l=>`<li>${escapeHtml(l)}</li>`).join("")}</ul>`;
   if(already){await iPassage({html:what+"<p class='muted'>You sent this one to Sam already. That copy stands; this replay stays here.</p>"},[{t:"Back"}]);return;}
   if(!online()){
-    if(typeof NETLIFY!=="undefined"&&NETLIFY){const i=await iPassage({html:what+"<p class='muted'>Saved on this phone. Sign in, then send it to Sam from Interludes.</p>"},[{t:"Sign in"},{t:"Back"}]);if(i===0)iSignIn();return;}
-    await iPassage({html:what+"<p class='muted'>Saved on this device. Interludes reach Sam from the table site, when you're signed in.</p>"},[{t:"Back"}]);return;}
+    if(!localMode()){await iPassage({html:what+"<p class='muted'>A test run: it stays on this device.</p>"},[{t:"Back"}]);return;}
+    const net=typeof NETLIFY!=="undefined"&&NETLIFY;
+    const i=await iPassage({html:what+"<p class='muted'>Kept on this phone. You played without signing in, so nothing goes to Sam. Your Echo waits on your character sheet.</p>"},
+      [{t:"Back"},...(net?[{t:"Sign in",sub:"signed in, you can send it to Sam from Interludes"}]:[])]);
+    if(net&&i===1)iSignIn();
+    return;}
   if(account.isDm){await iPassage({html:what+"<p class='muted'>You're signed in as Sam, so this was a test run. Nothing is sent.</p>"},[{t:"Back"}]);return;}
   const i=await iPassage({html:what+"<p>Send it to Sam? Once it's sent, it's final: the Echo is yours for the table, and Sam reads what Hans logged.</p>"},[{t:"Send to Sam"},{t:"Not yet",sub:"it stays on this phone; you can send it later"}]);
   if(i===1)return;
@@ -10424,23 +10438,28 @@ if(devPlay())window.__iscore={score:iScore,stop:iScoreStop,snd:iScoreSnd,echo:ek
 async function interludeHub(){
   storyView("memory");setTitle("Between sessions","Interludes");
   if(online()&&!window.__myInterludes){clearStory();storyEl.append(h("p",{class:"pl-read",role:"status"},"Hans is fetching your pages…"));await iServerDoc(6000);}
-  const list=playable(),mine=myResults(),sent=sentDone(),isNet=typeof NETLIFY!=="undefined"&&NETLIFY;
+  const list=playable(),mine=myResults(),isNet=typeof NETLIFY!=="undefined"&&NETLIFY;
   if(!list.length){
-    if(isNet&&!account){const i=await choose("Interludes are played signed in, each on its own player's phone. Sign in and yours is waiting.",[{t:"Sign in"},{t:"Back"}]);if(i===0)iSignIn();return;}
-    if(isNet){const i=await choose("First tell Hans who you are playing. Then your interlude is here.",[{t:"Choose my character"},{t:"Back"}]);if(i===0){exitPlay();showMissed();}return;}
-    await choose("Interludes are played on the table site, signed in. This copy of the map can't send anything to Sam. Ask Sam for the link.",[{t:"Back"}]);return;}
+    if(isNet&&!account){const i=await choose("Interludes are played on your own phone. Sign in and what you play goes to Sam, or just play it here.",[{t:"Sign in"},{t:"Play without signing in",sub:"nothing is sent to Sam"},{t:"Back"}]);
+      if(i===0)iSignIn();else if(i===1&&await pickMe())return interludeHub();return;}
+    if(isNet&&account){const i=await choose("First tell Hans who you are playing. Then your interlude is here.",[{t:"Choose my character"},{t:"Back"}]);if(i===0){exitPlay();showMissed();}return;}
+    if(await pickMe())return interludeHub();return;}
+  const local=localMode();
   const dm=online()&&account.isDm;
-  const opts=list.map(I=>{const T=INTERLUDE_TEXT[I.id]||{title:I.id},s=dm?(mine[I.id]?"tested":"test it"):sent[I.id]?"sent to Sam":mine[I.id]?"played, not sent yet":"new";
+  const opts=list.map(I=>{const T=INTERLUDE_TEXT[I.id]||{title:I.id},s=dm?(mine[I.id]?"tested":"test it"):isSent(I.id)?"sent to Sam":mine[I.id]?(local?"played":"played, not sent yet"):"new";
     return {t:T.title,sub:(I.who==="all"?"Together":CREW[I.who].short)+" · "+s};});
-  const unsent=online()&&!dm?list.filter(I=>mine[I.id]&&!sent[I.id]):[];
+  const unsent=online()&&!dm?list.filter(I=>mine[I.id]&&!isSent(I.id)):[];
   if(unsent.length)opts.push({t:"Send what I played to Sam",sub:unsent.map(I=>(INTERLUDE_TEXT[I.id]||{}).title).join(", ")});
+  const swap=local?opts.push({t:"Not "+CREW[localMe()].short+"? Change who's playing"})-1:-1;
   opts.push({t:"Back"});
   const intro=dm?"You're Sam: all four are here to test. Nothing you play here is sent."
     :online()?"Before the table finishes session 10. Play yours on your own; the shared one needs everyone's vote."
+    :local?"Before the table finishes session 10, played on this phone. Without signing in nothing is sent to Sam; it stays here. The shared one asks each of the crew to vote: pass the phone round, or vote as they would."
     :"A test copy: played here, it stays on this device.";
   const i=await choose(intro,opts);
   if(i<list.length){await runInterlude(list[i]);if(PLAY.on)return interludeHub();return;}
-  if(unsent.length&&i===list.length){await iSend(unsent.map(I=>I.id));return interludeHub();}}
+  if(unsent.length&&i===list.length){await iSend(unsent.map(I=>I.id));return interludeHub();}
+  if(i===swap){store.set(IME,"");return interludeHub();}}
 PLAY.interludes=INTERLUDES;PLAY.runInterlude=runInterlude;
 if(PLAY.auto)window.__inter={text:()=>INTERLUDE_TEXT,list:INTERLUDES,ist:()=>IST,fights:IFIGHTS,results:myResults,inter:()=>!!PLAY.inter||!!IFK,on:()=>PLAY.on,clean:iClean,send:iSend,exit:()=>{if(PLAY.on)exitPlay();}};
 
