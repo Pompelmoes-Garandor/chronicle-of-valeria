@@ -8830,6 +8830,432 @@ window.__iset=iCine;
 function iSeal(){const s=h("div",{class:"ic-seal","aria-hidden":"true"},h("div",{},h("b",{},"H"),h("span",{},"FILED")));root.append(s);
   setTimeout(()=>iSnd("seal"),reduced?0:300);setTimeout(()=>s.classList.add("out"),1500);setTimeout(()=>s.remove(),2100);}
 if(devPlay())window.__icine={seal:iSeal,cues:ICUE,ist:()=>IST};
+/* ---- foley and the mix: room tone, the sounds the prose describes, taps on the choices, one bus for it all ----
+   iBus(kind) is the interlude's mix. Sources go in by kind: "room" (room tone) and "world" (the cave, the crew, the
+   tide) pass the world low-pass, which muffles the world while time is held for Saphira; "fx" (spot sounds) and
+   "music" (sound-score's iScore; iBus() with no kind) go straight on. Then a low-pass over everything (the sweep),
+   a duck under Hans reading aloud, a compressor, a limiter, a fade, pOut. Two spaces: the cave (long and dark, inside
+   the world) and the near room (by interlude: the attic, the patron's close dark, the prayer, the fire).
+   iFoley(id,pid) runs from iCine on every passage and acts once per passage id. IFOLEY[id].P[pid] sets the carried
+   layers (lay: the room tone, candle, wind, fire, the dagger's hum ...: they fade to the new level and carry on) and
+   the passage's spot sounds (at: seconds, or a phrase of the passage: it lands about when a reader gets there).
+   Spot sounds live in a passage scope that fades and stops when the next passage comes; layers carry.
+   iWatch (every 100 ms) does the rest: the fight (only a quiet room tone under the battle sounds), the Echo after it,
+   ducking, a hidden page, play sound off, and leaving: a clean fade, then every node stopped.
+   Every sound is made here in code, and nothing plays unless play sound is on. */
+const IFX={a:null,bus:null,id:null,ist:null,gen:-1,pid:null,ph:"",sc:null,ui:null,lay:{},nb:null,vc:{},iv:0,talk:false,hid:false,mapDuck:false,live:new Set(),off:false,seenOff:[]};
+const iNow=()=>IFX.a.currentTime+.02;
+/* noise to cut everything from: white, pink, brown; stereo, 4 s, the end runs on into the start so a loop never clicks */
+function iNoise(a){if(IFX.nb&&IFX.nb.a===a)return IFX.nb;const sr=a.sampleRate,n=sr*4|0,m=sr*.25|0;
+  const mk=fill=>{const b=a.createBuffer(2,n,sr);for(let c=0;c<2;c++){const x=new Float32Array(n+m);fill(x);const d=b.getChannelData(c);for(let i=0;i<n;i++)d[i]=i<m?x[i]*(i/m)+x[n+i]*(1-i/m):x[i];}return b;};
+  return IFX.nb={a,white:mk(x=>{for(let i=0;i<x.length;i++)x[i]=Math.random()*2-1;}),
+    pink:mk(x=>{let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;for(let i=0;i<x.length;i++){const w=Math.random()*2-1;b0=.99886*b0+w*.0555179;b1=.99332*b1+w*.0750759;b2=.969*b2+w*.153852;b3=.8665*b3+w*.3104856;b4=.55*b4+w*.5329522;b5=-.7616*b5-w*.016898;x[i]=(b0+b1+b2+b3+b4+b5+b6+w*.5362)*.11;b6=w*.115926;}}),
+    brown:mk(x=>{let l=0;for(let i=0;i<x.length;i++){l=(l+.02*(Math.random()*2-1))/1.02;x[i]=l*3.5;}})};}
+/* a space: decaying noise that darkens as it dies */
+function iIR(a,sec,lp,pre){const sr=a.sampleRate,p=pre*sr|0,n=p+(sec*sr|0),b=a.createBuffer(2,n,sr);
+  for(let c=0;c<2;c++){const d=b.getChannelData(c);let y=0;for(let i=p;i<n;i++){const t=(i-p)/sr;y+=(1-Math.exp(-6.283*lp*Math.pow(.3,t/sec)/sr))*(Math.random()*2-1-y);d[i]=y*Math.exp(-6.9*t/sec);}}
+  return b;}
+/* the bus: built once per interlude, into pOut */
+function iMix(){const a=pAc();if(!a)return null;
+  if(IFX.bus&&!IFX.bus.fading&&IFX.a===a&&IFX.ist===IST)return IFX.bus;
+  if(IFX.bus)iTear(0);
+  const b=iMixOn(a,pOut,IST.I.id);
+  if(SND.nodes){IFX.mapDuck=true;SND.nodes.out.gain.setTargetAtTime(0,SND.nodes.a.currentTime,.4);} // the map's own sound waits outside
+  if(!IFX.iv)IFX.iv=setInterval(iWatch,100);
+  return b;}
+function iMixOn(a,dest,id){const G=()=>a.createGain(),F=()=>{const x=a.createBiquadFilter();x.frequency.value=18000;x.Q.value=0;return x;};
+  const comp=a.createDynamicsCompressor(),lim=a.createDynamicsCompressor();
+  comp.threshold.value=-12;comp.knee.value=12;comp.ratio.value=2;comp.attack.value=.015;comp.release.value=.35;
+  lim.threshold.value=-2;lim.knee.value=0;lim.ratio.value=20;lim.attack.value=.002;lim.release.value=.15;
+  const b={music:G(),fx:G(),world:G(),room:G(),cave:G(),near:G(),wlp:F(),sweep:F(),duck:G(),trim:G(),out:G(),comp,lim,cv:a.createConvolver(),nv:a.createConvolver()};
+  const nr=(IFOLEY[id]||{}).near||[.8,3500,.006];b.cv.buffer=iIR(a,2.8,3000,.02);b.nv.buffer=iIR(a,nr[0],nr[1],nr[2]);
+  b.room.connect(b.world);b.cave.connect(b.cv).connect(b.world);b.near.connect(b.nv).connect(b.fx);
+  b.world.connect(b.wlp).connect(b.sweep);b.fx.connect(b.sweep);b.music.connect(b.sweep);
+  b.trim.gain.value=.58;b.sweep.connect(b.duck).connect(comp).connect(lim).connect(b.trim).connect(b.out).connect(dest); // the trim takes back the compressors' own make-up gain
+  b.nodes=Object.values(b).filter(x=>x&&x.disconnect);
+  const t=a.currentTime;b.out.gain.setValueAtTime(0,t);b.out.gain.linearRampToValueAtTime(1,t+.8);
+  Object.assign(IFX,{a,bus:b,id,ist:IST,gen:PLAY.gen,pid:null,ph:"read",sc:null,ui:null,lay:{},talk:false,hid:false});
+  return b;}
+/* for other parts of the interlude (the score): the node to connect into, or null while there is no interlude sound */
+function iBus(kind){const b=IFX.bus;if(!b||b.fading||!opt.sound||IFX.off)return null;return b[kind||"music"]||b.music;}
+/* leaving: everything fades together, then every source stops and the bus comes apart */
+function iTear(fade=1.4,t){const b=IFX.bus;if(!b||b.fading)return;b.fading=true;const a=IFX.a,f=Math.max(.02,fade);t=t??a.currentTime;
+  b.out.gain.cancelScheduledValues(t);b.out.gain.setValueAtTime(b.out.gain.value,t);b.out.gain.linearRampToValueAtTime(0,t+f);
+  for(const s of [IFX.sc,IFX.ui,...Object.values(IFX.lay).map(L=>L.s)])iRetire(s,f,t);
+  IFX.sc=IFX.ui=null;IFX.lay={};IFX.pid=null;IFX.ist=null;
+  if(IFX.off)return;
+  if(SND.nodes&&IFX.mapDuck)SND.nodes.out.gain.setTargetAtTime(.6*SND.duck,SND.nodes.a.currentTime,.6);IFX.mapDuck=false;
+  setTimeout(()=>{for(const n of b.nodes)try{n.disconnect();}catch(e){}if(IFX.bus===b)IFX.bus=null;},f*1000+400);}
+/* scopes: sources that fade and stop together (a passage, a layer, the taps) */
+function iScope(lv=1){return {g:{},src:new Set(),tm:[],on:true,lv};}
+function iTo(s,k){let g=s.g[k];if(!g){g=IFX.a.createGain();g.gain.value=s.lv;g.connect(IFX.bus[k]);s.g[k]=g;}return g;}
+function iReg(s,n,e){n._e=e;s.src.add(n);IFX.live.add(n);n.onended=()=>{s.src.delete(n);IFX.live.delete(n);};return n;}
+function iRetire(s,fade=.6,t){if(!s||!s.on)return;s.on=false;s.tm.forEach(clearTimeout);s.tm.length=0;const f=Math.max(.02,fade);t=t??iNow();
+  for(const g of Object.values(s.g)){g.gain.cancelScheduledValues(t);g.gain.setValueAtTime(g.gain.value,t);g.gain.linearRampToValueAtTime(0,t+f);}
+  for(const n of s.src)if(n._e>t+f)try{n.stop(t+f+.02);n._e=t+f+.02;}catch(e){}
+  if(!IFX.off)setTimeout(()=>{for(const g of Object.values(s.g))try{g.disconnect();}catch(e){}},f*1000+400);}
+/* building blocks */
+function iN(s,t,dur,kind){const b=iNoise(IFX.a)[kind||"white"],n=IFX.a.createBufferSource(),inf=!isFinite(dur);n.buffer=b;n.loop=inf||dur>3.6;
+  n.start(t,Math.random()*(n.loop?b.duration-.1:b.duration-dur-.05));if(!inf)n.stop(t+dur);return iReg(s,n,inf?Infinity:t+dur);}
+function iO(s,t,dur,f,type){const o=IFX.a.createOscillator(),inf=!isFinite(dur);o.type=type||"sine";o.frequency.setValueAtTime(f,t);o.start(t);if(!inf)o.stop(t+dur);return iReg(s,o,inf?Infinity:t+dur);}
+function iB(s,t,buf){const n=IFX.a.createBufferSource();n.buffer=buf;n.start(t);return iReg(s,n,t+buf.duration);}
+function iF(ty,f,q){const x=IFX.a.createBiquadFilter();x.type=ty;x.frequency.value=f;if(q!=null)x.Q.value=q;return x;}
+function iE(t,pts){const g=IFX.a.createGain(),p=g.gain;p.setValueAtTime(pts[0][1],t+pts[0][0]);for(const [d,v,e] of pts.slice(1)){if(e)p.exponentialRampToValueAtTime(Math.max(v,1e-4),t+d);else p.linearRampToValueAtTime(v,t+d);}return g;}
+const iP=(t,v,dec,att=.002)=>iE(t,[[0,0],[att,v],[att+dec,1e-4,1]]); // a hit: quick in, dying away
+function iOut(s,o){const a=IFX.a,g=a.createGain();g.gain.value=o.v==null?1:o.v;let n=g;
+  if(o.pan&&a.createStereoPanner){const p=a.createStereoPanner();p.pan.value=Math.max(-1,Math.min(1,o.pan));n.connect(p);n=p;}
+  if(o.lp){const f=iF("lowpass",o.lp,0);n.connect(f);n=f;}
+  n.connect(iTo(s,o.bus||"fx"));
+  for(const k of ["cave","near"])if(o[k]){const w=a.createGain();w.gain.value=o[k];n.connect(w).connect(iTo(s,k));}
+  return g;}
+function iHit(s,t,out,ty,f,q,v,dec,kind){const x=iF(ty,f,q);iN(s,t,dec+.03,kind).connect(x).connect(iP(t,v,dec,.001)).connect(out);}
+function iRing(s,t,out,fs,decs,vs){fs.forEach((f,i)=>iO(s,t,decs[i]+.05,f).connect(iP(t,vs[i],decs[i],.001)).connect(out));}
+/* noise with a random tremble in its level: cloth, paper, breath, water */
+function iRust(s,t,dur,f,q,rate,depth,kind){const a=IFX.a,x=iF("bandpass",f,q),m=a.createGain(),ag=a.createGain();m.gain.value=1-depth*.6;
+  ag.gain.value=depth*.5/(.577*Math.sqrt(2*rate/a.sampleRate));iN(s,t,dur,"white").connect(iF("lowpass",rate,0)).connect(ag).connect(m.gain);
+  iN(s,t,dur,kind||"white").connect(x).connect(m);return m;}
+/* wood under weight: stick and slip, a train of clicks through the wood's own ringing */
+function iCrk(a,dur,f0,f1,rough){const sr=a.sampleRate,n=dur*sr|0,b=a.createBuffer(1,n,sr),d=b.getChannelData(0);let nx=0;
+  for(let i=0;i<n;i++)if(i>=nx){const x=i/n,f=f0*Math.pow(f1/f0,x);d[i]=Math.pow(Math.sin(Math.PI*x),.6)*(.5+Math.random()*.5);nx=i+Math.max(2,sr/f*(1+(Math.random()-.5)*rough));}
+  return b;}
+/* pebbles drawn back by a wave: thousands of tiny knocks, thinning out */
+function iPebbles(a,d){const sr=a.sampleRate,n=d*sr|0,b=a.createBuffer(2,n,sr);
+  for(let c=0;c<2;c++){const x=b.getChannelData(c);let t=0;while(t<d){const k=1-t/d;t+=-Math.log(1-Math.random())/(420*Math.pow(k,1.6)+12);const i0=t*sr|0,L=(.0008+Math.random()*.0025)*sr|0,amp=(.2+Math.random()*.8)*Math.sqrt(Math.max(0,k));
+    for(let i=0;i<L&&i0+i<n;i++)x[i0+i]+=(Math.random()*2-1)*amp*Math.exp(-i/(L*.3));}}
+  return b;}
+function iPeb(a,d){if(IFX.vc.a!==a)IFX.vc={a};const p=IFX.vc.peb||(IFX.vc.peb=[]);if(p.length<3)p.push(iPebbles(a,d));return p[Math.random()*p.length|0];}
+/* voices, far off: glottal pulses with a little jitter, breath, three formants. Murmurs, a far laugh, a held word.
+   Never close and never clear: they sit behind a low-pass and in the room, where words can't be made out. */
+function iVox(a,syl,k){const sr=a.sampleRate,len=syl.reduce((m,s)=>Math.max(m,s.t+s.d),0)+.06,n=len*sr|0,b=a.createBuffer(1,n,sr),d=b.getChannelData(0);
+  for(const s of syl){const i0=s.t*sr|0,L=Math.min(n-i0,s.d*sr|0),tl=Math.min(n-i0,L+(sr*.03|0)),ex=new Float32Array(tl);let ph=Math.random(),g0=0,jit=0;
+    for(let i=0;i<L;i++){const x=i/L,f=s.f*Math.pow(s.f1/s.f,x)*(1+jit);ph+=f/sr;if(ph>=1){ph-=1;jit=jit*.7+(Math.random()-.5)*.02;}
+      const flow=ph<.4?.5*(1-Math.cos(Math.PI*ph/.4)):ph<.56?Math.cos(Math.PI*(ph-.4)/.32):0,dg=flow-g0;g0=flow;
+      const env=(s.noatt?1:Math.min(1,i/(sr*.02)))*(s.sus?1:Math.min(1,(L-i)/(sr*.035)))*(s.amp||1)*(1-(1-(s.to??1))*x),h=s.h&&i<s.h*sr;
+      ex[i]=env*((h?0:dg*9)+(Math.random()*2-1)*(s.br||.2)*(h?.6:(.2+flow)*.3));}
+    s.F.forEach((fc,j)=>{const w=2*Math.PI*fc/sr,al=Math.sin(w)/(2*fc/[80,100,150][j]),a0=1+al,b0=al/a0,a1=-2*Math.cos(w)/a0,a2=(1-al)/a0,gj=[1,.7,.35][j];let x1=0,x2=0,y1=0,y2=0;
+      for(let i=0;i<tl;i++){const xi=ex[i],y=b0*(xi-x2)-a1*y1-a2*y2;x2=x1;x1=xi;y2=y1;y1=y;d[i0+i]+=y*gj;}});}
+  if(k==null){let pk=0;for(let i=0;i<n;i++)pk=Math.max(pk,Math.abs(d[i]));k=pk>0?.8/pk:1;}
+  for(let i=0;i<n;i++)d[i]*=k;b._k=k;return b;}
+function iLoopify(a,b,fd){const sr=a.sampleRate,m=fd*sr|0,N=b.length,n=N-m,o=a.createBuffer(1,n,sr),x=b.getChannelData(0),d=o.getChannelData(0);for(let i=0;i<n;i++)d[i]=i<m?x[i]*(i/m)+x[n+i]*(1-i/m):x[i];return o;}
+const IVOICE={katy:[208,1.12,.22],matthew:[106,1,.5],stig:[92,.94,.25],thorn:[124,1,.28],lady:[232,1.15,.3],lord:[118,1,.3]};
+const IVOW=[[730,1090,2440],[530,1840,2480],[300,2200,2950],[570,840,2410],[330,900,2250],[640,1700,2420],[480,1350,2500],[400,1600,2550]];
+function iPhraseSyl(w){const [f0,fs,br]=IVOICE[w]||IVOICE.katy,n=3+(Math.random()*8|0),up=Math.random()<.25,syl=[];let t=0;
+  for(let i=0;i<n;i++){const d=.08+Math.random()*.15,f=f0*(up&&i>n-3?1.12:1.1-.22*i/n)*(1+(Math.random()-.5)*.1);
+    syl.push({t,d,f,f1:f*(.93+Math.random()*.1),F:IVOW[Math.random()*IVOW.length|0].map(v=>v*fs),br,amp:.55+Math.random()*.45,h:Math.random()<.18?.03:0});t+=d+(Math.random()<.22?.07+Math.random()*.14:.008);}
+  return syl;}
+function iLaughSyl(){const syl=[];let t=0;for(let i=0;i<5;i++){const d=.09+Math.random()*.04,f=392*(1-.045*i)*(1+(Math.random()-.5)*.04);syl.push({t,d,f,f1:f*.9,F:[860,1300,2900],br:.45,amp:1-.13*i,h:.035});t+=d+.055+Math.random()*.03;}return syl;}
+function iVoxC(w){const a=IFX.a;if(IFX.vc.a!==a)IFX.vc={a};const p=IFX.vc[w]||(IFX.vc[w]=[]);if(p.length<5){const b=iVox(a,w==="laugh"?iLaughSyl():iPhraseSyl(w));p.push(b);return b;}return p[Math.random()*p.length|0];}
+/* Katy's word, held: it stretches, slows and sinks, then hangs (on D, under the song's key) */
+function iHeld(a){if(IFX.vc.a!==a)IFX.vc={a};if(IFX.vc.held)return IFX.vc.held;const F=[650,1150,2550].map(v=>v*1.12),f=146.83;
+  const st=iVox(a,[{t:0,d:3.4,f:205,f1:f,F,br:.3,amp:1,to:.55,sus:1}]);
+  return IFX.vc.held={st,lp:iLoopify(a,iVox(a,[{t:0,d:2.7,f,f1:f,F,br:.3,amp:.55,sus:1,noatt:1}],st._k),.3)};}
+
+/* the carried layers: make(L,t) builds what always runs, tick(L,now) places events just ahead while it is audible */
+const ILAY={
+  cave:{make(L,t){const s=L.s;L.g=IFX.a.createGain();L.g.connect(iOut(s,{bus:"room",v:.125}));iN(s,t,Infinity,"brown").connect(iF("lowpass",230,0)).connect(L.g);
+      const h=IFX.a.createGain();h.gain.value=.05;iN(s,t,Infinity,"pink").connect(iF("bandpass",480,.6)).connect(h).connect(L.g);},
+    tick(L,now){if(now<L.next)return;L.next=now+2+Math.random()*3;L.g.gain.setTargetAtTime(.75+Math.random()*.4,now,1.2);}},
+  attic:{make(L,t){const s=L.s;iN(s,t,Infinity,"pink").connect(iF("lowpass",650,0)).connect(iOut(s,{bus:"room",v:.042}));iN(s,t,Infinity,"brown").connect(iF("lowpass",140,0)).connect(iOut(s,{bus:"room",v:.072}));}},
+  candle:{make(L,t){const s=L.s;L.g=IFX.a.createGain();iN(s,t,Infinity,"white").connect(iF("bandpass",2400,.5)).connect(L.g).connect(iOut(s,{bus:"fx",v:.02,near:.3,pan:.2}));},
+    tick(L,now){const fl=L.flick>now;if(now>=L.next){L.next=now+(fl?.05:.12)+Math.random()*(fl?.08:.3);L.g.gain.setTargetAtTime((fl?.5:.75)+Math.random()*(fl?1.2:.5),now,fl?.03:.08);}
+      if(Math.random()<(fl?.08:.012))IFXS.sputter(L.s,now+Math.random()*.1,{});}},
+  wind:{make(L,t){const s=L.s,o=iOut(s,{bus:"world",lp:1700,near:.25,pan:-.25,v:.43});L.bp=iF("bandpass",380,.9);L.g=IFX.a.createGain();L.g.gain.value=.5;iN(s,t,Infinity,"pink").connect(L.bp).connect(L.g).connect(o);
+      L.wh=iF("bandpass",560,18);L.wg=IFX.a.createGain();L.wg.gain.value=0;iN(s,t,Infinity,"white").connect(L.wh).connect(L.wg).connect(o);},
+    tick(L,now){if(now<L.next)return;const gust=L.gust>now,k=Math.random(),tc=gust?.5:.9+Math.random()*.6;L.next=now+(gust?.8:1.3+Math.random()*2.6);
+      L.g.gain.setTargetAtTime(gust?1.4:.25+k*.6,now,tc);L.bp.frequency.setTargetAtTime(gust?560:280+k*220,now,tc);L.wh.frequency.setTargetAtTime((gust?640:480)+Math.random()*120,now,tc*1.4);L.wg.gain.setTargetAtTime(gust?.35:k>.7?.12*k:0,now,tc);}},
+  court:{tick(L,now){if(now<L.next)return;const t=Math.max(L.next||0,now+.05),b=iVoxC(Math.random()<.5?"lady":"lord");iB(L.s,t,b).connect(iOut(L.s,{bus:"world",lp:520,near:.9,pan:-.5+Math.random()*.4,v:.073}));L.next=t+b.duration*(.4+Math.random()*.5)+.4+Math.random()*2.2;}},
+  murmur:{tick(L,now){if(now<L.next)return;const W=(IFOLEY[IFX.id]||{}).voices||["katy","matthew"];if(Math.random()<.65)L.wi=(L.wi||0)+1;const w=W[(L.wi||0)%W.length],b=iVoxC(w),t=Math.max(L.next||0,now+.05);
+    iB(L.s,t,b).connect(iOut(L.s,{bus:"world",lp:1150,cave:.4,pan:{katy:.22,matthew:.38,stig:-.3,thorn:-.5}[w]||0,v:.07}));L.next=t+b.duration+.25+Math.random()*1.6;}},
+  held:{make(L,t){const a=IFX.a,{st,lp}=iHeld(a),o=iOut(L.s,{bus:"world",cave:.5,pan:.2,v:.11});iB(L.s,t,st).connect(o);
+      const n=a.createBufferSource();n.buffer=lp;n.loop=true;n.start(t+st.duration-.15);iReg(L.s,n,Infinity);n.connect(iE(t,[[0,0],[st.duration-.15,0],[st.duration,1]])).connect(o);}},
+  tick:{tick(L,now){if(now<L.next)return;if(L.next)IFXS.tick(L.s,now+Math.random()*.2,{v:.35+Math.random()*.3});L.next=now+3+Math.random()*6.5;}},
+  drips:{make(L){L.d=[[1180,3.4,-.55,.7],[860,5.6,.35,.5],[1520,8.2,.7,.35]].map(([f,p,pan,v])=>({f,p,pan,v,next:0}));},
+    tick(L,now){for(const d of L.d){if(now<d.next)continue;if(d.next)IFXS.drip(L.s,now+Math.random()*.15,{f:d.f*(.96+Math.random()*.08),pan:d.pan,v:d.v});d.next=now+d.p*(.6+Math.random()*.8);}}},
+  lamp:{make(L,t){const s=L.s;L.g=IFX.a.createGain();L.g.connect(iOut(s,{bus:"world",near:.2,pan:-.1,v:.15}));iN(s,t,Infinity,"pink").connect(iF("bandpass",420,.7)).connect(L.g);
+      const h=IFX.a.createGain();h.gain.value=.25;iN(s,t,Infinity,"white").connect(iF("bandpass",2100,1)).connect(h).connect(L.g);},
+    tick(L,now){const gut=L.gut>now;if(now>=L.next){L.next=now+(gut?.05:.15)+Math.random()*(gut?.07:.35);L.g.gain.setTargetAtTime(gut?.1+Math.random()*1.4:.7+Math.random()*.45,now,gut?.02:.12);}
+      if(Math.random()<(gut?.15:.01))IFXS.sputter(L.s,now+Math.random()*.1,{v:.6});}},
+  breath:{tick(L,now){if(now<L.next)return;const t=Math.max(L.next||0,now+.05);IFXS.breath(L.s,t,{v:.5,inh:1.2+Math.random()*.4,dur:2.2+Math.random()*.8});L.next=t+5.4+Math.random()*2.2;}},
+  fan:{make(L,t){const s=L.s,o=iOut(s,{bus:"fx",lp:3200,near:.3,pan:-.3,v:.14});L.bp=iF("bandpass",1150,.8);iN(s,t,Infinity,"pink").connect(L.bp).connect(o);
+      L.os=iO(s,t,Infinity,187,"triangle");const g=IFX.a.createGain();g.gain.value=.04;L.os.connect(iF("lowpass",700,0)).connect(g).connect(o);},
+    tick(L,now){if(now<L.next)return;L.next=now+2+Math.random()*2;L.os.frequency.setTargetAtTime(181+Math.random()*13,now,1.2);L.bp.frequency.setTargetAtTime(1080+Math.random()*140,now,1.2);}},
+  fire:{make(L,t){const s=L.s;iN(s,t,Infinity,"brown").connect(iF("lowpass",190,0)).connect(iOut(s,{bus:"fx",v:.16,near:.2}));L.g=IFX.a.createGain();iN(s,t,Infinity,"pink").connect(iF("bandpass",620,.8)).connect(L.g).connect(iOut(s,{bus:"fx",v:.03,near:.3}));},
+    tick(L,now){if(now>=L.next){L.next=now+.3+Math.random()*.9;L.g.gain.setTargetAtTime(.6+Math.random()*.7,now,.25);}
+      const r=Math.random(),n=r<.1?2:r<.45?1:0;for(let i=0;i<n;i++)IFXS.pop(L.s,now+Math.random()*.1,{v:.04+Math.random()*.1});
+      if(Math.random()<.025)IFXS.pop(L.s,now+Math.random()*.1,{v:.2,big:1});if(Math.random()<.012)IFXS.hiss(L.s,now,{});}},
+  ash:{tick(L,now){if(Math.random()<.07)IFXS.hiss(L.s,now+Math.random()*.1,{v:.02,short:1});}},
+  hum:{make(L,t){const s=L.s;L.k=[1,2,3,4.02,6.03];L.lp=iF("lowpass",450,0);L.w=IFX.a.createGain();L.lp.connect(L.w).connect(iOut(s,{bus:"fx",pan:.3,v:.17}));
+      L.os=L.k.map((k,i)=>{const o=iO(s,t,Infinity,55*k),g=IFX.a.createGain();g.gain.value=[.5,.35,.16,.09,.04][i];o.connect(g).connect(L.lp);return o;});},
+    tick(L,now){if(now<L.next)return;L.next=now+1+Math.random()*1.8;L.w.gain.setTargetAtTime(.8+Math.random()*.35,now,.7);}},
+  pulse:{tick(L,now){if(L.until&&now>L.until){L.until=0;iLay("pulse",0,2.5,now);return;}if(now+.3<L.next)return;const t=Math.max(L.next,now+.05);IFXS.beat(L.s,t,{v:.6});L.next=t+60/(L.bpm||56)*(1+(Math.random()-.5)*.08);}},
+  surf:{tick(L,now){if(now<L.next)return;const t=Math.max(L.next||0,now+.1);IFXS.wave(L.s,t,{v:.6+Math.random()*.4});L.next=t+8.5+Math.random()*4.5;}}};
+function iLay(name,v,fade,t){let L=IFX.lay[name];
+  if(!L){if(!(v>0)||!ILAY[name])return null;L=IFX.lay[name]={name,def:ILAY[name],s:iScope(0),v:0,next:0};try{if(L.def.make)L.def.make(L,t);}catch(e){console.error(e);}}
+  L.v=v;L.s.lv=v;L.kill=v>0?0:t+fade+.5;const tc=Math.max(.01,fade/3);
+  for(const g of Object.values(L.s.g)){g.gain.cancelScheduledValues(t);g.gain.setTargetAtTime(v,t,tc);}
+  return L;}
+function iLayAll(m,fade,t){for(const [k,v] of Object.entries(m))iLay(k,v,fade,t);}
+function iGC(now){for(const [k,L] of Object.entries(IFX.lay))if(L.v<=0&&L.kill&&now>L.kill){iRetire(L.s,.05,now);delete IFX.lay[k];}}
+
+/* the spot sounds: (scope, time, options) */
+const IFXS={
+  tick(s,t,o){const out=iOut(s,{bus:"world",pan:o.pan??Math.random()*.5-.25,cave:o.far?.9:.45,lp:o.far?1400:0,v:(o.v||.5)*.53});let T=t;
+    for(let i=0;i<(Math.random()<.3?2:1);i++){iHit(s,T,out,"bandpass",700+Math.random()*700,5,1,.045);iHit(s,T,out,"highpass",2600,0,.35,.006);T+=.03+Math.random()*.06;}},
+  drip(s,t,o){const f=o.f||1100,out=iOut(s,{bus:"world",pan:o.pan||0,cave:o.cave??1,v:o.v||.5}),os=iO(s,t,.09,f);os.frequency.exponentialRampToValueAtTime(f*2.2,t+.03);os.connect(iP(t,.21,.05,.001)).connect(out);iHit(s,t,out,"lowpass",3000,0,.06,.004);},
+  sputter(s,t,o){const out=iOut(s,{bus:"fx",pan:.2,near:.3,v:(o.v||.4)*1.46});iHit(s,t,out,"bandpass",2500+Math.random()*2000,3,.12,.006);if(Math.random()<.4)iHit(s,t+.02+Math.random()*.04,out,"bandpass",3500,3,.07,.004);},
+  step(s,t,o){const v=(o.v||.5)*.53,out=iOut(s,{bus:o.bus||"fx",pan:o.pan||0,lp:o.lp||0,near:o.near??.35,v:1});
+    const th=iO(s,t,.16,(o.f||78)*(.92+Math.random()*.16));th.frequency.exponentialRampToValueAtTime(42,t+.12);th.connect(iP(t,v*.9,.09,.004)).connect(out);
+    iHit(s,t,out,"bandpass",(o.wood?430:280)*(.9+Math.random()*.2),o.wood?3:1.2,v*.8,o.wood?.075:.05);iHit(s,t+.012,out,"bandpass",o.wood?1700:2400,.9,v*.2*(o.grit??1),.05);
+    if(o.creak)IFXS.creak(s,t+.03,{v:o.creak,dur:.42+Math.random()*.15,f0:150,f1:95,pan:o.pan,lp:o.lp,near:.4,bus:o.bus});},
+  steps(s,t,o){for(let i=0;i<(o.n||2);i++)IFXS.step(s,t+i*(.62+Math.random()*.1),{wood:!o.stone,v:o.v||(o.far?.12:.3),lp:o.far?600:o.soft?1500:3000,near:o.far?.9:.4,pan:o.pan||0,grit:o.stone?1.2:.6,f:o.stone?70:80});},
+  stair(s,t,o){const n=o.n||11,up=o.dir!=="down",c=o.creak||9;let T=t;
+    for(let i=1;i<=n;i++){const x=up?i/n:1-(i-1)/n;IFXS.step(s,T,{wood:1,v:(.12+.4*x)*(o.v||1),lp:600+1800*x,near:.5,pan:(o.pan||0)*(1-x*.6),creak:i===c?.25+.45*x:0});T+=.6+Math.random()*.12+(i===c?.12:0);}},
+  creak(s,t,o){const src=iB(s,t,iCrk(IFX.a,o.dur||.5,o.f0||140,o.f1||90,o.r??.35)),out=iOut(s,{bus:o.bus,pan:o.pan,lp:o.lp,near:o.near,cave:o.cave});
+    (o.F||[560,1150,2300]).forEach((f,i)=>{const g=IFX.a.createGain();g.gain.value=[1,.6,.3][i]*(o.v||.5)*7.6;src.connect(iF("bandpass",f,o.q||8)).connect(g).connect(out);});},
+  latch(s,t,o){const out=iOut(s,{bus:"fx",pan:o.pan??.35,near:.5,v:(o.v||.5)*.41});[0,.18].forEach((d,i)=>{const T=t+d,k=i?1:1.12;iRing(s,T,out,[2350*k,3900*k,5650*k],[.06,.045,.03],[.25,.15,.08]);iHit(s,T,out,"highpass",3000,0,.35,.005);});
+    IFXS.creak(s,t+.25,{f0:420,f1:300,dur:.35,F:[1300,2400,3600],q:10,v:.12,pan:o.pan??.35,near:.5});},
+  door(s,t,o){const far=!!o.far,out=iOut(s,{bus:"fx",pan:o.pan||0,lp:far?800:3500,near:far?1.2:.5,v:(o.v||.5)*.3});
+    const th=iO(s,t,.35,72);th.frequency.exponentialRampToValueAtTime(44,t+.25);th.connect(iP(t,.9,.22,.004)).connect(out);iHit(s,t,out,"bandpass",210,1,.8,.12,"pink");iRing(s,t+.02,out,[1900,3100],[.05,.03],[.08,.04]);},
+  draft(s,t,o){iN(s,t,1.4,"pink").connect(iF("lowpass",480,0)).connect(iE(t,[[0,0],[.35,.35],[1.3,0]])).connect(iOut(s,{bus:"room",pan:.3,v:(o.v||.5)*.53}));const L=IFX.lay.candle;if(L)L.flick=t+1.4;},
+  bed(s,t,o){const v=o.v||.5;IFXS.creak(s,t,{f0:o.small?150:120,f1:o.small?120:80,dur:o.small?.35:.6,F:[380,880,1900],q:7,v:v*.6,near:.4,pan:-.1});IFXS.cloth(s,t+.03,{k:"blanket",v:v*.7,dur:o.small?.4:.7});},
+  cloth(s,t,o){const [f,q,rate,depth,d0,lp]={silk:[3600,.8,22,.55,.6,7000],blanket:[1200,.6,14,.6,.8,3000],cloak:[1900,.7,18,.65,.9,5000],skin:[2600,.9,25,.6,.35,5000],wrap:[2000,.6,20,.65,1.1,5000]}[o.k||"blanket"],d=o.dur||d0,v=(o.v||.5)*.38;
+    iRust(s,t,d+.05,f,q,rate,depth,o.k==="blanket"?"pink":"white").connect(iE(t,[[0,0],[d*.3,v],[d*.6,v*.6],[d,0]])).connect(iOut(s,{bus:"fx",pan:o.pan||0,near:o.near??.3,lp}));},
+  tear(s,t,o){const v=(o.v||.6)*.27,out=iOut(s,{bus:"fx",near:.3});iRust(s,t,.5,2300,.6,220,.9).connect(iE(t,[[0,0],[.04,v],[.26,v*.8],[.38,0]])).connect(out);for(let i=0;i<6;i++)iHit(s,t+.02+Math.random()*.32,out,"highpass",3500,0,.12,.004);},
+  laugh(s,t,o){iB(s,t,iVoxC("laugh")).connect(iOut(s,{bus:"world",lp:1300,near:1.1,pan:o.pan||-.45,v:(o.v||.3)*.26}));},
+  palace(s,t,o){for(const d of [0,.7])iB(s,t+d,iVoxC(d?"lord":"lady")).connect(iOut(s,{bus:"world",lp:450,near:1.2,pan:-.4+d*.6,v:.032}));},
+  cart(s,t,o){const d=3.6,out=iOut(s,{bus:"world",lp:650,near:.9,pan:o.pan||-.4,v:(o.v||.45)*.17});iN(s,t,d,"brown").connect(iF("lowpass",170,0)).connect(iE(t,[[0,0],[1,.8],[2.6,.8],[d,0]])).connect(out);
+    for(let x=.25;x<d-.3;x+=.18+Math.random()*.3){const T=t+x,w=Math.sin(Math.PI*x/d),k=iO(s,T,.1,95+Math.random()*30);k.frequency.exponentialRampToValueAtTime(50,T+.07);k.connect(iP(T,(.25+Math.random()*.35)*w,.06)).connect(out);iHit(s,T,out,"bandpass",320,2,.25*w,.04);}},
+  shoes(s,t,o){[0,.5+Math.random()*.2].forEach((d,i)=>{const T=t+d,out=iOut(s,{bus:"fx",pan:-.15+i*.1,near:.45,lp:2500,v:(o.v||.4)*.53}),k=iO(s,T,.12,105-i*12);k.frequency.exponentialRampToValueAtTime(55,T+.08);k.connect(iP(T,.7,.07)).connect(out);iHit(s,T,out,"bandpass",640,2.5,.5,.05);iHit(s,T+.09,out,"bandpass",700,2.5,.15,.03);});},
+  exhale(s,t,o){const d=o.dur||3,v=(o.v||.5)*.6,x=iF("lowpass",1800,0);x.frequency.setValueAtTime(1800,t);x.frequency.exponentialRampToValueAtTime(700,t+d);
+    iRust(s,t,d+.1,o.f||750,1.1,9,.25,"pink").connect(x).connect(iE(t,[[0,0],[.3,v],[d*.55,v*.7],[d,0]])).connect(iOut(s,{bus:"fx",pan:o.pan||0,near:.15}));},
+  breath(s,t,o){const inh=o.inh||1.2,v=o.v||.5;iRust(s,t,inh+.05,1800,1.3,8,.2).connect(iE(t,[[0,0],[inh*.75,v*.15],[inh,0]])).connect(iOut(s,{bus:"fx",pan:o.pan||0,lp:4000,v:o.old?.8:1}));IFXS.exhale(s,t+inh+.15,{dur:o.dur||2.4,v:v*.5*(o.old?.7:1),pan:o.pan});},
+  taps(s,t,o){const wood=o.on==="wood",out=iOut(s,{bus:"fx",pan:wood?.05:-.1,near:wood?.4:.2,v:o.v||.4});let T=t;
+    for(let g=0;g<(o.n||3);g++){const k=3+(Math.random()<.5);for(let i=0;i<k;i++){const U=T+i*(.05+Math.random()*.025),v=.5+.5*Math.random();
+        if(wood){iHit(s,U,out,"bandpass",430+Math.random()*60,5,v,.06);iHit(s,U,out,"bandpass",1150,6,v*.4,.03);}else iHit(s,U,out,"lowpass",420,0,v*.8,.035,"pink");}
+      T+=k*.07+.55+Math.random()*.8;}},
+  threads(s,t,o){const out=iOut(s,{bus:"fx",pan:.1,near:.2,v:(o.v||.35)*.27});for(let i=0;i<(o.n||5);i++){const T=t+i*(.3+Math.random()*.12);iHit(s,T,out,"highpass",4200,0,.5,.004);iRust(s,T,.08,3000,1,40,.5).connect(iE(T,[[0,0],[.01,.4],[.07,0]])).connect(out);}},
+  stopper(s,t,o){const out=iOut(s,{bus:"fx",pan:.05,near:.4,v:(o.v||.3)*.67});iRing(s,t,out,[3380,5960,8850],[.12,.07,.04],[.2,.08,.03]);iRust(s,t+.25,.12,2100,10,60,.6).connect(iE(t+.25,[[0,0],[.03,.25],[.11,0]])).connect(out);},
+  slippers(s,t,o){for(let i=0;i<7;i++){const T=t+i*(.27+Math.random()*.06),x=i/6;iRust(s,T,.12,1300,.8,30,.5).connect(iE(T,[[0,0],[.025,.6*(1-.6*x)],[.11,0]])).connect(iOut(s,{bus:"world",lp:1300,near:1,pan:.55-.3*x,v:(o.v||.25)*.7}));}},
+  leave(s,t,o){IFXS.steps(s,t,{n:2,v:.3,soft:1});IFXS.creak(s,t+1.2,{f0:250,f1:170,dur:.85,F:[700,1500,2600],v:.22,pan:.35,near:.5});IFXS.stair(s,t+2.3,{n:o.n||8,dir:"down",creak:3,pan:.4,v:.8});},
+  bell(s,t,o){const f=o.f||1760,out=iOut(s,{bus:"fx",pan:o.pan??.5,lp:3800,near:1,v:(o.v||.5)*.47});iRing(s,t,out,[f,f*2.32,f*4.25,f*6.63],[2.4,1.3,.7,.35],[.3,.14,.07,.03]);iHit(s,t,out,"highpass",4000,0,.2,.004);iRing(s,t+.13,out,[f,f*2.32],[1.4,.8],[.07,.03]);},
+  beat(s,t,o){const v=(o.v||.5)*.33,out=iOut(s,{bus:"fx",lp:500});[[0,1,62],[.24,.62,54]].forEach(([d,k,f])=>{const T=t+d,os=iO(s,T,.3,f);os.frequency.exponentialRampToValueAtTime(f*.6,T+.18);os.connect(iP(T,v*k,.16,.012)).connect(out);iHit(s,T,out,"bandpass",140,1.3,v*k*.6,.06,"pink");});},
+  draw(s,t,o){const out=iOut(s,{bus:"fx",pan:.3,near:.4,v:(o.v||.4)*1.9});iRust(s,t,.3,4300,7,60,.4).connect(iE(t,[[0,0],[.05,.5],[.22,0]])).connect(out);iRing(s,t+.18,out,[2650,4120],[.25,.18],[.06,.03]);},
+  sheathe(s,t,o){const out=iOut(s,{bus:"fx",pan:.3,near:.5,v:(o.v||.6)*.49}),T=t+.14;iRust(s,t,.18,3800,4,80,.4).connect(iE(t,[[0,0],[.06,.4],[.14,0]])).connect(out);
+    iRing(s,T,out,[1850,3020,4410,6230],[.2,.13,.08,.05],[.18,.1,.06,.03]);const k=iO(s,T,.15,125);k.frequency.exponentialRampToValueAtTime(60,T+.1);k.connect(iP(T,.7,.1)).connect(out);iHit(s,T,out,"lowpass",600,0,.6,.05,"pink");},
+  grip(s,t,o){IFXS.creak(s,t,{f0:240,f1:170,dur:.28,F:[1150,2400,3500],q:6,v:o.v||.15,pan:.2,near:.2});},
+  shade(s,t,o){const up=o.dir!=="down",d=o.dur||2.4,out=iOut(s,{bus:"fx",pan:o.pan||0,near:.6,v:(o.v||.55)*.33}),x=iF("lowpass",up?90:520,3);
+    x.frequency.setValueAtTime(up?90:520,t);x.frequency.exponentialRampToValueAtTime(up?520:100,t+d*.85);iN(s,t,d,"brown").connect(x).connect(iE(t,[[0,0],[d*.55,1],[d,0]])).connect(out);
+    const k=iO(s,t,d,up?42:58);k.frequency.exponentialRampToValueAtTime(up?58:40,t+d);k.connect(iE(t,[[0,0],[d*.5,.35],[d,0]])).connect(out);
+    const w=iF("bandpass",700,9);for(let u=0;u<d;u+=.07)w.frequency.setValueAtTime(480+Math.random()*420,t+u);iN(s,t,d,"pink").connect(w).connect(iE(t,[[0,0],[d*.6,.25],[d,0]])).connect(out);},
+  blink(s,t,o){const k=o.k||"blink",out=iOut(s,{bus:"fx",pan:-.3,near:.15,v:(o.v||.3)*.65}); // the cloak's eye: kept small and soft
+    const one=(T,v,f0,open)=>{const os=iO(s,T,.03,f0);os.frequency.exponentialRampToValueAtTime(f0*(open?1.6:.4),T+.018);os.connect(iP(T,v*.5,.014,.001)).connect(out);iHit(s,T,out,"bandpass",open?2600:1900,1.6,v*.6,open?.012:.007);};
+    if(k==="slow"){one(t,.8,700);one(t+.55,.6,520,1);}else if(k==="wink"){one(t,1,780);one(t+.13,.8,560,1);}
+    else if(k==="snap"||k==="open"){one(t,k==="snap"?1.1:.7,600,1);if(k==="snap")[.2,.38,.55].forEach(d=>IFXS.cloth(s,t+d,{k:"skin",v:.12,dur:.12,pan:-.3}));}
+    else IFXS.cloth(s,t,{k:"skin",v:k==="narrow"?.1:.16,dur:.18,pan:-.3});},
+  tug(s,t,o){const out=iOut(s,{bus:"fx",near:.4,v:(o.v||.6)*.42}),k=iO(s,t,1.1,40);k.frequency.linearRampToValueAtTime(56,t+.35);k.frequency.linearRampToValueAtTime(38,t+1);k.connect(iE(t,[[0,0],[.25,.6],[1,0]])).connect(out);iN(s,t,1,"brown").connect(iF("lowpass",260,0)).connect(iE(t,[[0,0],[.3,.5],[1,0]])).connect(out);},
+  prickle(s,t,o){const d=1.3;for(let i=0;i<55;i++){const u=Math.pow(Math.random(),.8)*d;iHit(s,t+u,iOut(s,{bus:"fx",pan:Math.random()*1.2-.6,v:(o.v||.25)*.41*(1-u/d*.6)}),"highpass",5200,0,.4+Math.random()*.4,.003);}
+    iN(s,t+d*.6,1.2,"white").connect(iF("bandpass",6000,1)).connect(iE(t+d*.6,[[0,0],[.1,.016],[1.1,0]])).connect(iOut(s,{bus:"fx"}));},
+  blade(s,t,o){const out=iOut(s,{bus:"fx",near:.7,lp:6500,pan:.05,v:o.v||.6}),x=iF("lowpass",110,4),T=t+.85,f=1174.66; // into black water, and out comes glass
+    x.frequency.setValueAtTime(110,t);x.frequency.exponentialRampToValueAtTime(650,t+.55);x.frequency.exponentialRampToValueAtTime(140,t+1.3);iN(s,t,1.4,"brown").connect(x).connect(iE(t,[[0,0],[.45,.7],[1.3,0]])).connect(out);
+    [1,2.756,5.404,8.933].forEach((k,i)=>iO(s,T,5,f*k).connect(iE(T,[[0,0],[1+i*.12,[.16,.07,.03,.012][i]],[4.9,1e-4,1]])).connect(out));
+    const r=iF("bandpass",1500,7);r.frequency.setValueAtTime(1500,T);r.frequency.exponentialRampToValueAtTime(5200,T+1.1);iN(s,T,1.3).connect(r).connect(iE(T,[[0,0],[.85,.22],[1.25,0]])).connect(out);},
+  turn(s,t,o){const out=iOut(s,{bus:"fx",near:.8,lp:6000,v:(o.v||.4)*2.1});[[1,.05],[2.756,.035],[5.404,.015]].forEach(([k,v],i)=>iO(s,t,3.2,1174.66*k).connect(iE(t,[[0,0],[.9+i*.3,v],[3.1,0]])).connect(out));},
+  melt(s,t,o){const d=2.8,out=iOut(s,{bus:"fx",near:.7,v:(o.v||.5)*.68}),x=iF("bandpass",8500,1.5);x.frequency.setValueAtTime(8500,t);x.frequency.exponentialRampToValueAtTime(1800,t+d);
+    iN(s,t,d).connect(x).connect(iE(t,[[0,0],[.2,.12],[d,0]])).connect(out);for(let i=0;i<40;i++){const u=Math.pow(Math.random(),1.8)*d;iHit(s,t+u,out,"highpass",4500+Math.random()*3000,0,.3*(1-u/d),.003);}
+    [[1,.08],[2.756,.04]].forEach(([k,v])=>{const os=iO(s,t,d+.2,1174.66*k);os.frequency.exponentialRampToValueAtTime(1174.66*k*.84,t+d);os.connect(iE(t,[[0,v],[d,1e-4,1]])).connect(out);});
+    IFXS.shade(s,t+.3,{dir:"down",dur:2.2,v:.35});},
+  wring(s,t,o){const p=o.pan??.35;IFXS.cloth(s,t,{k:"wrap",v:.35,dur:.55,pan:p});for(let i=0;i<9;i++)IFXS.drip(s,t+.25+Math.random()*.7,{f:1300+Math.random()*1200,pan:p+Math.random()*.1,v:.18,cave:.4});
+    iRust(s,t+.2,.6,1800,3,90,.6).connect(iE(t+.2,[[0,0],[.1,.03],[.55,0]])).connect(iOut(s,{bus:"world",pan:p,cave:.4}));},
+  shift(s,t,o){IFXS.creak(s,t,{f0:200,f1:150,dur:.3,F:[900,1900,3000],v:.08,pan:o.pan||-.5,near:.4,bus:"world"});IFXS.step(s,t+.12,{v:.1,pan:o.pan||-.5,lp:1500,near:.5,grit:1.4,bus:"world"});},
+  husk(s,t,o){const out=iOut(s,{bus:"fx",pan:.15,near:.5,v:o.v||.3});iHit(s,t,out,"bandpass",1400,1.2,.5,.08,"pink");for(let i=0;i<5;i++)iHit(s,t+Math.random()*.15,out,"highpass",3000,0,.3,.005);},
+  amulet(s,t,o){IFXS.cloth(s,t,{k:"skin",v:.3,dur:.3});iRing(s,t+.12,iOut(s,{bus:"fx",pan:.05,near:.3,v:o.v||.3}),[3100,5200,7400],[.1,.06,.04],[.05,.025,.012]);},
+  chains(s,t,o){const out=iOut(s,{bus:"world",pan:.1,cave:.6,v:o.v||.4}); // a scale's chains: swinging, then level
+    for(const [d,n,v] of o.still?[[0,2,.25]]:[[0,7,1],[.9,5,.6],[1.6,4,.35],[2.25,2,.18],[2.8,1,.08]])for(let i=0;i<n;i++){const T=t+d+Math.random()*.14,f=2900+Math.random()*3800;iRing(s,T,out,[f,f*1.53],[.05+Math.random()*.04,.03],[.25*v,.1*v]);}
+    if(!o.still)iRing(s,t,out,[520,1360,2210],[1.6,.9,.5],[.07,.04,.02]);},
+  page(s,t,o){const v=(o.v||.5)*.74,out=iOut(s,{bus:"fx",pan:o.pan||.05,near:.3,lp:5500}),b=iF("bandpass",1500,.9);
+    iRust(s,t,.2,2600,.8,70,.6).connect(iE(t,[[0,0],[.05,v*.4],[.18,0]])).connect(out);
+    b.frequency.setValueAtTime(1500,t+.12);b.frequency.exponentialRampToValueAtTime(3200,t+.38);iN(s,t+.1,.4).connect(b).connect(iE(t+.1,[[0,0],[.16,v*.5],[.36,0]])).connect(out);iHit(s,t+.42,out,"lowpass",900,0,v*.5,.07,"pink");},
+  pack(s,t,o){IFXS.cloth(s,t,{k:"cloak",v:.4,dur:.5,pan:.2});iRing(s,t+.15,iOut(s,{bus:"fx",pan:.2,near:.3,v:.12}),[2900,4600],[.08,.05],[.15,.07]);IFXS.page(s,t+.9,{v:.6});},
+  ship(s,t,o){IFXS.creak(s,t,{f0:62,f1:84,dur:1.4,r:.5,F:[300,720,1500],q:6,v:o.v||.5,lp:1100,cave:.6,pan:-.3,bus:"world"});IFXS.creak(s,t+1.9,{f0:80,f1:58,dur:1,r:.5,F:[320,760,1500],q:6,v:(o.v||.5)*.6,lp:1000,cave:.6,pan:.25,bus:"world"});},
+  wave(s,t,o){const up=3.2,back=4.4,v=(o.v||.6)*.3,out=iOut(s,{bus:"world",cave:.35}),x=iF("lowpass",300,0); // runs up the beach, draws back over the stones
+    x.frequency.setValueAtTime(300,t);x.frequency.exponentialRampToValueAtTime(2300,t+up*.8);x.frequency.exponentialRampToValueAtTime(420,t+up+back*.9);
+    iN(s,t,up+back,"pink").connect(x).connect(iE(t,[[0,0],[up*.8,v*.5],[up+.6,v*.3],[up+back,0]])).connect(out);
+    iB(s,t+up*.8,iPeb(IFX.a,back)).connect(iF("bandpass",2600,.6)).connect(iE(t+up*.8,[[0,0],[.15,v*.9],[back,0]])).connect(out);},
+  push(s,t,o){iRust(s,t,2.8,1150,3.5,14,.4,"pink").connect(iE(t,[[0,0],[2.3,.35],[2.6,0]])).connect(iOut(s,{bus:"fx",near:.1}));IFXS.exhale(s,t+2.7,{dur:2.2,v:.4});},
+  rise(s,t,o){IFXS.creak(s,t,{f0:110,f1:80,dur:.5,F:[500,1100,2200],v:.12,near:.3});IFXS.cloth(s,t+.1,{k:"cloak",v:.4,dur:.7});IFXS.step(s,t+.75,{v:.25,grit:1.3,f:70});},
+  crouch(s,t,o){IFXS.cloth(s,t,{k:"cloak",v:.35,dur:.5});IFXS.creak(s,t+.15,{f0:180,f1:130,dur:.3,F:[900,1900,3000],v:.08,near:.3});IFXS.step(s,t+.3,{v:.15,grit:1.2,f:70});},
+  paces(s,t,o){let T=t;for(let i=0;i<(o.n||11);i++){IFXS.step(s,T,{v:.3+.1*Math.random(),f:66,grit:1.3,near:.3,lp:3500});T+=.68+Math.random()*.1;}},
+  steam(s,t,o){iRust(s,t,2.6,4200,1,12,.4).connect(iE(t,[[0,0],[.8,.048],[2.5,0]])).connect(iOut(s,{bus:"fx",near:.4,pan:.3}));},
+  embers(s,t,o){for(let i=0;i<4;i++)IFXS.hiss(s,t+i*.4+Math.random()*.3,{v:.045,short:1});},
+  pop(s,t,o){const out=iOut(s,{bus:"fx",pan:(Math.random()-.5)*.5,near:.25}),v=o.v||.4;iHit(s,t,out,"bandpass",1800+Math.random()*4200,2+Math.random()*3,v*(o.big?1.4:1),(o.big?.012:.004)+Math.random()*.008);
+    if(o.big){iHit(s,t,out,"bandpass",300,1.5,v*.8,.05,"pink");for(let i=0;i<3;i++)iHit(s,t+.02+Math.random()*.1,out,"bandpass",3000+Math.random()*3000,3,v*.4,.004);}},
+  hiss(s,t,o){const d=o.short?.08+Math.random()*.1:.3+Math.random()*.6;iRust(s,t,d,5200+Math.random()*1500,4,40,.6).connect(iE(t,[[0,0],[d*.3,o.v||.05],[d,0]])).connect(iOut(s,{bus:"fx",pan:(Math.random()-.5)*.4}));},
+  snap(s,t,o){const out=iOut(s,{bus:"fx",pan:-.15,near:.35,v:(o.v||.6)*.6});iHit(s,t,out,"bandpass",2300,.7,.8,.018);iHit(s,t,out,"bandpass",420,3,.35,.05);for(let i=0;i<4;i++)iHit(s,t+.01+Math.random()*.06,out,"bandpass",2500+Math.random()*2500,2,.4,.005);},
+  stack(s,t,o){for(let i=0;i<(o.n||4);i++)iHit(s,t+i*(.22+Math.random()*.15),iOut(s,{bus:"fx",pan:-.1,near:.35,v:(o.v||.35)*1.9}),"bandpass",900+Math.random()*700,4,.7,.04);},
+  flint(s,t,o){const v=(o.v||.45)*.45,out=iOut(s,{bus:"fx",pan:-.12,near:.4}),k=1+(Math.random()-.5)*.08;iHit(s,t,out,"bandpass",5200,1.2,v,.022);iRing(s,t,out,[3150*k,4900*k,7300*k],[.07,.05,.035],[v*.12,v*.08,v*.05]);
+    for(let i=0;i<2+(Math.random()*3|0);i++)iHit(s,t+.015+Math.random()*.12,out,"highpass",6000,0,v*.35,.003);},
+  strikes(s,t,o){let T=t; // Stig's tinderbox: six that don't take, a breath, the seventh that does
+    for(let i=0;i<7;i++){IFXS.flint(s,T,{v:.35+Math.random()*.2});if(i<6)T+=i===5?.9:.42+Math.random()*.35;}
+    IFXS.catch(s,T+.12,{});iLay("fire",.8,3,T+.9);iLay("ash",.4,3,T+.9);
+    if(!IFX.off&&typeof pluck==="function"){const d=Math.max(0,T+.9-IFX.a.currentTime);pluck(NOTE.D4,d,2.6,.07);pluck(NOTE.A4,d+.12,2.8,.05);}},
+  catch(s,t,o){const out=iOut(s,{bus:"fx",pan:-.1,near:.35});iRust(s,t,.9,4800,1,30,.5).connect(iE(t,[[0,0],[.35,.048],[.9,0]])).connect(out);
+    const x=iF("lowpass",380,0);x.frequency.setValueAtTime(380,t+.6);x.frequency.exponentialRampToValueAtTime(900,t+.9);iN(s,t+.6,1.3,"pink").connect(x).connect(iE(t+.6,[[0,0],[.3,.28],[1.2,0]])).connect(out);
+    for(let i=0;i<6;i++)IFXS.pop(s,t+.7+Math.random()*1.5,{v:.2+Math.random()*.3});},
+  feed(s,t,o){const v=o.v||1;IFXS.stack(s,t,{n:1,v:.4*v});IFXS.catch(s,t+.25,{});for(let i=0;i<5;i++)IFXS.pop(s,t+.4+Math.random()*.9,{v:(.25+Math.random()*.4)*v});},
+  lute(s,t,o){const out=iOut(s,{bus:"fx",pan:.25,near:.4,v:(o.v||.35)*2.4});iHit(s,t,out,"bandpass",230,3,.7,.08,"pink");iHit(s,t,out,"bandpass",560,5,.4,.05);
+    for(const f of [146.83,220])iO(s,t,2,f,"triangle").connect(iF("lowpass",900,0)).connect(iP(t,.035,1.6,.005)).connect(out);},
+  strum(s,t,o){const out=iOut(s,{bus:"fx",pan:.25,near:.45,v:(o.v||.4)*2});iRust(s,t,.3,2000,1,40,.4).connect(iE(t,[[0,0],[.08,.06],[.28,0]])).connect(out); // his hands go loose: the open strings, barely
+    [146.83,174.61,220,293.66].forEach((f,i)=>{const T=t+.12+i*.08;iO(s,T,2.4,f,"triangle").connect(iF("lowpass",1300,0)).connect(iP(T,.03,2.2,.006)).connect(out);iO(s,T,2,f*2).connect(iP(T,.008,1.4,.006)).connect(out);});},
+  servo(s,t,o){const d=o.short?.2:.38,sv=(o.v||.05)*1.9,os=iO(s,t,d+.02,o.down?520:300,"sawtooth");os.frequency.exponentialRampToValueAtTime(o.down?300:520,t+d*.85);
+    os.connect(iF("bandpass",1100,2)).connect(iE(t,[[0,0],[.05,sv],[d*.8,sv*.7],[d,0]])).connect(iOut(s,{bus:"fx",lp:2600,pan:-.3,near:.3}));},
+  click(s,t,o){const out=iOut(s,{bus:"fx",pan:-.25,near:.25,v:(o.v||.35)*1.25});for(const d of [0,.07]){iHit(s,t+d,out,"highpass",2500,0,.25,.003);iHit(s,t+d,out,"bandpass",1500,6,.12,.015);}},
+  pat(s,t,o){const out=iOut(s,{bus:"fx",pan:-.2,near:.35,v:(o.v||.5)*.85}),k=iO(s,t,.14,130);k.frequency.exponentialRampToValueAtTime(70,t+.1);k.connect(iP(t,.5,.1)).connect(out);IFXS.cloth(s,t,{k:"skin",v:.15,dur:.15});iRing(s,t,out,[2700],[.05],[.03]);},
+  bottle(s,t,o){const out=iOut(s,{bus:"fx",pan:.1,near:.45,v:o.v||.4});if(o.k==="lift")iRing(s,t,out,[1700,4100],[.25,.12],[.08,.03]);
+    else{iRing(s,t,out,[1350,3250,5900],[.35,.2,.1],[.12,.06,.03]);const k=iO(s,t,.08,190);k.connect(iP(t,.3,.06)).connect(out);}},
+  rummage(s,t,o){IFXS.cloth(s,t,{k:"cloak",v:.45,dur:.9,pan:.15});const out=iOut(s,{bus:"fx",pan:.15,lp:3000,near:.3,v:.3});for(let i=0;i<3;i++){const T=t+.15+Math.random()*.6,f=4000+Math.random()*2500;iRing(s,T,out,[f,f*1.4],[.06,.04],[.1,.05]);}IFXS.bottle(s,t+.85,{k:"lift"});},
+  cork(s,t,o){const out=iOut(s,{bus:"fx",pan:.1,near:.3,v:o.v||.3});iRust(s,t,.2,2300,14,80,.7).connect(iE(t,[[0,0],[.05,.2],[.18,0]])).connect(out);for(let i=0;i<4;i++)iHit(s,t+.03+Math.random()*.15,out,"highpass",3000,0,.25,.004);},
+  tap(s,t,o){const out=iOut(s,{bus:"fx",near:.15,v:(o.v||.22)*2.8});iHit(s,t,out,"bandpass",1800,.8,.25,.012,"pink");iHit(s,t,out,"lowpass",400,0,.2,.02,"pink");},
+  choose(s,t,o){const out=iOut(s,{bus:"fx",near:.25,v:(o.v||.25)*2.1});iHit(s,t,out,"bandpass",620,6,.5,.05);iHit(s,t,out,"bandpass",1500,5,.2,.025);iHit(s,t,out,"lowpass",350,0,.15,.03,"pink");}};
+/* the moves: changing what carries */
+const IACT={
+  lay(o,t){const l=Object.assign({},o);delete l.f;iLayAll(l,o.f||2,t);},
+  world(o,t){const p=IFX.bus.wlp.frequency;p.cancelScheduledValues(t);p.setValueAtTime(Math.max(40,p.value),t);p.exponentialRampToValueAtTime(o.f,t+(o.s||1));},
+  sweep(o,t){const p=IFX.bus.sweep.frequency,s=o.s||1;p.cancelScheduledValues(t);p.setValueAtTime(Math.max(40,p.value),t);
+    if(o.lo){p.exponentialRampToValueAtTime(o.lo,t+s);p.exponentialRampToValueAtTime(o.hi||18000,t+s+(o.back||4));}else p.exponentialRampToValueAtTime(o.hi||18000,t+s);},
+  hum(o,t){const s=o.s||2,L=iLay("hum",o.lvl,s,t);if(!L)return;const tc=Math.max(.01,s/3);if(o.f)L.os.forEach((x,i)=>x.frequency.setTargetAtTime(o.f*L.k[i],t,tc));if(o.open)L.lp.frequency.setTargetAtTime(o.open,t,tc);},
+  pulse(o,t){const L=iLay("pulse",o.lvl||.7,.4,t);if(!L)return;L.bpm=o.bpm||56;L.until=o.for?t+o.for:0;if(!L.next||L.next<t)L.next=t;},
+  smear(o,t){iLay("murmur",0,2.5,t);iLay("held",1,1,t);},
+  gust(o,t){const L=IFX.lay.wind;if(L){L.gust=t+2.6;L.next=0;}},
+  gutter(o,t){const L=IFX.lay.lamp;if(L)L.gut=t+1.6;},
+  flick(o,t){const L=IFX.lay.candle;if(L)L.flick=t+(o.d||2);}};
+
+/* what each passage sounds like. lay: carried layers to this level (fade: seconds). at: [when, sound or move, options] */
+const IFOLEY={
+  "s10-katy":{near:[.55,4200,.004],voices:["matthew","stig"],
+    fight:{lay:{attic:.6,wind:.45},world:2600},coda:{lay:{cave:.8,murmur:.3,tick:.5}},
+    P:{K1:{lay:{cave:1,murmur:.6},at:[["The cave goes quiet","lay",{murmur:0,cave:.45,f:5}]]},
+      K2:{fade:2.6,lay:{cave:0,murmur:0,tick:0,attic:1,candle:.7,wind:.55,court:.5},at:[["someone laughs","laugh",{pan:-.45}],["A door closes","door",{far:1,pan:.55,v:.4}]]},
+      K2b:{at:[["The wind in the gutter","gust"],["Someone's cart","cart",{pan:-.4}],["The palace, breathing","palace"],["when you hear the stair","steps",{n:2,far:1,pan:.45}]]},
+      K3:{lay:{court:.3},at:[[2,"stair",{n:11,creak:9,pan:.45}],["The latch lifts","latch"],["The candle flame leans","draft"],["Her perfume reaches you","steps",{n:2,soft:1,v:.22,pan:.25}],["She sits on the edge of the bed","bed"]]},
+      K4a:{at:[["She tucks the blanket","cloth",{k:"blanket",v:.55,dur:1}]]},
+      K4b:{at:[["Her shoes come off","shoes"],["She lets out a breath","exhale",{v:.4,dur:3.2,pan:.15}],["Then she finds your hand","taps",{n:2}]]},
+      K4c:{at:[["The candle gets a long breath","flick",{d:3}],["She brushes the hair","cloth",{k:"blanket",v:.35,dur:.5}]]},
+      K5:{fade:3,lay:{attic:.8,candle:.45,wind:.3,court:.15},at:[["The edges of the room have gone thin","lay",{attic:.55,wind:.15,court:0,f:6}]]},
+      K6:{fade:4,lay:{court:0,wind:.12,candle:.3,attic:.6}},
+      K7a:{at:[["She takes her hand off your hair","cloth",{k:"blanket",v:.3,dur:.4}]]},
+      K7b:{fade:4,lay:{wind:.08,candle:.22}},
+      K7c:{at:[["sits up straighter","bed",{v:.4,small:1}],["Give me your hands","cloth",{k:"blanket",v:.5,dur:.6}]]},
+      K8c:{at:[["picks at a thread","threads",{n:5}]]},
+      K9:{lay:{attic:.8,wind:.25,candle:.35},at:[[1.2,"bell"],["You feel it through the mattress","bed",{v:.3,small:1}]]},
+      K10a:{at:[["The bell rings again","bell",{v:.6}],["slippers are already hurrying","slippers"],["gently, and goes","leave"]]},
+      K10b:{at:[["She stands","bed",{v:.4,small:1}],["comes back, and kneels","steps",{n:2,soft:1,v:.2}],["touches the stopper","stopper"],["she is gone","leave",{n:6}]]},
+      K11:{fade:2.2,lay:{attic:0,candle:0,wind:0,court:0,cave:1,tick:.6},at:[["The dead Heart ticking","tick",{v:.6}],["Voices behind you","lay",{murmur:.5,f:3}]]},
+      K11b:{at:[["They're drumming","taps",{on:"wood",n:4}]]}}},
+  "s10-saphira":{near:[.45,2400,.003],voices:["katy","matthew"],
+    fight:{lay:{cave:.7,tick:.3},world:1600},coda:{lay:{cave:.8,murmur:.35,tick:.45}},
+    P:{S1:{lay:{cave:1,murmur:.6,tick:.5},at:[["the dead Heart ticks","tick",{v:.7}],["starts to hum","hum",{lvl:.7,f:55,s:6,open:450}]]},
+      S2:{lay:{tick:0},at:[[.2,"world",{f:650,s:3}],[.2,"sweep",{lo:700,s:2.5,hi:5000,back:6}],[.35,"pulse",{lvl:.7,bpm:54,for:16}],["Katy's voice stretches","smear"],["You draw the dagger an inch","draw"],
+        ["Something moves on your shoulders","cloth",{k:"cloak",v:.35,pan:-.25,dur:.5}],["The eye in your cloak is open","blink",{k:"open"}],["The hum climbs","hum",{lvl:1.1,f:58.27,s:7,open:800}]]},
+      S3a:{at:[["You step away from the lamp","steps",{n:5,stone:1,v:.18}],["Here the hum is louder","hum",{lvl:1.4,s:3,open:1000}],["the shadow gathers","shade",{dir:"up"}]]},
+      S3b:{at:[["Your hand goes to the Ashblade","grip"],["the shadows pool and lift","shade",{dir:"up",pan:.4}],["She steps out among","cloth",{k:"silk",pan:.3,v:.45}]]},
+      S3c:{at:[[.4,"sheathe"],[.54,"hum",{lvl:0,s:.04}],[.6,"world",{f:320,s:1.2}],["Then the eye in your cloak turns","blink",{k:"turn"}],["A voice comes from inside your own hood","cloth",{k:"silk",pan:-.4,v:.4,dur:.5}],["The shadow in the hood deepens","shade",{dir:"down",pan:-.3}]]},
+      S4:{at:[[.3,"world",{f:650,s:3}],[.4,"hum",{lvl:.45,f:55,s:4,open:500,unless:"S3c"}],["She wears the ancient shadow robe","cloth",{k:"silk",v:.4,dur:.7}]]},
+      S5:{at:[["She sits down","cloth",{k:"silk",v:.5}],["She sits down","husk"]]},
+      S6:{at:[["She points one tattooed finger","cloth",{k:"silk",v:.3,dur:.35}],["The eye narrows","blink",{k:"narrow"}]]},
+      S7b:{at:[["gone tight on the Ashblade","grip"]]},
+      S7c:{at:[["She leans forward","cloth",{k:"silk",v:.35,dur:.45}]]},
+      S8:{at:[["She stands","cloth",{k:"silk",v:.5}],["The eye looks at her","blink",{k:"look"}],["Then it looks at you","blink",{k:"look"}],["felt it wait for you","pulse",{lvl:.55,bpm:60,for:7}]]},
+      S9a:{at:[["a ripple of dark cloth","cloth",{k:"silk",v:.6,dur:.8}]]},
+      S9b:{at:[["You pull the cloak round","cloth",{k:"cloak",v:.7,dur:.9}]]},
+      "S10-1":{at:[["She crouches","cloth",{k:"silk",v:.45}],["a tug at your heels","tug"],["the eye snaps open","blink",{k:"snap"}]]},
+      "S10-3":{at:[["The eye blinks","blink",{k:"slow"}]]},
+      "S10-4":{at:[["The eye widens","blink",{k:"open"}],["prickles all over","prickle"],["gone very still","world",{f:420,s:1.5}]]},
+      "S10-5":{at:[["The eye winks","blink",{k:"wink"}]]},
+      "S10-6":{at:[["She shrugs","cloth",{k:"silk",v:.4}]]},
+      S11:{at:[[.3,"world",{f:650,s:2}],["She crouches over your shadow","cloth",{k:"silk",v:.45}],["puts her hand into it","blade"],["She turns it slowly","turn"]]},
+      S12:{at:[["It melts","melt"],["she is farther away","hum",{lvl:.15,s:4}],["only dark where she was","hum",{lvl:0,s:2.5}],["only dark where she was","cloth",{k:"silk",v:.25,pan:.4}]]},
+      S13:{fade:.4,lay:{cave:1,murmur:.6,tick:.5,held:0},at:[[.1,"world",{f:18000,s:.4}],[.1,"sweep",{hi:18000,s:.4}],[.1,"hum",{lvl:0,s:.3}],["Stig wrings the towel","wring"],["Thorn shifts his weight","shift",{pan:-.6}],["The Heart ticks","tick",{v:.6}],["going a little fast","pulse",{lvl:.75,bpm:92,for:6}]]}}},
+  "s10-stig":{near:[.9,2800,.008],voices:["katy"],
+    fight:{lay:{cave:.75,drips:.6,lamp:.3,tick:.2}},coda:{lay:{cave:.85,lamp:.6,drips:.5,tick:.3,murmur:.25}},
+    P:{G1:{lay:{cave:1,lamp:.8,drips:.7,tick:.4},at:[["the dead Heart ticks","tick",{v:.6}],["Katy's voice is low","lay",{murmur:.4,f:3}]]},
+      G1b:{at:[["a faint warmth coming off his chest plate","lay",{fan:.45,f:2.5}],["The old man, grey to the elbow, breathing","breath",{v:.22,pan:.45,old:1}],["You fold your hands","cloth",{k:"skin",v:.3,dur:.4}]]},
+      G2:{fade:3,lay:{breath:.6,murmur:.2,fan:.2}},
+      G3a:{at:[["You put your hand over the tattoo","cloth",{k:"skin",v:.4,dur:.5}],["You close your eyes","lay",{lamp:.4,drips:.4,murmur:0,fan:0,cave:.7,f:4}]]},
+      G4a:{at:[[.5,"lay",{drips:.1,lamp:.2,tick:0,breath:.35,cave:.45,f:6}],["The ticking of the Heart goes very far away","tick",{v:.35,far:1}],["a pair of scales","chains"]]},
+      G3b:{at:[["Your hand closes on Talmir's Anchor","amulet"],["So you pray to the tide","lay",{surf:.25,murmur:0,fan:0,lamp:.5,f:5}]]},
+      G3b2:{at:[["on the trading ships","ship"]]},
+      G4b:{fade:3,lay:{surf:1,lamp:.3,drips:.2,cave:.6}},
+      G3c:{lay:{murmur:0,fan:0},at:[["You take the booklet out of your pack","pack"]]},
+      G4c:{at:[["On the third page","page"]]},
+      G5:{fade:4,lay:{surf:0,breath:.55,lamp:.45,drips:.3,cave:.6}},
+      "G6A-a":{at:[["The scales stay level","chains",{still:1}]]},
+      "G6A-b":{fade:2,lay:{surf:.9}},
+      "G6A-c":{at:[["You turn the page","page"]]},
+      "G7-1":{lay:{surf:0},at:[["You set your jaw","push"]]},
+      "G7-2":{lay:{surf:0},at:[["You let out a long breath","exhale",{v:.6,dur:4.2}]]},
+      "G7-3":{lay:{surf:0}},
+      "G7-4":{fade:4,lay:{surf:0,breath:.35,cave:.45,lamp:.35}},
+      G8:{fade:1.6,lay:{cave:1,lamp:.9,drips:.7,tick:.4,murmur:.35,breath:0,surf:0,fan:.2},at:[["You get up","rise"]]},
+      G9:{at:[[.6,"paces",{n:11}],["It ticks","tick",{v:.7}],["Saphira shifts her weight","shift",{pan:-.55}],["The lamp gutters","gutter"],["Hans's chest plate","lay",{fan:.45,f:2}],["You crouch down beside him","crouch"]]}}},
+  "s10-together":{near:[1.1,3400,.01],voices:["katy","stig"],
+    fight:{lay:{cave:.6,fire:.3,tick:.2}},coda:{lay:{cave:.6,fire:.4,fan:.15,tick:.2}},
+    P:{T1:{lay:{cave:1,tick:.6,fan:.3},at:[["ticking now and then","tick",{v:.6}],["Hans looks round","servo",{v:.04}]]},
+      T2:{at:[[.3,"snap"],[.75,"snap",{v:.5}],[1.3,"stack"],[2.4,"strikes"]]},
+      T2b:{lay:{fire:.8,ash:.5},at:[["Somebody's boots steam","steam"],["glows for a moment","embers"]]},
+      T3:{fade:3,lay:{fire:.55,ash:.3},at:[["He shifts the lute in his lap","lute"]]},
+      T4:{lay:{fire:.75},at:[["Hans feeds the fire","feed"]]},
+      T5a:{at:[["The bottle comes out of the loot","rummage"],["the wax on the cork cracked","cork"],["Hans holds it up to the fire","bottle",{k:"lift"}],["He hands it back with great care","bottle",{k:"set"}]]},
+      T6a:{at:[["you wrap the bottle in it","cloth",{k:"wrap",dur:1.1,v:.5}],["a strip torn from a hem","tear"],["You pass it round the fire","cloth",{k:"blanket",v:.35}]]},
+      T5b:{at:[["He tries to lift the lute","lute"],["Hans raises one hand","servo"],["Hans lowers the hand","servo",{down:1}]]},
+      T6b:{fade:3,lay:{fire:.5}},
+      T7:{lay:{fire:.7},at:[["The fire pops","pop",{v:.4,big:1}],["flares, and is gone","hiss",{v:.09}]]},
+      T8a:{at:[["Hans nods once, firmly","servo",{v:.04,short:1}]]},
+      T8b:{at:[["pats Stig's shoulder","pat"]]},
+      T9:{fade:3,lay:{fire:.45},at:[["the last piece of wood","feed",{v:.7}],["His hands go loose on the lute","strum"],["It rises, and it falls","breath",{v:.25,pan:.2,old:1}],["a small click you all hear","click"],["a small click you all hear","lay",{fan:.12,f:1.5}]]}}}};
+
+/* when a phrase lands: words before it, at a reader's pace (slower while Hans reads aloud) */
+function iWhen(id,pid,w){if(typeof w==="number")return w;const p=(INTERLUDE_TEXT[id]||{passages:{}}).passages[pid];if(!p)return 1;
+  const txt=p.html.replace(/<[^>]+>/g," "),i=txt.indexOf(w);if(i<0){if(devPlay())console.warn("foley: phrase not in "+pid+": "+w);return 1;}
+  return .8+txt.slice(0,i).split(/\s+/).filter(Boolean).length/(SAY.on?2.6:4);}
+function iCue(sc,d,k,o,t0){const run=()=>{if(!sc.on||!IFX.bus)return;const seen=IFX.off?IFX.seenOff:IST?IST.seen:[];if(o.unless&&seen.includes(o.unless))return;const t=IFX.off?t0+d:iNow();
+    try{if(IACT[k])IACT[k](o,t,sc);else if(IFXS[k])IFXS[k](sc,t,o);}catch(e){console.error(e);}};
+  if(IFX.off||d<.05)run();else sc.tm.push(setTimeout(run,d*1000));}
+function iFoleyAt(id,pid,t){const c=IFOLEY[id],P=c.P[pid]||{},f=P.fade||1.2,first=IFX.pid==null;IFX.pid=pid;
+  iRetire(IFX.sc,Math.min(f,1.2),t);const sc=IFX.sc=iScope();
+  if(P.lay)iLayAll(P.lay,f,t);
+  for(const [w,k,o] of P.at||[])iCue(sc,iWhen(id,pid,w)+(first&&typeof w==="string"?2:0),k,o||{},t);}
+/* from iCine, on every passage: once per passage id */
+function iFoley(id,pid){if(!opt.sound||!PLAY.on||!IST||IST.I.id!==id||!IFOLEY[id])return;const b=iMix();if(!b||IFX.pid===pid)return;iFoleyAt(id,pid,iNow());}
+/* the old cue sounds this takes over while an interlude plays (the bell, the dagger's hum, the heartbeat, the strike) */
+function iFoleySnd(k){return !!(opt.sound&&IST&&IFOLEY[IST.I.id]&&/^(bell|hum|heart|strike)$/.test(k));}
+/* the fight, and after it: only the room carries */
+function iPhase(ph,t){const P=(IFOLEY[IFX.id]||{})[ph]||{},lay=Object.assign({},P.lay);iRetire(IFX.sc,ph==="fight"?.4:.8,t);IFX.sc=iScope();
+  for(const k of Object.keys(IFX.lay))if(!(k in lay))lay[k]=0;iLayAll(lay,ph==="fight"?1:2.5,t);IACT.world({f:P.world||18000,s:1.5},t);IACT.sweep({hi:18000,s:1},t);}
+function iWatch(){const b=IFX.bus;if(!b){clearInterval(IFX.iv);IFX.iv=0;return;}if(b.fading)return;const a=IFX.a,t=a.currentTime;
+  if(!PLAY.on||!opt.sound||!IST||IST!==IFX.ist||PLAY.gen!==IFX.gen){iTear(!opt.sound?.3:PLAY.on?1.4:1);return;}
+  const talk=SND.duck<1||!!(window.speechSynthesis&&speechSynthesis.speaking);if(talk!==IFX.talk){IFX.talk=talk;b.duck.gain.setTargetAtTime(talk?.5:1,t,talk?.08:.45);} // Hans reads aloud: everything steps back
+  if(document.hidden!==IFX.hid){IFX.hid=document.hidden;b.out.gain.cancelScheduledValues(t);b.out.gain.setTargetAtTime(IFX.hid?0:1,t,.12);}
+  const ph=PLAY.inter?"fight":IFX.ph==="read"?"read":"coda";if(ph!==IFX.ph){IFX.ph=ph;iPhase(ph,t+.02);}
+  for(const L of Object.values(IFX.lay))if(L.v>.001&&L.def.tick)try{L.def.tick(L,t);}catch(e){console.error(e);}
+  iGC(t);}
+/* a soft tap under a finger on the choices: paper for Continue, wood for a real choice */
+addEventListener("click",e=>{const btn=e.target&&e.target.closest&&e.target.closest(".pl-btn"),b=IFX.bus;if(!btn||!b||b.fading||IFX.ph==="fight"||!opt.sound||btn.disabled)return;
+  if(!IFX.ui||!IFX.ui.on)IFX.ui=iScope();try{(btn.classList.contains("pri")?IFXS.tap:IFXS.choose)(IFX.ui,iNow(),{});}catch(err){}},true);
+/* for tests (?playtest): render a path offline and measure it: peak, NaN, what's still running after the fade */
+async function iRender(id,path,o={}){const sr=o.sr||44100,total=path.reduce((s,p)=>s+p[1],0)+(o.fight||0)+(o.coda||0)+2.5,ctx=new OfflineAudioContext(2,Math.ceil(total*sr),sr),keep=Object.assign({},IFX),po=ctx.createGain();
+  po.gain.value=.5;po.connect(ctx.destination);Object.assign(IFX,{nb:null,vc:{},live:new Set(),off:true,seenOff:[],bus:null,lay:{},sc:null,ui:null});
+  try{const bb=iMixOn(ctx,po,id);IFX.off=true;if(o.raw){bb.duck.disconnect();bb.duck.connect(bb.out);}let t=.05,n=0;const marks=[],step=(a,b)=>{for(let x=a;x<b;x+=.1){for(const L of Object.values(IFX.lay))if(L.v>.001&&L.def.tick)L.def.tick(L,x);iGC(x);}};
+    const reg=IFX.live,count=()=>n=Math.max(n,reg.size);
+    for(const [pid,d] of path){IFX.seenOff.push(pid);if(IFOLEY[id].P[pid]||!o.spots)iFoleyAt(id,pid,t);else{IFX.sc=iScope();for(const [w,k,op] of o.spots)iCue(IFX.sc,w,k,op||{},t);if(o.lay)iLayAll(o.lay,.5,t);}marks.push([pid,t,t+d]);step(t,t+d);count();t+=d;}
+    for(const ph of ["fight","coda"])if(o[ph]){iPhase(ph,t);marks.push([ph,t,t+o[ph]]);step(t,t+o[ph]);count();t+=o[ph];}
+    iTear(1.4,t);const started=reg.size;const buf=await ctx.startRendering();await new Promise(r=>setTimeout(r,100));
+    const L=buf.getChannelData(0),R=buf.getChannelData(1),db=v=>v>0?Math.round(200*Math.log10(v))/10:-999;let pk=0,nan=0;
+    for(let i=0;i<L.length;i++){const v=Math.max(Math.abs(L[i]),Math.abs(R[i]));if(!(v===v))nan++;else if(v>pk)pk=v;}
+    const seg=marks.map(([p,a,b])=>{let s=0,m=0,k=0;for(let i=a*sr|0;i<Math.min(L.length,b*sr);i++){const v=(L[i]+R[i])/2;s+=v*v;k++;m=Math.max(m,Math.abs(L[i]),Math.abs(R[i]));}return {p,peak:db(m),rms:db(Math.sqrt(s/Math.max(1,k)))};});
+    let tail=0;for(let i=Math.floor((t+1.6)*sr);i<L.length;i++)tail=Math.max(tail,Math.abs(L[i]),Math.abs(R[i]));
+    return {peak:db(pk),nan,len:Math.round(buf.duration*10)/10,seg,nodesAtEnd:started,maxLive:n,left:reg.size,tail:db(tail)};}
+  finally{Object.assign(IFX,keep);}}
+if(devPlay())window.__ifoley={render:iRender,live:()=>IFX.live.size,bus:()=>IFX.bus,state:()=>({ph:IFX.ph,pid:IFX.pid,lay:Object.keys(IFX.lay).map(k=>k+":"+IFX.lay[k].v),live:IFX.live.size,bus:!!IFX.bus,fading:!!(IFX.bus&&IFX.bus.fading),duck:IFX.talk}),cfg:IFOLEY,when:iWhen,text:()=>INTERLUDE_TEXT,spots:()=>Object.keys(IFXS),acts:()=>Object.keys(IACT)};
 
 /* ---- the score: music for the interludes, all of it synthesized here (no files) ----
    iScore(id,pid) runs from iCine on every passage and does nothing when the passage hasn't changed. Each interlude has a bed
