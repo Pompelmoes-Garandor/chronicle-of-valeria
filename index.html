@@ -1764,14 +1764,110 @@ const rings = new THREE.Group(); scene.add(rings);
 // halo
 {const c=document.createElement("canvas");c.width=c.height=256;const x=c.getContext("2d");const g=x.createRadialGradient(128,128,60,128,128,128);g.addColorStop(0,"rgba(201,163,92,.22)");g.addColorStop(.6,"rgba(120,140,170,.08)");g.addColorStop(1,"rgba(0,0,0,0)");x.fillStyle=g;x.fillRect(0,0,256,256);
  var halo=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthWrite:false}));halo.scale.set(3.1,3.1,1);halo.renderOrder=-1;scene.add(halo);}
-// the flying city of the Wind Vault
+// the flying city of the Wind Vault: a painted miniature, like a wonder in a strategy game. A craggy island of rock with a
+// grass top, white walls and towers with blue and red roofs, a gold-tipped spire, windmills, flags and two waterfalls
+// spilling off the edge. Lit by the globe's own sun (cityTick), windows glow at night. Everything that doesn't move is
+// merged into one mesh, so the whole city costs a handful of draw calls.
 const city = new THREE.Group(); scene.add(city);
-{const stone=new THREE.MeshBasicMaterial({color:0xd8c8a0}),dark=new THREE.MeshBasicMaterial({color:0x6a5a40}),edges=new THREE.LineBasicMaterial({color:0x3a2a1a});
- const base=new THREE.Mesh(new THREE.ConeGeometry(0.05,0.07,7),dark);base.rotation.x=Math.PI;base.position.y=-0.035;city.add(base);
- const top=new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.05,0.008,7),stone);city.add(top);
- [[0,0.03,0.012,0.05],[0.025,0.018,0.009,0.03],[-0.024,0.015,0.008,0.024],[0.008,0.012,0.007,0.02]].forEach(([x,z,r,h])=>{const t=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,6),stone);t.position.set(x,h/2,z-0.015);city.add(t);
-   const roof=new THREE.Mesh(new THREE.ConeGeometry(r*1.3,h*0.5,6),dark);roof.position.set(x,h+h*0.25,z-0.015);city.add(roof);});
- city.traverse(o=>{if(o.isMesh)o.add(new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry),edges))});}
+const CITY={};
+{let seed=7; const rnd=()=>{seed=(seed+0x6D2B79F5)|0;let t=Math.imul(seed^(seed>>>15),1|seed);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296;};
+ const hash=(x,y,z)=>{const s=Math.sin(x*127.1+y*311.7+z*74.7)*43758.5453;return s-Math.floor(s);};   // same spot, same jitter: no cracks
+ const parts=[], M4=new THREE.Matrix4(), Q=new THREE.Quaternion(), E=new THREE.Euler(), V=new THREE.Vector3(), Sc=new THREE.Vector3(), C=new THREE.Color();
+ // add a piece to the merged mesh: geometry, colour (or a function of the vertex), position, rotation y, scale
+ const part=(g,col,x=0,y=0,z=0,ry=0,s=1,rx=0)=>{g=g.index?g.toNonIndexed():g; M4.compose(V.set(x,y,z),Q.setFromEuler(E.set(rx,ry,0)),Sc.set(s,s,s)); g.applyMatrix4(M4);
+   const p=g.attributes.position, c=new Float32Array(p.count*3);
+   for(let i=0;i<p.count;i++){ if(typeof col==="function") col(p.getX(i),p.getY(i),p.getZ(i),C); else C.set(col); C.toArray(c,i*3);} g.setAttribute("color",new THREE.BufferAttribute(c,3)); parts.push(g); };
+ const R=0.052, rag=a=>1+0.05*Math.sin(a*5)+0.03*Math.sin(a*11+1);
+ const FALLS=[0.9,-0.55];   // where the two streams run off the edge (angle around the island)
+ // the rock underneath: a lathe profile, made craggy by moving every point a little, then earth at the top, slate at the keel
+ const rockProfile=[[0.0,-0.104],[0.006,-0.092],[0.012,-0.076],[0.019,-0.058],[0.028,-0.04],[0.038,-0.024],[0.046,-0.012],[R,-0.004],[R,0.0]].map(([r,y])=>new THREE.Vector2(r,y));
+ const rock=new THREE.LatheGeometry(rockProfile,28);{const p=rock.attributes.position;
+   for(let i=0;i<p.count;i++){const k0=rag(Math.atan2(p.getZ(i),p.getX(i)));p.setX(i,p.getX(i)*k0);p.setZ(i,p.getZ(i)*k0);}
+   for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i); if(y>-0.003)continue; const h=hash(Math.round(x*900),Math.round(y*900),Math.round(z*900));
+     const k=1+(h-0.5)*0.55*Math.min(1,-y/0.02); p.setXYZ(i,x*k,y-(h*0.012),z*k);}}
+ rock.computeVertexNormals();
+ part(rock,(x,y,z,c)=>{const t=Math.min(1,-y/0.09), n=hash(Math.round(x*400),Math.round(y*400),Math.round(z*400));
+   c.setRGB(0.70-0.28*t+n*0.07,0.56-0.20*t+n*0.05,0.40-0.10*t+n*0.05,THREE.SRGBColorSpace);});
+ // grass top with a ragged rim, a cliff band of earth just below it
+ const top=new THREE.CircleGeometry(R*1.004,56);top.rotateX(-Math.PI/2);{const p=top.attributes.position;
+   for(let i=1;i<p.count;i++){const x=p.getX(i),z=p.getZ(i),k=rag(Math.atan2(z,x));p.setX(i,x*k);p.setZ(i,z*k);}}
+ part(top,(x,y,z,c)=>{const n=hash(Math.round(x*500),0,Math.round(z*500)); c.setRGB(0.46+n*0.08,0.64+n*0.10,0.30+n*0.05,THREE.SRGBColorSpace);},0,0.0006,0);
+ // a stream across the grass, to the two falls
+ FALLS.forEach((a,i)=>{const r0=i?0.04:0.02, r1=R*rag(a)+0.001, len=r1-r0, rm=(r0+r1)/2;
+   part(new THREE.PlaneGeometry(i?0.0045:0.006,len).rotateX(-Math.PI/2),0x5f9fc4,Math.cos(a)*rm,0.0012,Math.sin(a)*rm,Math.PI/2-a);});
+ // walls: a ring of white stone with six round towers, blue roofs
+ const wallR=0.036, stone=0xe8e1d0, stoneD=0xc9bfa8, blue=0x3a6ea8, red=0xa8432f, gold=0xd9b24a;
+ for(let i=0;i<6;i++){const a=i/6*Math.PI*2+0.3, a2=(i+1)/6*Math.PI*2+0.3, x1=Math.cos(a)*wallR, z1=Math.sin(a)*wallR, x2=Math.cos(a2)*wallR, z2=Math.sin(a2)*wallR;
+   const len=Math.hypot(x2-x1,z2-z1);
+   part(new THREE.BoxGeometry(len,0.006,0.0025),stoneD,(x1+x2)/2,0.003,(z1+z2)/2,-Math.atan2(z2-z1,x2-x1));
+   part(new THREE.CylinderGeometry(0.0042,0.0046,0.012,7),stone,x1,0.006,z1);
+   part(new THREE.ConeGeometry(0.0055,0.008,7),i%3?blue:red,x1,0.016,z1);}
+ // houses inside the walls: white with gabled roofs, blue and red, packed around the square
+ const roofG=()=>new THREE.CylinderGeometry(1,1,1,3,1).rotateZ(Math.PI/2).rotateX(-Math.PI/2);   // a lying triangular prism, sized by scale
+ for(let i=0;i<26;i++){const a=rnd()*Math.PI*2, r=0.011+rnd()*0.021, x=Math.cos(a)*r, z=Math.sin(a)*r, w=0.005+rnd()*0.004, d=0.004+rnd()*0.003, h=0.004+rnd()*0.004, ry=a+Math.PI/2+(rnd()-.5)*.3;
+   part(new THREE.BoxGeometry(w,h,d),rnd()<.2?stoneD:stone,x,h/2,z,ry);
+   const g=roofG(); g.scale(w*1.06,d*0.62,d*0.62); part(g,rnd()<.62?blue:red,x,h+d*0.28,z,ry);}
+ // the citadel: a broad keep, side towers and a tall spire with a gold tip
+ part(new THREE.CylinderGeometry(0.009,0.011,0.012,8),stone,0,0.006,0);
+ part(new THREE.CylinderGeometry(0.0035,0.0045,0.046,8),stone,0,0.023,0);
+ part(new THREE.ConeGeometry(0.0055,0.016,8),blue,0,0.054,0);
+ part(new THREE.SphereGeometry(0.0016,8,6),gold,0,0.063,0);
+ [[0.008,0.004],[-0.007,0.006],[0.001,-0.009]].forEach(([x,z],i)=>{part(new THREE.CylinderGeometry(0.0026,0.003,0.024,7),stone,x,0.012,z);part(new THREE.ConeGeometry(0.0038,0.009,7),i===1?red:blue,x,0.0285,z);});
+ // trees outside the walls
+ for(let i=0;i<16;i++){const a=rnd()*Math.PI*2, r=0.041+rnd()*0.008; if(Math.abs(Math.sin(a-0.4))<.12)continue; const s=0.7+rnd()*0.6;
+   part(new THREE.ConeGeometry(0.0034*s,0.009*s,6),0x2f5a2c,Math.cos(a)*r,0.0045*s,Math.sin(a)*r);}
+ // windmill bodies (their sails turn, see below)
+ const mills=[[-0.043,0.014],[0.012,-0.044]];
+ mills.forEach(([x,z])=>{part(new THREE.CylinderGeometry(0.0024,0.0034,0.012,6),stone,x,0.006,z);part(new THREE.ConeGeometry(0.0034,0.005,6),red,x,0.0145,z);});
+ // merge into one mesh
+ let n=0; parts.forEach(g=>n+=g.attributes.position.count);
+ const pos=new Float32Array(n*3), col=new Float32Array(n*3); let o=0;
+ parts.forEach(g=>{pos.set(g.attributes.position.array,o*3);col.set(g.attributes.color.array,o*3);o+=g.attributes.position.count;g.dispose();});
+ const geo=new THREE.BufferGeometry(); geo.setAttribute("position",new THREE.BufferAttribute(pos,3)); geo.setAttribute("color",new THREE.BufferAttribute(col,3));
+ city.add(new THREE.Mesh(geo,new THREE.MeshLambertMaterial({vertexColors:true,flatShading:true})));
+ // what moves: windmill sails, flags, the falls and their mist, rocks drifting under the island, lit windows
+ const lam=c=>new THREE.MeshLambertMaterial({color:c,flatShading:true});
+ CITY.sails=mills.map(([x,z])=>{const s=new THREE.Group(); s.position.set(x*1.0,0.011,z*1.0); s.lookAt(x*3,0.011,z*3);
+   for(let k=0;k<4;k++){const b=new THREE.Mesh(new THREE.BoxGeometry(0.0012,0.009,0.0003),lam(0xefe6d2)); b.position.y=0.0045; const arm=new THREE.Group(); arm.rotation.z=k*Math.PI/2; arm.add(b); s.add(arm);}
+   city.add(s); return s;});
+ CITY.flags=[[0,0.0655,0],...Array.from({length:6},(_,i)=>{const a=i/6*Math.PI*2+0.3;return [Math.cos(a)*wallR,0.0215,Math.sin(a)*wallR];}).filter((_,i)=>i%2===0)].map(([x,y,z],i)=>{
+   const pole=new THREE.Mesh(new THREE.CylinderGeometry(0.0003,0.0003,0.006,4),lam(0x5a4a34)); pole.position.set(x,y+0.003,z); city.add(pole);
+   const fg=new THREE.PlaneGeometry(0.005,0.003); fg.translate(0.0025,0,0);
+   const f=new THREE.Mesh(fg,new THREE.MeshLambertMaterial({color:i===0?0x8fd3c8:0xe9dcc0,side:THREE.DoubleSide})); f.position.set(x,y+0.0045,z); city.add(f); return f;});
+ // the falls: a strip whose streaks scroll down, fading out; mist puffs where they would land
+ const fallTex=(()=>{const c=document.createElement("canvas");c.width=32;c.height=128;const x=c.getContext("2d");
+   for(let i=0;i<40;i++){x.fillStyle=`rgba(${220+Math.random()*35|0},${235+Math.random()*20|0},255,${0.25+Math.random()*0.6})`;x.fillRect(Math.random()*30,Math.random()*128,1+Math.random()*2,10+Math.random()*30);}
+   const t=new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping; return t;})();
+ const mistTex=(()=>{const c=document.createElement("canvas");c.width=c.height=64;const x=c.getContext("2d");const g=x.createRadialGradient(32,32,0,32,32,32);
+   g.addColorStop(0,"rgba(255,255,255,1)");g.addColorStop(.5,"rgba(255,255,255,.4)");g.addColorStop(1,"rgba(255,255,255,0)");x.fillStyle=g;x.fillRect(0,0,64,64);return new THREE.CanvasTexture(c);})();
+ CITY.falls=FALLS.map(a=>{const er=R*rag(a)+0.0012, ex=Math.cos(a)*er, ez=Math.sin(a)*er;
+   const g=new THREE.PlaneGeometry(0.006,0.075,1,8); g.translate(0,-0.0375,0);
+   {const p=g.attributes.position;for(let i=0;i<p.count;i++){const y=p.getY(i);p.setZ(i,y*y*1.6);p.setX(i,p.getX(i)*(1-y*6));}}   // a little outward arc, wider as it falls
+   const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({map:fallTex.clone(),transparent:true,depthWrite:false,side:THREE.DoubleSide,color:0xdbefff}));
+   m.material.map.needsUpdate=true; m.position.set(ex,0.0008,ez); m.rotation.y=Math.PI/2-a; m.renderOrder=2; city.add(m);
+   const mist=new THREE.Sprite(new THREE.SpriteMaterial({map:mistTex,color:0xe8f4ff,transparent:true,depthWrite:false,opacity:.35})); mist.scale.setScalar(0.022);
+   mist.position.set(ex*1.12,-0.075,ez*1.12); city.add(mist); return {m,mist,ph:rnd()*6};});
+ // a few rocks that broke off and drift underneath
+ CITY.rocks=[[0.03,-0.07,0.02,0.007],[-0.034,-0.06,-0.012,0.005],[0.004,-0.11,-0.02,0.006],[-0.016,-0.095,0.03,0.004]].map(([x,y,z,s],i)=>{
+   const r=new THREE.Mesh(new THREE.DodecahedronGeometry(s,0),lam(i%2?0x7a6550:0x8c7458)); r.position.set(x,y,z); r.userData.y=y; r.userData.ph=i*1.7; city.add(r); return r;});
+ // windows: warm dots on the keep and the spire, lit as the sun goes down
+ CITY.lights=new THREE.MeshBasicMaterial({color:0xffc66a,transparent:true,opacity:0});
+ [[0,0.03,0.0042],[0,0.04,-0.004],[0.0098,0.007,0.003],[-0.009,0.007,0.004],[0.004,0.007,-0.0098],[0.0081,0.016,0.0028],[-0.0069,0.018,0.0032]].forEach(([x,y,z])=>{
+   const w=new THREE.Mesh(new THREE.PlaneGeometry(0.0013,0.0019),CITY.lights); w.position.set(x,y,z); w.lookAt(x*3,y,z*3); city.add(w);});
+ // the city's own light: a sun that follows the globe's sun, and a soft sky fill
+ CITY.sun=new THREE.DirectionalLight(0xfff0d8,3.4); CITY.fill=new THREE.HemisphereLight(0xd6e2ff,0x8a7050,2.0);
+ scene.add(CITY.sun,CITY.sun.target,CITY.fill);}
+const _cu=new THREE.Vector3();
+function cityTick(now,dt,up){
+  const sun=uniforms.uSun.value, day=Math.max(0,Math.min(1,(sun.dot(up)+0.08)/0.35));
+  CITY.sun.position.copy(city.position).addScaledVector(sun,1); CITY.sun.target.position.copy(city.position); CITY.sun.intensity=3.4*day;
+  CITY.fill.intensity=0.8+1.2*day; CITY.lights.opacity=1-day;
+  if(reduced) return;
+  CITY.sails.forEach((s,i)=>s.children.forEach(arm=>arm.rotation.z+=dt*(1.6+i*0.4)));
+  CITY.flags.forEach((f,i)=>{f.rotation.y=Math.sin(now/420+i*1.3)*0.45; f.scale.y=1+Math.sin(now/180+i)*0.08;});
+  CITY.falls.forEach(F=>{F.m.material.map.offset.y=(now/900+F.ph)%1; F.mist.material.opacity=.28+.1*Math.sin(now/700+F.ph);});
+  CITY.rocks.forEach(r=>{r.position.y=r.userData.y+Math.sin(now/1300+r.userData.ph)*0.003; r.rotation.y+=dt*0.15;});
+}
 // the flying castle ship and its last flight (plays when the crash site is opened)
 const ship = new THREE.Group(); ship.visible=false; scene.add(ship);
 {const stone=new THREE.MeshBasicMaterial({color:0xcbb98f,transparent:true}),dark=new THREE.MeshBasicMaterial({color:0x5a4a34,transparent:true}),
@@ -2604,8 +2700,8 @@ function frame(now){
   city.position.copy(worldPos(w.lon,w.lat,0.06+bob));
   const up=sphDir(w.lon,w.lat).lerp(new THREE.Vector3(0,0,1),mm).normalize();
   city.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),up); city.rotateY(now/6000);
-  city.scale.setScalar(0.55*(1-0.3*mm));
-  cityShadow(sphDir(w.lon,w.lat),0.06+bob,0.0275*(1-0.3*mm));
+  city.scale.setScalar(0.5*(1-0.3*mm)); cityTick(now,dt,up);
+  cityShadow(sphDir(w.lon,w.lat),0.06+bob,0.026*(1-0.3*mm));
   camPose(); updateTrail(); tickCrash(now); renderWorld(); updatePins(); soundMix();
   requestAnimationFrame(frame);
 }
