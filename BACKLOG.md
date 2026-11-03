@@ -65,6 +65,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **The shared interlude becomes the prologue *Round the Fire* (no votes, fight or Echo; the vote version kept in source/interludes/drafts/)** · New · Sam · PR #53
 - [x] **Each player sees only their own interlude (shared fire interlude put away)** · Changed · Sam · PR #52
 - [x] **Play opens the interludes only (session 10 demo hidden, `?demo` brings it back); Echoes reworded in rulebook style** · Changed · Sam · PR #51
 - [x] **Send to Sam by message on the GitHub copy (WhatsApp, mail), until Netlify publishes again** · New · Sam · PR #50

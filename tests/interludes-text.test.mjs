@@ -58,6 +58,20 @@ for (const I of INTERLUDES) {
     if (I.verse) assert.ok(T.passages[I.verse], `the verse passage ${I.verse} exists`);
   });
 
+  if (I.prologue) {
+    test(`${I.id}: a prologue reads straight through to the end, with no Echo`, () => {
+      assert.deepEqual(Object.keys(T.ends), [], "a prologue has no endings");
+      const seen = new Set();
+      let id = T.first;
+      while (id !== "@end") {
+        assert.ok(!seen.has(id), `the prologue loops at ${id}`);
+        seen.add(id);
+        assert.equal(T.passages[id].opts.length, 1, `${id}: a prologue has no choices`);
+        id = T.passages[id].opts[0].go;
+      }
+    });
+    continue;
+  }
   test(`${I.id}: every way through ends with an Echo and lore`, () => {
     const ends = Object.entries(T.ends);
     assert.ok(ends.length, "at least one ending");
