@@ -9417,17 +9417,18 @@ const devPlay=()=>/[?&](interlude|playtest)(=|&|$)/.test(location.search);
    Send to Sam then opens the player's own messages (share sheet, WhatsApp, or a copy) with what Hans logged, plus one
    CHRON-INTERLUDE line a Claude can read back (CLAUDE.md, "Reading finished interludes"). Nothing checks who they
    are: it's the honour system, for while the table site can't publish. */
+const SHARED_ON=false; // the shared fire interlude is put away for now (Sam, 2026-11-03); Sam (DM) and ?interlude still see it
 const IME="chron-inter-me";
 const localMe=()=>{const c=store.get(IME);return PCS.includes(c)?c:null;};
 const localMode=()=>!online()&&!devPlay();
 /* whose interludes this device may play: the signed-in player's own, plus the shared one. Sam (DM) may test all. */
 function playable(){
-  const own=c=>INTERLUDES.filter(i=>i.who===c||(i.who==="all"&&PCS.includes(c)));
+  const own=c=>INTERLUDES.filter(i=>i.who===c||(SHARED_ON&&i.who==="all"&&PCS.includes(c)));
   if(online()){if(account.isDm)return INTERLUDES;return own(myChar);}
   if(devPlay())return INTERLUDES;
   return localMe()?own(localMe()):[];}
 const isSent=id=>!!sentDone()[id]||!!(myResults()[id]||{}).sent;
-async function pickMe(){const i=await choose("Which one are you? Hans opens your interlude, and the shared one round the fire.",[...PCS.map(c=>({t:CREW[c].short})),{t:"Back"}]);
+async function pickMe(){const i=await choose("Which one are you? Hans opens your interlude.",[...PCS.map(c=>({t:CREW[c].short})),{t:"Back"}]);
   if(i<PCS.length){store.set(IME,PCS[i]);return true;}return false;}
 const iLogLine=l=>String(l).replace(/^Hans (logged|noted):\s*/i,"").replace(/^./,c=>c.toUpperCase()); // shown under a "Hans … log" heading
 /* Send to Sam without the table site: a message the player sends on, ending in one line a Claude can decode */
@@ -10470,8 +10471,8 @@ async function interludeHub(){
   const swap=local?opts.push({t:"Not "+CREW[localMe()].short+"? Change who's playing"})-1:-1;
   opts.push({t:"Back"});
   const intro=dm?"You're Sam: all four are here to test. Nothing you play here is sent."
-    :online()?"Before the table finishes session 10. Play yours on your own; the shared one needs everyone's vote."
-    :local?"Before the table finishes session 10, played on this phone. When you finish, Send to Sam opens your messages with what Hans logged. The shared one asks each of the crew to vote: pass the phone round, or vote as they would."
+    :online()?"Before the table finishes session 10. Play yours on your own."
+    :local?"Before the table finishes session 10, played on this phone. When you finish, Send to Sam opens your messages with what Hans logged."
     :"A test copy: played here, it stays on this device.";
   const i=await choose(intro,opts);
   if(i<list.length){await runInterlude(list[i]);if(PLAY.on)return interludeHub();return;}

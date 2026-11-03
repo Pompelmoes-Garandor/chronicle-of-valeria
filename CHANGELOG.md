@@ -6,6 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **Changed** Each of you now sees only your own interlude; the shared one round the fire is put away for now. (Sam)
 - **Changed** *Play* in the tools is now called *Interludes* and opens them straight away; the session 10 demo is put away for now. Every Echo is reworded the way a rulebook would put it, for example "Before you roll a Wisdom (Insight) check, you can spend this Echo to have advantage on it." What each one does is unchanged. (Sam)
 - **New** On the GitHub copy of the map you can now send your interlude to Sam too. When you finish, **Send to Sam** opens your messages (WhatsApp, mail) with your choices, your Echo and what Hans logged; pick Sam and send it as it is. Played one earlier? Open *Interludes* and tap *Send what I played to Sam*. (Sam)
 - **Changed** Proposals you send to Sam are now also visible to Sam's and Niels's Claude while they work on the site, so they can plan around what is waiting. Only Sam decides on them, as before. Note: the list sits in the public repo, so anyone at the table could read a proposal before Sam answers it. · Niels
