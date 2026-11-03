@@ -95,7 +95,8 @@ Between sessions each signed-in player plays short solo interludes; "Send to Sam
 
 1. Get the list: `git fetch origin table-proposals && git show origin/table-proposals:interludes.json`. Netlify mirrors it there on every send. Without the branch or file, ask Sam to open `/api/interludes` on the live Netlify site, signed in as DM, and paste it.
 2. Each entry names the player by character (`account`), never by account id. Choices for the shared interlude are votes (`votes/<id>["i10-gift"]`, `["i10-speak"]`).
-3. Echoes are Sam's to honour at the table. Lore lines go into the repo only with Sam's OK, filed like accepted proposals.
+3. Until Netlify publishes again, players on the GitHub copy send their result to Sam by message. It ends in a `CHRON-INTERLUDE` line: Sam forwards or pastes it, and `python3 source/interludes/read-message.py <file>` prints the same JSON as a `done` entry. Nothing checks who sent it.
+4. Echoes are Sam's to honour at the table. Lore lines go into the repo only with Sam's OK, filed like accepted proposals.
 
 ### Backups of the player data
 
