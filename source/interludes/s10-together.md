@@ -256,7 +256,7 @@ The bottle sits wrapped by the fire, where everyone can see it. Now and then one
 
 It's a small thing to carry to someone's door. It means: we meant to come. We weren't just passing.
 
-> **Echo: The Old Bottle.** Advantage on one Persuasion check made while offering a gift.
+> **Echo: The Old Bottle.** Before you roll a Charisma (Persuasion) check made while offering a gift, you can spend this Echo to have advantage on it.
 
 **Sent to Sam:** Hans logged: guest-gift for the door is one old bottle of wine, wrapped in the only clean cloth. I carry it. [Name] speaks first. [SAM?: the party carries the fine wine as a guest-gift]
 
@@ -266,7 +266,7 @@ Katy hums the new verse once more, under her breath, so she won't forget it. The
 
 Matthew doesn't wake. But his fingers move on the strings, once, as if in his sleep he has found the chord.
 
-> **Echo: Our Verse.** Once, when one of you makes a Performance or Persuasion check, another of you can join in to give it advantage (no action).
+> **Echo: Our Verse.** When one of you makes a Charisma (Performance or Persuasion) check, another of you who can be heard can join in, no action required, and spend this Echo to give that check advantage.
 
 **Sent to Sam:** Hans logged: the crew wrote a verse. Four lines, the first one borrowed. I did not provide the beat. I was near it. [The four lines.] [Name] speaks first. [SAM?: Sam can make the verse canon and add it to the Chronicle]
 
@@ -276,7 +276,7 @@ Your hands are empty, and you look at them, and they feel fine like that.
 
 You will walk up to that door with the truth and a sick man, and nothing in front of either. Whatever they say, they'll be saying it to what's really there.
 
-> **Echo: Nothing to Hide.** Advantage on one Charisma check in which you say nothing false.
+> **Echo: Nothing to Hide.** Before you roll a Charisma check in which you say nothing false, you can spend this Echo to have advantage on it.
 
 **Sent to Sam:** Hans logged: the crew brings no gift. Only the bard's father, and the truth about him. Both heavy. I carry both. [Name] speaks first.
 
