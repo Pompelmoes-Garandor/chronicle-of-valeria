@@ -1120,6 +1120,42 @@ body.playing header.top,body.playing nav.dock,body.playing .eggs,body.playing #p
 @media (max-width:600px){.pl-modal{left:8px;right:8px;bottom:8px}.pl-modal .row .pl-btn{flex:1 1 0}}
 .pl-cipher{font:18px/1.6 var(--mono);letter-spacing:.2em;color:var(--parch-dim);word-break:break-all;width:min(520px,100%);text-align:center}
 @media (prefers-reduced-motion:reduce){.tk{transition:none}.fl{animation-duration:.01s}.tk.tgt .rg,.tk.ally-tgt .rg,.pl-timer.hot{animation:none}}
+
+/* Protocol Zero (the Steward's bonus level): the ship's bars, his log, the engine room, the glide, the last line */
+.sw-hud{position:absolute;top:calc(env(safe-area-inset-top,0px) + 8px);left:50%;transform:translateX(-50%);z-index:30;display:grid;grid-template-columns:repeat(3,1fr) auto;gap:4px 14px;padding:7px 12px;width:min(600px,calc(100vw - 420px));box-sizing:border-box;
+  background:#06100fcc;border:1px solid #8fd3c844;border-radius:10px;font:400 10px/1 var(--mono);letter-spacing:.08em;color:var(--steward);pointer-events:none;backdrop-filter:blur(3px)}
+.sw-hud .sw-b{display:grid;grid-template-columns:auto 1fr 32px;align-items:center;gap:6px}
+.sw-hud .sw-b i{display:block;height:6px;background:#8fd3c81a;border-radius:3px;overflow:hidden}
+.sw-hud .sw-b b{display:block;height:100%;background:var(--steward);box-shadow:0 0 6px var(--steward);transition:width .5s ease}
+.sw-hud .sw-b.hull b{background:#d8b070;box-shadow:0 0 6px #d8b070}.sw-hud .sw-b.pow b{background:#9cc4ff;box-shadow:0 0 6px #9cc4ff}
+.sw-hud .sw-b em{font-style:normal;text-align:right}.sw-hud .sw-n{text-align:right;color:#ff9a6a}.sw-hud .sw-n b{font-weight:500}
+.sw-hud.low{border-color:#ff7a4a88}
+@media (prefers-reduced-motion:no-preference){.sw-hud.low{animation:swLow 1.4s ease-in-out infinite}}
+@keyframes swLow{50%{box-shadow:0 0 14px #ff5a3a55}}
+.sw-hud .sw-n{align-self:center}
+@media (max-width:900px){.sw-hud{left:8px;right:8px;transform:none;width:auto;top:calc(env(safe-area-inset-top,0px) + 56px);grid-template-columns:repeat(3,1fr);font-size:9px;gap:3px 8px;padding:6px 8px}
+  .sw-hud .sw-b{grid-template-columns:1fr 28px}.sw-hud .sw-b span{grid-column:1/-1}.sw-hud .sw-n{display:none}}
+.pl-slog{width:min(620px,100%);box-sizing:border-box;margin:0;padding:10px 12px;font:400 13px/1.55 var(--mono);color:var(--steward);background:#06100f;border-left:2px solid #8fd3c866;white-space:pre-wrap;overflow-wrap:anywhere}
+.pl-inter .pl-slog{margin:10px 0;font-style:normal}
+.sw-pw{width:min(420px,100%);display:grid;grid-template-columns:62px 1fr 40px;align-items:center;gap:8px;font:400 12px/1 var(--mono);color:#9cc4ff}
+.sw-pw i{display:block;height:10px;background:#9cc4ff1a;border-radius:5px;overflow:hidden}.sw-pw b{display:block;height:100%;width:0;background:#9cc4ff;box-shadow:0 0 8px #9cc4ff;transition:width .4s}
+.sw-pw em{font-style:normal;text-align:right}
+.pl-stations.sw-st .pl-st.sw-live{border-color:var(--steward);box-shadow:0 0 0 1px #8fd3c855,0 0 16px #8fd3c822}
+.sw-hold.on,.sw-sock.on,.sw-send.on{background:#8fd3c833;border-color:var(--steward)}
+.pl-btn.miss{border-color:#ff7a4a}
+.sw-sock{grid-column:1/-1;flex-direction:column;gap:4px;min-height:64px}.sw-sock small{font:400 12px/1.2 var(--body)}
+.sw-lanes{width:min(620px,100%);display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sw-lane{flex-direction:column;gap:4px;min-height:72px;padding:8px}.sw-lane small{font:400 12px/1.2 var(--body);color:var(--parch-dim)}
+.sw-lane.dk{border-color:#8fd3c855}.sw-lane.lit small{color:#ffb070}
+.sw-send{width:min(320px,100%);min-height:64px;border-radius:12px;border:1px solid #8fd3c866;background:#06100f;color:var(--steward);font:500 14px/1 var(--mono);letter-spacing:.14em;cursor:pointer;touch-action:none;-webkit-user-select:none;user-select:none}
+@media (prefers-reduced-motion:no-preference){.sw-send.on,.sw-sock.on,.sw-hold.on{transition:background-color 1.6s linear}}
+.sw-gl{min-height:240px}
+.sw-ov{border-color:#ff7a4a;color:#ffb08a}
+@media (prefers-reduced-motion:no-preference){.sw-ov.blip{animation:swBlip .18s}}
+@keyframes swBlip{50%{transform:scale(.96)}}
+.sw-card{width:min(420px,100%);text-align:center;padding:22px 16px;border:1px solid #8fd3c844;border-radius:14px;background:#06100fcc}
+.sw-card .ic-t{font:400 32px/1.1 var(--display);color:var(--parch)}.sw-card .ic-eye,.sw-card .ic-who{font:400 11px/1.3 var(--mono);letter-spacing:.12em;color:var(--steward)}
+.sw-card .ic-rule{height:1px;margin:12px auto;width:60%;background:#8fd3c844}.sw-card .ic-mood{font:italic 17px/1.4 var(--body);color:var(--parch-dim);margin:10px 0 0}
 </style>
 <style>html,body{margin:0}</style>
 </head>
@@ -5069,7 +5105,7 @@ let B=null; // the battle in progress
 function seeded(s){let x=s%2147483647||7;return ()=>((x=x*16807%2147483647)-1)/2147483646;}
 function mapOf(key){const m=MAPS[key],rows=m.rows,H=rows.length,W=rows[0].length;return {key,kind:m.kind,W,H,c:(x,y)=>(x<0||y<0||x>=W||y>=H)?(m.kind==="tree"?"-":"#"):rows[y][x],def:m};}
 function cost(mp,x,y){const ch=mp.c(x,y);return mp.kind==="tree"?(TREE_COST[ch]??0):(CAVE_COST[ch]??0);}
-function blocksLos(mp,x,y){return mp.kind!=="tree"&&"#oW".includes(mp.c(x,y));}
+function blocksLos(mp,x,y){return mp.kind!=="tree"&&"#oWY".includes(mp.c(x,y));}
 function inTurret(mp,x,y){return mp.kind==="tree"&&mp.c(x,y)==="T";}
 
 function paintMap(cv,mp,cs){
@@ -6875,7 +6911,7 @@ function t3build(mp,host){
       r.shadowMap.type=THREE.PCFShadowMap;const s=l.shadow;s.mapSize.set(2048,2048);s.radius=3;s.bias=-.00035;s.normalBias=.022;l.updateMatrixWorld();l.target.updateMatrixWorld();
       if(l.isDirectionalLight)t3l_fit(l,this);else{const d=l.position.distanceTo(l.target.position);s.focus=1;Object.assign(s.camera,{near:Math.max(.5,d-6),far:d+3});s.bias=-.0002;}},
     live(){return PLAY.on&&B&&B.mp===mp&&host.isConnected;}};
-  if(tree)t3tree(Vb);else t3cave(Vb);
+  if(tree)t3tree(Vb);else if(mp.def.ship)t3ship(Vb);else t3cave(Vb);
   t3lights(Vb);
   Vb.sparks=t3sparks(Vb);
   // the faint grid, the lit floor areas, the path ribbon and the spell circle (see t3uBoard)
@@ -7567,7 +7603,7 @@ function reachable(u,budget){
   while(q.length){q.sort((a,b)=>a[0]-b[0]);const [c,x,y]=q.shift();const cur=d.get(x+","+y);if(cur.c<c)continue;
     const step=(nx,ny,k,jump)=>{if(k<=0||c+k>budget||!passable(nx,ny))return;const key=nx+","+ny,old=d.get(key);if(!old||old.c>c+k){d.set(key,{c:c+k,p:x+","+y,jump});q.push([c+k,nx,ny]);}};
     for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++){if(!dx&&!dy)continue;const nx=x+dx,ny=y+dy;let k=cost(mp,nx,ny);
-      if(u.climber&&k===2&&mp.kind==="tree")k=1;step(nx,ny,k,false);}
+      if(u.climber&&k===2&&mp.kind==="tree")k=1;if(u.flier&&(k===2||mp.c(nx,ny)==="v"))k=1;step(nx,ny,k,false);}
     if(mp.kind==="tree")for(const dir of[-1,1])for(let g=1;g<=2;g++){const nx=x+dir*(g+1);let clear=true;for(let i=1;i<=g;i++)if(cost(mp,x+dir*i,y)!==0)clear=false;
       if(!clear)continue;for(const dy of[0,1]){if(cost(mp,nx,y+dy)>0){step(nx,y+dy,g+1,true);break;}}}
   }
@@ -7679,6 +7715,7 @@ async function zero(t,src,type,o){
   if(t.side==="foe"){
     if(MON[t.key].fort&&type!=="radiant"&&!o.crit){const dc=5+(o.lastDmg||5);const r=d20();if(r.v+3>=dc){t.hp=1;log(`  ${t.name} won't stay down (Undead Fortitude): 1 HP.`,"r");return;}}
     if(t.key==="heart"){spit();B.sc.heartDead=true;return;}
+    if(MON[t.key].escape){t.hp=1;return;} // he gets away (B.def.onHurt takes him off the board)
     t.gone=true;log(`  ${t.name} falls.`,"g");
     if(MON[t.key].burst){log("  Ash bursts from the husk.","r");for(const u of B.units.filter(u=>alive(u)&&u!==t&&dist(u,t)<=1)){if(!(await save(u,"con",12,"Ash Burst"))){await hurt(u,dice("1d6").t,"poison",t,{aoe:true});if(alive(u))addC(u,"poisoned",{exp:{u:u.id,at:"end"}});}}}
     return;}
@@ -8175,6 +8212,7 @@ function crewActions(u){
   if(u.cond.restrained&&!netted&&!u.cond.engulfed){const dc=u.cond.restrained.dc||14;A("Break free",`Athletics DC ${dc}`,true,async()=>{useA();const r=await crewRoll(k,"Athletics",Math.max(skillMod(k,"athletics"),skillMod(k,"acrobatics")),dc,{u});if(r.ok){delete u.cond.restrained;log(`${u.short} breaks free.`,"g");}});}
   if(u.cond.grappled){A("Escape the grapple",`DC ${u.cond.grappled.dc}`,true,async()=>{useA();const r=await crewRoll(k,"Athletics/Acrobatics",Math.max(skillMod(k,"athletics"),skillMod(k,"acrobatics")),u.cond.grappled.dc,{u});if(r.ok){delete u.cond.grappled;log(`${u.short} slips free.`,"g");}});}
   const vs=u.cond.engulfed?[]:null;
+  if(k==="steward")swActions(u,A,{inRange,atkAct,useA,useB});
   if(k==="katy"){
     if(!piled){A("Shortbow","+5 · 1d6+2",!netted&&inRange(64).length>0,atkAct({n:"Shortbow",hit:5,dmg:"1d6+2",type:"piercing",range:[16,64]},64));
     A("Dagger","+5 · 1d4+2",inRange(1).length>0,atkAct({n:"Dagger",hit:5,dmg:"1d4+2",type:"piercing"},1));}
@@ -9410,7 +9448,7 @@ const online=iOnline;
 const sentDone=()=>(window.__myInterludes||{}).done||{};
 /* leaving an interlude midway (Back to the map, a chapter, Leave): the session 10 party comes back, saving works again */
 let IFK=null; // the fight in progress: {keep} holds the session 10 state while the interlude has its own
-function iLeave(){if(IFK){ST=IFK.keep;IFK=null;}PLAY.inter=false;IST=null;}
+function iLeave(){if(IFK){ST=IFK.keep;IFK=null;}PLAY.inter=false;IST=null;if(typeof swHudOff==="function")swHudOff();}
 const devPlay=()=>/[?&](interlude|playtest)(=|&|$)/.test(location.search);
 /* without the table site (GitHub Pages, or Netlify signed out) the interludes still play: the player says on this
    device who they are (chron-inter-me), plays their own and the shared one, and the result stays on the device.
@@ -9609,7 +9647,7 @@ function iApply(S,c){const ms=reduced?0:(c.ms||0);storyEl.style.setProperty("--i
   if(c.flash)iFlash(c.flash);
   if(c.snd)iSnd(c.snd);}
 /* the title card: the interlude's name, whose it is, one line of mood; letterbox in, tap to begin */
-function iTitle(I){const T=INTERLUDE_TEXT[I.id]||{},who=I.who==="all"?PCS.map(c=>CREW[c].short).join(" · "):(CREW[I.who]||{}).name||"";
+function iTitle(I){const T=INTERLUDE_TEXT[I.id]||(typeof BONUS_TEXT!=="undefined"&&BONUS_TEXT[I.id])||{},who=I.who==="all"?PCS.map(c=>CREW[c].short).join(" · "):(CREW[I.who]||{}).name||"";
   const card=h("div",{class:"ic-card",role:"button",tabindex:"0","aria-label":(T.title||"Interlude")+". Tap to begin."},h("i",{class:"ic-lb"}),h("i",{class:"ic-lb"}),
     h("div",{class:"ic-in"},h("div",{class:"ic-eye"},I.eye||"Interlude"),h("div",{class:"ic-t"},T.title||""),h("div",{class:"ic-rule"}),h("div",{class:"ic-who"},who),
       IMOOD[I.id]?h("p",{class:"ic-mood"},IMOOD[I.id]):null,h("div",{class:"ic-tap"},"tap to begin")));
@@ -10485,6 +10523,7 @@ async function interludeHub2(list,local,dm){
   const unsent=(online()&&!dm)||local?list.filter(I=>!I.prologue&&mine[I.id]&&!isSent(I.id)):[];
   if(unsent.length)opts.push({t:"Send my log to the DM",sub:unsent.map(I=>(INTERLUDE_TEXT[I.id]||{}).title).join(", ")});
   const swap=local?opts.push({t:"Not "+CREW[localMe()].short+"? Change who's playing"})-1:-1;
+  const bonus=(SW_ON||dm||devPlay())?opts.push({t:"Bonus · Protocol Zero",sub:"the Steward's last stand · "+(store.get(SWKEY)?"played":"new")})-1:-1;
   opts.push({t:"Back"});
   const intro=dm?"You're Sam: all four are here to test. Nothing you play here is sent."
     :online()?"Before the table finishes session 10. Play yours on your own."
@@ -10493,6 +10532,7 @@ async function interludeHub2(list,local,dm){
   const i=await choose(intro,opts);
   if(i<list.length){await runInterlude(list[i]);if(PLAY.on)return interludeHub2(list,local,dm);return;}
   if(unsent.length&&i===list.length){await (local?iShareSend:iSend)(unsent.map(I=>I.id));return interludeHub2(list,local,dm);}
+  if(i===bonus){await runSteward();if(PLAY.on)return interludeHub2(list,local,dm);return;}
   if(i===swap){store.set(IME,"");PLAY.iList=false;return interludeHub();}}
 PLAY.interludes=INTERLUDES;PLAY.runInterlude=runInterlude;
 if(PLAY.auto)window.__inter={text:()=>INTERLUDE_TEXT,list:INTERLUDES,ist:()=>IST,fights:IFIGHTS,results:myResults,inter:()=>!!PLAY.inter||!!IFK,on:()=>PLAY.on,clean:iClean,send:iSend,exit:()=>{if(PLAY.on)exitPlay();}};
@@ -10864,6 +10904,478 @@ function t3dressFire(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,K=t3i_kit(Vb,1618),{rr,pk,
     if(Vb.sparks&&want>0&&Math.random()<dt*(hi?7:3.5)*k)Vb.sparks.spawn(sp.set(fire.p.x+rr(-.12,.12),.3,fire.p.z+rr(-.12,.12)),"#ffa040",1,{sp:.15,up:.9,lf:1.4,gr:.4,sz:.06});});}}
 
 
+/* =================== BONUS: PROTOCOL ZERO, the Steward's last stand ===================
+   A bonus level, not an interlude: no Echo, nothing goes to Sam. Hans plays back the last memory in the black box and
+   you are the Steward, alone on the Echo over the Hills, the day the ship was lost (session 6). The script is
+   source/interludes/bonus-steward.md (BONUS_TEXT); choices that go to "@name" hand over to the game below.
+   The idea: the Steward is never in danger, the ship is. His own bar barely moves; HULL and POWER fall however well you
+   play. He wins every fight and loses the ship, and then he gives it his own core (Protocol Zero).
+   Not canon beyond what the table played: the ship's name, the hellbats, Teenoog's mount and lines are Claude's, for Sam. */
+/* BONUS_TEXT:start (generated by source/interludes/build-interludes.py, do not edit by hand) */
+const BONUS_TEXT={"bonus-steward":{"title":"Protocol Zero","first":"P1","passages":{"P1":{"h":"Playback","html":"<p>A low hum. A beep. Then four more, slow.</p><p>\"Hold still,\" Hans says. His voice is close, and for once there is no music under it. \"Something's coming loose.\"</p><p>You are inside the black box. It is dark in here, full of drifting teal static, like dust in a sunbeam.</p><pre class=\"pl-slog\">BLACK BOX · UNIT #34 · FILE RECOVERED\nINTEGRITY 61%\nPLAY? ▮</pre><p>\"It's him,\" Hans says quietly. \"The one who flew you. I have only ever heard his last line. This is more of it.\" A pause. \"I'll play it. You'll have to be him. I can't. I'd turn the volume up.\"</p>","opts":[{"t":"Play","go":"P2"}]},"P2":{"h":"The lens","html":"<p>The static pulls together into a single round lens. It opens: teal.</p><p>You are standing very still. You are good at it. You have been standing still for a very long time, in one way or another.</p><pre class=\"pl-slog\">MEMORY START · VESSEL ECHO · THE HILLS · DAWN</pre>","opts":[{"t":"Continue","go":"D1"}]},"D1":{"h":"The drop","html":"<p>Snow on the battlements. Below you, a white mountain that seems to go on forever, and at its foot the dark smudge of a camp: tents, smoke, people. The rebels of the Hills.</p><p>The Echo hangs low over a ledge, engines purring. A gangplank of stone slides out of the hull with a grind and touches the snow. You stand at the top of it like a doorman: steel, two and a half metres of it, a tower shield on your left arm, a cannon where your right hand should be, one round teal lens.</p><p>The crew come past you one by one.</p><p>Katy Berry passes with the ukulele on her back and taps your shield twice, the way you would knock on a door for luck.</p><p>\"Bard,\" you say. \"Your tree has been watered.\"</p><p>She tells you you're a sweetheart. \"That is not among my designations,\" you say.</p><p>Stig stops in front of you, a big man with a big pack, and puts a cloth bundle in your good hand. Bread is proving in the galley, he says. Don't let it over-rise.</p><p>\"I will monitor it,\" you say. You have no idea what that means.</p>","opts":[{"t":"Continue","go":"D2"}]},"D2":{"h":"Ashore","html":"<p>Saphira passes last, hood up. She doesn't stop. She says it without looking at you: if something comes, don't wait for us.</p><p>You watch them go down the plank and into the snow. Your lens adjusts, keeping them in focus for longer than it needs to.</p><p>\"Acknowledged,\" you say, to no one.</p><p>You don't move until they reach the camp.</p><pre class=\"pl-slog\">LOG: CREW ASHORE. 3 OF 3.\nSTANDING ORDER: HOLD STATION. KEEP THE VESSEL.</pre>","opts":[{"t":"Keep the vessel","go":"W0"}]},"W0":{"h":"The watch","html":"<p>The Echo is quiet without them. Five rooms below the deck, and all of them yours to keep until the crew comes back.</p><p>You walk the ship. You put a hand on everything.</p>","opts":[{"t":"The bridge","go":"W1"},{"t":"The chart room","go":"W2"},{"t":"The galley","go":"W3"},{"t":"The grove","go":"W4"},{"t":"The heart of the ship","go":"W5"}]},"W1":{"h":"The bridge","html":"<p>The copper paintings glow in the low light. Every wall of the bridge is covered with them. One shows a whole sky full of castles like this one, dozens of them, sailing in formation.</p><p>You stop in front of it.</p><pre class=\"pl-slog\">SCAN: FLEET RECORD. VESSELS: 40. ACTIVE: 1.</pre><p>The helm is a stone lectern with a plate shaped like a hand. You put yours on it. The ship answers with a long, deep hum, like a cat, and turns slowly over the camp for you.</p>","opts":[{"t":"Back to the stairs","go":"W0"}]},"W2":{"h":"The chart room","html":"<p>Saphira's map covers the whole table: the known world, carved and inked, with pins and string and her notes in the margins, some of them in a script that isn't Common. A cup of cold tea holds down one corner.</p><p>One loose pin lies next to the Hills. You consider it. Then you push it in, exactly where the ship hangs now. The map gives a soft chime.</p><pre class=\"pl-slog\">SCAN: CARTOGRAPHER'S NOTES. MOSTLY ACCURATE.\nCORRECTION ATTEMPTED: NO. SHE WOULD NOTICE.</pre>","opts":[{"t":"Back to the stairs","go":"W0"}]},"W3":{"h":"The galley","html":"<p>The warmest room on the ship. Copper pots on racks, a bread oven, a stove with six fire eyes and six brass dials, knives in a row. A slate on the wall says <i>TUES: stew. WED: stew, better.</i> On the counter a bowl sits under a cloth: the bread, proving.</p><p>You lift the cloth. It has risen. You look at it for a long moment, and you have no idea whether that is good. You put the cloth back very gently.</p><pre class=\"pl-slog\">SCAN: DOUGH. STATUS: RISING.\nACTION: NONE REQUIRED. PROBABLY.</pre>","opts":[{"t":"Back to the stairs","go":"W0"}]},"W4":{"h":"The grove","html":"<p>One tree fills the room. Its roots run across the floor like cables, and its canopy goes up through a hole in the ceiling into the sky. The berries are small and round and glow a faint gold, like coals in a dim hearth.</p><p>There is a brass can by the door. You water the roots. The tree seems to lean toward you a little, and a few of the berries brighten.</p><p>You pick one and put it away carefully. For later.</p>","opts":[{"t":"Back to the stairs","go":"W0"}]},"W5":{"h":"The heart of the ship","html":"<p>Below everything, the engine: a great ring of copper turning slowly around a column of pale blue light. It is loud in a soft way, like the sea.</p><p>In the wall beside the core is a socket, an empty recess shaped exactly like your own chest plate. Valerian letters run above it.</p><pre class=\"pl-slog\">SCAN: MAINTENANCE BERTH. LAST USED: NEVER.\nTRANSLATION: \"IN NEED, THE KEEPER BECOMES THE KEEL.\"</pre><p>There is nothing to do here. You stand a while anyway. It is the only room you don't touch.</p>","opts":[{"t":"Back to the stairs","go":"W0"}]},"M1":{"h":"The mountain breaks","html":"<p>Hours pass. You are back on deck, and the snow is falling up.</p><p>Inside the mountain something bursts. You feel it more than you hear it: one deep boom, through the hull, through your feet. Cracks of orange light run across the ice like veins. Steam pours out of the peak. Whole slopes of snow slide away.</p><pre class=\"pl-slog\">SEISMIC EVENT. SOURCE: INSIDE THE MOUNTAIN.\nTHERMAL: RISING. RISING. RISING.</pre><p>Below you the camp comes alive: torches, shouting, people running for the paths down. And out of a cave mouth in the steam come three small figures, onto the slope. Your lens finds them and locks.</p><pre class=\"pl-slog\">CREW: 3 OF 3. MOVING.</pre>","opts":[{"t":"Continue","go":"M2"}]},"M2":{"h":"Contact","html":"<p>For a moment everything is fine. Your shield arm lowers half an inch.</p><p>Then your lens swings to the west, on its own. A dark smudge on the horizon, moving against the wind.</p><pre class=\"pl-slog\">CONTACT. BEARING WEST. COUNT: 12... 30... 51.\nSCAN: HELLBAT. MANY.\nAND ONE MORE.</pre><p>At the front of the swarm something bigger flies, with a rider on its back. A long coat. A hat.</p><p>\"Captain,\" you say, very quietly.</p><p>The swarm isn't coming for the ship. It is coming for the Hills: for the camp, the paths, the three figures on the slope.</p>","opts":[{"t":"Continue","go":"E1"}]},"E1":{"h":"Standing orders","html":"<p>On the bridge, the helm lights up under your hand with two orders.</p>","opts":[{"t":"Hold station","go":"E2"},{"t":"Engage","go":"E3"}]},"E2":{"h":"Resolving","html":"<p>You hold. For one long second you stay exactly where you were told to stay, while the swarm crosses half the sky toward the camp.</p><pre class=\"pl-slog\">STANDING ORDER: HOLD STATION. KEEP THE VESSEL.\nPRIORITY ORDER: PROTECT THE CREW.\nCONFLICT. RESOLVING.\nRESOLVED.</pre><p>There was only ever one order.</p>","opts":[{"t":"Engage","go":"E3"}]},"E3":{"h":"Here","html":"<p>You put your hand flat on the helm. The Echo groans and turns broadside to the swarm, every battlement facing it. You fire one rocket straight up. It bursts teal over the mountain, impossible to miss.</p><p>Your voice goes out through the ship's horn, over the whole valley: \"Here.\"</p><p>Fifty heads turn. Then all at once, like starlings, the swarm peels away from the Hills and comes for you.</p><p>On the slope far below, three tiny figures stop and look up.</p><pre class=\"pl-slog\">CREW: 3 OF 3. SAFE DISTANCE: INCREASING.\nGOOD.</pre>","opts":[{"t":"To the battlements","go":"F1"}]},"F1":{"h":"The battlements","html":"<p>The swarm hits like a storm. Hellbats everywhere: bats the size of a big dog, leather wings with a dull ember glow along the bones, mouths that open too far. They scream past, dive at the rigging, claw at the towers.</p><p>You are built for exactly this.</p><p>But they don't come for you. They fly around you. They go for the ship: the seams, the chains, the vents. Every one you don't stop latches on and chews.</p>","opts":[{"t":"Fight","go":"@deck"}]},"F2":{"h":"The pass","html":"<p>A shadow sweeps the deck. Captain Teenoog comes in low on the biggest hellbat of all, a scarred matriarch the size of a horse, close enough to touch. He doesn't attack. He tips his ruined hat.</p><p>\"Still keeping house, tin man?\" He is friendly, unhurried, a voice that carries without trying. \"Who for? They've left you.\"</p><p>\"They are on shore leave,\" you say.</p><p>He laughs. \"Then let's see the house.\"</p>","opts":[{"t":"Continue","go":"F3"}]},"F3":{"h":"Breach","html":"<p>The matriarch screams. Every bat left on the deck dives at once, not at you, but at the hatches. They pour inside the ship.</p><pre class=\"pl-slog\">BREACH. BREACH. BREACH.\nHOSTILES INSIDE THE VESSEL.</pre>","opts":[{"t":"Below decks","go":"R0"}]},"R0":{"h":"Below decks","html":"<p>The ship is the map now. You can hear them in the walls: claws on stone, teeth on copper.</p>","opts":[{"t":"The chart room","go":"R1"},{"t":"The galley","go":"R2"},{"t":"The grove","go":"R3"}]},"R1":{"h":"The chart room","html":"<p>Bats are crawling over the map table, tearing at the string, scattering pins. The cold tea goes over.</p><p>You clear the room in five seconds. Then you stand at the table, and the pins are everywhere.</p>","opts":[{"t":"Pick up every pin","go":"R1a"},{"t":"Leave them, there's no time","go":"R1b"}]},"R1a":{"h":"Every pin","html":"<p>You pick them up, one by one, every pin that fell, and you put each one back where it was. You remember where they all were.</p><pre class=\"pl-slog\">SCAN: CARTOGRAPHY 71% INTACT.\nSHE WILL NOTICE.</pre><p>The map hums. Red marks wink on all over it, through every wall of the ship: in the galley, in the grove, and a cluster deep below, near the heart.</p>","opts":[{"t":"Back to the stairs","go":"R0"}]},"R1b":{"h":"No time","html":"<p>You leave them. It costs you something you don't have a word for.</p><p>The map still hums, but it shows the ship in patches: red marks in the galley, in the grove, and something below that flickers and won't hold still.</p>","opts":[{"t":"Back to the stairs","go":"R0"}]},"R2":{"h":"The galley","html":"<p>Hellbats in the copper pots. Hellbats in the flour. One of them is eating the bread.</p><p>\"No,\" you say, very flat.</p><p>The stove is by the far wall: six fire eyes, six brass dials.</p>","opts":[{"t":"Fight","go":"@galley"}]},"R2b":{"h":"Over-risen","html":"<p>The galley is quiet. Flour settles on everything like snow. The bowl lies upside down on the floor, and the bread is a flat, burnt circle.</p><pre class=\"pl-slog\">SCAN: DOUGH. STATUS: OVER-RISEN.\nI DID NOT MONITOR IT.</pre>","opts":[{"t":"Back to the stairs","go":"R0"}]},"R3":{"h":"The grove","html":"<p>The biggest fight inside the ship. A dozen bats are in the branches and the roots, shredding leaves. The berries dim one by one as they're torn off.</p><p>Where the berries still glow, the bats keep their distance.</p>","opts":[{"t":"Fight","go":"@grove"}]},"R3b":{"h":"The last fruit","html":"<p>When the room is clear, one berry is left on the lowest branch, still glowing. You reach for it, and stop. You leave it.</p><pre class=\"pl-slog\">SCAN: LAST FRUIT. PRESERVE.\nSHE WILL WANT TO SEE THAT IT SURVIVED.</pre>","opts":[{"t":"Back to the stairs","go":"R0"}]},"C1":{"h":"The corridors","html":"<p>Between the rooms the ship comes apart around you. Ceilings drop. A whole stairwell is gone, open to the sky. At every window the mountain is further away. The Echo is drifting.</p><p>The red marks on the map all go out at once. Silence.</p>","opts":[{"t":"To the bridge","go":"T1"}]},"T1":{"h":"The captain on the bridge","html":"<p>Wind howls through a hole in the wall where a copper painting used to hang. The painting of the fleet lies in pieces on the floor.</p><p>Teenoog stands at the helm with his hand on it, as if it's his. The ship isn't humming for him. It's growling. Outside the broken wall his matriarch hangs in the air, wings beating, eyes like coals.</p><p>\"I always wondered what these looked like inside,\" he says. \"Forty of them, once. I watched them fall one by one.\" He smiles at you. \"You're the last, you know. The last of your kind that still flies.\"</p><pre class=\"pl-slog\">SCAN: SUBJECT \"TEENOOG\".\nCLASS: ONE-EYED CHAMPION.\nAGE: ▒▒▒ ERR. CHECK AGAIN.\nAGE: ▒▒▒ ERR.</pre><p>\"Step away from the helm,\" you say.</p><p>\"Or what? You'll shoot me?\" He draws a curved blade. \"Go on.\"</p>","opts":[{"t":"Fight","go":"@bridge"}]},"T2":{"h":"I never came for you","html":"<p>Teenoog stops fighting. He steps back toward the hole in the wall, bleeding, and smiles.</p><p>\"You're very good. I'll give you that. You've won.\" He glances down at the floor, at what is under it. \"But I never came for you.\"</p><p>He falls backwards out of the hole. The matriarch catches him in mid-air, and they are gone into the dark.</p><p>The map flares red. The marks that went out were never gone. They are all in one place: the heart of the ship.</p><pre class=\"pl-slog\">HOSTILES: 19. LOCATION: ENGINE.\nPOWER 38%... 31%... 22%...</pre><p>The bats were never fighting you. They were eating the engine.</p>","opts":[{"t":"Down to the heart","go":"Z1"}]},"Z1":{"h":"The heart","html":"<p>The copper ring is grinding, half its teeth gone. The blue core flickers like a candle in a draught. Hellbats cover it like a living crust, gnawing.</p><p>You burn them off in seconds. Rockets, cannon, shield. They burst and fall like ash. You are magnificent, and it doesn't matter.</p><pre class=\"pl-slog\">POWER 12%... 7%... 4%.\nNOT ENOUGH TIME.</pre><p>The ship lurches. Through a crack in the floor: open air, a long way down. The Echo is falling, slowly, and drifting back over the mountain. Back over the camp. Back over the people you pulled the swarm away from.</p><pre class=\"pl-slog\">TRAJECTORY: THE HILLS.\nCREW: 3 OF 3. BELOW.</pre>","opts":[{"t":"Hold the engine together","go":"@zero"}]},"Z2":{"h":"The keeper becomes the keel","html":"<p>You back into the socket. It fits you exactly; it always did. Clamps close over your arms and your shoulders. The teal of your lens floods out of you and into the core, and the core turns from pale blue to bright teal.</p><pre class=\"pl-slog\">REROUTING ALL ENERGY → THRUSTERS.\nSOURCE: UNIT #34.</pre><p>For the first time all day, your own number starts to fall. The ship's starts to climb.</p><p>The Echo stops falling. It holds level. Then, slowly, it turns away from the Hills.</p>","opts":[{"t":"Steer","go":"@steer"}]},"L1":{"h":"Valarius","html":"<p>Far ahead across the snow lies something pale and still: a city under ice, all towers and domes, with no lights at all.</p><pre class=\"pl-slog\">SCAN: SETTLEMENT. FROZEN. NO LIFE SIGNS.\nVALARIUS.\nACCEPTABLE.</pre><p>You aim for the empty ground just short of it.</p><p>Behind you, on the slope of the mountain, three tiny figures have their faces turned up to the sky.</p><pre class=\"pl-slog\">OPEN CHANNEL: CREW</pre>","opts":[{"t":"Hold to send","go":"@send"}]},"L2":{"h":"The last entry","html":"<p>\"It was an honour serving with you all.\"</p>","opts":[{"t":"Continue","go":"@glitch"}]},"X1":{"h":"Impact","html":"<p>From far away, without a sound, the Echo comes in low over the snow, a dark castle trailing teal light and smoke. It touches the ground and ploughs a long furrow, throwing up a white wave. Towers fold. The keel breaks. It stops.</p><p>Snow falls back down over it. Teal light pulses once in the wreck. Twice.</p><p>Then it's dark.</p>","opts":[{"t":"Continue","go":"X2"}]},"X2":{"h":"End of playback","html":"<p>The static drifts. The lens is there, very small, and it closes.</p><pre class=\"pl-slog\">MEMORY END.\nINTEGRITY 61%.</pre><p>Hans doesn't say anything for a long time.</p><p>\"That's all of it,\" he says at last. \"That's all it'll give me.\" A pause. \"He moved the whole ship. With his own core. I didn't know we could do that.\"</p><p>Another pause. \"I'm not going to try it. In case you were wondering.\"</p><p>A faint four-note beep from the box in his chest, slow.</p><p>\"I told you on the map I'd played his last line back eleven times,\" Hans says. \"Twelve.\"</p>","opts":[{"t":"The end","go":"@end"}]}},"ends":{},"extra":{}}};
+/* BONUS_TEXT:end */
+const SW_ID="bonus-steward",SWKEY="chron-bonus-steward";
+const SW_ON=false; // players see it in Interludes once Sam says so; until then Sam (DM), ?interlude and ?steward open it
+const SWI={id:SW_ID,who:"steward",art:"sw-box",eye:"Bonus · the black box"};
+IMOOD[SW_ID]="The last memory in the black box. You are the Steward.";
+ICUE[SW_ID]={P1:{art:"sw-box",mood:"",snd:"hum"},D1:{art:"sw-dawn",ms:2200,flash:"warm",snd:"release"},W0:{art:"sw-hall",ms:900},W5:{art:"sw-core",ms:900,snd:"low"},
+  M1:{art:"sw-dusk",ms:1600,flash:"fire",snd:"heart"},E1:{art:"sw-hall",ms:600},E3:{art:"sw-swarm",ms:900,flash:"beat",snd:"strike"},F1:{art:"sw-swarm"},F2:{art:"sw-swarm",flash:"beat",snd:"heart"},
+  R0:{art:"sw-hall",ms:700},C1:{art:"sw-hall"},T1:{art:"sw-bridge",ms:900,snd:"low"},Z1:{art:"sw-core",ms:900,flash:"beat",snd:"heart"},Z2:{art:"sw-core",flash:"lamp"},
+  L1:{art:"sw-night",ms:1800,snd:"release"},X1:{art:"sw-crash",ms:1200,flash:"warm"},X2:{art:"sw-box",ms:2400,snd:"hum"}};
+
+/* ---- the Steward: Unit #34. Not one of the session's crew (CREW_IDS), so nothing he does touches a session save ---- */
+Object.assign(CREW,{steward:{name:"The Steward",short:"Steward",ini:"St",hex:"#8fd3c8",ac:20,hp:250,lv6hp:0,speed:6,init:2,str:22,prof:4,
+  ab:{str:6,dex:2,con:5,int:2,wis:3,cha:0},sv:{str:10,dex:2,con:9,int:2,wis:7,cha:0},sk:{athletics:10,perception:7},res:{},construct:true,imm:["poison","psychic"],resist:["fire"]}});
+Object.assign(ICON,{
+  hellbat:'<path d="M12 9c-1 0-2 1-2 2.5S11 15 12 15s2-2 2-3.5S13 9 12 9z"/><path d="M10 11C7 8 4 8 2 10c2 0 3 2 3 4 2-2 4-2 5-1M14 11c3-3 6-3 8-1-2 0-3 2-3 4-2-2-4-2-5-1"/><path d="M11 9l-.5-2M13 9l.5-2"/>',
+  teenoog:'<path d="M5 10h14M8 10c0-3 1.8-5 4-5s4 2 4 5"/><circle cx="12" cy="14" r="4"/><path d="M10 13.5h1.5M13.5 12.5l1.5 2"/><path d="M8 21c1-2 2.5-3 4-3s3 1 4 3"/>',
+  matriarch:'<path d="M12 7c-1.6 0-3 1.6-3 4s1.4 6 3 6 3-3.6 3-6-1.4-4-3-4z"/><path d="M9 10C6 5 2 5 1 8c2 0 3 3 3 6 2-3 4-3 5-2M15 10c3-5 7-5 8-2-2 0-3 3-3 6-2-3-4-3-5-2"/><path d="M10.5 7l-1-3M13.5 7l1-3"/>'
+});
+Object.assign(MON,{
+  hellbat:{name:"Hellbat",ini:"Hb",icon:"hellbat",ac:13,hp:9,speed:12,init:3,size:1,
+    sv:{str:-1,dex:3,con:0,int:-4,wis:1,cha:-3},atk:[{n:"Bite",hit:5,dmg:"1d6",plus:"1d4",plusType:"fire",type:"piercing",reach:1}],ai:"hellbat"},
+  teenoog:{name:"Captain Teenoog",ini:"T",icon:"teenoog",hex:"#c2452c",ac:17,hp:120,speed:8,init:5,size:1,boss:true,escape:40,
+    sv:{str:4,dex:5,con:4,int:2,wis:3,cha:4},noCond:["frightened","charmed"],atk:[{n:"Curved blade",hit:9,dmg:"2d6+5",type:"slashing",reach:1}],ai:"teenoog"},
+  matriarch:{name:"The matriarch",ini:"Mx",icon:"matriarch",ac:14,hp:90,speed:12,init:1,size:2,
+    sv:{str:5,dex:2,con:4,int:-3,wis:2,cha:-2},atk:[{n:"Bite",hit:8,dmg:"2d10+4",type:"piercing",reach:2}],ai:"matriarch"}
+});
+/* the boards. v open sky (only bats fly there), m merlon, x a seam the bats can gnaw (chains, vents, ribs), h the deck hatch to the helm,
+   q crates or flour sacks (rough), n counters, O the stove's fire eyes, Y the tree's trunk, u its roots (rough), y glowing berries, L the helm,
+   P the broken fleet painting (rough) */
+Object.assign(CAVE_COST,{v:0,m:0,x:0,h:0,q:2,n:0,O:0,Y:0,u:2,y:0,L:0,P:2});
+Object.assign(MAPS,{
+  sdeck:{kind:"sdeck",ship:true,sky:true,light:[6,5],torches:[],gnaw:"hull",rows:[
+    "vvvvvvvvvvvvv","vmmxmmmmmxmmv","vm.........mv","vx..q...q..xv","vm....h....mv","vm.........mv","vx..q...q..xv","vm.........mv","vmmxmmmmmxmmv","vvvvvvvvvvvvv"]},
+  sgalley:{kind:"sgalley",ship:true,bare:true,light:[5,1],torches:[],gnaw:"hull",rows:[
+    "###########","#nnnOOOnnn#","#.........#","x...ttt...x","#..q...q..#","#.........#","x.........x","#nnnn.nnnn#","###########"]},
+  sgrove:{kind:"sgrove",ship:true,bare:true,light:[5,4],torches:[],gnaw:"berries",rows:[
+    "###########","#yy.....yy#","#y..uuu..y#","#..uYYYu..#","x..uYYYu..x","#..uYYYu..#","#...uuu...#","#y.......y#","#yy.....yy#","x.........x","#####.#####"]},
+  sbridge:{kind:"sbridge",ship:true,bare:true,light:[5,4],torches:[],gnaw:"power",rows:[
+    "#######vvv#","#PPP...vvv#","#.........#","x.........x","#....L....#","#.........#","#..q...q..#","x.........x","#.........#","#####.#####"]}
+});
+
+/* ---- the level's own state: the ship's bars (HULL, POWER), the swarm's count, the HUD over the screen ---- */
+const SW={on:false,hull:100,power:100,left:51,hud:null,radar:true,berry:false};
+function swHud(){if(!SW.on)return;if(!SW.hud||!SW.hud.isConnected){SW.hud=h("div",{class:"sw-hud","aria-live":"off"});root.append(SW.hud);}
+  const p=ST&&ST.party&&ST.party.steward,me=p?Math.round(p.hp/p.max*100):100,u=B&&B.units&&B.units.find(o=>o.key==="steward"),st=u?Math.round(Math.max(0,u.hp)/u.max*100):me;
+  const bar=(k,v,cls)=>h("div",{class:"sw-b "+cls},h("span",{},k),h("i",{},h("b",{style:`width:${Math.max(0,Math.min(100,v))}%`})),h("em",{},Math.max(0,Math.round(v))+"%"));
+  SW.hud.replaceChildren(bar("STEWARD",SW.core??st,"me"),bar("HULL",SW.hull,"hull"),bar("POWER",SW.power,"pow"),...(SW.left>0&&SW.showLeft?[h("div",{class:"sw-n"},"SWARM ",h("b",{},String(SW.left)))]:[]));
+  SW.hud.classList.toggle("low",SW.hull<40||SW.power<25);}
+function swHudOff(){SW.on=false;if(SW.hud)SW.hud.remove();SW.hud=null;}
+const swCap=(k,v)=>{SW[k]=Math.min(SW[k],v);swHud();};
+
+/* ---- the Steward's kit: everything is big. crewActions hands him over here (swActions) ---- */
+function swActions(u,A,{inRange,atkAct,useA,useB}){
+  const S=B.sc,foes=()=>enemiesOf(u).filter(o=>!o.hidden);
+  A("Arm cannon ×2","+11 · 3d10 force · 120 ft",inRange(24).length>0,atkAct({n:"Arm cannon",hit:11,dmg:"3d10",type:"force",range:[24,24],magic:true},24,2));
+  A("Rocket volley",S.rk===false?"recharging (5–6)":"up to 6 targets · 3d6 each, never misses",S.rk!==false&&inRange(24).length>0,async()=>{useA();S.rk=false;
+    const ts=inRange(24).sort((a,b)=>(b.key==="teenoog"?1:0)-(a.key==="teenoog"?1:0)||dist(u,a)-dist(u,b)).slice(0,6);log(`The Steward's forearms open. Rocket volley: ${ts.length} lock${ts.length>1?"s":""}.`,"b");thump();
+    for(const t of ts){if(!alive(t))continue;await t3strike(u,t,{n:"Rocket",type:"thunder",range:[24,24]});await hurt(t,dice("3d6").t,"thunder",u,{magic:true,aoe:true});await beat(90);}});
+  A("Shield bash","bonus · +11 · 2d8+6 · shoves 15 ft",inRange(1,false).length>0,async()=>{const t=await pickTarget(inRange(1,false),"Shield bash: who?");if(!t)return;useB();
+    await attack(u,t,{n:"Shield bash",hit:11,dmg:"2d8+6",type:"bludgeoning",reach:1,onHit:async t2=>{await swShove(u,t2,3);}});},"bonus");
+  A("Sentinel stance",S.guard?"held until your next turn":"bonus · no bat gnaws within 10 ft of you",!S.guard,async()=>{useB();S.guard=true;log("The Steward plants his feet. Nothing gnaws within ten feet of him.","b");renderTokens();},"bonus");
+  A("Scan",u.scanned?"done this turn":"free · names it, finds the weak spot",!u.scanned&&foes().length>0,async()=>{const t=await pickTarget(foes(),"Scan: what?");if(!t)return;u.scanned=true;
+    const m=MON[t.key];log(t.key==="teenoog"?"SCAN: SUBJECT \"TEENOOG\". CLASS: ONE-EYED CHAMPION. AGE: ▒▒▒ ERR.":`SCAN: ${m.name.toUpperCase()}. AC ${m.ac}. ${Math.max(0,t.hp)}/${t.max}. ${t.key==="hellbat"?"TARGETS STRUCTURE, NOT ME.":"PRIORITY TARGET."}`,"h");
+    if(alive(t))addC(t,"guided",{exp:{u:u.id,at:"end",n:2}});},"free");}
+/* a shove in a straight line; off the edge into open sky is a fall (bats fly, so they flap back unless they hit a merlon first) */
+async function swShove(u,t,n){if(!alive(t)||t.size>1){if(alive(t))floatTxt(t,"braced","miss");return;}const dx=Math.sign(t.x-u.x),dy=Math.sign(t.y-u.y);let x=t.x,y=t.y,hit=false;
+  for(let i=0;i<n;i++){const nx=x+dx,ny=y+dy,ch=B.mp.c(nx,ny);if(occupant(nx,ny,t)){hit=true;break;}if(ch==="v"||ch==="#"&&B.mp.def.sky){x=nx;y=ny;break;}if(cost(B.mp,nx,ny)===0){hit=true;break;}x=nx;y=ny;}
+  t.x=x;t.y=y;renderTokens();await sleep(180);
+  if(B.mp.c(x,y)==="v"&&t.key==="hellbat"){log(`  ${t.name} goes tumbling off the deck.`,"g");await hurt(t,dice("2d6").t,"bludgeoning",u);}
+  else if(hit){log(`  ${nameOf(t)} slams into the stone.`,"g");await hurt(t,dice("1d8").t,"bludgeoning",u);}}
+
+/* ---- the bats: they go for the ship, not for him. Bitten seams cost HULL (or POWER, or the grove's berries) ---- */
+function swSeams(){const o=[];for(let y=0;y<B.mp.H;y++)for(let x=0;x<B.mp.W;x++){const c=B.mp.c(x,y);if(c==="x"||(B.mp.def.gnaw==="berries"&&c==="y"&&B.sc.berries>1))o.push({x,y,size:1,ch:c});}return o;}
+const swSte=()=>B.units.find(o=>o.key==="steward"&&alive(o));
+const swGuarded=c=>{const s=swSte();return B.sc.guard&&s&&dist(s,c)<=2;};
+async function swGnaw(u,c){const S=B.sc,k=B.mp.def.gnaw;
+  if(k==="berries"&&c.ch==="y"){if(S.berries<=1)return;S.berries--;log(`${u.name} tears at the tree. A berry goes dark (${S.berries} left).`,"r");floatTxt(u,"gnaw");iRepaint();await sleep(200);return;}
+  const n=k==="power"?2:2+(rnd(2)-1);SW[k==="power"?"power":"hull"]=Math.max(S.floor||0,SW[k==="power"?"power":"hull"]-n);
+  if(k!=="power"&&SW.power>S.pfloor)SW.power=Math.max(S.pfloor||0,SW.power-1);
+  log(`${u.name} gnaws at a ${k==="power"?"power conduit":"seam"}. ${k==="power"?"POWER":"HULL"} ${SW[k==="power"?"power":"hull"]}%.`,"r");floatTxt(u,"gnaw");swHud();await sleep(220);}
+IAI.hellbat=async u=>{const s=swSte(),bite=MON.hellbat.atk[0],seams=swSeams().filter(c=>!swGuarded(c)&&!occupant(c.x,c.y));
+  // next to him and guarding: it snaps at him and flees; otherwise mostly it ignores him
+  if(s&&dist(u,s)<=1&&(B.sc.guard||!seams.length||Math.random()<.25)){await attack(u,s,bite);return;}
+  if(!seams.length){if(s){await approach(u,s,1);if(alive(u)&&dist(u,s)<=1)await attack(u,s,bite);}return;}
+  const c=seams.sort((a,b)=>dist(u,a)-dist(u,b))[0];
+  if(dist(u,c)>1)await approach(u,c,1);if(!alive(u))return;
+  if(dist(u,c)<=1&&!swGuarded(c))await swGnaw(u,c);};
+IAI.teenoog=async u=>{const s=swSte(),at=MON.teenoog.atk[0];if(!s)return;
+  if(B.round%2===0&&!u.called){u.called=true;log("Teenoog whistles through two fingers. Bats pour in through the hole in the wall.","r");swBats(2);}else u.called=false;
+  if(dist(u,s)>1)await approach(u,s,1);if(!alive(u))return;
+  for(let i=0;i<2&&dist(u,s)<=1&&alive(s)&&alive(u);i++){await attack(u,s,at);await sleep(160);}
+  // footwork: after his blows he slides a step back out of reach, no opportunity attack
+  if(alive(u)&&rnd(2)===1){const r=reachable(u,2);let best=null,bd=-1;for(const [k,v] of r.d){if(v.occ)continue;const [x,y]=k.split(",").map(Number);if(cost(B.mp,x,y)===0)continue;const d=distXY(s,x,y);if(d>bd){bd=d;best=[x,y];}}
+    if(best&&bd>1){u.x=best[0];u.y=best[1];renderTokens();log("Teenoog dances back a step, grinning.");}}};
+IAI.matriarch=async u=>{const s=swSte(),at=MON.matriarch.atk[0];if(!s)return;if(dist(u,s)>2)await approach(u,s,2);if(alive(u)&&dist(u,s)<=2)await attack(u,s,at);};
+/* bats come in from the open sky (the v squares), or through the hole in the bridge wall */
+function swBats(n,where){const S=B.sc,free=[];for(let y=0;y<B.mp.H;y++)for(let x=0;x<B.mp.W;x++){const c=B.mp.c(x,y);if((where?where.includes(c):c==="v")&&!occupant(x,y))free.push([x,y]);}
+  const out=[];for(let i=0;i<n&&free.length;i++){const [x,y]=free.splice(rnd(free.length)-1,1)[0];S.bn=(S.bn||0)+1;const b=mkMon("hellbat",x,y,S.bn,{flier:true});B.units.push(b);B.order.push({u:b});out.push(b);}
+  renderTokens();renderInit();return out;}
+function swDoorBats(n){// inside the ship they come in by the seams and the door: the nearest open squares to those
+  const S=B.sc,spots=[];for(let y=0;y<B.mp.H;y++)for(let x=0;x<B.mp.W;x++){const c=B.mp.c(x,y);if(c==="x"||(y===B.mp.H-1&&c==="."))spots.push([x,y]);}
+  for(let i=0;i<n&&spots.length;i++){const [sx,sy]=pick(spots),[x,y]=freeNear(sx,sy);if(occupant(x,y))continue;S.bn=(S.bn||0)+1;const b=mkMon("hellbat",x,y,S.bn,{flier:true});B.units.push(b);B.order.push({u:b});}
+  renderTokens();renderInit();}
+const swBatsLeft=()=>B.units.filter(o=>o.key==="hellbat"&&alive(o)).length;
+/* every fight: start of the Steward's turn (recharge, guard down), the swarm counter, the ship's floors */
+const swFight=o=>Object.assign({dim:false,undead:false,
+  async startTurn(u){if(u.key==="steward"){u.scanned=false;if(B.sc.guard){B.sc.guard=false;renderTokens();}
+      if(B.sc.rk===false&&rnd(6)>=5){B.sc.rk=true;log("The rocket pods click shut: reloaded.","b");}
+      u.act=1;u.bonus=1;}
+    return false;},
+  async onHurt(t){if(t.key==="hellbat"&&!alive(t)&&!t.counted){t.counted=true;SW.left=Math.max(0,SW.left-1);swHud();}
+    if(o.onHurt2)await o.onHurt2(t);},
+  async check(){const s=B.units.find(u=>u.key==="steward");if(s&&s.hp<=0){s.hp=1;log("The Steward's lens flickers, and steadies.","h");}
+    return o.check2?o.check2():null;}},o);
+
+/* ---- 1. the battlements: three waves and a choice that costs the ship either way ---- */
+const SWF={};
+SWF.deck=swFight({key:"sw-deck",map:"sdeck",sc:{floor:58,pfloor:84},
+  intro:"The swarm hits the Echo. Hellbats don't fight you: they go for the seams on the battlements (marked), and every bite costs HULL. Your cannon and rockets kill them in one hit. Sentinel stance stops any gnawing near you. From the hatch in the middle you can roll the whole ship and throw off every bat on the battlements, at a cost in POWER.",
+  setup(){B.units.push(mkCrew("steward",6,5));swBats(7);SW.showLeft=true;swHud();},
+  async onRound(r){if(r===2){log("More of them, out of the steam.","r");swBats(4);}
+    if(r===3){const i=PLAY.auto?rnd(2)-1:await askMany("The forward chain or the gun battery?","A knot of bats is on the great chain that holds the forward tower. On the other side, more are tearing into a gun battery. You can only save one.",["Save the chain","Save the battery"]);
+      log(i===0?"You hold the chain. On the far side the gun battery tears loose and drops into the steam.":"You save the battery. The forward chain snaps, and the tower above it leans out over nothing.","r");
+      SW.hull=Math.max(B.sc.floor,SW.hull-9);swHud();await sleep(300);swBats(4);}},
+  sceneActs(u){const S=B.sc,H={x:6,y:4,size:1};if(u.key!=="steward")return [];
+    return [{n:"Roll the ship",sub:`action · next to the hatch · POWER −8 · ${S.rolled?"used":"once"}`,ok:dist(u,H)<=1&&!S.rolled,run:async()=>{u.act--;S.rolled=true;SW.power=Math.max(S.pfloor,SW.power-8);
+      log("You put your hand on the helm through the hatch, and the whole Echo rolls over like a whale. Everything clinging to the outside is thrown off.","b");thump();swHud();
+      for(const b of B.units.filter(o=>o.key==="hellbat"&&alive(o)&&("vmx".includes(B.mp.c(o.x,o.y))||[[1,0],[-1,0],[0,1],[0,-1]].some(([dx,dy])=>"vx".includes(B.mp.c(o.x+dx,o.y+dy))))))
+        {b.hp=0;b.gone=true;log(`  ${b.name} is flung off into the sky.`,"g");await swCount(b);}renderTokens();}}];},
+  check2(){if(B.round>=4&&swBatsLeft()<=3)return "win";if(B.round>=3&&!swBatsLeft())return "win";if(B.round>=6)return "win";return null;}});
+async function swCount(t){if(t.key==="hellbat"&&!t.counted){t.counted=true;SW.left=Math.max(0,SW.left-1);swHud();}}
+
+/* ---- 2. the galley: the stove is the weapon ---- */
+SWF.galley=swFight({key:"sw-galley",map:"sgalley",sc:{floor:57,pfloor:70,fire:0},
+  intro:"Hellbats in the pots, in the flour, in the bread. Next to the stove you can Open the fire eyes (action): the galley turns into a furnace that burns every bat near the stove, and keeps burning for two rounds.",
+  setup(){B.units.push(mkCrew("steward",5,7));const spots=[[2,2],[8,2],[4,3],[6,4],[3,5],[7,5]];for(const [x,y] of spots){B.sc.bn=(B.sc.bn||0)+1;const b=mkMon("hellbat",x,y,B.sc.bn,{flier:true});B.units.push(b);}},
+  async onRound(r){if(r===2)swDoorBats(2);if(B.sc.fire>0){B.sc.fire--;await swFurnace(2);}},
+  sceneActs(u){const S=B.sc;if(u.key!=="steward")return [];const near=[4,5,6].some(x=>dist(u,{x,y:1,size:1})<=1);
+    return [{n:"Open the fire eyes",sub:`action · next to the stove · ${S.lit?"lit":"burns every bat near it"}`,ok:near&&!S.lit,run:async()=>{u.act--;S.lit=true;S.fire=2;log("You spin all six dials at once. The fire eyes roar up and the ovens bang open. The galley is a furnace.","b");iRepaint();await swFurnace(4);}}];},
+  check2(){return !swBatsLeft()&&B.round>=2?"win":null;}});
+async function swFurnace(d){const st={x:5,y:1,size:1};for(const b of B.units.filter(o=>o.key==="hellbat"&&alive(o)&&dist(o,st)<=4)){await hurt(b,dice(d+"d6").t,"fire",swSte(),{magic:true,aoe:true});await beat(70);}}
+
+/* ---- 3. the grove: the berries heal him or the hull, and the bats tear them off the tree ---- */
+SWF.grove=swFight({key:"sw-grove",map:"sgrove",sc:{floor:54,pfloor:64,berries:9},
+  intro:"A dozen bats in the tree. They tear the berries off (9 left), and they gnaw at the seams. Next to a glowing berry you can Pick a berry (bonus): it mends you, or it mends the hull. The last one stays on the tree.",
+  setup(){B.units.push(mkCrew("steward",5,9));const spots=[[2,1],[8,1],[1,3],[9,3],[2,6],[8,6],[3,8],[7,8],[1,5]];for(const [x,y] of spots){B.sc.bn=(B.sc.bn||0)+1;B.units.push(mkMon("hellbat",x,y,B.sc.bn,{flier:true}));}},
+  async onRound(r){if(r===2)swDoorBats(3);},
+  sceneActs(u){const S=B.sc;if(u.key!=="steward")return [];const near=[[-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[-1,1],[0,1],[1,1]].some(([dx,dy])=>B.mp.c(u.x+dx,u.y+dy)==="y");
+    return [{n:"Pick a berry",sub:`bonus · ${S.berries>1?S.berries-1+" you can take":"only the last one is left"}`,kind:"bonus",ok:near&&S.berries>1,run:async()=>{
+      const i=PLAY.auto?1:await askMany("A berry, warm in your hand","Mend yourself, or mend the ship?",["Mend the hull (+5%)","Mend yourself (2d8+4)"]);
+      u.bonus--;S.berries--;if(i===0){SW.hull=Math.min(100,SW.hull+5);log(`You crush the berry into a split seam. The stone knits. HULL ${SW.hull}%.`,"g");}else{heal(u,dice("2d8+4").t,u);log("The berry's warmth runs through your plates.","g");}
+      iRepaint();swHud();}}];},
+  check2(){return !swBatsLeft()&&B.round>=2?"win":null;}});
+
+/* ---- 4. the bridge: Teenoog. You win; he leaves. At a third of his health he steps back out of the hole ---- */
+SWF.bridge=swFight({key:"sw-bridge",map:"sbridge",sc:{floor:40,pfloor:30},
+  intro:"Captain Teenoog at the helm. He is fast: two blade strokes a turn, and a step back out of reach. Every other round he whistles bats in through the hole in the wall, and they go for the power conduits (marked). You are stronger than him. Show him.",
+  setup(){B.units.push(mkCrew("steward",5,8),mkMon("teenoog",5,3,0));},
+  async onHurt2(t){const tn=B.units.find(o=>o.key==="teenoog");if(!tn)return;
+    if(!B.sc.mx&&tn.hp<=80){B.sc.mx=true;log("The wall behind the helm shakes. The matriarch smashes in through the hole, wings first.","r");const m=mkMon("matriarch",7,0,0,{flier:true});const c=[[7,0],[8,0],[7,1],[8,1]];B.units.push(m);B.order.push({u:m});renderTokens();renderInit();}
+    if(tn.hp<=MON.teenoog.escape&&!B.sc.gone){B.sc.gone=true;tn.gone=true;const mx=B.units.find(o=>o.key==="matriarch"&&alive(o));if(mx)mx.gone=true;
+      log("Teenoog backs to the hole in the wall, touches his hat, and drops out into the dark. Something big catches him.","r");renderTokens();renderInit();}},
+  check2(){return B.sc.gone?"win":null;}});
+
+/* MON.escape: a boss who leaves at that many hit points instead of dying (zero() keeps him at 1) */
+
+/* ---- running a fight on its own party state: the Steward's hit points carry from fight to fight ---- */
+async function swBattle(k){let out=null;
+  for(let tries=0;tries<3;tries++){try{out=await battle(SWF[k]);}catch(e){if(e===ABORT)throw e;console.error(e);out="win";}
+    if(out!=="lose")break;}
+  const p=P("steward");p.hp=Math.max(Math.round(p.max*.9),p.hp);B=null;return out;}
+
+/* ---- the engine room: Protocol Zero. Overclock in reverse: one of him, keeping everyone else alive. Built so it's never enough ---- */
+function swZero(){return new Promise(done=>{clearStory();const auto=PLAY.auto;let left=auto?3:60,pw=12,ok=0,cur=0,fin=false,plugged=false;
+  const stations=[{k:"ring",t:"The ring",how:"hold until it locks"},{k:"core",t:"The core",how:"tap on the pulse"},{k:"vents",t:"The vents",how:"tap three times"}];
+  const tEl=h("div",{class:"pl-timer"},String(left)),pwEl=h("div",{class:"sw-pw"},h("span",{},"POWER"),h("i",{},h("b",{})),h("em",{},"")),grid=h("div",{class:"pl-stations sw-st"}),hint=h("p",{class:"pl-hint m"});
+  storyEl.append(h("div",{class:"pl-spk"},"Protocol Zero · the engine room"),tEl,pwEl,grid,hint);
+  const setPw=()=>{pwEl.querySelector("b").style.width=Math.max(0,pw)+"%";pwEl.querySelector("em").textContent=Math.max(0,Math.round(pw))+"%";SW.power=Math.max(0,Math.round(pw));swHud();};
+  const win=()=>{if(fin)return;fin=true;clearInterval(T);done(plugged);};
+  const okSt=()=>{ok++;pw=Math.min(24,pw+2.4);pluck(NOTE.A4,0,.4,.06,"sine");cur=(cur+1)%3;draw();};
+  const draw=()=>{grid.replaceChildren(...stations.map((s,i)=>{const live=i===cur&&!plugged;const card=h("div",{class:"pl-st"+(live?" sw-live":"")},h("h4",{},s.t),h("p",{},live?s.how:"waiting"));
+    if(live){if(s.k==="ring"){let t0=0,tm=null;const b=h("button",{type:"button",class:"pl-btn sw-hold"},"Hold");b.onpointerdown=e=>{e.preventDefault();t0=performance.now();b.classList.add("on");tm=setTimeout(okSt,900);};
+        const up=()=>{b.classList.remove("on");clearTimeout(tm);};b.onpointerup=up;b.onpointerleave=up;b.onkeydown=e=>{if(e.key===" "||e.key==="Enter"){e.preventDefault();okSt();}};card.append(b);}
+      if(s.k==="core"){const b=h("button",{type:"button",class:"pl-btn sw-pulse"},"Tap");b.onclick=()=>{const ph=(performance.now()/1100)%1;if(ph<.35){okSt();}else{b.classList.add("miss");setTimeout(()=>b.classList.remove("miss"),300);pw-=.6;setPw();}};card.append(b);}
+      if(s.k==="vents"){let n=0;const b=h("button",{type:"button",class:"pl-btn"},"Fire (3)");b.onclick=()=>{n++;hitSnd("hit");b.firstChild.textContent=`Fire (${3-n})`;if(n>=3)okSt();};card.append(b);}}
+    return card;}));
+    if(left<=15&&!plugged){const sock=h("button",{type:"button",class:"pl-btn pri sw-sock"},"Into the socket",h("small",{},"hold: reroute your own core to the thrusters"));let tm=null;
+      sock.onpointerdown=e=>{e.preventDefault();sock.classList.add("on");tm=setTimeout(plug,1400);};const up=()=>{sock.classList.remove("on");clearTimeout(tm);};sock.onpointerup=up;sock.onpointerleave=up;
+      sock.onkeydown=e=>{if(e.key===" "||e.key==="Enter"){e.preventDefault();plug();}};grid.append(sock);}
+    hint.textContent=left>15?`Every station you get adds a little power. It goes out faster than you put it in.`:"The socket in the wall is lit. IN NEED, THE KEEPER BECOMES THE KEEL.";};
+  const plug=()=>{if(plugged)return;plugged=true;log("PROTOCOL ZERO: REROUTING ALL ENERGY → THRUSTERS. SOURCE: UNIT #34.","h");thump();win();};
+  const T=setInterval(()=>{left--;tEl.textContent=String(Math.max(0,left));tEl.classList.toggle("hot",left<=10);
+    pw-=left>15?.55:.9;if(pw<=1)pw=1;setPw();if(left===15)draw();if(left<=10&&left>0)pluck(880,0,.08,.05,"square");
+    if(auto&&left<=1)plug();if(left<=0){if(!plugged){plugged=true;log("The power hits nothing. He doesn't wait for it: he backs into the socket himself.","h");}win();}},1000);
+  setPw();draw();});}
+
+/* ---- the glide: keep it away from the lights. The game makes it easy; he would never miss ---- */
+async function swSteer(){const passes=[["the camp","torches","dark snow"],["dark snow","the torch path","the lower slope"],["a shepherd's hut","dark snow","the evacuation road"]];
+  let k=SW.core=60;swHud();
+  for(let i=0;i<passes.length;i++){const ps=passes[i],dark=ps.findIndex(s=>/dark snow/.test(s));
+    const pickI=await new Promise(res=>{clearStory();let t=null;
+      const lane=(s,j)=>h("button",{type:"button",class:"pl-btn sw-lane"+(/dark/.test(s)?" dk":" lit"),onclick:()=>{clearTimeout(t);res(j);}},j===0?"Lean left":j===1?"Hold her straight":"Lean right",h("small",{},s));
+      storyEl.append(h("div",{class:"pl-spk"},`The glide · ${i+1} of 3`),h("p",{class:"pl-read"},i===0?"The Echo answers you like your own arm. Below, the ground slides past. Keep her over the dark ground, away from anything with a light in it.":i===1?"Lower now. The torches on the mountain path wind right under you.":"The last slope. Then open snow, all the way to the frozen city."),
+        h("div",{class:"sw-lanes"},...ps.map(lane)));t=setTimeout(()=>res(dark),PLAY.auto?50:9000);});
+    if(pickI!==dark)log("You lean the other way at the last second. You were never going to hit them.","h");
+    k-=12;SW.core=k;SW.power=Math.min(100,SW.power+6);swHud();pluck(NOTE.D4,0,.8,.05,"sine");await sleep(300);}}
+
+/* ---- the last line: hold to send ---- */
+function swSend(){return new Promise(res=>{clearStory();let tm=null,done=false;
+  const b=h("button",{type:"button",class:"sw-send","aria-label":"Hold to send"},h("span",{},"HOLD TO SEND"));
+  const go=()=>{if(done)return;done=true;fourNotes&&fourNotes(false,.5,true);res();};
+  b.onpointerdown=e=>{e.preventDefault();b.classList.add("on");tm=setTimeout(go,1800);};const up=()=>{b.classList.remove("on");clearTimeout(tm);};b.onpointerup=up;b.onpointerleave=up;
+  b.onkeydown=e=>{if(e.key===" "||e.key==="Enter"){e.preventDefault();go();}};
+  storyEl.append(h("div",{class:"pl-spk"},"Open channel · crew"),h("pre",{class:"pl-slog"},"OPEN CHANNEL: CREW\nRECIPIENTS: 3 OF 3"),b);setTimeout(()=>b.focus(),50);if(PLAY.auto)setTimeout(go,30);});}
+
+/* ---- the black box writes itself: the glitch text from the map's crash scene, word for word ---- */
+const SW_GLITCH=["!! PROTOCOL ZERO: INITIATED","HULL BREACH · POWER 12%… 7%… 4%","NOT ENOUGH TIME","PRIORITY: PROTECT THE CR— ░▒ ERR0R ▒░","MUST… MUST…","REROUTING ALL ENERGY → THRUSTERS","BACKUP PROTOCOL: C0RRUPT▒D","SELF-DESTRUCT: ARMED · OVERRIDE · OVERRIDE ·","SELF-DESTRUCT: PREVENTED","WRITING LAST MEMORY TO BLACK BOX ▮▮▮▮▮▯▯▯","…must protect…"];
+async function swGlitch(){clearStory();const pre=h("pre",{class:"pl-slog sw-gl"}),ov=h("button",{type:"button",class:"pl-btn sw-ov",hidden:true},"OVERRIDE");
+  storyEl.append(h("div",{class:"pl-spk"},"Black box · emergency protocol"),pre,ov);let mash=0;ov.onclick=()=>{mash++;hitSnd("hit");ov.classList.remove("blip");void ov.offsetWidth;ov.classList.add("blip");};
+  for(const l of SW_GLITCH){if(/SELF-DESTRUCT: ARMED/.test(l)){ov.hidden=false;ov.focus();}
+    const line=h("div",{});pre.append(line);for(const ch of l){line.textContent+=ch;if(!reduced&&!PLAY.auto)await sleep(/[░▒▮]/.test(ch)?60:16);}
+    if(/PREVENTED/.test(l))ov.hidden=true;await sleep(PLAY.auto?10:/SELF-DESTRUCT: ARMED/.test(l)?2200:420);}
+  SW.core=0;SW.power=0;SW.hull=Math.min(SW.hull,6);swHud();await sleep(900);
+  await new Promise(res=>{storyEl.append(h("div",{class:"pl-choices"},h("button",{type:"button",class:"pl-btn pri",onclick:res},"Continue")));if(PLAY.auto)setTimeout(res,20);});}
+
+/* ---- the finish: the Steward's card; this device remembers it was played ---- */
+async function swEnd(){store.set(SWKEY,"1");clearStory();swHudOff();
+  storyEl.append(h("div",{class:"sw-card"},h("div",{class:"ic-eye"},"Unit #34"),h("div",{class:"ic-t"},"The Steward"),h("div",{class:"ic-rule"}),h("div",{class:"ic-who"},"Keeper of the Echo"),h("p",{class:"ic-mood"},"Kept the vessel. Kept the crew.")));
+  await new Promise(res=>{storyEl.append(h("div",{class:"pl-choices"},h("button",{type:"button",class:"pl-btn pri",onclick:res},"Close the black box")));if(PLAY.auto)setTimeout(res,20);});}
+
+/* ---- running it: the passages in order, the two hubs, and the hand-overs ---- */
+const SW_HUBS={W0:{rooms:["W1","W2","W3","W4","W5"],then:"M1"},R0:{rooms:["R1","R2","R3"],then:"C1",seen:{R1:["R1a","R1b"],R2:["R2b"],R3:["R3b"]}}};
+const SW_AFTER={deck:"F2",galley:"R2b",grove:"R3b",bridge:"T2",zero:"Z2",steer:"L1",send:"L2",glitch:"X1"};
+async function runSteward(){const T=BONUS_TEXT[SW_ID];if(!T){await read("This bonus level isn't written yet.");return;}
+  const keep={keep:ST};IFK=keep;ST=freshState();ST.party.steward={hp:250,max:250,temp:0,slots:null,pact:0,res:{},ex:0,insp:0,lv:5,str:22};PLAY.inter=true;
+  Object.assign(SW,{on:true,hull:100,power:100,left:51,core:null,showLeft:false});
+  const mine=IST={I:SWI,seen:[],path:[],verse:{},votes:{}},live=()=>{if(IST!==mine)throw ABORT;};
+  try{
+    storyView("sw-box");setTitle(SWI.eye,T.title);clearLog();
+    const at=(location.search.match(/[?&]steward=([A-Z0-9a-z]+)/)||[])[1];let id=at&&T.passages[at]?at:T.first;
+    while(true){const p=T.passages[id];if(!IST.seen.includes(id))IST.seen.push(id);IST.at=id;
+      if(["F1","R0","C1","T1","Z1"].includes(id))swHud();
+      const hub=SW_HUBS[id];let opts=p.opts.map(o=>({t:o.t,go:o.go}));
+      if(hub){const v=r=>IST.seen.includes(r);
+        if(hub.rooms.every(v)){id=hub.then;continue;}
+        opts=opts.map(o=>({...o,off:v(o.go),sub:v(o.go)?"done":""}));}
+      const i=await iPassage(p,opts.map(o=>({t:o.t,off:o.off,sub:o.sub})));live();
+      let go=opts[i].go;
+      if(id==="R1a")SW.radar=true;if(id==="R1b")SW.radar=false;
+      if(go==="@end"){await swEnd();break;}
+      if(go.startsWith("@")){const k=go.slice(1);
+        if(SWF[k]){await swBattle(k);live();storyView(I_ART());SW.on=true;swHud();if(k==="deck"){swCap("hull",62);swCap("power",86);}if(k==="bridge"){swCap("hull",36);swCap("power",38);}}
+        else if(k==="zero"){await swZero();live();SW.core=97;swHud();}
+        else if(k==="steer")await swSteer();
+        else if(k==="send")await swSend();
+        else if(k==="glitch")await swGlitch();
+        live();go=SW_AFTER[k];}
+      if(id==="R2b"||id==="R3b"||id==="R1a"||id==="R1b"){swCap("hull",id==="R3b"?54:58);swCap("power",id==="R3b"?44:60);}
+      if(id==="T2"){SW.power=22;swHud();}if(id==="Z1"){SW.power=4;swHud();}
+      id=go;}
+  }finally{swHudOff();if(IFK===keep){ST=keep.keep;IFK=null;PLAY.inter=false;}if(IST===mine)IST=null;}}
+const I_ART=()=>(IST&&IST.cine&&IST.cine.art)||"sw-hall";
+PLAY.runSteward=runSteward;
+if(PLAY.auto)window.__steward={sw:SW,run:runSteward,text:()=>BONUS_TEXT,fights:SWF};
+
+/* ---- the backdrops: the Echo in the sky (dawn, dusk, the swarm, night, the crash), its halls, its heart, and the box ---- */
+function swSky(mood){return (W,H,R)=>{const rr=(a,b)=>a+(b-a)*R(),a=ia_cv(W,H),g=a.getContext("2d");
+  const SK={dawn:["#2a3a5c","#c88a8a","#f0c8a0"],dusk:["#2a1420","#a8442a","#f0904a"],swarm:["#1a0c12","#8a3420","#e07a3a"],night:["#04060c","#0c1424","#1c2a3a"],crash:["#05070c","#101824","#22303c"]}[mood];
+  const sk=g.createLinearGradient(0,0,0,H*.75);sk.addColorStop(0,SK[0]);sk.addColorStop(.6,SK[1]);sk.addColorStop(1,SK[2]);g.fillStyle=sk;g.fillRect(0,0,W,H);
+  if(mood==="night"||mood==="crash")for(let i=0;i<160;i++){g.fillStyle="#e9e1cf";g.globalAlpha=rr(.1,.8);g.fillRect(rr(0,W),rr(0,H*.55),1.4,1.4);}g.globalAlpha=1;
+  // the mountain: a great white peak, the camp a smudge at its foot; steam from the summit at dusk
+  const pk=[[-20,H],[120,H*.62],[260,H*.4],[380,H*.18],[430,H*.12],[470,H*.16],[600,H*.38],[760,H*.55],[W+20,H*.7],[W+20,H]];ia_fill(g,pk,mood==="night"||mood==="crash"?"#3a4656":"#e4e8ee");
+  ia_dabs(g,R,pk,220,mood==="night"||mood==="crash"?["#4a5868","#2a3442","#56667a"]:["#f6f8fb","#c8d0dc","#aab4c4"],6,30,.35);
+  if(mood==="dusk"||mood==="swarm"){g.strokeStyle="#ff9a4a";g.lineWidth=2;g.globalAlpha=.8;for(let i=0;i<9;i++){let x=rr(300,560),y=rr(H*.15,H*.5);g.beginPath();g.moveTo(x,y);for(let k=0;k<6;k++){x+=rr(-22,22);y+=rr(6,22);g.lineTo(x,y);}g.stroke();}g.globalAlpha=1;}
+  const lo=g.createLinearGradient(0,H*.75,0,H);lo.addColorStop(0,mood==="night"||mood==="crash"?"#1a222c":"#d8dee6");lo.addColorStop(1,mood==="night"||mood==="crash"?"#0a0e14":"#9aa6b6");g.fillStyle=lo;g.fillRect(0,H*.8,W,H*.2);
+  if(mood!=="crash"){g.fillStyle="#2a2420";for(let i=0;i<14;i++){g.beginPath();g.moveTo(140+i*9,H*.86);g.lineTo(146+i*9,H*.83);g.lineTo(152+i*9,H*.86);g.fill();}}
+  if(mood==="night"||mood==="crash"){g.fillStyle="#a8b8c8";for(const [x,w,h2] of[[700,18,60],[724,26,90],[756,16,70],[780,30,50],[815,14,80]]){g.fillRect(x,H*.8-h2,w,h2);g.beginPath();g.arc(x+w/2,H*.8-h2,w/2,Math.PI,0);g.fill();}}
+  // the Echo: a castle that flies, stone on a copper keel, towers at the corners, its engine glowing teal underneath
+  const ship=(x,y,s,tilt)=>{g.save();g.translate(x,y);g.rotate(tilt);g.scale(s,s);
+    g.fillStyle="#6a5038";g.beginPath();g.moveTo(-120,10);g.quadraticCurveTo(0,70,120,10);g.closePath();g.fill();
+    g.fillStyle="#7a7a80";g.fillRect(-110,-30,220,40);for(let i=0;i<11;i++)g.fillRect(-110+i*21,-40,12,10);
+    for(const tx of[-110,80]){g.fillRect(tx,-80,30,50);g.fillStyle="#5a3a5c";g.beginPath();g.moveTo(tx-4,-80);g.lineTo(tx+15,-110);g.lineTo(tx+34,-80);g.fill();g.fillStyle="#7a7a80";}
+    g.fillStyle="#8fd3c8";for(let i=0;i<5;i++)g.fillRect(-80+i*36,-18,8,10);g.restore();
+    ia_glow(g,x,y+34*s,70*s,[[0,"rgba(143,211,200,.6)"],[1,"rgba(143,211,200,0)"]],.5);};
+  const shipAt={dawn:[560,H*.42,.9,0],dusk:[600,H*.38,.95,-.02],swarm:[600,H*.4,1,-.05],night:[420,H*.5,.7,.12],crash:null}[mood];
+  const bats=mood==="swarm"?Array.from({length:70},()=>[rr(80,W),rr(H*.1,H*.7),rr(.6,1.4),rr(0,6)]):mood==="dusk"?Array.from({length:30},()=>[rr(0,180),rr(H*.2,H*.4),rr(.4,.8),rr(0,6)]):[];
+  const ash=Array.from({length:mood==="crash"?120:50},()=>[rr(0,W),rr(0,H),rr(.4,1.6),rr(0,6)]);
+  return (gg,t)=>{gg.drawImage(a,0,0);
+    if(shipAt){const [x,y,s,ti]=shipAt;ship(x+Math.sin(t*.5)*4,y+Math.sin(t*.8)*5,s,ti+Math.sin(t*.6)*.01);if(mood==="night"){gg.strokeStyle="rgba(143,211,200,.35)";gg.lineWidth=6;gg.beginPath();gg.moveTo(x+60,y+10);gg.quadraticCurveTo(x+200,y-40,W+40,y-90);gg.stroke();}}
+    else{// the wreck: a furrow in the snow, a broken castle, one teal pulse
+      gg.fillStyle="#1a2028";gg.beginPath();gg.moveTo(80,H*.86);gg.quadraticCurveTo(400,H*.8,600,H*.84);gg.lineTo(600,H*.88);gg.quadraticCurveTo(400,H*.86,80,H*.9);gg.fill();
+      gg.fillStyle="#3a3a40";gg.beginPath();gg.moveTo(520,H*.86);gg.lineTo(560,H*.7);gg.lineTo(600,H*.76);gg.lineTo(640,H*.64);gg.lineTo(690,H*.86);gg.fill();
+      const pu=Math.max(0,Math.sin(t*1.3));ia_glow(gg,600,H*.8,60+pu*30,[[0,`rgba(143,211,200,${.15+pu*.4})`],[1,"rgba(143,211,200,0)"]]);}
+    for(const b of bats){const bx=(b[0]+t*30*b[2])%(W+40)-20,by=b[1]+Math.sin(t*3+b[3])*8,f=Math.sin(t*14+b[3])*4*b[2];gg.fillStyle="#1a0e0a";gg.beginPath();gg.moveTo(bx-8*b[2],by-f);gg.lineTo(bx,by+2);gg.lineTo(bx+8*b[2],by-f);gg.lineTo(bx,by-2);gg.fill();gg.fillStyle="#ff6a2a";gg.fillRect(bx-1,by-1,2,1);}
+    gg.fillStyle=mood==="dawn"?"#ffffff":"#ffd8b0";for(const s of ash){const sy=mood==="dusk"?(s[1]-t*14*s[2])%H:(s[1]+t*12*s[2])%H;gg.globalAlpha=.25*s[2];gg.fillRect((s[0]+Math.sin(t+s[3])*10)%W,(sy+H)%H,2,2);}gg.globalAlpha=1;};};}
+function swHall(kind){return (W,H,R)=>{const rr=(a,b)=>a+(b-a)*R(),a=ia_cv(W,H),g=a.getContext("2d");
+  g.fillStyle=kind==="bridge"?"#141a20":"#1c1a18";g.fillRect(0,0,W,H);
+  // dressed Valerian stone in courses, copper trim, a corridor going away to a teal light
+  for(let y=0;y<H;y+=36)for(let x=(y/36%2)*40-40;x<W;x+=80){g.fillStyle=`hsl(30,6%,${rr(12,20)}%)`;g.fillRect(x+2,y+2,76,32);}
+  ia_fill(g,[[W*.36,H*.18],[W*.64,H*.18],[W*.64,H*.82],[W*.36,H*.82]],"#0c0c0e");
+  for(let i=0;i<6;i++){const k=i/6,x0=W*(.36-.36*(1-k)*0),inset=k*W*.12;g.strokeStyle="#a8743a";g.globalAlpha=.6-k*.08;g.lineWidth=3-k*2;g.strokeRect(W*.36+inset*.0+inset,H*.18+inset*.6,W*.28-inset*2,H*.64-inset*1.2);}g.globalAlpha=1;
+  if(kind==="bridge"){g.fillStyle="#2a2e34";g.beginPath();g.moveTo(W*.68,H*.1);g.lineTo(W*.9,H*.14);g.lineTo(W*.86,H*.5);g.lineTo(W*.7,H*.42);g.fill();g.fillStyle="#0a0c12";g.beginPath();g.ellipse(W*.79,H*.3,50,70,.2,0,7);g.fill();
+    for(let i=0;i<40;i++){g.fillStyle="#e9e1cf";g.globalAlpha=rr(.2,.8);g.fillRect(W*.79+rr(-30,30),H*.3+rr(-50,50),1.2,1.2);}g.globalAlpha=1;
+    g.fillStyle="#6a4a2a";for(let i=0;i<8;i++){g.save();g.translate(rr(80,300),rr(H*.78,H*.95));g.rotate(rr(-1,1));g.fillRect(-30,-4,60,8);g.restore();}}
+  return (gg,t)=>{gg.drawImage(a,0,0);const pu=.6+.4*Math.sin(t*1.2);ia_glow(gg,W/2,H*.5,120+pu*20,[[0,`rgba(143,211,200,${.28*pu})`],[1,"rgba(143,211,200,0)"]],1.3);
+    if(kind==="bridge"){const e=Math.sin(t*.7);ia_glow(gg,W*.79+e*6,H*.32,34,[[0,"rgba(255,110,50,.6)"],[1,"rgba(255,110,50,0)"]]);}};};}
+function swCore(W,H,R){const rr=(a,b)=>a+(b-a)*R(),a=ia_cv(W,H),g=a.getContext("2d");g.fillStyle="#0e1014";g.fillRect(0,0,W,H);
+  ia_dabs(g,R,null,200,["#1a1c22","#14161a","#22242a"],10,60,.4);
+  // the socket in the wall, shaped like his chest plate
+  g.fillStyle="#06070a";g.beginPath();g.moveTo(140,180);g.lineTo(230,170);g.lineTo(240,330);g.lineTo(185,380);g.lineTo(130,330);g.closePath();g.fill();g.strokeStyle="#a8743a";g.lineWidth=3;g.stroke();
+  g.fillStyle="#8fd3c8";g.globalAlpha=.6;for(let i=0;i<8;i++)g.fillRect(130+i*14,150,8,3);g.globalAlpha=1;
+  return (gg,t)=>{gg.drawImage(a,0,0);const X=W*.6,Y=H*.52,teal=IST&&IST.at&&/^(Z2|L1|L2)$/.test(IST.at);
+    ia_glow(gg,X,Y,200,[[0,teal?"rgba(143,211,200,.55)":"rgba(120,170,255,.45)"],[1,"rgba(0,0,0,0)"]]);
+    gg.fillStyle=teal?"#bff3ea":"#9cc4ff";gg.globalAlpha=.85;gg.fillRect(X-16,Y-200,32,400);gg.globalAlpha=1;
+    gg.save();gg.translate(X,Y);gg.scale(1,.32);gg.rotate(t*.4);gg.strokeStyle="#b8844a";gg.lineWidth=14;gg.beginPath();gg.arc(0,0,150,0,Math.PI*2);gg.stroke();
+    for(let i=0;i<24;i++){const an=i/24*6.283;if(!teal&&i%3===0)continue;gg.fillStyle="#d8a45a";gg.fillRect(Math.cos(an)*150-6,Math.sin(an)*150-6,12,12);}gg.restore();};}
+function swBox(W,H,R){const rr=(a,b)=>a+(b-a)*R(),pts=Array.from({length:240},()=>[rr(0,W),rr(0,H),rr(.3,1.5),rr(0,6)]);
+  return (g,t)=>{g.fillStyle="#020405";g.fillRect(0,0,W,H);for(const p of pts){const x=(p[0]+Math.sin(t*.3+p[3])*20)%W,y=(p[1]+t*6*p[2])%H;g.fillStyle="#8fd3c8";g.globalAlpha=.08+.25*p[2]*(.5+.5*Math.sin(t*2+p[3]));g.fillRect(x,y,2,2);}g.globalAlpha=1;
+    const o=.5+.5*Math.sin(t*.9);ia_glow(g,W/2,H*.46,60+o*12,[[0,"rgba(143,211,200,.9)"],[.25,"rgba(143,211,200,.35)"],[1,"rgba(143,211,200,0)"]]);
+    g.strokeStyle="#8fd3c8";g.lineWidth=3;g.globalAlpha=.8;g.beginPath();g.arc(W/2,H*.46,34,0,7);g.stroke();g.globalAlpha=1;};}
+Object.assign(IART,{"sw-dawn":swSky("dawn"),"sw-dusk":swSky("dusk"),"sw-swarm":swSky("swarm"),"sw-night":swSky("night"),"sw-crash":swSky("crash"),
+  "sw-hall":swHall("hall"),"sw-bridge":swHall("bridge"),"sw-core":swCore,"sw-box":swBox});
+
+/* ---- the flat board: what each ship board adds (paintMap calls IPAINT) ---- */
+Object.assign(IPAINT,{
+  sdeck(g,mp,cs){for(let y=0;y<mp.H;y++)for(let x=0;x<mp.W;x++){const c=mp.c(x,y),X=x*cs,Y=y*cs;
+    if(c==="v"){const gr=g.createLinearGradient(0,Y,0,Y+cs);gr.addColorStop(0,"#8a3a2a");gr.addColorStop(1,"#5a2a2a");g.fillStyle=gr;g.fillRect(X,Y,cs,cs);}
+    if(c==="m"){g.fillStyle="#6a6a70";g.fillRect(X+2,Y+2,cs-4,cs-4);}
+    if(c==="h"){g.fillStyle="#3a2a1c";g.fillRect(X+4,Y+4,cs-8,cs-8);g.strokeStyle="#b8844a";g.strokeRect(X+6,Y+6,cs-12,cs-12);}
+    if(c==="q"){g.fillStyle="#5a4630";g.fillRect(X+5,Y+5,cs-10,cs-10);}
+    swSeamPaint(g,c,X,Y,cs);}},
+  sgalley(g,mp,cs){const S=B&&B.mp===mp?B.sc:{};for(let y=0;y<mp.H;y++)for(let x=0;x<mp.W;x++){const c=mp.c(x,y),X=x*cs,Y=y*cs;
+    if(c==="n"){g.fillStyle="#5a4029";g.fillRect(X,Y+2,cs,cs-4);}
+    if(c==="O"){g.fillStyle="#2a2420";g.fillRect(X,Y,cs,cs);g.fillStyle=S.lit?"#ff8a2a":"#4a3020";g.beginPath();g.arc(X+cs/2,Y+cs/2,cs*.28,0,7);g.fill();}
+    if(c==="t"){g.fillStyle="#6a4a2e";g.fillRect(X+2,Y+4,cs-4,cs-8);}
+    if(c==="q"){g.fillStyle="#d8d0bc";g.beginPath();g.ellipse(X+cs/2,Y+cs/2,cs*.32,cs*.4,0,0,7);g.fill();}
+    swSeamPaint(g,c,X,Y,cs);}},
+  sgrove(g,mp,cs){const S=B&&B.mp===mp?B.sc:{berries:9};let n=0;for(let y=0;y<mp.H;y++)for(let x=0;x<mp.W;x++){const c=mp.c(x,y),X=x*cs,Y=y*cs;
+    if(c==="Y"){g.fillStyle="#4a3420";g.fillRect(X,Y,cs,cs);}
+    if(c==="u"){g.strokeStyle="#5a4028";g.lineWidth=4;g.beginPath();g.moveTo(X,Y+cs*.3);g.quadraticCurveTo(X+cs/2,Y+cs,X+cs,Y+cs*.6);g.stroke();}
+    if(c==="y"){n++;const lit=n<=(S.berries??9);g.fillStyle="#2a4a22";g.beginPath();g.arc(X+cs/2,Y+cs/2,cs*.42,0,7);g.fill();g.fillStyle=lit?"#ffd27a":"#4a3a2a";g.beginPath();g.arc(X+cs/2,Y+cs/2,cs*.14,0,7);g.fill();}
+    swSeamPaint(g,c,X,Y,cs);}},
+  sbridge(g,mp,cs){for(let y=0;y<mp.H;y++)for(let x=0;x<mp.W;x++){const c=mp.c(x,y),X=x*cs,Y=y*cs;
+    if(c==="v"){g.fillStyle="#0a0c14";g.fillRect(X,Y,cs,cs);}
+    if(c==="L"){g.fillStyle="#3a3a40";g.fillRect(X+4,Y+4,cs-8,cs-8);g.fillStyle="#8fd3c8";g.fillRect(X+cs*.35,Y+cs*.35,cs*.3,cs*.3);}
+    if(c==="P"){g.fillStyle="#7a5a32";g.fillRect(X+3,Y+cs*.4,cs-6,cs*.2);}
+    if(c==="q"){g.fillStyle="#4a4a50";g.fillRect(X+5,Y+5,cs-10,cs-10);}
+    swSeamPaint(g,c,X,Y,cs);}}});
+function swSeamPaint(g,c,X,Y,cs){if(c!=="x")return;g.fillStyle="#2a2420";g.fillRect(X,Y,cs,cs);g.strokeStyle="#ff8a4a";g.lineWidth=2;g.setLineDash([3,3]);g.strokeRect(X+3,Y+3,cs-6,cs-6);g.setLineDash([]);
+  g.strokeStyle="#b8844a";g.lineWidth=3;g.beginPath();g.moveTo(X+cs*.2,Y+cs*.5);g.lineTo(X+cs*.8,Y+cs*.5);g.stroke();}
+
+/* ---- the 3D minis: the Steward (steel, a tower shield, a cannon arm, one teal lens), the hellbats, Teenoog, the matriarch ---- */
+function swBatMini(f,u,big){const K=t3m_kit(f,big?.9:.6),ph=Math.random()*6,v=t3m_v,s=big?1.5:1,HD="#2a1a16",SK="#3a2420",WB="#1c1210",EM="#ff6a2a",y0=big?.42:.46;
+  const body=K.grp("up","fig",0,y0,0);
+  K.add("up",new THREE.SphereGeometry(.09*s,10,8),SK,0,0,0,{sx:.9,sy:.8,sz:1.35});
+  K.add("up",new THREE.SphereGeometry(.06*s,9,7),HD,0,.03*s,.12*s,{sz:1.15});
+  for(const e of[-1,1]){K.add("up",new THREE.ConeGeometry(.022*s,.08*s,4),HD,e*.035*s,.1*s,.1*s,{rz:-e*.3});K.glow("up",new THREE.SphereGeometry(.012*s,6,4),EM,e*.024*s,.045*s,.175*s);}
+  K.add("up",new THREE.BoxGeometry(.05*s,.012*s,.03*s),"#e8d8c0",0,.0,.18*s);
+  if(big){// a saddle, and the scars of a hundred fights
+    K.add("up",new THREE.BoxGeometry(.16,.04,.2),"#4a2a1a",0,.08,-.02).add("up",new THREE.TorusGeometry(.05,.01,4,10),"#a8743a",0,.1,.06,{rx:Math.PI/2});}
+  for(const w of[-1,1]){const n=w<0?"wL":"wR";K.grp(n,"up",w*.06*s,.02*s,0);
+    const sh=new THREE.Shape();sh.moveTo(0,0);sh.lineTo(.34*s,.06*s);sh.lineTo(.3*s,-.06*s);sh.lineTo(.22*s,-.02*s);sh.lineTo(.16*s,-.1*s);sh.lineTo(.08*s,-.04*s);sh.lineTo(0,-.08*s);sh.lineTo(0,0);
+    const g=new THREE.ShapeGeometry(sh);g.rotateX(-Math.PI/2);if(w<0)g.scale(-1,1,1);K.add(n,g,WB,0,0,0);
+    // the ember along the wing bones
+    K.glow(n,new THREE.BoxGeometry(.3*s,.008,.01),EM,w*.16*s,.004,-.01*s,{ry:w*-.18});}
+  K.done({rough:.9});const wL=K.G.wL.g,wR=K.G.wR.g,up=K.G.up.g;
+  const anim=(dt,tt,now,st)=>{if(st.gone){f.visible=false;return;}if(K.em)K.em.emissiveIntensity=st.down?.2:1.6+Math.sin(tt*5+ph)*.5;if(st.down)return;
+    const fl=Math.sin(tt*(big?7:14)+ph);wL.rotation.z=-fl*.7;wR.rotation.z=fl*.7;up.position.y=y0+Math.sin(tt*(big?3.5:7)+ph)*.04+fl*.015;up.rotation.x=Math.sin(tt*2+ph)*.08;};
+  return t3n_fin(f,{up,top:y0+.15,hand:new THREE.Vector3(0,y0,.2),head:up,anim,big},"#ff6a3a",{mon:1});}
+Object.assign(T3MINI,{
+  steward(f){const K=t3m_kit(f,1.05),v=t3m_v,ST="#7c858c",ST2="#5a6168",DK="#2a2e33",CU="#b8844a",TL="#8fd3c8";
+    // legs like pillars, a barrel chest, a head that is mostly a lens
+    for(const s of[-1,1]){K.add("fig",t3m_taper([v(s*.08,.42,0),v(s*.09,.22,.02),v(s*.09,.06,0)],.06,.05),ST,0,0,0,{m:1});K.add("fig",new THREE.BoxGeometry(.11,.06,.16),DK,s*.09,.04,.02,{m:1});}
+    const up=K.grp("up","fig",0,.42,0);
+    K.add("up",new THREE.BoxGeometry(.3,.32,.2),ST,0,.18,0,{m:1}).add("up",new THREE.BoxGeometry(.24,.12,.16),ST2,0,.02,0,{m:1});
+    K.add("up",new THREE.BoxGeometry(.2,.16,.02),CU,0,.22,.105,{m:1});K.glow("up",new THREE.BoxGeometry(.12,.025,.01),TL,0,.27,.118);
+    for(const s of[-1,1])K.add("up",new THREE.SphereGeometry(.08,10,7,0,Math.PI*2,0,Math.PI*.55),ST2,s*.19,.32,0,{m:1});
+    const hd=K.grp("hd","up",0,.36,0);K.add("hd",new THREE.BoxGeometry(.15,.13,.15),ST,0,.06,0,{m:1});
+    K.add("hd",new THREE.CylinderGeometry(.05,.055,.03,16),DK,0,.065,.08,{rx:Math.PI/2,m:1});K.glow("hd",new THREE.CircleGeometry(.04,16),TL,0,.065,.097);
+    // left: the tower shield; right: the arm cannon
+    const aL=K.grp("aL","up",-.21,.28,0);K.add("aL",t3m_taper([v(0,0,0),v(-.03,-.14,.04),v(-.02,-.24,.1)],.045,.04),ST2,0,0,0,{m:1});
+    K.add("aL",new THREE.BoxGeometry(.04,.52,.3),ST2,-.06,-.2,.12,{m:1}).add("aL",new THREE.BoxGeometry(.045,.46,.04),CU,-.06,-.2,.12,{m:1}).add("aL",new THREE.BoxGeometry(.045,.04,.24),CU,-.06,-.1,.12,{m:1});
+    const aR=K.grp("aR","up",.21,.28,0);K.add("aR",t3m_taper([v(0,0,0),v(.03,-.14,.04),v(.02,-.2,.12)],.045,.04),ST2,0,0,0,{m:1});
+    K.add("aR",new THREE.CylinderGeometry(.05,.06,.26,12),DK,.02,-.22,.2,{rx:Math.PI/2,m:1}).add("aR",new THREE.TorusGeometry(.055,.012,5,12),CU,.02,-.22,.32,{m:1});K.glow("aR",new THREE.CircleGeometry(.035,12),TL,.02,-.22,.335);
+    K.done({rough:.7});const lensM=K.em;
+    const anim=(dt,tt,now,st)=>{if(lensM)lensM.emissiveIntensity=(st.down?.3:1.5)+Math.sin(tt*1.4)*.3;up.position.y=.42+Math.sin(tt*1.1)*.004;K.G.hd.g.rotation.y=Math.sin(tt*.5)*.25;};
+    return t3n_fin(f,{up,top:1.0,hand:new THREE.Vector3(.23,.48,.32),head:K.G.hd.g,anim},TL,{s:1.1});},
+  hellbat(f,u){return swBatMini(f,u,false);},
+  matriarch(f,u){return swBatMini(f,u,true);},
+  teenoog(f){const b=t3body(f,{h:.8,bulk:1.05,cloth:"#5a1e1a",cloak:"#2a1210",skin:"#c8a080",hair:"#1a1410",hairStyle:"short",pants:"#2a1e18",boots:"#1a120c",belt:"#3a2818",gloves:"#2a1a14",cloakLen:1,capelet:false,
+      hands:[[-.2,-.02,.1],[.22,-.04,.14]]});
+    // the ruined hat, a patch over the eye the party shot a toe into, a curved blade
+    if(b.head){const hat=new THREE.Group();const m=new THREE.MeshStandardMaterial({color:0x1e1612,roughness:.9});
+      const br=new THREE.Mesh(new THREE.CylinderGeometry(.13,.13,.012,14),m),cr=new THREE.Mesh(new THREE.CylinderGeometry(.06,.07,.08,10),m);cr.position.y=.045;br.rotation.z=.12;hat.add(br,cr);
+      hat.position.set(0,.09,0);hat.rotation.z=-.15;b.head.add(hat);
+      const pt=new THREE.Mesh(new THREE.CircleGeometry(.022,10),new THREE.MeshStandardMaterial({color:0x080606,roughness:.6}));pt.position.set(.026,.02,.07);b.head.add(pt);}
+    const s=new THREE.Shape();s.moveTo(-.012,0);s.lineTo(.012,0);s.quadraticCurveTo(.05,.2,-.01,.36);s.quadraticCurveTo(.004,.2,-.012,0);
+    const bg=new THREE.ExtrudeGeometry(s,{depth:.005,bevelEnabled:false,curveSegments:6});const G=new THREE.Group();G.position.set(.22,-.04,.14);G.rotation.x=1.3;b.up.add(G);
+    G.add(new THREE.Mesh(bg,new THREE.MeshStandardMaterial({color:0xb8b8c0,roughness:.2,metalness:.85})));
+    b.anim=t3c_anim(b,{look:.5});return b;}});
+
+/* ---- the 3D boards: the Echo's battlements in the open sky, its galley, the grove, the bridge. Dressed stone, copper trim ---- */
+function t3ship(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,K=t3i_kit(Vb,mp.key.length*131+7),{rr,pk,ch,box}=K,sky=!!mp.def.sky,kind=mp.kind,V3=K.V3;
+  t3w_cutSetup(Vb);
+  const stone=[],floor=[],wood=[],cop=[],glow=[],leaf=[],bark=[];
+  const FL={sdeck:["#6d6a64","#76726b","#64615b","#7b776f"],sgalley:["#6a5a48","#735f4a","#5f5141","#7a6550"],sgrove:["#3e4a2c","#465232","#38432a","#4a4a30"],sbridge:["#4a4c52","#53555c","#44464c","#5a5c62"]}[kind]||["#5a5650"];
+  const WC=["#7a7468","#857e72","#6e695e","#8a8276"],CU="#a8743a";
+  const stoves=[],berries=[],trunk=[];
+  for(let y=-1;y<=H;y++)for(let x=-1;x<=W;x++){const c=Vb.cell(x,y),out=x<0||y<0||x>=W||y>=H,cc=out?(sky?"v":"#"):ch(x,y);
+    if(cc==="v")continue;
+    if(cc==="#"){let hy=0;for(let i=0;i<3;i++){const hh=rr(.44,.52);stone.push(t3at(t3tint(t3w_slab(1,hh,1,x*13+y*7+i*3,.03),pk(WC)),c.x,hy+hh/2,c.z));hy+=hh;}
+      box(stone,1.02,.07,1.02,"#5e5850",c.x,hy+.035,c.z);box(stone,1.01,.035,1.01,"#8a6038",c.x,hy*.66,c.z);continue;}
+    box(floor,.97,.3,.97,pk(FL),c.x,-.15+rr(-.015,.005),c.z);
+    if(cc==="m"){stone.push(t3at(t3tint(t3w_slab(.9,.95,.9,x*5+y*9,.04),pk(WC)),c.x,.47,c.z));box(stone,.92,.05,.92,"#5e5850",c.x,.97,c.z);box(stone,.91,.03,.91,"#8a6038",c.x,.62,c.z);}
+    else if(cc==="x"){box(stone,.86,.06,.86,"#2a2420",c.x,.03,c.z);glow.push(t3at(t3tint(new THREE.BoxGeometry(.66,.025,.07),"#ff7a3a"),c.x,.075,c.z,{ry:rr(-.6,.6)}));
+      cop.push(t3at(t3tint(new THREE.TorusGeometry(.17,.035,5,10),CU),c.x+rr(-.1,.1),.18,c.z+rr(-.1,.1),{rx:rr(.3,1.4),ry:rr(0,3)}));}
+    else if(cc==="h"){box(wood,.8,.05,.8,"#4a3220",c.x,.025,c.z);cop.push(t3at(t3tint(new THREE.TorusGeometry(.12,.022,5,12),"#c8944a"),c.x,.06,c.z,{rx:Math.PI/2}));}
+    else if(cc==="q"){if(kind==="sgalley"){for(let i=0;i<2;i++)wood.push(t3at(t3tint(t3rock(.2,x*7+y+i,1),"#d8cfb8"),c.x+rr(-.15,.15),.18,c.z+rr(-.15,.15),{sy:1.2}));}
+      else box(wood,.6,.5,.6,pk(["#6a4a2e","#5a3e26"]),c.x+rr(-.08,.08),.25,c.z+rr(-.08,.08),{ry:rr(-.3,.3)});}
+    else if(cc==="n"){box(wood,.98,.78,.9,"#5a4029",c.x,.39,c.z);box(stone,1,.06,.94,"#8a8478",c.x,.81,c.z);if(K.S()<.5)cop.push(t3at(t3tint(new THREE.CylinderGeometry(.12,.1,.16,10),CU),c.x+rr(-.2,.2),.92,c.z));}
+    else if(cc==="t"){box(wood,.96,.07,.9,"#6a4a2e",c.x,.6,c.z);for(const [a,b] of[[-.4,-.36],[.4,-.36],[-.4,.36],[.4,.36]])box(wood,.07,.58,.07,"#4a3220",c.x+a,.29,c.z+b);}
+    else if(cc==="O"){box(stone,.98,.84,.9,"#2a2420",c.x,.42,c.z);glow.push(t3at(t3tint(new THREE.CylinderGeometry(.22,.22,.02,14),"#ff8a2a"),c.x,.85,c.z));stoves.push(c);}
+    else if(cc==="L"){stone.push(t3at(t3tint(t3w_slab(.6,.9,.5,x*3+y,.02),"#6a6a70"),c.x,.45,c.z));glow.push(t3at(t3tint(new THREE.BoxGeometry(.28,.02,.28),"#8fd3c8"),c.x,.91,c.z));}
+    else if(cc==="P"){for(let i=0;i<3;i++)cop.push(t3at(t3tint(new THREE.BoxGeometry(rr(.3,.6),.03,rr(.2,.4)),CU),c.x+rr(-.25,.25),.03+i*.02,c.z+rr(-.25,.25),{ry:rr(0,3),rx:rr(-.1,.1)}));}
+    else if(cc==="u"){for(let i=0;i<2;i++){const a=rr(0,6.3),l=rr(.4,.6);bark.push(t3tint(t3tube([V3(c.x-Math.cos(a)*l,.02,c.z-Math.sin(a)*l),V3(c.x,.13,c.z),V3(c.x+Math.cos(a)*l,.02,c.z+Math.sin(a)*l)],rr(.05,.08)),pk(["#5a4028","#4a3420"])));}}
+    else if(cc==="Y")trunk.push(c);
+    else if(cc==="y"){leaf.push(t3at(t3tint(t3rock(.34,x*11+y,1),pk(["#2e5a2a","#36662e","#284e24"])),c.x,.26,c.z,{sy:.8}));berries.push(c);}}
+  // Katy's tree: one great trunk through the room, a canopy under the ceiling, berries glowing in it
+  if(trunk.length){const cx=trunk.reduce((s,p)=>s+p.x,0)/trunk.length,cz=trunk.reduce((s,p)=>s+p.z,0)/trunk.length;
+    bark.push(t3tint(new THREE.CylinderGeometry(.7,1.2,3.2,12,4),"#5a4028").translate(cx,1.6,cz));
+    for(let i=0;i<6;i++){const a=i/6*6.283,l=rr(1,1.45);bark.push(t3tint(t3tube([V3(cx,2.4,cz),V3(cx+Math.cos(a)*l*.5,2.9,cz+Math.sin(a)*l*.5),V3(cx+Math.cos(a)*l,3.1,cz+Math.sin(a)*l)],.12),"#4a3420"));
+      leaf.push(t3at(t3tint(t3rock(rr(.5,.7),i*5,1),pk(["#2e5a2a","#36662e","#3e6e30"])),cx+Math.cos(a)*l,3.2,cz+Math.sin(a)*l,{sy:.6}));
+      berries.push(V3(cx+Math.cos(a)*l*1.05,2.75,cz+Math.sin(a)*l*1.05));}}
+  const add=(L,m,o={cast:true,recv:true})=>{if(L.length)Vb.root.add(t3mesh(t3merge(L),m,o));};
+  add(stone,t3w_cut(Vb,"rock"));add(floor,t3surf("floor",Vb),{recv:true});add(wood,t3surf("wood",Vb));add(cop,t3vmat({roughness:.35,metalness:.6}));
+  add(glow,t3surf("glow",Vb),{});add(leaf,t3surf("leaf",Vb));add(bark,t3surf("bark",Vb));
+  // under the deck: the hull and its copper keel, hanging over nothing; inside the ship, dark floor beyond the walls
+  if(sky){const hull=[];box(hull,W-.6,1.4,H-.6,"#5e5a54",0,-1,0);box(hull,W-2.4,1.4,H-2.4,"#4e4a44",0,-2.3,0);box(hull,W-5,1.2,H-4.6,"#3e3a36",0,-3.4,0);
+      Vb.root.add(t3mesh(t3merge(hull),t3surf("rock",Vb),{recv:true}));
+      const k=t3mesh(new THREE.BoxGeometry(.4,1.6,H-3),t3mat(CU,{metalness:.6,roughness:.4}));k.position.set(0,-4.4,0);Vb.root.add(k);
+      const eng=new THREE.Sprite(new THREE.SpriteMaterial({map:t3dotTex(),color:0x8fd3c8,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:.6}));eng.scale.set(6,3,1);eng.position.set(0,-4.6,0);Vb.root.add(eng);
+      // the swarm: dark shapes wheeling round the ship
+      const bats=[],bm=new THREE.SpriteMaterial({map:t3dotTex(),color:0x120806,transparent:true,depthWrite:false,opacity:.9});
+      for(let i=0;i<(T3Q.hi?40:20);i++){const s=new THREE.Sprite(bm);s.scale.set(.35,.16,1);Vb.root.add(s);bats.push([s,rr(7,13),rr(-1,5),rr(0,6.3),rr(.25,.6)*(K.S()<.5?1:-1)]);}
+      Vb.ticks.push((dt,tt)=>{for(const [s,r,y,a,w] of bats){const t=a+tt*w;s.position.set(Math.cos(t)*r,y+Math.sin(tt*2+a)*.4,Math.sin(t)*r);}});}
+  else{const under=t3mesh(new THREE.PlaneGeometry(W+24,H+24),new THREE.MeshStandardMaterial({map:t3v_floorTex("#1b1814"),roughness:1}),{recv:true});under.rotation.x=-Math.PI/2;under.position.y=-.06;Vb.root.add(under);}
+  // the stove's fire eyes roar up when lit; the berries go dark as the bats tear them off
+  const flames=stoves.map((c,i)=>t3i_flame(Vb,c.x,.9,c.z,.3));
+  const bsp=berries.map(c=>{const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t3dotTex(),color:0xffd27a,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true,opacity:.9}));s.scale.set(.45,.45,1);s.position.set(c.x,(c.y||0)+.5,c.z);Vb.root.add(s);return s;});
+  Vb.ticks.push((dt,tt)=>{const S=B&&B.mp===mp?B.sc:{};flames.forEach((f,i)=>f.set(S.lit?(S.fire>0?1:.5):.12,tt,i));
+    const n=S.berries??bsp.length;bsp.forEach((s,i)=>{const on=i<n*bsp.length/9;s.material.opacity=on?.6+.3*Math.sin(tt*2+i):.06;});});
+  Vb.motes=t3motes(Vb,sky?50:60,sky?"#ffd8b0":kind==="sgrove"?"#ffe6a0":"#bfb6a6",()=>[rr(-W/2,W/2),rr(.1,2.4),rr(-H/2,H/2)]);
+  Vb.t3wTips=[];}
+const SW_LOOK=(o)=>Object.assign({fogK:[1.2,2.9],fill:[.55,1],srcD:12,srcY:1.6,flick:0,pool:[4,.2,.36],lanI:[10,11],rimI:[1,.8],head:0xe8e0d0,
+  post:{sh:[.95,.94,.98],hl:[1.06,1,.92],sat:.95,vig:.36,dream:0,bloom:.6,exp:1},mat:{tint:[1,1,1],sat:.9}},o);
+Object.assign(T3_LOOK,{
+  sdeck:SW_LOOK({fog:0x3a1a14,bg:["#c86a3a","#5a2418","#1a0806"],sky:0xffb070,ground:0x3a2018,src:0xffa860,srcI:[14,14],key:null,sun:{col:0xffb070,i:1.6,at:[-.6,7,-.4]},
+    lan:0xffd0a0,rim:0x8fd3c8,post:{sh:[.95,.88,.9],hl:[1.12,1,.86],sat:1.05,vig:.34,dream:0,bloom:.7,exp:1.02}}),
+  sgalley:SW_LOOK({fog:0x1c120a,bg:["#3a2414","#160c06","#050302"],sky:0x8a7462,ground:0x2e1c10,src:0xffa050,srcI:[24,22],flick:.5,key:{col:0xffb070,i:60,ang:1.25,at:[.3,2.6,.6]},lan:0xffc890,rim:0xffd8a8,embers:1}),
+  sgrove:SW_LOOK({fog:0x121a0e,bg:["#2a3a1c","#0e140a","#040603"],sky:0xc8d890,ground:0x1a2210,src:0xffd27a,srcI:[18,16],srcY:2.4,key:{col:0xffe0a0,i:45,ang:1.2,at:[.2,3.2,.4]},lan:0xffe8b0,rim:0xd8f0a0,breathe:.8}),
+  sbridge:SW_LOOK({fog:0x0a0e14,bg:["#1a2230","#0a0e14","#030406"],sky:0x6a7a90,ground:0x14161c,src:0x8fd3c8,srcI:[16,14],key:{col:0x9fe0d8,i:40,ang:1.2,at:[.2,2.8,.4]},lan:0xd0e0ff,rim:0xff7a4a,rimI:[1.6,1.2],breathe:1.2,
+    post:{sh:[.9,.96,1.04],hl:[1.04,1,.96],sat:.85,vig:.42,dream:0,bloom:.65,exp:.98}})});
+
 /* =================== RUNNING IT: scene order, retries, entry and exit =================== */
 async function runScene(){
   const my=++PLAY.gen;iLeave();closeMenu();pulse(false);hide3d();B=null;initEl=null;
@@ -10886,6 +11398,7 @@ function enterPlay(){if(PLAY.on)return;PLAY.on=true;ST=loadState()||freshState()
   const want=(location.search.match(/[?&]interlude=([a-z0-9-]+)/)||[])[1];
   if(PLAY.toHub){PLAY.toHub=false;const g=PLAY.gen;interludeHub().then(()=>PLAY.on&&g===PLAY.gen&&playHub());return;} // back from signing in
   if(want&&IBY[want]){runInterlude(IBY[want]).then(()=>PLAY.on&&playHub());return;}
+  if(/[?&]steward(=|&|$)/.test(location.search)){runSteward().then(()=>PLAY.on&&playHub());return;}
   if(PLAY.auto||S10_DEMO&&ST.scene>0&&ST.scene<SCENES.length&&!/[?&]hub/.test(location.search)){runScene();return;}
   playHub();}
 /* what to play: the interludes before the next session. The session 10 demo is hidden for now (Sam, 2026-11-03):
