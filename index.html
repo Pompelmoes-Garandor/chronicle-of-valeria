@@ -9429,11 +9429,12 @@ function playable(){
 const isSent=id=>!!sentDone()[id]||!!(myResults()[id]||{}).sent;
 async function pickMe(){const i=await choose("Which one are you? Hans opens your interlude, and the shared one round the fire.",[...PCS.map(c=>({t:CREW[c].short})),{t:"Back"}]);
   if(i<PCS.length){store.set(IME,PCS[i]);return true;}return false;}
+const iLogLine=l=>String(l).replace(/^Hans logged:\s*/i,"").replace(/^./,c=>c.toUpperCase()); // shown under a "Hans … log" heading
 /* Send to Sam without the table site: a message the player sends on, ending in one line a Claude can decode */
 function iMessage(ids){const loc=myResults(),parts=["📜 The Chronicle of Valeria · interludes for Sam",""];const pack=[];
   for(const id of ids){const r=loc[id];if(!r)continue;const c=iClean(r);pack.push({id,...c});
     parts.push(`${c.character==="crew"?"The crew":(CREW[c.character]||{short:c.character}).short} · ${c.title} · ending ${c.ending}`,
-      "Echo: "+c.echo.text,...(c.verse?["The verse: "+c.verse.join(" / ")]:[]),"Hans logged:",...c.lore.map(l=>"– "+l),
+      "Echo: "+c.echo.text,...(c.verse?["The verse: "+c.verse.join(" / ")]:[]),"Hans logged:",...c.lore.map(l=>"– "+iLogLine(l)),
       ...(c.fight?[`Fight: ${c.fight.won?"won":"lost"}${c.fight.rounds?" in "+c.fight.rounds+" rounds":""}`]:[]),"");}
   const b64=btoa(unescape(encodeURIComponent(JSON.stringify({v:1,from:localMe()||"crew",done:pack})))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
   parts.push("For Hans's records (don't edit): CHRON-INTERLUDE "+b64);return parts.join("\n");}
@@ -9550,7 +9551,7 @@ async function iFinalize(I,r){
   const already=isSent(I.id);
   if(!already)saveMine(I.id,r); // a replay of one already sent stays a replay: what Sam has is final
   storyView(I.art);
-  const what=`<p>Hans folds it into his log:</p><ul class="pl-lore">${r.lore.map(l=>`<li>${escapeHtml(l)}</li>`).join("")}</ul>`;
+  const what=`<p>Hans folds it into his log:</p><ul class="pl-lore">${r.lore.map(l=>`<li>${escapeHtml(iLogLine(l))}</li>`).join("")}</ul>`;
   if(already){await iPassage({html:what+"<p class='muted'>You sent this one to Sam already. That copy stands; this replay stays here.</p>"},[{t:"Back"}]);return;}
   if(!online()){
     if(!localMode()){await iPassage({html:what+"<p class='muted'>A test run: it stays on this device.</p>"},[{t:"Back"}]);return;}
