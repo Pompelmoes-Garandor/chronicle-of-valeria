@@ -65,6 +65,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Send to Sam by message on the GitHub copy (WhatsApp, mail), until Netlify publishes again** · New · Sam · PR #50
 - [x] **Claude sessions can see the proposals waiting for Sam** (public `open-proposals.json` on the mirror branch) · Changed · Niels · PR #49
 - [x] **Interludes play without sign-in too (GitHub Pages or signed out): nothing is sent to Sam then** · Changed · Sam · PR #48
 - [x] **Interludes before the table finishes session 10: a solo piece per player plus a shared one, each with a small fight, an Echo and Send to Sam** · New · Sam · PR #47
