@@ -5,7 +5,7 @@
 **Script:** the full story script for Sam is the doc "Protocol Zero: The Steward's Last Stand". This file is the playable text.
 **Engine hooks:** a choice that goes to `@name` hands over to the game (`@deck`, `@galley`, `@grove`, `@bridge` are fights, `@zero` the engine room, `@steer` the glide, `@send` the last line, `@glitch` the black box, `@end` the finish). `W0` and `R0` are hubs: the game greys out the rooms already visited and moves on when all are done. A ```log block is the Steward's own log, shown in his type.
 
-Invented, for Sam to change: the ship's name (the Echo, after the "Echo bases" on the copper paintings), the Bridge and the Heart, the hellbats' look, Teenoog's mount and his lines, the chores, and how Teenoog gets away. Hodle is not in it (his fate is open). Nothing here says what the black box holds now.
+Invented, for Sam to change: the ship's name (the Echo, after the "Echo bases" on the copper paintings), the Bridge and the Heart, the hellbats' look, Teenoog's mount and his lines, the chores, the tea towel, the berry behind the chest plate, what the Steward chooses to keep in the box, and how Teenoog gets away. Hodle is not in it (his fate is open). Nothing here says what the black box holds now.
 
 ---
 
@@ -53,9 +53,9 @@ Katy Berry passes with the ukulele on her back and taps your shield twice, the w
 
 She tells you you're a sweetheart. "That is not among my designations," you say.
 
-Stig stops in front of you, a big man with a big pack, and puts a cloth bundle in your good hand. Bread is proving in the galley, he says. Don't let it over-rise.
+Stig stops in front of you, a big man with a big pack, and puts a tea towel in your good hand, folded small. Bread is proving in the galley, he says. When it has doubled, it goes in. The oven door sticks, so use the towel. Don't let it over-rise.
 
-"I will monitor it," you say. You have no idea what that means.
+"I will monitor it," you say. You have no idea what doubled looks like. You tuck the towel under your shield strap, where it will be safe.
 
 → Continue (go to D2)
 
@@ -63,7 +63,7 @@ Stig stops in front of you, a big man with a big pack, and puts a cloth bundle i
 
 Saphira passes last, hood up. She doesn't stop. She says it without looking at you: if something comes, don't wait for us.
 
-You watch them go down the plank and into the snow. Your lens adjusts, keeping them in focus for longer than it needs to.
+You watch them go down the plank and into the snow. Your lens adjusts, keeping them in focus for longer than it needs to. She doesn't look back. You keep her in focus anyway, until the hood is a dot.
 
 "Acknowledged," you say, to no one.
 
@@ -134,7 +134,7 @@ One tree fills the room. Its roots run across the floor like cables, and its can
 
 There is a brass can by the door. You water the roots. The tree seems to lean toward you a little, and a few of the berries brighten.
 
-You pick one and put it away carefully. For later.
+You pick one and put it away carefully, behind your chest plate, where it is warm. For later. You don't know what later is for, yet.
 
 → Back to the stairs (go to W0)
 
@@ -316,6 +316,8 @@ The stove is by the far wall: six fire eyes, six brass dials.
 
 The galley is quiet. Flour settles on everything like snow. The bowl lies upside down on the floor, and the bread is a flat, burnt circle.
 
+The towel is still under your shield strap. You never opened the oven door.
+
 ```log
 SCAN: DOUGH. STATUS: OVER-RISEN.
 I DID NOT MONITOR IT.
@@ -412,6 +414,8 @@ CREW: 3 OF 3. BELOW.
 
 ## Z2. The keeper becomes the keel
 
+Before you step back, you tap the edge of the socket twice with your shield. For luck. The bard would.
+
 You back into the socket. It fits you exactly; it always did. Clamps close over your arms and your shoulders. The teal of your lens floods out of you and into the core, and the core turns from pale blue to bright teal.
 
 ```log
@@ -420,6 +424,8 @@ SOURCE: UNIT #34.
 ```
 
 For the first time all day, your own number starts to fall. The ship's starts to climb.
+
+Behind your chest plate the berry is still there, warm against what is left of you. You let it stay.
 
 The Echo stops falling. It holds level. Then, slowly, it turns away from the Hills.
 
@@ -436,6 +442,18 @@ ACCEPTABLE.
 ```
 
 You aim for the empty ground just short of it.
+
+There is not much of you left, and the black box only holds so much. You choose.
+
+```log
+WRITING TO BLACK BOX.
+KEEP: THE BARD. TAP, TAP. FOR LUCK.
+KEEP: THE COOK. THE BREAD. (OVER-RISEN. SORRY.)
+KEEP: THE CARTOGRAPHER. "DON'T WAIT FOR US." I DID NOT WAIT.
+KEEP: THE TREE. ONE FRUIT LEFT.
+DISCARD: EVERYTHING ELSE. EVERYTHING BEFORE THEM.
+DESIGNATION ADDED: SWEETHEART. UNCONFIRMED.
+```
 
 Behind you, on the slope of the mountain, three tiny figures have their faces turned up to the sky.
 
@@ -472,7 +490,9 @@ INTEGRITY 61%.
 
 Hans doesn't say anything for a long time.
 
-"That's all of it," he says at last. "That's all it'll give me." A pause. "He moved the whole ship. With his own core. I didn't know we could do that."
+"He kept the bread," he says at last, very quietly. "Everything he was before them, he let go. And he kept the bread."
+
+"That's all of it," he says. "That's all it'll give me." A pause. "He moved the whole ship. With his own core. I didn't know we could do that."
 
 Another pause. "I'm not going to try it. In case you were wondering."
 
