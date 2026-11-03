@@ -9555,7 +9555,7 @@ async function iFinalize(I,r){
   const already=isSent(I.id);
   if(!already)saveMine(I.id,r); // a replay of one already sent stays a replay: what Sam has is final
   storyView(I.art);
-  const what=`<p>Hans folds it into his log:</p><ul class="pl-lore">${r.lore.map(l=>`<li>${escapeHtml(iLogLine(l))}</li>`).join("")}</ul>`;
+  const what=`<p>Hans's log:</p><ul class="pl-lore">${r.lore.map(l=>`<li>${escapeHtml(iLogLine(l))}</li>`).join("")}</ul>`;
   if(already){await iPassage({html:what+"<p class='muted'>You sent this one to Sam already. That copy stands; this replay stays here.</p>"},[{t:"Back"}]);return;}
   if(!online()){
     if(!localMode()){await iPassage({html:what+"<p class='muted'>A test run: it stays on this device.</p>"},[{t:"Back"}]);return;}
