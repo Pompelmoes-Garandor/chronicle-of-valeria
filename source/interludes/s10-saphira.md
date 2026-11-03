@@ -344,7 +344,7 @@ You look down at the cloak.
 
 The eye is wide open, moving from face to face around the cave as if it were reading lines on a page. It has never been this awake. When you brush ash from your sleeve, your shadow's hand follows a heartbeat behind. Nobody notices. In this light it hardly shows.
 
-> **Echo: Eye of the Pact.** Advantage on one Intelligence (Investigation or Arcana) check.
+> **Echo: Eye of the Pact.** Before you roll an Intelligence (Arcana or Investigation) check, you can spend this Echo to have advantage on it.
 
 **Sent to Sam:** [how she took the call, see below] Hans logged: the cloak's eye is awake now, fully. It reads ahead. It read my chest plate. I did not give permission. Also her shadow is late sometimes, in good light. I have checked my clock. My clock is fine. [SAM?: lasting cosmetic shadow lag, needs Sam and Claire's OK] *For Sam and Claire, level 6:* fully awake and quick; when she opens the Book of Shadows, the cloak's lining unfolds into pages and the eye reads ahead of her.
 
@@ -352,7 +352,7 @@ The eye is wide open, moving from face to face around the cave as if it were rea
 
 The eye is half lidded, the way it always is. But it's looking at you, not at the dark, and it doesn't look away when you look back. You owe nobody for anything it does next. That feels like a coin kept in your boot.
 
-> **Echo: Owe Nothing.** Advantage on one Charisma (Persuasion) check made to strike a deal or set terms.
+> **Echo: Owe Nothing.** Before you roll a Charisma (Persuasion) check to strike a bargain or set its terms, you can spend this Echo to have advantage on it.
 
 **Sent to Sam:** [how she took the call] Hans logged: someone made the guest with the eye-cloak an offer. She said no. I could tell, because she looked pleased with herself for no reason. *For Sam and Claire, level 6:* still half awake; it wakes properly at level 6 on its own terms, and she owes nobody for it.
 
@@ -360,7 +360,7 @@ The eye is half lidded, the way it always is. But it's looking at you, not at th
 
 The eye is closed. Not asleep: resting, the way a cat rests with one ear turned your way. Once, when you shift your shoulders, it opens a sliver, checks that it's you, and closes again.
 
-> **Echo: Watched Faces.** Advantage on one Wisdom (Insight) check.
+> **Echo: Watched Faces.** Before you roll a Wisdom (Insight) check, you can spend this Echo to have advantage on it.
 
 **Sent to Sam:** [how she took the call] Hans logged: the cloak's eye is calmer around her now. It blinks slowly at her. I tried blinking slowly at it. Nothing. *For Sam and Claire, level 6:* gentle and patient; the pages appear when the eye closes, as if it dreams them.
 
@@ -368,7 +368,7 @@ The eye is closed. Not asleep: resting, the way a cat rests with one ear turned 
 
 The eye is open, steady, and it holds itself differently: chin up, if an eye can have a chin. Now and then the cloak's lining prickles under your fingers, as if something written there wants to be read.
 
-> **Echo: Old Marks.** Advantage on one check to read, decipher or recall old writing, runes or inscriptions (Arcana, History or Investigation).
+> **Echo: Old Marks.** Before you roll an Intelligence (Arcana, History or Investigation) check to read, decipher or recall old writing, runes or inscriptions, you can spend this Echo to have advantage on it.
 
 **Sent to Sam:** [how she took the call] Hans logged: the cloak's lining had writing on it for one second. Old writing. I could not read it fast enough. This has never happened to me. I do not like it. *For Sam and Claire, level 6:* proud and old-fashioned; the pages carry shadow script before she writes anything.
 
@@ -376,7 +376,7 @@ The eye is open, steady, and it holds itself differently: chin up, if an eye can
 
 The eye is half open and looking straight at Hans. As you watch, it winks at him. Hans, very slowly, turns his head and looks at the wall instead.
 
-> **Echo: Quick Fingers.** Advantage on one Dexterity (Sleight of Hand) check.
+> **Echo: Quick Fingers.** Before you roll a Dexterity (Sleight of Hand) check, you can spend this Echo to have advantage on it.
 
 **Sent to Sam:** [how she took the call] Hans logged: the cloak's eye winked at me. I am reviewing whether that was a threat. *For Sam and Claire, level 6:* mischievous; the book hides itself in the lining and only shows when she asks for it in Cant.
 
@@ -384,7 +384,7 @@ The eye is half open and looking straight at Hans. As you watch, it winks at him
 
 The eye is half lidded, heavy, the way it always is. But it isn't watching the cave. It's still watching the patch of dark where she stood, and it keeps watching it long after there's nothing there.
 
-> **Echo: Half-Open.** Advantage on one Dexterity (Stealth) check.
+> **Echo: Half-Open.** Before you roll a Dexterity (Stealth) check, you can spend this Echo to have advantage on it.
 
 **Sent to Sam:** [how she took the call] Hans logged: the cloak's eye keeps looking at an empty corner. I looked too. Empty. I logged the corner. *For Sam and Claire, level 6:* undecided; it becomes the book at level 6 as Sam ruled, but it still watches the patron, which is a hook for later.
 

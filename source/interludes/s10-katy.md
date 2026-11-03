@@ -325,7 +325,7 @@ She knew it. She stopped and stared, and then she knew it. Somebody brought thos
 
 You put your hand flat on the ukulele's strings to quiet them, the way she put hers on your chest.
 
-> **Echo: Two Voices.** Advantage on one Performance check.
+> **Echo: Two Voices.** Before you roll a Charisma (Performance) check, you can spend this Echo to have advantage on it.
 
 **Sent to Sam:** Hans logged: the bard says her mother already knew the second verse, years before the bard did. So it reached Valethorn somehow. Letters, probably; the old servant carried his for years. I have stopped being surprised by letters. [SAM?: Elodie knew verse two, most likely from Doloris's letters]
 
@@ -337,7 +337,7 @@ Your mother's verse. It was never written down, and the one person who knew it i
 
 Later you'll write it down. Not yet. For now it's still warm.
 
-> **Echo: Mother's Hum.** Regain one expended use of Bardic Inspiration.
+> **Echo: Mother's Hum.** As a bonus action, you can spend this Echo to regain one expended use of Bardic Inspiration.
 
 **Sent to Sam:** Hans logged: the bard knows a third verse now. Her mother's. It is not in my files. She says it goes in when she decides, and not before. Noted. Waiting. [SAM?: Elodie's third verse becomes canon, text in K8b]
 
@@ -349,7 +349,7 @@ Thorn's are still, on his bow, too still. Stig's are busy. Your father's lie on 
 
 *Always drumming.* You almost laugh.
 
-> **Echo: Court Eyes.** Advantage on one Insight check.
+> **Echo: Court Eyes.** Before you roll a Wisdom (Insight) check, you can spend this Echo to have advantage on it.
 
 **Sent to Sam:** Hans logged: the bard's mother taught her to read people by their hands, not their faces. Faces lie better. I have neither problem. I have a chest plate.
 

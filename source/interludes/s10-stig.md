@@ -298,7 +298,7 @@ You crouch down beside him.
 
 You crouch the way you'd brace on a deck in weather, feet wide, sure of them. Your hands are still cold. You put one on his shoulder anyway, and you keep it there. Whatever you say to him next, you'll say it holding on.
 
-> **Echo: Hold Fast.** Advantage on one Strength (Athletics) check: he holds on and won't let go.
+> **Echo: Hold Fast.** Before you roll a Strength (Athletics) check to hold on to something or someone, you can spend this Echo to have advantage on it.
 
 **Sent to Sam:** [whom he prayed to, see below] Hans noted: he asked to carry it himself. He was told no. He asked again, louder. He came back with cold hands. I offered him my fan exhaust. He declined.
 
@@ -306,7 +306,7 @@ You crouch the way you'd brace on a deck in weather, feet wide, sure of them. Yo
 
 You're lighter than when you left him. You sit down beside him, not over him. You're not the one holding everything up. You're just the one sitting closest.
 
-> **Echo: Ebb and Flood.** Advantage on one Wisdom (Insight) check.
+> **Echo: Ebb and Flood.** Before you roll a Wisdom (Insight) check, you can spend this Echo to have advantage on it.
 
 **Sent to Sam:** [whom he prayed to] Hans noted: he asked to carry it himself. He was told no. Then he let it go. He breathed out for four seconds. I timed it. That is long, for him.
 
@@ -314,7 +314,7 @@ You're lighter than when you left him. You sit down beside him, not over him. Yo
 
 The towel is already in your hands, wrung out and folded. You kneel. You check the colour of his fingers, the way you'd check a knot. Whatever you say to him next, your hands will be busy while you say it.
 
-> **Echo: Wring and Bind.** When you cast a spell that restores hit points, add your Wisdom modifier to the total once more (+4 now).
+> **Echo: Wring and Bind.** When you cast a spell that restores hit points, you can spend this Echo to add your Wisdom modifier to the hit points it restores a second time.
 
 **Sent to Sam:** [whom he prayed to] Hans noted: he asked to be useful. Then he was. Towel, cloth, arm, fingers, in that order. I have saved the order.
 
@@ -322,7 +322,7 @@ The towel is already in your hands, wrung out and folded. You kneel. You check t
 
 You sit down beside him, and for a moment you don't say anything at all. Across the cave, Katy's voice is still low. Let her have today. You'll hold the rest.
 
-> **Echo: Not Tomorrow.** When an ally you can see within 30 ft is about to make an ability check (not an attack or a save), use your reaction to give it advantage.
+> **Echo: Not Tomorrow.** When an ally you can see within 30 feet of you is about to make an ability check, you can use your reaction and spend this Echo to give them advantage on it. Decide before they roll.
 
 **Sent to Sam:** [whom he prayed to] Hans noted: he asked for nothing for himself. Only today, for the old man. I did not know you could pray like that. I am considering it.
 
