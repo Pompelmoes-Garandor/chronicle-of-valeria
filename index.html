@@ -4441,7 +4441,7 @@ function echoNode(sheetId){
           try{await iSetUsed(id,!used);toast(!used?"Hans crossed it off. Used.":"Hans put it back. Not used yet.");}
           catch(e){toast("Couldn't save that: "+(e.message||"try again"));}
           showSheets(true);}},used?"Used":"Used it"),
-      r.sent?null:h("small",{class:"muted"},"On this device only, not sent to Sam yet"));}));}
+      r.sent?null:h("small",{class:"muted"},"Kept on this device, not sent to the DM yet"));}));}
 
 /* ---- proposals: players propose, Sam accepts with one tap, the site shows it at once ---- */
 // Accepted changes come from /api/accepted (public) and are laid over the lore built into this page.
@@ -9432,6 +9432,7 @@ const isSent=id=>!!sentDone()[id]||!!(myResults()[id]||{}).sent;
 async function pickMe(){const i=await choose("Which one are you? Hans opens your interlude.",[...PCS.map(c=>({t:CREW[c].short})),{t:"Back"}]);
   if(i<PCS.length){store.set(IME,PCS[i]);return true;}return false;}
 const iLogLine=l=>String(l).replace(/^Hans (logged|noted):\s*/i,"").replace(/^./,c=>c.toUpperCase()); // shown under a "Hans … log" heading
+const IKEPT="<p>Hans closes the page and presses his thumb-plate to it. <i>Logged.</i></p><p>Nothing is lost. Your choices and your Echo are safe here, and the Echo is already waiting on your character sheet.</p><p>When you're ready, Hans can carry his log to the DM, so the table knows what happened to you before the next session.</p>";
 /* Send to Sam without the table site: a message the player sends on, ending in one line a Claude can decode */
 function iMessage(ids){const loc=myResults(),parts=["📜 The Chronicle of Valeria · interludes for Sam",""];const pack=[];
   for(const id of ids){const r=loc[id];if(!r)continue;const c=iClean(r);pack.push({id,...c});
@@ -9441,11 +9442,11 @@ function iMessage(ids){const loc=myResults(),parts=["📜 The Chronicle of Valer
   const b64=btoa(unescape(encodeURIComponent(JSON.stringify({v:1,from:localMe()||"crew",done:pack})))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
   parts.push("For Hans's records (don't edit): CHRON-INTERLUDE "+b64);return parts.join("\n");}
 async function iShareSend(ids){const loc=myResults(),todo=ids.filter(id=>loc[id]);if(!todo.length)return false;const msg=iMessage(todo);let ok=false;
-  if(navigator.share){try{await navigator.share({text:msg});ok=true;}catch(err){if(err&&(err.name==="AbortError"||err.name==="InvalidStateError"))return false;}}
-  if(!ok){const w=window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank");try{if(w)w.opener=null;}catch(e){}const c=await copyText(msg);ok=!!w||!!c;
-    if(!ok){toast("Couldn't open your messages. Try again, or tell Sam.");return false;}if(!w)toast("Copied: paste it to Sam");}
+  const w=window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank");try{if(w)w.opener=null;}catch(e){}ok=!!w; // WhatsApp, where the table talks
+  if(!ok&&navigator.share){try{await navigator.share({text:msg});ok=true;}catch(err){if(err&&(err.name==="AbortError"||err.name==="InvalidStateError"))return false;}}
+  if(!ok){const c=await copyText(msg);if(!c){toast("Hans couldn't open WhatsApp. Try again, or tell the DM.");return false;}toast("Hans's log is copied: paste it to the DM.");ok=true;}
   const all=myResults();for(const id of todo)if(all[id])all[id].sent=true;iSaveLocal(all);
-  toast(todo.length>1?"Sent to Sam. Hans saluted twice.":"Sent to Sam. Hans saluted.");if(typeof iSeal==="function")iSeal();return true;}
+  toast(todo.length>1?"Delivered to the DM. Hans saluted twice.":"Delivered to the DM. Hans saluted.");if(typeof iSeal==="function")iSeal();return true;}
 /* ---- the reading screen: a passage is several paragraphs, so it gets a div, not read()'s <p> ---- */
 function iFill(html){const v=IST&&IST.verse||{};return html.replace(/\{line(\d)\}/g,(_,n)=>v[n]?escapeHtml(v[n]):"…");}
 function escapeHtml(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
@@ -9559,19 +9560,19 @@ async function iFinalize(I,r){
   if(!online()){
     if(!localMode()){await iPassage({html:what+"<p class='muted'>A test run: it stays on this device.</p>"},[{t:"Back"}]);return;}
     const net=typeof NETLIFY!=="undefined"&&NETLIFY;
-    const i=await iPassage({html:what+"<p>Send it to Sam? Your messages open with what Hans logged: pick Sam and send it as it is. Once it's sent, it's final: the Echo is yours for the table.</p>"},
-      [{t:"Send to Sam"},{t:"Not yet",sub:"it stays on this phone; you can send it later from Interludes"}]);
+    const i=await iPassage({html:what+IKEPT},
+      [{t:"Send to the DM on WhatsApp",sub:"WhatsApp opens with Hans's log; just press send"},{t:"Keep it here for now",sub:"nothing is lost; you can send it later from Interludes"}]);
     if(i===0)await iShareSend([I.id]);
     return;}
   if(account.isDm){await iPassage({html:what+"<p class='muted'>You're signed in as Sam, so this was a test run. Nothing is sent.</p>"},[{t:"Back"}]);return;}
-  const i=await iPassage({html:what+"<p>Send it to Sam? Once it's sent, it's final: the Echo is yours for the table, and Sam reads what Hans logged.</p>"},[{t:"Send to Sam"},{t:"Not yet",sub:"it stays on this phone; you can send it later"}]);
+  const i=await iPassage({html:what+IKEPT},[{t:"Send it to the DM",sub:"Hans carries his log to the table"},{t:"Keep it here for now",sub:"nothing is lost; you can send it later from Interludes"}]);
   if(i===1)return;
   await iSend([I.id]);}
 /* sends these local results in one write, next to whatever the server already has; never overwrites a sent one */
 async function iSend(ids){const loc=myResults(),todo=ids.filter(id=>loc[id]);if(!todo.length)return false;
   try{await iPutDone(done=>{for(const id of todo)if(!done[id])done[id]=iClean(loc[id]);});
     const all=myResults();for(const id of todo)if(all[id])all[id].sent=true;iSaveLocal(all);
-    toast(todo.length>1?"Sent to Sam. Hans saluted twice.":"Sent to Sam. Hans saluted.");if(typeof iSeal==="function")iSeal();return true;}
+    toast(todo.length>1?"Delivered to the DM. Hans saluted twice.":"Delivered to the DM. Hans saluted.");if(typeof iSeal==="function")iSeal();return true;}
   catch(e){toast("Couldn't send it: "+(e.message||"try again later")+". It's still on this phone.");return false;}}
 /* signing in happens on the map's own sheet, so the play screen steps aside and comes back to the interludes */
 function iSignIn(){iLeave();exitPlay();showSignIn(()=>{PLAY.toHub=true;enterPlay();});}
@@ -10460,7 +10461,7 @@ async function interludeHub(){
   if(online()&&!window.__myInterludes){clearStory();storyEl.append(h("p",{class:"pl-read",role:"status"},"Hans is fetching your pages…"));await iServerDoc(6000);}
   const list=playable(),mine=myResults(),isNet=typeof NETLIFY!=="undefined"&&NETLIFY;
   if(!list.length){
-    if(isNet&&!account){const i=await choose("Interludes are played on your own phone. Sign in and what you play goes to Sam, or just play it here.",[{t:"Sign in"},{t:"Play without signing in",sub:"Send to Sam opens your messages"},{t:"Back"}]);
+    if(isNet&&!account){const i=await choose("Interludes are played on your own phone. Sign in and what you play goes to Sam, or just play it here.",[{t:"Sign in"},{t:"Play without signing in",sub:"Hans keeps your log; you can send it to the DM on WhatsApp"},{t:"Back"}]);
       if(i===0)iSignIn();else if(i===1&&await pickMe())return interludeHub();return;}
     if(isNet&&account){const i=await choose("First tell Hans who you are playing. Then your interlude is here.",[{t:"Choose my character"},{t:"Back"}]);if(i===0){exitPlay();showMissed();}return;}
     if(await pickMe())return interludeHub();return;}
@@ -10479,15 +10480,15 @@ async function interludeHub2(list,local,dm){
   const mine=myResults();
   const opts=list.map(I=>{const T=INTERLUDE_TEXT[I.id]||{title:I.id};
     if(I.prologue)return {t:T.title,sub:"Prologue · for everyone · "+(store.get("chron-prologue-"+I.id)?"read":"start here")};
-    const s=dm?(mine[I.id]?"tested":"test it"):isSent(I.id)?"sent to Sam":mine[I.id]?"played, not sent yet":"new";
+    const s=dm?(mine[I.id]?"tested":"test it"):isSent(I.id)?"sent to the DM":mine[I.id]?"played, not sent yet":"new";
     return {t:T.title,sub:(I.who==="all"?"Together":CREW[I.who].short)+" · "+s};});
   const unsent=(online()&&!dm)||local?list.filter(I=>!I.prologue&&mine[I.id]&&!isSent(I.id)):[];
-  if(unsent.length)opts.push({t:"Send what I played to Sam",sub:unsent.map(I=>(INTERLUDE_TEXT[I.id]||{}).title).join(", ")});
+  if(unsent.length)opts.push({t:"Send my log to the DM",sub:unsent.map(I=>(INTERLUDE_TEXT[I.id]||{}).title).join(", ")});
   const swap=local?opts.push({t:"Not "+CREW[localMe()].short+"? Change who's playing"})-1:-1;
   opts.push({t:"Back"});
   const intro=dm?"You're Sam: all four are here to test. Nothing you play here is sent."
     :online()?"Before the table finishes session 10. Play yours on your own."
-    :local?"Your interlude, played on this phone. Read the fire again, play yours again, or send what you played to Sam."
+    :local?"Hans keeps your log on this phone. Read the fire again, play yours again, or send the log to the DM."
     :"A test copy: played here, it stays on this device.";
   const i=await choose(intro,opts);
   if(i<list.length){await runInterlude(list[i]);if(PLAY.on)return interludeHub2(list,local,dm);return;}
