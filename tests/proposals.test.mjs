@@ -1,7 +1,7 @@
 // Run with: node --test tests/*.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { decide, keyOf, openProposals, publicAccepted } from "../netlify/lib/proposals.mts";
+import { decide, keyOf, openProposals, publicAccepted, publicOpen } from "../netlify/lib/proposals.mts";
 import { setDoc, sync } from "../netlify/lib/table.mts";
 import { validProposal } from "../netlify/lib/rules.mts";
 
@@ -86,4 +86,14 @@ test("a sheet amendment is a proposal too, and reaches the public list with its 
   assert.equal(pub[0].sheet, "katy");
   assert.deepEqual(pub[0].edits.flavor.v, "Owes Gerda a favour.");
   assert.equal(pub[0].place, undefined);
+});
+
+test("the open list for git names characters and keeps the key Sam decides by, never the account field", () => {
+  const open = openProposals({ ann: { list: [tagP, noteP] } }, { [keyOf("ann", "a1")]: { status: "accepted" } }, { ann: "katy" });
+  const pub = publicOpen(open);
+  assert.equal(pub.length, 1);
+  assert.equal(pub[0].key, keyOf("ann", "b2"));
+  assert.equal(pub[0].by, "katy");
+  assert.equal(pub[0].text, "Gerda runs the inn now.");
+  assert.ok(!("account" in pub[0]));
 });

@@ -5,10 +5,12 @@
 // The rules live in ../lib/rules.mts and are tested in tests/table.test.mjs.
 // A write to interludes (a player tapped "Send to Sam") also mirrors the finished interludes to the
 // repo in production, for Sam's Claude (netlify/lib/interludes.mts, netlify/lib/github.mts).
+// A write to proposals mirrors the open proposals the same way, so a Claude session sees Sam's inbox.
 import type { Config, Context } from "@netlify/functions";
 import { currentAccount, json, unauthorized } from "../lib/auth.mts";
-import { mirrorInterludes } from "../lib/github.mts";
+import { mirrorInterludes, mirrorOpen } from "../lib/github.mts";
 import { interludeList, loadInterludes } from "../lib/interludes.mts";
+import { loadAll, openProposals, publicOpen } from "../lib/proposals.mts";
 import { tableStore } from "../lib/store.mts";
 import { deleteDoc, setDoc, sync } from "../lib/table.mts";
 
@@ -37,6 +39,14 @@ export default async (req: Request, context: Context) => {
         await mirrorInterludes(interludeList(docs, characters));
       } catch (e) {
         console.log("mirror interludes to GitHub failed:", (e as Error).message);
+      }
+    }
+    if (r.status === 200 && collection === "proposals" && context.deploy?.context === "production") {
+      try {
+        const { proposals, characters, decided } = await loadAll(store);
+        await mirrorOpen(publicOpen(openProposals(proposals, decided, characters, me.isDm ? [me.id] : [])));
+      } catch (e) {
+        console.log("mirror open proposals to GitHub failed:", (e as Error).message);
       }
     }
     return json(r.body, r.status);

@@ -1,5 +1,6 @@
 // Mirrors table data into the repo, so Sam's Claude finds it with plain git, on the branch `table-proposals`:
 //   accepted-proposals.json  the proposals Sam accepted (mirrorAccepted)
+//   open-proposals.json      the proposals still waiting for Sam (mirrorOpen)
 //   interludes.json          the interludes players finished and sent to Sam (mirrorInterludes)
 // It never touches main, so it starts no deploy and costs no credits.
 //
@@ -45,6 +46,11 @@ const asText = (body: Record<string, unknown>) => JSON.stringify({ updatedAt: ne
 
 export async function mirrorAccepted(accepted: unknown[]): Promise<boolean> {
   return writeMirrorFile("accepted-proposals.json", asText({ accepted }), `Accepted proposals: ${accepted.length} in total`);
+}
+
+/** The whole open list each time a player sends a proposal or Sam decides, so an empty list means Sam's inbox is empty. */
+export async function mirrorOpen(open: unknown[]): Promise<boolean> {
+  return writeMirrorFile("open-proposals.json", asText({ open }), `Open proposals: ${open.length} waiting for Sam`);
 }
 
 /** The whole list each time (see netlify/lib/interludes.mts), so a write that failed is fixed by the next one. */

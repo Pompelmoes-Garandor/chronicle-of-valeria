@@ -2,11 +2,12 @@
 //   GET  /api/proposals          the open proposals, oldest first
 //   POST /api/proposals/decide   {status:"accepted"|"rejected", keys?:[…], note?}; no keys = every open one
 // Accepting copies the change into accepted/lore, which the site shows at once. In production it also
-// mirrors the accepted list to the repo for Sam's Claude (netlify/lib/github.mts), when a token is set.
+// mirrors the accepted list to the repo for Sam's Claude (netlify/lib/github.mts), when a token is set,
+// and after any decision the list of proposals still open.
 import type { Config, Context } from "@netlify/functions";
 import { currentAccount, json, unauthorized } from "../lib/auth.mts";
-import { mirrorAccepted } from "../lib/github.mts";
-import { ACCEPTED_KEY, decide, loadAll, openProposals, publicAccepted } from "../lib/proposals.mts";
+import { mirrorAccepted, mirrorOpen } from "../lib/github.mts";
+import { ACCEPTED_KEY, decide, loadAll, openProposals, publicAccepted, publicOpen } from "../lib/proposals.mts";
 import { tableStore } from "../lib/store.mts";
 
 export default async (req: Request, context: Context) => {
@@ -32,9 +33,10 @@ export default async (req: Request, context: Context) => {
   await store.setJSON(ACCEPTED_KEY, { items: r.decided });
 
   let mirrored = false;
-  if (body.status === "accepted" && context.deploy?.context === "production") {
+  if (context.deploy?.context === "production") {
     try {
-      mirrored = await mirrorAccepted(publicAccepted(r.decided));
+      if (body.status === "accepted") mirrored = await mirrorAccepted(publicAccepted(r.decided));
+      await mirrorOpen(publicOpen(open.filter((o) => !r.decided[o.key])));
     } catch (e) {
       console.log("mirror to GitHub failed:", (e as Error).message);
     }
