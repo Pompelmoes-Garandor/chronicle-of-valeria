@@ -83,6 +83,11 @@ export function decide(
   return { decided: next, count: pick.length };
 }
 
+/** The open proposals as they are mirrored to git for a Claude session: no account ids beyond the key Sam decides by. */
+export function publicOpen(open: Open[]) {
+  return open.map((o) => ({ key: o.key, kind: o.kind, place: o.place, sheet: o.sheet, tags: o.tags, text: o.text, edits: o.edits, by: o.by, at: o.at }));
+}
+
 /** The accepted changes as the public sees them: no account ids, newest last. */
 export function publicAccepted(decided: Record<string, Decision>) {
   return Object.entries(decided)

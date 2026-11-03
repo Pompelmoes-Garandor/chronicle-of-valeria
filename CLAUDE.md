@@ -10,6 +10,7 @@ Read this first. It is how Sam and Niels (and each of their Claudes) work on thi
 2. Open with one question built on it: name any **blocker** under **Known bugs** first, then the top one to three open items under **Now**, say which needs Sam, and ask which to pick up today. If the person already came with a task, do that, and say where it sits in the backlog (or offer to add it).
 3. When a PR ships an item or fixes a known bug, move it to **Done** with the PR number in the same PR. A bug found while working, and not fixed in that PR, goes under **Known bugs**. New requests that are not done today go into the backlog, in the section Sam or Niels chooses.
 4. In a session with Sam, file the proposals he accepted since the last time (see "Filing accepted proposals" below). Mention it in the opening question when there are any.
+5. Check the proposals still waiting for Sam (see "Reading open proposals" below) and mention how many there are in the opening question, with Sam or Niels.
 
 ## What this repo is
 
@@ -68,6 +69,15 @@ Netlify also builds the site, from `netlify.toml`, into `dist/` (not committed).
 - A signed-in player proposes new tags for a place, a few lines about a place, or the sections they amended on a character sheet ("Send to Sam" next to "Pass it round"; signed out, it offers to sign in). Their phone sends Sam a message (WhatsApp, mail) with a link to `#proposals`. Sam opens it, signed in as DM, and taps **Accept all**. That is his only step.
 - Accepted changes show on the site at once, for everyone: the page reads `/api/accepted` (public, because accepted changes are lore) and lays them over the lore built into `chronicle.html`. Tags marked "from the table", notes under "From the table · accepted by Sam" on the place.
 - Code: `netlify/lib/proposals.mts` (logic, tested in `tests/proposals.test.mjs`), `netlify/functions/proposals.mts` (Sam's inbox and decide), `netlify/functions/accepted.mts` (the public list).
+
+### Reading open proposals
+
+Proposals Sam hasn't decided on yet are mirrored too, so a session can see his inbox and plan work around it:
+
+1. `git fetch origin table-proposals && git show origin/table-proposals:open-proposals.json`. Netlify rewrites the whole list every time a player sends a proposal and every time Sam decides, so an empty `open` list means his inbox is empty. Without the branch or file, nobody has proposed anything yet.
+2. Each entry has the `key` Sam decides by, the `kind` and the change, and `by` (the proposer's character, never an account).
+3. The file is on a public branch, so players can read pending proposals too. That was agreed (Niels, 2026-11-03).
+4. Only Sam decides, on the site. A Claude never accepts, rejects or files an open proposal; it can summarise them, point out ones that contradict the lore, or prepare work that depends on them.
 
 ### Filing accepted proposals
 
