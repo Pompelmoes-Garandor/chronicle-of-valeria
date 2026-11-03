@@ -5028,7 +5028,7 @@ menuBtn.onclick=()=>{if(menuEl){closeMenu();return;}
   const tg=(k,l)=>h("button",{type:"button",class:"pl-btn"+(opt[k]?" on":""),"aria-pressed":String(!!opt[k]),onclick:e=>{opt[k]=!opt[k];saveOpt();e.currentTarget.classList.toggle("on",opt[k]);e.currentTarget.setAttribute("aria-pressed",String(opt[k]));if(k==="sound"&&!opt[k])pulse(false);if(k==="flat"&&B){closeMenu();t3dispose();for(const u of B.units)u.el=null;buildBattleView();renderTokens();renderInit();}}},l);
   const inI=!!IST||PLAY.inter; // in an interlude the chapters belong to session 10, so the menu offers a way out instead
   menuEl=h("div",{class:"pl-menu"},
-    ...(inI?[h("div",{class:"pl-sec"},"Interlude"),h("button",{type:"button",class:"pl-btn",onclick:async()=>{closeMenu();if(await ask("Leave this interlude?","What you played so far is not kept. You can start it again from Interludes.","Leave","Stay"))playHub();}},"Leave this interlude")]:[]),
+    ...(inI?[h("div",{class:"pl-sec"},"Interlude"),h("button",{type:"button",class:"pl-btn",onclick:async()=>{closeMenu();if(await ask("Leave this interlude?","What you played so far is not kept. You can start it again from Interludes.","Leave","Stay")){PLAY.iList=true;playHub();}}},"Leave this interlude")]:[]),
     ...(inI?[]:[h("div",{class:"pl-sec"},"Chapters")]),
     ...(inI?[]:SCENES).map((s,i)=>h("button",{type:"button",class:"pl-btn"+(i===ST.scene?" on":""),onclick:async()=>{closeMenu();if(await ask("Jump to "+s.t+"?","The crew keeps the hit points and spell slots they have now.","Jump","Stay")){ST.scene=i;ST.snap=null;saveState();runScene();}}},(i+1)+". "+s.t)),
     ...(inI?[]:t3cineMenu()),
@@ -10466,6 +10466,17 @@ async function interludeHub(){
     if(await pickMe())return interludeHub();return;}
   const local=localMode();
   const dm=online()&&account.isDm;
+  /* a player goes straight through: who you are (above), the prologue, then their own interlude and its Echo.
+     The list below is for afterwards (send, read again, change who's playing), for Sam, and after leaving midway. */
+  if(!dm&&!devPlay()&&!PLAY.iList){
+    const pro=list.find(I=>I.prologue),own=list.find(I=>!I.prologue);
+    if(pro&&!store.get("chron-prologue-"+pro.id)){await runInterlude(pro);if(!PLAY.on)return;}
+    if(own&&!myResults()[own.id]&&!isSent(own.id)){await runInterlude(own);if(!PLAY.on)return;}
+    return interludeHub2(list,local,dm);}
+  return interludeHub2(list,local,dm);}
+async function interludeHub2(list,local,dm){
+  storyView("memory");setTitle("Between sessions","Interludes");
+  const mine=myResults();
   const opts=list.map(I=>{const T=INTERLUDE_TEXT[I.id]||{title:I.id};
     if(I.prologue)return {t:T.title,sub:"Prologue · for everyone · "+(store.get("chron-prologue-"+I.id)?"read":"start here")};
     const s=dm?(mine[I.id]?"tested":"test it"):isSent(I.id)?"sent to Sam":mine[I.id]?"played, not sent yet":"new";
@@ -10476,12 +10487,12 @@ async function interludeHub(){
   opts.push({t:"Back"});
   const intro=dm?"You're Sam: all four are here to test. Nothing you play here is sent."
     :online()?"Before the table finishes session 10. Play yours on your own."
-    :local?"Before the table finishes session 10, played on this phone. When you finish, Send to Sam opens your messages with what Hans logged."
+    :local?"Your interlude, played on this phone. Read the fire again, play yours again, or send what you played to Sam."
     :"A test copy: played here, it stays on this device.";
   const i=await choose(intro,opts);
-  if(i<list.length){await runInterlude(list[i]);if(PLAY.on)return interludeHub();return;}
-  if(unsent.length&&i===list.length){await (local?iShareSend:iSend)(unsent.map(I=>I.id));return interludeHub();}
-  if(i===swap){store.set(IME,"");return interludeHub();}}
+  if(i<list.length){await runInterlude(list[i]);if(PLAY.on)return interludeHub2(list,local,dm);return;}
+  if(unsent.length&&i===list.length){await (local?iShareSend:iSend)(unsent.map(I=>I.id));return interludeHub2(list,local,dm);}
+  if(i===swap){store.set(IME,"");PLAY.iList=false;return interludeHub();}}
 PLAY.interludes=INTERLUDES;PLAY.runInterlude=runInterlude;
 if(PLAY.auto)window.__inter={text:()=>INTERLUDE_TEXT,list:INTERLUDES,ist:()=>IST,fights:IFIGHTS,results:myResults,inter:()=>!!PLAY.inter||!!IFK,on:()=>PLAY.on,clean:iClean,send:iSend,exit:()=>{if(PLAY.on)exitPlay();}};
 
@@ -10885,7 +10896,7 @@ async function playHub(){const my=++PLAY.gen;iLeave();
   const i=await choose("What would you like to play?",[{t:"Interludes",sub:"before the table finishes session 10 · on your own phone"},{t:"Session 10 · The Black Ash",sub:ST.scene>0?"carry on from scene "+(ST.scene+1):"the demo: the whole session as the table played it"},{t:"Back to the map"}]);
   if(my!==PLAY.gen)return;
   if(i===0){await interludeHub();if(PLAY.on&&my===PLAY.gen-0)playHub();}else if(i===1)runScene();else exitPlay();}
-function exitPlay(){PLAY.gen++;iLeave();PLAY.on=false;t3dispose();pulse(false);root.hidden=true;document.body.classList.remove("playing");hide3d();B=null;if(typeof hush==="function")hush();if(typeof keepAwake==="function")keepAwake(!!morphTarget);
+function exitPlay(){PLAY.gen++;iLeave();PLAY.on=false;PLAY.iList=false;t3dispose();pulse(false);root.hidden=true;document.body.classList.remove("playing");hide3d();B=null;if(typeof hush==="function")hush();if(typeof keepAwake==="function")keepAwake(!!morphTarget);
   try{const u=new URL(location.href);if(u.searchParams.has("play")){u.searchParams.delete("play");history.replaceState(null,"",u);}}catch(e){}}
 PLAY.enter=enterPlay;PLAY.exit=exitPlay;
 addEventListener("keydown",e=>{if(PLAY.on&&e.key==="Escape"){e.stopImmediatePropagation();if(menuEl)closeMenu();}},true);

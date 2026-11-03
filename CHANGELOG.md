@@ -6,6 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **Changed** *Interludes* now walks you straight through: say who you are, read *Round the Fire*, then your own interlude and its Echo. The list only shows up afterwards, to send it to Sam or read again. (Sam)
 - **New** *Round the Fire*, a short prologue for everyone (about three minutes) before your own interlude: the cold cave after the Heart, Hans building a fire, and Matthew telling you how he once came to the Hollow's door with empty hands. No choices, no fight; it ends on his question, which is for the table. (Sam)
 - **Changed** Each of you now sees only your own interlude; the shared one round the fire is put away for now. (Sam)
 - **Changed** *Play* in the tools is now called *Interludes* and opens them straight away; the session 10 demo is put away for now. Every Echo is reworded the way a rulebook would put it, for example "Before you roll a Wisdom (Insight) check, you can spend this Echo to have advantage on it." What each one does is unchanged. (Sam)
