@@ -1,0 +1,13 @@
+{
+ "updatedAt": "2026-11-03T07:01:56.869Z",
+ "open": [
+  {
+   "key": "8be932e4-9409-4e49-a2d4-e6b0499f3243.test1",
+   "kind": "note",
+   "place": "inn",
+   "text": "TEST by Niels (Claude): checking that open proposals reach git. Sam, please reject this one.",
+   "by": "stig",
+   "at": 1793689316026
+  }
+ ]
+}
