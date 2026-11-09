@@ -59,6 +59,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Map and sheets from the whole-app pass: sound when hidden, Recap toggle, save-spell rolls, dice race, Escape in editors, ±HP** · Fixed · Sam · PR #NN
 - [x] **Protocol Zero, the Steward's last stand, as a playable bonus level (only Sam sees it for now)** · New · Sam · PR #61
 - [x] **Interludes and Overclock from the whole-app pass: Echo-screen resume, Leave keeps your place, grapples end with the grappler, Overclock timer and double taps** · Fixed · Sam · PR #75
 - [x] **Town names win over the small seals around them (Valarius over Gerda's inn)** · Fixed · Sam · PR #73

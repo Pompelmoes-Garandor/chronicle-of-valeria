@@ -3311,7 +3311,7 @@ document.getElementById("sheet-close").onclick=closeSheet;
    const tall=sheet.classList.contains("tall");
    if(dy>sheet.offsetHeight*.25&&!tall||dy>sheet.offsetHeight*.45)closeSheet(); else if(dy>40)sheet.classList.remove("tall"); else if(dy<-40)sheet.classList.add("tall"); else if(Math.abs(dy)<4)sheet.classList.toggle("tall");};
  hd.forEach(el=>{el.addEventListener("pointerdown",down);el.addEventListener("pointermove",move);el.addEventListener("pointerup",up);el.addEventListener("pointercancel",up);});}
-tabs.forEach(b=>b.onclick=()=>{const t=b.dataset.tab;if(tab===t){closeSheet();return;}
+tabs.forEach(b=>b.onclick=()=>{const t=b.dataset.tab;if(tab===t){if(t==="recap"&&recapOn)endRecap();else closeSheet();return;}
   if(recapOn&&t!=="recap")endRecap(); if(journeyOn)endJourney();
   ({recap:startRecap,chronicle:showChronicle,sheets:showSheets,places:()=>showPlaces(),missed:showMissed,ask:showAsk,dm:showDM})[t]();});
 /* ---- cinematic lines: one at a time, stay until read (tap advances) ---- */
@@ -3515,7 +3515,8 @@ function showStop(){
 let typing=null;
 function endRecap(){recapOn=false;clearTimeout(recapTimer);hush();cap.hidden=true;reveal.goal=1;setTab(null);store.set("chron-seen",SKEY);
   document.querySelector('[data-tab="recap"] .dot')?.remove();}
-addEventListener("keydown",e=>{if(e.key==="Escape"){if(recapOn)endRecap();else if(journeyOn)endJourney();else if(placing)stopPlacing();else closeSheet();}});
+addEventListener("keydown",e=>{if(e.key==="Escape"&&e.target.closest&&e.target.closest("input,textarea,[contenteditable=true]"))return; // Escape in an editor leaves the editor, not the sheet
+  if(e.key==="Escape"){if(recapOn)endRecap();else if(journeyOn)endJourney();else if(placing)stopPlacing();else closeSheet();}});
 
 /* =================== REWIND: replay the journey, one session at a time =================== */
 const asofEl=document.getElementById("asof"), restoreS=document.querySelector("#restore span");
@@ -3590,6 +3591,8 @@ function buildSound(){
   L.hans={g:a.createGain()}; L.hans.g.gain.value=.05; const hp=a.createBiquadFilter();hp.type="lowpass";hp.frequency.value=1400;L.hans.g.connect(hp).connect(out);
   let next=a.currentTime+.1, beat=0;
   const tick=()=>{ if(!SND.nodes) return; const now=a.currentTime;
+    if(!SND.on||document.hidden){next=now+.1;setTimeout(tick,300);return;} // off or hidden: schedule nothing, and never catch up in a burst
+    if(next<now)next=now+.05;
     while(next<now+.25){const t=next, bt=60/124;
       const o=a.createOscillator(),g=a.createGain();o.frequency.setValueAtTime(140,t);o.frequency.exponentialRampToValueAtTime(45,t+.12);g.gain.setValueAtTime(.9,t);g.gain.exponentialRampToValueAtTime(.001,t+.18);o.connect(g).connect(L.hans.g);o.start(t);o.stop(t+.2);
       const hs=a.createBufferSource(),hf=a.createBiquadFilter(),hg=a.createGain();hs.buffer=white;hf.type="highpass";hf.frequency.value=7000;hg.gain.setValueAtTime(.25,t+bt/2);hg.gain.exponentialRampToValueAtTime(.001,t+bt/2+.04);hs.connect(hf).connect(hg).connect(L.hans.g);hs.start(t+bt/2,Math.random()*2,.06);
@@ -3612,11 +3615,13 @@ function soundMix(){ // called every frame: weigh each layer by how close the ca
   n.L.fire.g.gain.setTargetAtTime(.5*w.fire+.35*burning,t,.4); n.L.wind.g.gain.setTargetAtTime(.35*w.wind,t,.6);
   n.L.rumble.g.gain.setTargetAtTime(.6*w.rumble,t,.6); n.L.birds.g.gain.setTargetAtTime(.7*w.birds,t,.6);
   n.L.crackle.g.gain.setTargetAtTime(.4*w.fire+.6*burning,t,.2);
-  n.out.gain.setTargetAtTime((document.hidden?0:.6)*SND.duck,t,.5);
+  n.out.gain.setTargetAtTime((document.hidden||!SND.on?0:.6)*SND.duck,t,.5);
 }
 function setSound(on){SND.on=on; store.set("chron-sound",on?"1":"0"); sndBtn.setAttribute("aria-pressed",String(on));
   if(on){ if(!SND.nodes) SND.nodes=buildSound(); else SND.nodes.a.resume(); }
-  else if(SND.nodes){ const n=SND.nodes; SND.nodes=null; n.out.gain.setTargetAtTime(0,n.a.currentTime,.15); setTimeout(()=>{try{n.out.disconnect()}catch(e){}},800); }}
+  else if(SND.nodes){ const n=SND.nodes; n.out.gain.setTargetAtTime(0,n.a.currentTime,.15); }} // one sound graph for the whole visit, faded out while off
+// a hidden tab (another app, a locked phone) is silent: rAF stops there, so the per-frame mix can't do it
+document.addEventListener("visibilitychange",()=>{if(!audio)return;if(document.hidden){if(SND.nodes)SND.nodes.out.gain.setValueAtTime(0,audio.currentTime);audio.suspend().catch(()=>{});}else audio.resume().catch(()=>{});});
 sndBtn.onclick=()=>{setSound(!SND.on); toast(SND.on?"Sound on. Hans turned his headphones down a little.":"Sound off");};
 sndBtn.setAttribute("aria-pressed",String(SND.on));
 if(SND.on) addEventListener("pointerdown",()=>{if(SND.on&&!SND.nodes)setSound(true);},{once:true});   // browsers only start sound after a tap
@@ -3962,27 +3967,33 @@ function throwDice(list){ // list: [{sides, value, dmg}] — the values are roll
 }
 if(BENCH) window.__dice={throw:l=>throwDice(l),report:()=>DICE.rep,hold:t=>{DICE.hold=t;}};   // tests: throw a list, read how it landed, hold the throw at a moment for a screenshot
 function parseDmg(txt){ // "1d6 + 2 piercing · +1d6 radiant" -> dice groups and a flat bonus
-  const dice=[];let flat=0; const clean=String(txt||"").replace(/−/g,"-");
+  const dice=[];let flat=0; const clean=String(txt||"").replace(/−/g,"-").split(/,\s|\s(?:if|or)\s/i)[0]; // "2d8 necrotic, 2d12 if hurt" rolls the 2d8 only
   for(const m of clean.matchAll(/(\d*)d(\d+)/g)){const c=Math.min(8,parseInt(m[1]||"1",10)),s=parseInt(m[2],10);if([4,6,8,10,12,20].includes(s))for(let i=0;i<c;i++)dice.push(s);}
   const rest=clean.replace(/\d*d\d+/g,""); for(const m of rest.matchAll(/([+-])\s*(\d+)(?![\d\s]*ft)/g)) flat+=(m[1]==="-"?-1:1)*parseInt(m[2],10);
+  if(!dice.length&&!flat){const m=clean.match(/^\s*(\d+)\b(?!\s*ft)/);if(m)flat=+m[1];} // "1 bludgeoning"
   return {dice,flat};}
 const modNum=t=>{const m=String(t||"").replace(/−/g,"-").match(/[+-]?\s?\d+/);return m?parseInt(m[0].replace(/\s/g,""),10):0;};
 const sgn=n=>(n<0?"−":"+")+Math.abs(n);
-async function rollFor(who,what,mod,dmgTxt){
-  clearTimeout(DICE.hideT); const box=document.getElementById("roll"); box.hidden=true;
-  const d20=rnd(20), list=[{sides:20,value:d20}], dmg=dmgTxt?parseDmg(dmgTxt):null;
+async function rollFor(who,what,mod,dmgTxt,dc){ // dc: a save spell ("DC 17 Dex"): the target rolls the save, so only the damage is thrown
+  clearTimeout(DICE.hideT); const box=document.getElementById("roll"); box.hidden=true; const my=DICE.seq=(DICE.seq||0)+1;
+  const d20=dc?0:rnd(20), list=dc?[]:[{sides:20,value:d20}], dmg=dmgTxt?parseDmg(dmgTxt):null;
   const dv=dmg?dmg.dice.map(s=>({sides:s,value:rnd(s),dmg:true})):[];
   const crit=d20===20, dm=dv.map(x=>x.value).concat(crit&&dmg?dmg.dice.map(s=>rnd(s)):[]);
-  await throwDice(list.concat(dv));
+  if(list.length||dv.length)await throwDice(list.concat(dv));
+  if(my!==DICE.seq)return; // a newer roll took over while this one was in the air
+  if(dc){const dmgTot=dmg?Math.max(0,dm.reduce((a,b)=>a+b,0)+dmg.flat):0;box.className="";box.replaceChildren(h("div",{class:"who"},(who+" · "+what).toUpperCase()),
+      h("div",{class:"tot"},String(dmgTot),h("small",{},"DAMAGE")),h("div",{class:"how"},"Target makes a "+dc.replace(/^DC\s*/i,"DC ")+" save"),
+      dm.length?h("div",{class:"dmg"},`${dm.join(" + ")}${dmg.flat?" "+sgn(dmg.flat):""}`):null);
+    box.hidden=false; box.onclick=hideRoll; clearTimeout(DICE.hideT); DICE.hideT=setTimeout(hideRoll,6500); return;}
   const tot=d20+mod, dmgTot=dmg?Math.max(0,dm.reduce((a,b)=>a+b,0)+dmg.flat):0;
   const line=crit?"Natural twenty. I have recorded it twice.":d20===1?"One. I will not be logging this.":tot>=20?"That will do it.":tot<=7?"The dice are fine. I checked them.":null;
   box.className=crit?"crit":""; box.replaceChildren(...[
     h("div",{class:"who"},(who+" · "+what).toUpperCase()),
     h("div",{class:"tot"},String(tot),h("small",{},dmg?"TO HIT":"")),
     h("div",{class:"how"},`d20 ${d20} ${sgn(mod)}`),
-    dmg&&dm.length?h("div",{class:"dmg"},`${dmgTot} damage`+(crit?" (critical: dice doubled)":"")+` · ${dm.join(" + ")}${dmg.flat?" "+sgn(dmg.flat):""}`):null,
+    dmg&&(dm.length||dmg.flat)?h("div",{class:"dmg"},`${dmgTot} damage`+(crit?" (critical: dice doubled)":"")+(dm.length?` · ${dm.join(" + ")}${dmg.flat?" "+sgn(dmg.flat):""}`:"")):null,
     line?h("div",{class:"hans"},"Hans: “"+line+"”"):null].filter(Boolean));
-  box.hidden=false; box.onclick=hideRoll; DICE.hideT=setTimeout(hideRoll,6500);
+  box.hidden=false; box.onclick=hideRoll; clearTimeout(DICE.hideT); DICE.hideT=setTimeout(hideRoll,6500);
 }
 function hideRoll(){clearTimeout(DICE.hideT);document.getElementById("roll").hidden=true;const el=document.getElementById("dice");el.hidden=true;el.querySelectorAll(".dn").forEach(n=>n.remove());}
 sBody.addEventListener("click",e=>{
@@ -3992,7 +4003,7 @@ sBody.addEventListener("click",e=>{
   if(sv&&ab){rollFor(who,ab.querySelector(".sb-k").textContent+" save",modNum(sv.querySelector("b").textContent));}
   else if(ab){rollFor(who,ab.querySelector(".sb-k").textContent+" check",modNum(ab.querySelector(".sb-mod").textContent));}
   else if(sk){rollFor(who,sk.firstChild.textContent.trim(),modNum(sk.querySelector("b").textContent));}
-  else if(at){const sp=at.querySelectorAll("span");rollFor(who,sp[0].textContent,modNum(at.querySelector("b").textContent),at.querySelector(".d")?.textContent||"");}
+  else if(at){const sp=at.querySelectorAll("span"),hb=at.querySelector("b").textContent.trim(),isDc=/^DC\b/i.test(hb);rollFor(who,sp[0].textContent,isDc?0:modNum(hb),at.querySelector(".d")?.textContent||"",isDc?hb:null);}
 });
 
 /* ---- DIE FACES start: makeDie, real numbered dice for throwDice (tests/visual/dice-faces.js runs this block on its own) ---- */
@@ -4422,7 +4433,7 @@ function showSheets(keep){
   // vitals, with the hit-point tracker
   const hp=hpOf(cur,s);
   const vitals=h("div",{class:"vitals"},s.vit.map(([k,v])=>k==="HP"&&hp
-    ?h("div",{class:"hp "+hp.st,role:"button",tabindex:"0","aria-label":"Set hit points",onclick:()=>{const v=prompt("Hit points now?",String(hp.cur));if(v!=null&&v.trim()!=="")setHp(cur,parseInt(v,10));}},h("b",{},String(hp.cur)),h("span",{},"HP / "+hp.max))
+    ?h("div",{class:"hp "+hp.st,role:"button",tabindex:"0","aria-label":"Set hit points",onclick:()=>{const v=prompt("Hit points now? (or −7 / +5 to change them)",String(hp.cur));if(v!=null&&v.trim()!==""){const t=v.trim().replace(/^[−–]/,"-"),n=parseInt(t,10);if(!isNaN(n))setHp(cur,/^[+-]/.test(t)?hp.cur+n:n);}}},h("b",{},String(hp.cur)),h("span",{},"HP / "+hp.max))
     :h("div",{},h("b",{},v),h("span",{},k))));
   // classic stat block: AC · initiative · speed, then hit points, then six abilities with their saves
   const vget=k=>{const x=s.vit.find(v=>v[0]===k);return x?String(x[1]):null;};
@@ -4443,7 +4454,7 @@ function showSheets(keep){
       box("","INITIATIVE",vget("INIT")!=null?signed(num(vget("INIT"))):null),
       box("","SPEED",spdN??spd,spdN&&/ft/i.test(spd)?" ft":null)),
     hp?h("div",{class:"sb-hp "+hp.st,role:"button",tabindex:"0","aria-label":"Hit points "+hp.cur+" of "+hp.max+". Tap to set.",
-        onclick:()=>{const v=prompt("Hit points now?",String(hp.cur));if(v!=null&&v.trim()!=="")setHp(cur,parseInt(v,10));},
+        onclick:()=>{const v=prompt("Hit points now? (or −7 / +5 to change them)",String(hp.cur));if(v!=null&&v.trim()!==""){const t=v.trim().replace(/^[−–]/,"-"),n=parseInt(t,10);if(!isNaN(n))setHp(cur,/^[+-]/.test(t)?hp.cur+n:n);}},
         onkeydown:ev=>{if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();ev.currentTarget.click();}}},
         h("span",{class:"sb-k"},"HIT POINTS"),h("b",{class:"sb-v"},String(hp.cur),h("small",{}," / "+hp.max)))
       :box("sb-hp","HIT POINTS",vget("HP")),
