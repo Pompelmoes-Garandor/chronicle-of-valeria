@@ -5189,7 +5189,7 @@ function askMany(title,text,opts){return tray(title,text,opts.map((o,i)=>[o,i,i=
 let menuEl=null;
 function closeMenu(){menuEl?.remove();menuEl=null;}
 menuBtn.onclick=()=>{if(menuEl){closeMenu();return;}
-  const tg=(k,l)=>h("button",{type:"button",class:"pl-btn"+(opt[k]?" on":""),"aria-pressed":String(!!opt[k]),onclick:e=>{opt[k]=!opt[k];saveOpt();e.currentTarget.classList.toggle("on",opt[k]);e.currentTarget.setAttribute("aria-pressed",String(opt[k]));if(k==="sound"&&!opt[k])pulse(false);if(k==="flat"&&B){closeMenu();t3dispose();for(const u of B.units)u.el=null;buildBattleView();renderTokens();renderInit();}}},l);
+  const tg=(k,l)=>h("button",{type:"button",class:"pl-btn"+(opt[k]?" on":""),"aria-pressed":String(!!opt[k]),onclick:e=>{opt[k]=!opt[k];saveOpt();e.currentTarget.classList.toggle("on",opt[k]);e.currentTarget.setAttribute("aria-pressed",String(opt[k]));if(k==="sound"&&!opt[k])pulse(false);if(k==="flat"&&B){closeMenu();const keep=[...stage.querySelectorAll(".pl-modal,.pl-chip")];t3dispose();for(const u of B.units)u.el=null;buildBattleView();renderTokens();renderInit();for(const m of keep)stage.append(m);}}},l);
   const inI=!!IST||PLAY.inter; // in an interlude the chapters belong to session 10, so the menu offers a way out instead
   menuEl=h("div",{class:"pl-menu"},
     ...(inI?[h("div",{class:"pl-sec"},"Interlude"),h("button",{type:"button",class:"pl-btn",onclick:async()=>{closeMenu();if(await ask("Leave this interlude?","What you played so far is not kept. You can start it again from Interludes.","Leave","Stay")){PLAY.iList=true;playHub();}}},"Leave this interlude")]:[]),
@@ -5222,7 +5222,7 @@ async function crewRoll(id,label,mod,dc,{adv=false,dis=false,u=null,quiet=false}
     const insp=u?u.cond.insp:null;
     if(insp&&tot+insp>=dc&&await ask(`${CREW[id].short}: add Bardic Inspiration?`,`${tot} misses DC ${dc}. Roll the d${insp} and add it.`,"Add it","Keep it")){const b=rnd(insp);delete u.cond.insp;tot+=b;log(`  + Bardic Inspiration d${insp}: ${b} → ${tot}`,"g");}
   }
-  if(dc!=null&&tot<dc&&pp.insp&&await ask(`${CREW[id].short}: use Heroic Inspiration?`,`${tot} misses DC ${dc}. Reroll the d20.`,"Reroll","Keep it")){pp.insp=0;r=d20(false,false);await show3d([{sides:20,value:r.v}]);tot=r.v+mod;log(`  Reroll: d20 ${r.v} ${sgn(mod)} = ${tot}`,"g");}
+  if(dc!=null&&tot<dc&&pp.insp&&await ask(`${CREW[id].short}: use Heroic Inspiration?`,`${tot} misses DC ${dc}. Reroll the d20.`,"Reroll","Keep it")){pp.insp=0;r=d20(adv,dis);await show3d([{sides:20,value:r.v}]);tot=r.v+mod;log(`  Reroll: d20 ${r.v} ${sgn(mod)} = ${tot}`,"g");}
   hide3d();const ok=dc==null?true:tot>=dc;chip(`${CREW[id].short} · ${label}: ${tot}`+(dc!=null?` vs DC ${dc} · ${ok?"success":"fail"}`:""),dc!=null&&!ok);
   return {tot,v:r.v,ok};
 }
@@ -7681,7 +7681,7 @@ if(/[?&]playtest/.test(location.search))window.__t3x={ts(v){t3x_ts=v;},units(){r
   heal(ti){t3float(B.units[ti],"+6","heal");},miss(ti){t3float(B.units[ti],"miss","miss");},death(ti){const u=B.units[ti],m=V.minis.get(u);if(m)t3death(m,u);}};
 
 /* free everything under a node: geometry, materials, their textures (also those in shader uniforms), shadow maps */
-function t3free(root){const tx=t=>{if(t&&t.isTexture&&t!==t3dot&&t!==t3tile)t.dispose();};root.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.isInstancedMesh||o.isLight)o.dispose?.();
+function t3free(root){const tx=t=>{if(t&&t.isTexture&&t!==t3dot&&t!==t3tile&&t!==t3c_envT)t.dispose();};root.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.isInstancedMesh||o.isLight)o.dispose?.();
     if(o.material){const ms=Array.isArray(o.material)?o.material:[o.material];for(const m of ms){for(const k in m)tx(m[k]);if(m.uniforms)for(const k in m.uniforms)tx(m.uniforms[k]&&m.uniforms[k].value);m.dispose();}}});}
 function t3dispose(){if(!V)return;cancelAnimationFrame(t3raf);t3raf=0;V.ac&&V.ac.abort();V.disposePost&&V.disposePost();t3free(V.scene);
   V.r.renderLists.dispose();V=null;}
@@ -7800,17 +7800,21 @@ async function attack(a,t,at,o={}){
   let tgt=t;
   if(t.crew&&t.key!=="hans"&&!o.noGuard){const hans=B.units.find(u=>u.key==="hans"&&alive(u));
     if(hans&&hans.react&&!incap(hans)&&!hans.cond.drained&&dist(hans,t)<=1&&await ask("Hans: Bodyguard?",`${at.n} hits ${t.short}. Hans can step in and take it.`,"Take the hit","Let it land")){hans.react=false;tgt=hans;log("  Hans steps in front: Bodyguard.","h");o.guarded=true;}}
+  if(res.hit&&!res.crit&&!at.range&&dist(a,tgt)<=1&&(tgt.hp<=0||tgt.cond.ko)){res.crit=true;log("  Within 5 ft of someone unconscious: a critical hit.",crewSide?"b":"r");}
   // damage
   let expr=at.dmg;if(res.crit)expr=expr.replace(/(\d*)d(\d+)/g,(_,n,s)=>(2*parseInt(n||"1",10))+"d"+s);
   const parts=[[dice(expr),at.type]];
   if(at.plus)parts.push([dice(res.crit?at.plus.replace(/(\d*)d/,(_, n)=>2*parseInt(n||"1",10)+"d"):at.plus),at.plusType]);
-  if(a.key==="saphira"&&at.sneak&&!a.sneakUsed&&((m.adv&&!m.dis)||B.units.some(o=>o!==a&&o.side!=="foe"&&alive(o)&&!incap(o)&&dist(o,tgt)<=1))){a.sneakUsed=true;parts.push([dice(res.crit?"4d6":"2d6"),at.type]);log("  Sneak Attack","b");}
+  if(a.key==="saphira"&&at.sneak&&!a.sneakUsed&&!m.dis&&(m.adv||B.units.some(o=>o!==a&&o.side!=="foe"&&alive(o)&&!incap(o)&&dist(o,tgt)<=1))){a.sneakUsed=true;parts.push([dice(res.crit?"4d6":"2d6"),at.type]);log("  Sneak Attack","b");}
   if(a.key==="grey"&&!a.sneakUsed&&m.adv&&!m.dis){a.sneakUsed=true;parts.push([dice(res.crit?"6d6":"3d6"),at.type]);log("  Sneak Attack","r");}
   if(tgt.cond.hexed&&tgt.cond.hexed.by===a.id&&!at.noHex)parts.push([dice(res.crit?"2d6":"1d6"),"necrotic"]);
   if(tgt.cond.cursed&&tgt.cond.cursed.by===a.id)parts.push([{t:3,rolls:[],flat:3},at.type]);
   if(crewSide&&opt.dice){const list=parts.flatMap(([d])=>d.rolls.map((v,i)=>({sides:d.sides[i],value:Math.abs(v),dmg:true})));if(list.length){await show3d(list);await sleep(250);hide3d();}}
   if(cin)await paceRelease(a,tgt,at,true,res.crit);
-  if(at.dmg!=="0")for(const [d,type] of parts){await hurt(tgt,d.t,type,a,{magic:at.magic,crit:res.crit,src:at.n});}
+  // Uncanny Dodge halves the whole attack, and concentration is one save for the whole attack (DC from the total)
+  const ud=tgt.key==="grey"&&tgt.react&&!incap(tgt)&&!(a.key==="saphira"&&B.sc.cantResisted);if(ud)tgt.react=false;const hp0=Math.max(0,tgt.hp)+(tgt.temp||0),cc=tgt.conc;
+  if(at.dmg!=="0")for(const [d,type] of parts){await hurt(tgt,d.t,type,a,{magic:at.magic,crit:res.crit,src:at.n,halve:ud,noConc:true});}
+  {const dealt=hp0-Math.max(0,tgt.hp)-(tgt.temp||0);if(cc&&tgt.conc&&tgt.hp>0&&dealt>0){if(!(await save(tgt,"con",Math.max(10,Math.floor(dealt/2)),"Concentration")))dropConc(tgt);}}
   if(at.onHit&&alive(tgt))await at.onHit(tgt,res);
   if(cin)await paceSettle(a,tgt,true);
   return {hit:true,crit:res.crit,guarded:!!o.guarded,tgt};}
@@ -7819,7 +7823,7 @@ async function attack(a,t,at,o={}){
 async function save(u,ab,dc,label){let m=saveOf(u,ab);const adv=(ab==="con"&&u.crew&&CREW[u.key].conAdv)||(u.key==="hans"&&ab==="con"&&false);let dis=false;
   if(u.cond.restrained&&ab==="dex")dis=true;
   if(u.cond.bane)m-=rnd(4);
-  if(u.crew)return (await crewRoll(u.key,(label?label+" · ":"")+ab.toUpperCase()+" save",m,dc,{adv,dis,u,quiet:!opt.dice})).ok;
+  if(u.crew)return (await crewRoll(u.key,(label?label+" · ":"")+ab.toUpperCase()+" save",m+2*(P(u.key).ex||0),dc,{adv,dis,u,quiet:!opt.dice})).ok;
   const r=d20(adv,dis);let ok=r.v+m>=dc;
   if(!ok&&u.key==="heart"&&B.sc.lr>0){B.sc.lr--;ok=true;log(`${u.name}: d20 ${r.v} ${sgn(m)} fails DC ${dc}, but it uses Legendary Resistance.`,"r");return true;}
   log(`${nameOf(u)} · ${ab.toUpperCase()} save: d20 ${r.v}${modeTxt(r)} ${sgn(m)} = ${r.v+m} vs DC ${dc} · ${ok?"success":"fail"}`);return ok;}
@@ -7834,13 +7838,14 @@ async function hurt(t,amt,type,src,o={}){
   else{if(!(B.sc.weak&&t.key==="heart")&&(res.includes(type)||(PHYS.includes(type)&&!o.magic&&res.includes("nonmagical")))){n=Math.floor(n/2);note=" (resists)";}
     if(vul.includes(type)){n*=2;note=" (vulnerable)";}}
   if(t.cond.grave&&n>0){n*=2;delete t.cond.grave;note+=" (Path to the Grave: doubled)";}
-  if(t.key==="grey"&&t.react&&!incap(t)&&n>0&&!o.aoe&&src&&!(src.key==="saphira"&&B.sc.cantResisted)){t.react=false;n=Math.floor(n/2);note+=" (Uncanny Dodge: halved)";}
+  if(o.halve&&n>0){n=Math.floor(n/2);note+=" (Uncanny Dodge: halved)";}
+  else if(o.halve===undefined&&t.key==="grey"&&t.react&&!incap(t)&&n>0&&!o.aoe&&src&&!(src.key==="saphira"&&B.sc.cantResisted)){t.react=false;n=Math.floor(n/2);note+=" (Uncanny Dodge: halved)";}
   if(n<=0){floatTxt(t,"0"+note.trim(),"miss");log(`  ${nameOf(t)} takes 0${note}`);return;}
   if(t.temp>0){const s=Math.min(t.temp,n);t.temp-=s;n-=s;}
   if(t.key==="heart")B.sc.turnDmg=(B.sc.turnDmg||0)+n;
   const was=t.hp;t.hp-=n;shake(t,type);hitSnd("hit");floatTxt(t,"−"+n);log(`  ${nameOf(t)} takes ${n} ${type}${note} → ${Math.max(0,t.hp)}/${t.max}`,t.crew?"r":"");
-  if(t.crew&&was<=0&&!t.dead){t.hp=0;if(t.key==="hans"||t.cond.ko){renderTokens();return;}t.ds[1]+=o.crit?2:1;log(`  ${t.short} fails a death save from the hit (${t.ds[1]}/3).`,"r");if(t.ds[1]>=3)die(t);renderTokens();return;}
-  if(t.conc&&t.hp>0){const dc=Math.max(10,Math.floor(n/2));if(!(await save(t,"con",dc,"Concentration")))dropConc(t);}
+  if(t.crew&&was<=0&&!t.dead){t.hp=0;if(t.key==="hans"||t.cond.ko){renderTokens();return;}delete t.cond.stable;t.ds[1]+=o.crit?2:1;log(`  ${t.short} fails a death save from the hit (${t.ds[1]}/3).`,"r");if(t.ds[1]>=3)die(t);renderTokens();return;}
+  if(t.conc&&t.hp>0&&!o.noConc){const dc=Math.max(10,Math.floor(n/2));if(!(await save(t,"con",dc,"Concentration")))dropConc(t);}
   if(t.hp<=0)await zero(t,src,type,Object.assign({},o,{lastDmg:n}));
   if(t.key==="heart"&&B.sc.engulfed&&B.sc.turnDmg>=20&&alive(t)){log("Twenty damage in one turn: the Heart spits out "+nameOf(B.sc.engulfed)+".","g");spit();}
   if(B.def.onHurt)await B.def.onHurt(t,src);
