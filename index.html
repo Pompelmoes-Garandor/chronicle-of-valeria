@@ -162,6 +162,7 @@ aside#sheet{position:fixed;z-index:6;color:var(--parch);background:var(--brk),li
 .sheet-body p{margin:0}
 .eyebrow{font:500 12px/1.2 var(--label);letter-spacing:.16em;color:var(--brass)}
 .eyebrow.m{font:400 11px/1.3 var(--mono);letter-spacing:.08em;color:var(--steward)}
+.eyebrow{text-wrap:balance}
 .tag{display:inline-block;font:500 11px/1 var(--label);letter-spacing:.12em;padding:4px 7px;border-radius:3px;border:1px solid currentColor}
 .tag.explored{color:var(--parch)} .tag.rumour{color:var(--mist);border-style:dashed} .tag.new{color:var(--ember)}
 .muted{color:var(--parch-dim)}
@@ -202,6 +203,13 @@ textarea:focus,input:focus{outline:2px solid var(--brass);outline-offset:1px}
 .gz-kinds,.gz-tags{flex:none;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:2px 1px 4px;margin:0 -1px}
 .gz-kinds::-webkit-scrollbar,.gz-tags::-webkit-scrollbar{display:none}
 .gz-kinds .chip,.gz-tags .chip{flex:none;white-space:nowrap}
+/* rows that scroll sideways fade at the edge that has more to show, so a cut-off chip reads as "swipe for more" (CSS only; older browsers keep the plain row) */
+@property --fl{syntax:"<length>";inherits:false;initial-value:0px}
+@property --fr{syntax:"<length>";inherits:false;initial-value:0px}
+@keyframes edgefade{0%{--fl:0px;--fr:28px}10%{--fl:22px}90%{--fr:28px}100%{--fl:22px;--fr:0px}}
+@supports (animation-timeline:scroll()){
+  .gz-kinds,.gz-tags,.pl-init,.pl-tlist{-webkit-mask-image:linear-gradient(90deg,#0000,#000 var(--fl),#000 calc(100% - var(--fr)),#0000);mask-image:linear-gradient(90deg,#0000,#000 var(--fl),#000 calc(100% - var(--fr)),#0000);animation:edgefade linear both;animation-delay:0s!important;animation-timeline:scroll(self inline)}
+}
 .gz-search{flex:none}
 .chip.sm{font-size:12px;padding:6px 10px}
 .chip small{margin-left:6px;font:400 11px/1 var(--mono);opacity:.75}
@@ -652,6 +660,23 @@ details[open]>.cs-eb .tri{transform:rotate(90deg)}
 .ds button{width:24px;height:24px;border-radius:50%;border:1px solid var(--brass-dim);background:none;cursor:pointer;padding:0}
 .ds button[aria-pressed="true"]{background:var(--steward);border-color:var(--steward)} .ds .f button[aria-pressed="true"]{background:#ff5a4a;border-color:#ff5a4a}
 .conds{display:flex;flex-wrap:wrap;gap:5px}
+/* spell slots, class resources and exhaustion: dots to tap, kept on this device like hit points */
+.rs{display:flex;flex-direction:column;gap:2px;margin-top:6px;padding:8px 12px 10px;border:1px solid var(--hairline);border-radius:12px;background:#0b0d1240}
+.rs-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:10px;min-height:40px}
+.rs-k{font:500 10px/1.25 var(--label);letter-spacing:.12em;text-transform:uppercase;color:var(--brass)}
+.rs-k small{display:block;font:400 10px/1.3 var(--mono);letter-spacing:.04em;text-transform:none;color:var(--parch-dim);margin-top:2px}
+.rs-dots{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:0}
+.rs-dots button{width:34px;height:40px;border:0;background:none;padding:0;cursor:pointer;display:grid;place-items:center;-webkit-tap-highlight-color:transparent}
+.rs-dots button i{display:block;width:18px;height:18px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--brass-dim);transition:background .15s,box-shadow .15s,transform .15s}
+.rs-dots button[aria-pressed="true"] i{background:var(--c,var(--steward));box-shadow:inset 0 0 0 1.5px var(--c,var(--steward)),0 0 8px color-mix(in srgb,var(--c,var(--steward)) 45%,transparent)}
+.rs-dots button:active i{transform:scale(.88)}
+.rs-dots button:focus-visible{outline:2px solid var(--parch);outline-offset:-4px;border-radius:8px}
+.rs-row.exh .rs-dots button[aria-pressed="true"] i{background:var(--ember);box-shadow:inset 0 0 0 1.5px var(--ember)}
+.rs-row.exh .rs-dots button i{border-radius:4px;width:15px;height:15px}
+.rs-note{margin:2px 0 0;font:italic 13px/1.4 var(--body);color:var(--ember)}
+.rs-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px}
+.rs-foot .note{margin:0}
+.rs-foot button{flex:none;min-height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--brass-dim);background:#0b0d1266;color:var(--parch-dim);font:500 10px/1 var(--label);letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
 .conds .chip{font-size:11px;padding:6px 9px}
 .conds .chip[aria-pressed="true"]{background:var(--ember);border-color:var(--ember);color:#1b0a02}
 /* Hans's workshop: the player's own mini (AVATARS) */
@@ -669,7 +694,11 @@ details[open]>.cs-eb .tri{transform:rotate(90deg)}
 .av-own input{position:absolute;inset:-6px;opacity:0;cursor:pointer}
 .av-sl{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;font:500 12px/1 var(--label);letter-spacing:.08em;color:var(--parch-dim)}
 .av-sl input{width:100%;accent-color:var(--brass)}
-.cs-mini{display:flex;gap:12px;align-items:center;margin:6px 0 2px}
+.cs-mini{display:flex;gap:12px;margin:6px 0 2px}
+.cs-mini{align-items:flex-start}
+.cs-own{margin:0 0 8px;font:italic 15px/1.45 var(--body);color:var(--parch)}
+.cs-own .eyebrow{display:block;font-style:normal;margin-bottom:2px}
+.av-desc{width:100%;box-sizing:border-box;background:#0d1016;color:var(--parch);border:1px solid var(--brass-dim);border-radius:9px;padding:10px;font:16px/1.45 var(--body);resize:vertical}
 .cs-mini img{width:72px;height:88px;object-fit:cover;border-radius:10px;box-shadow:0 0 0 1px var(--hairline);background:#15181f}
 /* ---- the seal: the black box stays shut until the crew opens it together at the table (start of session 10) ---- */
 #seal{position:fixed;inset:0;z-index:30;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;align-items:center;box-sizing:border-box;text-align:center;
@@ -1038,6 +1067,8 @@ body.playing header.top,body.playing nav.dock,body.playing .eggs,body.playing #p
   .pl-quick .pl-act .at b{font-size:12.5px;letter-spacing:-.005em}
   .pl-quick .pl-act .ad{grid-row:2;grid-column:2;font-size:10px}
   .pl-quick .pl-act .ac{display:none}
+  .pl-quick .pl-act.long{grid-template-columns:minmax(0,1fr)}.pl-quick .pl-act.long .ai,.pl-quick .pl-act.long .ad{display:none}
+  .pl-quick .pl-act.long .at b{white-space:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-height:1.12;font-size:12px}
   .pl-quick .x56{display:none}
   .pl-quick .pl-more,.pl-quick .pl-end{grid-column:-2;min-height:0;height:50px;padding:0 4px;flex-direction:column;gap:4px;font-size:12px;letter-spacing:.06em}
   .pl-quick .pl-more{grid-row:1}.pl-quick .pl-end{grid-row:2}
@@ -4120,10 +4151,29 @@ function hpOf(id,s){const max=parseInt(String(((s||liveSheet(id)).vit.find(x=>x[
   const st=hpState[id]||{};let c=Number.isFinite(st.cur)?st.cur:max;c=Math.max(0,Math.min(max,c));const r=c/max;
   return {cur:c,max,ds:Array.isArray(st.ds)?st.ds:[0,0],cond:Array.isArray(st.cond)?st.cond:[],st:c<=0?"down":r<=.25?"critical":r<=.5?"bloodied":"ok"};}
 function setHp(id,n,rest){const hp=hpOf(id);if(!hp)return;const st=hpState[id]||(hpState[id]={});const was=hp.st;
-  st.cur=Math.max(0,Math.min(hp.max,Number.isFinite(n)?n:hp.cur));if(rest){st.ds=[0,0];st.cond=[];}else if(st.cur>0)st.ds=[0,0];saveHp();showSheets(true);
+  st.cur=Math.max(0,Math.min(hp.max,Number.isFinite(n)?n:hp.cur));if(rest){st.ds=[0,0];st.cond=[];st.res={};st.exh=Math.max(0,(st.exh|0)-1);}else if(st.cur>0)st.ds=[0,0];saveHp();showSheets(true);
   const now=hpOf(id).st;if(now!==was&&!rest){const L={bloodied:"Hans: Bloodied.",critical:"Hans: Hold on.",down:id==="hans"?"Hans: Shutting down. Stable.":"Hans: Down. Not gone."};if(L[now])toast(L[now]);}}
 function setDs(id,which,n){const st=hpState[id]||(hpState[id]={});st.ds=Array.isArray(st.ds)?st.ds:[0,0];const was=st.ds[which]||0;st.ds[which]=Math.max(0,Math.min(3,n));saveHp();showSheets(true);
   if(which===1&&n>was)toast(["Hans: Not yet.","Hans: Stay with me.","Hans: …"][n-1]);if(which===0&&n===3&&was<3)toast("Hans: Stable. Good.");}
+/* spell slots and class resources. Slots come from the sheet's own line, so an amended page carries over; the class
+   resources are read off the crew's papers (rest: what brings them back; short: how many a short rest returns). */
+const RES_EXTRA={katy:[{k:"bi",n:"Bardic Inspiration",max:4,rest:"short",d:"d8"}],
+  stig:[{k:"cd",n:"Channel Divinity",max:2,rest:"long",short:1},{k:"eyes",n:"Eyes of the Grave",max:4,rest:"long"}]};
+const ORD=["1st","2nd","3rd","4th","5th","6th","7th","8th","9th"], WORDN={one:1,two:2,three:3,four:4,five:5};
+function resOf(id,s){s=s||liveSheet(id);const out=[],sl=String(s.magic&&s.magic.slots||"");
+  const m=sl.match(/spell slots\s*([\d\s·,]+)/i);
+  if(m)m[1].split(/[\s·,]+/).filter(Boolean).map(Number).forEach((n,i)=>{if(n>0&&n<10)out.push({k:"s"+(i+1),n:ORD[i]+" level",max:n,rest:"long",slot:1});});
+  const p=sl.match(/(\w+)\s+pact slots?\s*\((\d)\w*/i);
+  if(p){const n=WORDN[p[1].toLowerCase()]||parseInt(p[1],10);if(n>0&&n<10)out.push({k:"pact",n:"Pact slots",max:n,rest:"short",d:ORD[+p[2]-1]+" level",slot:1});}
+  out.push(...(RES_EXTRA[id]||[]));
+  const st=(hpState[id]||{}).res||{};
+  return out.map(r=>({...r,left:Number.isFinite(st[r.k])?Math.max(0,Math.min(r.max,st[r.k])):r.max}));}
+function setRes(id,k,n){const st=hpState[id]||(hpState[id]={});st.res=st.res&&typeof st.res==="object"?st.res:{};st.res[k]=n;saveHp();showSheets(true);}
+function setExh(id,n){const st=hpState[id]||(hpState[id]={});st.exh=Math.max(0,Math.min(6,n));saveHp();showSheets(true);
+  if(st.exh===6)toast(id==="hans"?"Hans: Battery at zero.":"Hans: Six. That is the end of the road. Ask the DM.");}
+function shortRest(id){const st=hpState[id]||(hpState[id]={});const res=st.res||{};
+  resOf(id).forEach(r=>{if(r.rest==="short")delete res[r.k];else if(r.short)res[r.k]=Math.min(r.max,r.left+r.short);});
+  st.res=res;saveHp();showSheets(true);toast(id==="hans"?"Hans: Short reboot. Fans spinning down.":"Hans: Short rest. Some of it back.");}
 const CONDS=["Poisoned","Frightened","Prone","Grappled","Restrained","Concentrating","Inspired"];
 function toggleCond(id,c){const st=hpState[id]||(hpState[id]={});st.cond=Array.isArray(st.cond)?st.cond:[];const i=st.cond.indexOf(c);if(i<0)st.cond.push(c);else st.cond.splice(i,1);saveHp();showSheets(true);}
 const b64u=u8=>{let b="";for(let i=0;i<u8.length;i+=0x8000)b+=String.fromCharCode.apply(null,u8.subarray(i,i+0x8000));return btoa(b).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");};
@@ -4193,6 +4243,19 @@ function editorNode(s,key){
   setTimeout(()=>{try{box.querySelector("textarea,input")?.focus({preventScroll:true});}catch(e){}},50);
   return box;
 }
+// slots, resources and exhaustion: a filled dot is one you still have; tap any filled dot to spend one, any empty dot to get one back
+function resNode(cur,s,hex){const R=resOf(cur,s),exh=Math.max(0,Math.min(6,(hpState[cur]||{}).exh|0));
+  const dots=(r,label)=>h("div",{class:"rs-dots",role:"group","aria-label":label},Array.from({length:r.max},(_,i)=>{const on=i<r.left;
+    return h("button",{type:"button","aria-pressed":String(on),"aria-label":`${label}: ${on?"spend":"get back"} one (${r.left} of ${r.max} left)`,onclick:()=>setRes(cur,r.k,r.left+(on?-1:1))},h("i",{}));}));
+  const restTxt=r=>r.rest==="short"?"back on a short rest":r.short?`${r.short} back on a short rest`:"back on a long rest";
+  const rows=R.map(r=>h("div",{class:"rs-row"},h("span",{class:"rs-k"},r.n,h("small",{},(r.d?r.d+" · ":"")+restTxt(r))),dots(r,r.n)));
+  const exhRow=h("div",{class:"rs-row exh"},h("span",{class:"rs-k"},"Exhaustion",h("small",{},exh?`level ${exh} of 6`:"none")),
+    h("div",{class:"rs-dots",role:"group","aria-label":"Exhaustion"},Array.from({length:6},(_,i)=>h("button",{type:"button","aria-pressed":String(i<exh),"aria-label":`Exhaustion level ${i+1}`,onclick:()=>setExh(cur,i<exh?i:i+1)},h("i",{})))));
+  const hasShort=R.some(r=>r.rest==="short"||r.short);
+  return h("div",{class:"rs",style:`--c:${hex}`},...rows,exhRow,
+    exh?h("p",{class:"rs-note"},`−${2*exh} on every d20 test, and ${5*exh} ft less speed.`):null,
+    h("div",{class:"rs-foot"},h("p",{class:"note"},"Rest refills it all and takes off one exhaustion."),
+      hasShort?h("button",{type:"button",onclick:()=>shortRest(cur)},"Short rest"):null));}
 function showSheets(keep){
   let cur=store.get("chron-sheet"); if(!SHEETS[cur]) cur=SHEETS[myPick]?myPick:"katy";
   document.querySelector('[data-tab="sheets"] .dot')?.remove();
@@ -4259,7 +4322,8 @@ function showSheets(keep){
       h("span",{},"SAVES",[0,1,2].map(i=>h("button",{type:"button","aria-pressed":String(hp.ds[0]>i),"aria-label":"Success "+(i+1),onclick:()=>setDs(cur,0,hp.ds[0]>i?i:i+1)}))),
       h("span",{class:"f"},"FAILS",[0,1,2].map(i=>h("button",{type:"button","aria-pressed":String(hp.ds[1]>i),"aria-label":"Failure "+(i+1),onclick:()=>setDs(cur,1,hp.ds[1]>i?i:i+1)})))):null,
     h("p",{class:"note"},hpLine),
-    h("div",{class:"conds",role:"group","aria-label":"Conditions"},CONDS.map(c=>h("button",{type:"button",class:"chip","aria-pressed":String(hp.cond.includes(c)),onclick:()=>toggleCond(cur,c)},c)))]:[];
+    h("div",{class:"conds",role:"group","aria-label":"Conditions"},CONDS.map(c=>h("button",{type:"button",class:"chip","aria-pressed":String(hp.cond.includes(c)),onclick:()=>toggleCond(cur,c)},c))),
+    resNode(cur,s,hex)]:[];
   // saving throws as a grid when the line has the usual shape
   const savesNode=(()=>{if(!s.saves)return null;const parts=s.saves.split(/\s*·\s*/);if(parts.length>=4&&parts.every(p=>/^\S+\s+[+−-]\s?\d+$/.test(p)))return h("div",{class:"skl"},parts.map(p=>{const m=p.match(/^(\S+)\s+(.+)$/);return h("span",{},m[1],h("b",{},m[2].replace(/\s/g,"")));}));return h("p",{class:"mono"},s.saves);})();
   const m=s.magic;
@@ -4279,8 +4343,9 @@ function showSheets(keep){
     s.empty&&!nEd?h("div",{class:"scan",html:s.empty}):null,
     sec("head","",h("h3",{class:"cs-name",style:`color:${hex}`},s.name),h("p",{class:"cs-line"},s.line),s.alias?h("p",{class:"note"},s.alias):null,h("p",{class:"roll-hint"},"TAP A SKILL, SAVE OR ATTACK TO ROLL")),
     echoNode(cur),
-    AV_BASE[cur]?(()=>{const pic=AVGL?AVGL.portrait(cur):null;return h("div",{class:"cs-mini"},pic?h("img",{src:pic,alt:s.name+"'s mini"}):null,
-      h("button",{class:"btn ghost",type:"button",onclick:()=>{avDraft=null;showMini(cur);}},pic?"Repaint your mini":"Make your mini"));})():null,
+    AV_BASE[cur]?(()=>{const pic=AVGL?AVGL.portrait(cur):null,lk=avOf(cur),R=AV_RACES[lk.race];return h("div",{class:"cs-mini"},pic?h("img",{src:pic,alt:s.name+"'s mini"}):null,
+      h("div",{},lk.desc?h("p",{class:"cs-own"},h("span",{class:"eyebrow"},"IN THEIR OWN WORDS"),lk.desc):h("p",{class:"note"},R.n+". No description yet."),
+        h("button",{class:"btn ghost",type:"button",onclick:()=>{avDraft=null;showMini(cur);}},avPainted(cur)?"Repaint your mini":"Make your mini")));})():null,
     sec("vit","COMBAT",statTop,...hpNodes),
     sec("ab","ABILITIES · SAVES",abilBlock),
     sec("lvl6","SESSION "+NEXT+" · LEVEL 6",s.lvl6?h("p",{class:"small"},s.lvl6):empty("Not decoded yet. Tap edit when the new page is in.")),
@@ -4302,7 +4367,7 @@ function showSheets(keep){
     h("p",{class:"note"},NETLIFY?(nEd?`Amended${by.length?" by "+by.join(", "):""} · ${nEd} section${nEd>1?"s":""}. Send to Sam stores it online: one tap from him and everyone's copy has it. Pass it round still sends a link to the group chat.`:"Amend a section, then send it to Sam. Pass it round sends a link to the group chat instead.")
       :nEd?`Amended${by.length?" by "+by.join(", "):""} · ${nEd} section${nEd>1?"s":""}. Pass it round, and the crew's copies catch up. Nothing is stored online.`:"Pass it round sends a link to the group chat. Whoever opens it gets the amended sections. Nothing is stored online.")
   ].filter(Boolean);
-  openSheet("Character sheets",nodes,"sheets");
+  openSheet("Characters",nodes,"sheets");
   if(keep) sBody.scrollTop=top;
 }
 // a sheet link from the group chat: merge the newer sections, then show that sheet
@@ -4324,33 +4389,54 @@ function showSheets(keep){
 const AV_IDS=["katy","saphira","stig"];
 const AV_STYLES=[["short","Short"],["cap","Cropped"],["long","Long"],["bald","Bald"]];
 const AV_BEARDS=[["none","None"],["short","Short"],["full","Full"]];
-const AV_BASE={ // what Hans painted first: the look each builder had before the workshop
-  katy:{h:.76,bulk:.94,skin:"#e8c3a0",hair:"#8a3b22",style:"long",beard:"none",ears:true,hood:false,eyes:"",cloth:"#3f6b45",cloak:"#e7a3b8",pants:"#4a3a2c",boots:"#5a3a22"},
-  saphira:{h:.78,bulk:.93,skin:"#d9b8a0",hair:"#1b1512",style:"long",beard:"none",ears:false,hood:true,eyes:"#b39af0",cloth:"#33294a",cloak:"#2e2244",pants:"#241d30",boots:"#1d1722"},
-  stig:{h:.8,bulk:1.12,skin:"#d8b08a",hair:"#3a2a1c",style:"short",beard:"none",ears:false,hood:false,eyes:"",cloth:"#8a96a3",cloak:"#2b3a4a",pants:"#8a96a3",boots:"#6a7682"}};
+/* the races of the table: PHB 2024's ten, plus the half-elf and half-orc of older books. sc: how tall the whole mini stands next to a human,
+   bulk and head: proportions, ears: 0 round to 1 long and pointed, then what grows on them. skin: tones to offer first */
+const AV_RACES={
+  human:{n:"Human",sc:1,bulk:1,head:1,ears:0},
+  elf:{n:"Elf",sc:.98,bulk:.92,head:1,ears:1},
+  halfelf:{n:"Half-elf",sc:1,bulk:.96,head:1,ears:.7},
+  dwarf:{n:"Dwarf",sc:.8,bulk:1.14,head:1.14,ears:0,beard:"full"},
+  halfling:{n:"Halfling",sc:.66,bulk:.98,head:1.24,ears:.4},
+  gnome:{n:"Gnome",sc:.62,bulk:.92,head:1.32,ears:.55},
+  halforc:{n:"Half-orc",sc:1.05,bulk:1.08,head:1,ears:.4,tusks:.7,skin:["#9aa58a","#7f8f78","#a8a08a","#6f7f6a"]},
+  orc:{n:"Orc",sc:1.08,bulk:1.12,head:1.03,ears:.5,tusks:1,skin:["#7f9a6a","#6a8560","#8a8f7a","#5f6f5a"]},
+  tiefling:{n:"Tiefling",sc:1,bulk:.98,head:1,ears:.7,horns:1,tail:1,skin:["#b0453f","#8a3550","#6a4a8a","#3f5a8a","#c9806a"]},
+  dragonborn:{n:"Dragonborn",sc:1.08,bulk:1.1,head:1.06,ears:0,snout:1,tail:2,bald:1,skin:["#b0453f","#c9a35c","#3f6b8a","#4f7f4a","#d8d4cc","#2a2420","#b07a3a","#8a96a3"]},
+  aasimar:{n:"Aasimar",sc:1,bulk:1,head:1,ears:0,halo:1},
+  goliath:{n:"Goliath",sc:1.2,bulk:1.1,head:.94,ears:0,skin:["#a9a9a4","#8f9a9a","#b8b0a4","#7d8590"]}};
+const AV_BASE={ // Hans's first paint, corrected to what each player wrote about their own character where the papers say it
+  katy:{race:"halfelf",h:.76,bulk:.94,skin:"#e8c3a0",hair:"#8a3b22",style:"long",beard:"none",hood:false,iris:"",eyes:"",cloth:"#3f6b45",cloak:"#e7a3b8",pants:"#4a3a2c",boots:"#5a3a22",desc:""},
+  saphira:{race:"halfelf",h:.78,bulk:.93,skin:"#d9b8a0",hair:"#d8d4cc",style:"long",beard:"none",hood:true,iris:"#3fa79a",eyes:"#b39af0",cloth:"#33294a",cloak:"#2e2244",pants:"#241d30",boots:"#1d1722",
+    desc:"Half-elf. Silver hair, blue-emerald eyes, twin daggers."},
+  stig:{race:"human",h:.86,bulk:1.12,skin:"#c99a72",hair:"#9c9c98",style:"short",beard:"none",hood:false,iris:"#4f8fd0",eyes:"",cloth:"#8a96a3",cloak:"#2b3a4a",pants:"#8a96a3",boots:"#6a7682",
+    desc:"Human, 41, 1.95 m. Weathered skin, blue eyes, grey hair."}};
 const AV_PAL={
   skin:["#f3d6bf","#e8c3a0","#d9b08c","#c99a72","#a87650","#7d5536","#5a3b26","#3c271a","#b9c7a3","#a9b6c9","#c7a3c9","#8f9a8a"],
   hair:["#1b1512","#3a2a1c","#5a3a22","#8a3b22","#b5562b","#c9a35c","#e3cf9a","#d8d4cc","#f2efe8","#6a2c5e","#2d4f7a","#3f6b45"],
   eyes:["#b39af0","#6fc4ff","#7bc36a","#ffb070","#ff5a4a","#f2efe8"],
+  iris:["#3a2a1c","#6b4a2a","#4f8fd0","#3fa79a","#5c7a3a","#8a96a3","#b07a3a","#6a4a8a"],
   cloth:["#3f6b45","#2f4f3a","#5c7a3a","#8a96a3","#4b5563","#2b3a4a","#7fb8dc","#33294a","#5b3a7a","#e7a3b8","#8b2a2a","#c2452c","#b07a3a","#6b4a2a","#c9a35c","#e6dccb","#1d1722","#2a2420"]};
 const AV_HEX=/^#[0-9a-f]{6}$/;
 const AV_KEYS=Object.keys(AV_BASE.katy);
 /* a look from anywhere (a link, the table data, an old device) is checked field by field; anything odd falls back to Hans's paint */
 function avClean(id,l){const b=AV_BASE[id];if(!b)return null;const o={...b};if(!l||typeof l!=="object")return o;
   const hex=(k,empty)=>{const v=String(l[k]??"").toLowerCase();if(AV_HEX.test(v)||(empty&&v===""))o[k]=v;};
-  ["skin","hair","cloth","pants","boots"].forEach(k=>hex(k,false));hex("cloak",true);hex("eyes",true);
+  ["skin","hair","cloth","pants","boots"].forEach(k=>hex(k,false));hex("cloak",true);hex("eyes",true);hex("iris",true);
+  if(AV_RACES[l.race])o.race=l.race;if(typeof l.desc==="string")o.desc=l.desc.replace(/\s+/g," ").trim().slice(0,600);
   const num=(k,a,z)=>{const v=Number(l[k]);if(Number.isFinite(v))o[k]=Math.round(Math.min(z,Math.max(a,v))*1000)/1000;};num("h",.7,.86);num("bulk",.85,1.2);
   if(AV_STYLES.some(x=>x[0]===l.style))o.style=l.style;if(AV_BEARDS.some(x=>x[0]===l.beard))o.beard=l.beard;
-  for(const k of["ears","hood"])if(typeof l[k]==="boolean")o[k]=l[k];
+  if(typeof l.hood==="boolean")o.hood=l.hood;
   return o;}
 let avLocal={};try{const v=JSON.parse(store.get("chron-avatar")||"{}");if(v&&typeof v==="object")avLocal=v;}catch(e){avLocal={};}
 let avTable={}; // from the table data on Netlify: character -> {look, at}, newest per character
 const avSaveLocal=()=>store.set("chron-avatar",JSON.stringify(avLocal));
-/* the look to draw for a character: the newest of this device's and the table's, or null for Hans's own paint */
-function avOf(id){if(!AV_BASE[id])return null;const a=avLocal[id],b=avTable[id],x=a&&b?(b.at>a.at?b:a):a||b;return x?avClean(id,x.look):null;}
+/* the look to draw for a character: the newest of this device's and the table's, or Hans's first paint */
+function avOf(id){if(!AV_BASE[id])return null;const a=avLocal[id],b=avTable[id],x=a&&b?(b.at>a.at?b:a):a||b;return avClean(id,x?x.look:null);}
+const avPainted=id=>!!(avLocal[id]||avTable[id]);
 /* the look as t3body options (T3AV) */
-function avOpts(id,l=avOf(id)){if(!l)return null;
-  return {h:l.h,bulk:l.bulk,skin:l.skin,hair:l.style==="bald"?null:l.hair,hairStyle:l.style==="bald"?"short":l.style,beard:l.beard,ears:l.ears,hood:l.hood,
+function avOpts(id,l=avOf(id)){if(!l)return null;const R=AV_RACES[l.race]||AV_RACES.human,bald=l.style==="bald"||R.bald;
+  return {sc:R.sc,headK:R.head,ears:R.ears>0,earK:R.ears||1,horns:R.horns||0,tail:R.tail||0,snout:R.snout||0,tusks:R.tusks||0,halo:R.halo||0,iris:l.iris||null,
+    h:l.h,bulk:l.bulk*R.bulk,skin:l.skin,hair:bald?null:l.hair,hairStyle:bald?"short":l.style,beard:R.snout?"none":l.beard,hood:l.hood,
     eyes:l.eyes?parseInt(l.eyes.slice(1),16):null,cloth:l.cloth,cloak:l.cloak||null,pants:l.pants,boots:l.boots};}
 function avTableIn(docs){const t={};for(const d of docs){const x=d.data();if(!x||!AV_BASE[x.character]||!Number.isFinite(x.at))continue;
     if(!t[x.character]||x.at>t[x.character].at)t[x.character]={look:x.look,at:x.at};}
@@ -4367,7 +4453,7 @@ let avDraft=null, avStageNow=null;
 function showMini(id){
   if(!AV_BASE[id])id=AV_BASE[myChar]?myChar:AV_BASE[myPick]?myPick:"katy";
   if(!avDraft||avDraft.id!==id)avDraft={id,look:avOf(id)||{...AV_BASE[id]}};
-  const L=avDraft.look,hex=SHEET_HEX[id],name=SHEETS[id]?SHEETS[id].name:id;
+  const L=avDraft.look,hex=SHEET_HEX[id],name=SHEETS[id]?SHEETS[id].name:id,RC=AV_RACES[L.race]||AV_RACES.human;
   const redo=()=>{if(avStageNow)avStageNow.build(id,L);};
   const set=(k,v,again)=>{L[k]=v;redo();if(again)showMini(id);};
   const sw=(k,pal,empty)=>{const row=h("div",{class:"av-sw",role:"group","aria-label":k}),pick=v=>{set(k,v);row.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===v)));};
@@ -4388,14 +4474,19 @@ function showMini(id){
     h("p",{class:"small voice"},"Hold still. I paint what you tell me, and I put it on the table for every fight."),
     picks,bench,
     h("p",{class:"note av-hint"},"Drag the mini to turn it."),
-    grp("BODY",slider("h",.7,.86,"Short","Tall"),slider("bulk",.85,1.2,"Slight","Broad"),sw("skin",AV_PAL.skin),
-      h("div",{class:"chips",role:"group"},h("button",{type:"button",class:"chip","aria-pressed":String(L.ears),onclick:()=>set("ears",!L.ears,true)},"Pointed ears"))),
-    grp("HEAD",chips("hood",[[false,"Hood down"],[true,"Hood up"]]),chips("style",AV_STYLES),sw("hair",AV_PAL.hair),chips("beard",AV_BEARDS),
+    grp("RACE",h("div",{class:"chips",role:"group","aria-label":"Race"},Object.entries(AV_RACES).map(([k,R])=>h("button",{type:"button",class:"chip","aria-pressed":String(L.race===k),
+        onclick:()=>{const was=AV_RACES[L.race]||{};L.race=k;if(R.skin)L.skin=R.skin[0];else if(was.skin)L.skin=AV_BASE[id].skin;if(R.beard&&L.beard==="none")L.beard=R.beard;redo();showMini(id);}},R.n)))),
+    grp("BODY",slider("h",.7,.86,"Short","Tall"),slider("bulk",.85,1.2,"Slight","Broad"),sw("skin",[...(RC.skin||[]),...AV_PAL.skin])),
+    grp("HEAD",chips("hood",[[false,"Hood down"],[true,"Hood up"]]),RC.bald?null:chips("style",AV_STYLES),RC.bald?null:sw("hair",AV_PAL.hair),RC.snout?null:chips("beard",AV_BEARDS),
+      h("p",{class:"note"},"Eyes"),sw("iris",AV_PAL.iris,"Dark"),
       h("p",{class:"note"},"Glowing eyes"),sw("eyes",AV_PAL.eyes,"No glow")),
     grp(id==="stig"?"ARMOUR AND CLOTHES":"CLOTHES",h("p",{class:"note"},id==="stig"?"Plate":"Tunic"),sw("cloth",AV_PAL.cloth),
       h("p",{class:"note"},"Cloak"),sw("cloak",AV_PAL.cloth,"No cloak"),
       id==="stig"?null:h("p",{class:"note"},"Trousers"),id==="stig"?null:sw("pants",AV_PAL.cloth),
       h("p",{class:"note"},"Boots"),sw("boots",AV_PAL.cloth)),
+    grp("IN YOUR OWN WORDS",h("textarea",{class:"av-desc",rows:"4",maxlength:"600","aria-label":"How you describe your character",
+        placeholder:"How does "+name.split(" ")[0]+" look? Age, height, eyes, hair, scars, what they wear. Your words, not mine.",oninput:ev=>{L.desc=ev.currentTarget.value;}},L.desc||""),
+      h("p",{class:"note"},"Shown on the sheet next to the portrait.")),
     h("div",{class:"row"},
       h("button",{class:"btn",type:"button",onclick:ev=>avSave(id,ev.currentTarget)},online?"Save for the table":"Save my mini"),
       h("button",{class:"btn ghost",type:"button",onclick:ev=>{avSaveDraft(id);avShare(id,ev.currentTarget);}},"Pass it round"),
@@ -6461,10 +6552,10 @@ function t3x_pool(Vb,N,add,Q){const P=new Float32Array(N*3).fill(-999),C=new Flo
 /* T3AV: a player's own mini (AVATARS below). Set by t3mini around a crew builder, it repaints and reshapes the body the builder asks for.
    The builder's own gear (Katy's ukulele, Stig's plate, Saphira's blades) stays. */
 let T3AV=null;
-function t3body(fig,o){if(T3AV)o=Object.assign({},o,T3AV);const {beard=null,h=.78,cloth="#555",cloak=null,skin="#d9b08c",hair=null,hood=false,bulk=1,ears=false,eyes=null,hunch=0,arm=1,metal=0,
+function t3body(fig,o){if(T3AV)o=Object.assign({},o,T3AV);const {beard=null,headK=1,earK=1,horns=0,tail=0,snout=0,tusks=0,halo=0,iris=null,h=.78,cloth="#555",cloak=null,skin="#d9b08c",hair=null,hood=false,bulk=1,ears=false,eyes=null,hunch=0,arm=1,metal=0,
     pants=null,boots="#2b2118",belt="#3a2818",gloves=null,hairStyle="cap",hands=null,cloakLen=1,hoodDown=false,capelet=true,add=null}=o;
   // heroic 28mm proportions: legs, a lathed torso, jointed arms, a head with a face; parts merge into one mesh per material
-  const legH=h*.4,torH=h*.33,hr=h*.106,up=new THREE.Group(),bk=bulk,Y0=legH+.07,top=Y0+torH+hr*2,hi=T3Q.hi,sg=hi?14:9,V3=t3c_V;
+  const legH=h*.4,torH=h*.33,hr=h*.106*headK,up=new THREE.Group(),bk=bulk,Y0=legH+.07,top=Y0+torH+hr*2,hi=T3Q.hi,sg=hi?14:9,V3=t3c_V;
   const M={},ms=k=>M[k]||(M[k]=k==="body"?(metal?t3c_mat("armor",{metalness:Math.max(.55,metal)}):t3c_mat("cloth")):k==="glow"?t3c_glow(eyes||0xffffff):t3c_mat(k));
   const F=t3c_kit(),U=t3c_kit(),Hd=t3c_kit(),dk=t3c_dark,lc=metal?cloth:(pants||dk(cloth,.68)),bt=metal?"body":"leather";
   // legs and boots
@@ -6492,9 +6583,9 @@ function t3body(fig,o){if(T3AV)o=Object.assign({},o,T3AV);const {beard=null,h=.7
   Hd.add("skin",t3c_ball(hr,hi?18:12,hi?14:10),hood?dk(skin,.16):skin,0,0,0,{sx:.92,sy:1.04,sz:.97});
   if(!hood){Hd.add("skin",t3c_ball(hr*.52,10,7),skin,0,-hr*.5,hr*.3,{sx:1.2,sy:.9,sz:1.1}).add("skin",new THREE.ConeGeometry(hr*.14,hr*.34,6),dk(skin,.97),0,-hr*.1,hr*.98,{rx:Math.PI/2})
     .add("skin",new THREE.BoxGeometry(hr*.22,hr*.04,hr*.04),dk(skin,.8),0,-hr*.48,hr*.86);
-    for(const s of[-1,1]){if(!eyes)Hd.add("skin",t3c_ball(hr*.13,8,6),"#1b130e",s*hr*.34,hr*.06,hr*.82,{sz:.6});
+    for(const s of[-1,1]){if(!eyes)Hd.add("skin",t3c_ball(hr*(iris?.15:.13),8,6),iris||"#1b130e",s*hr*.34,hr*.06,hr*.82,{sz:.6});
       Hd.add("skin",new THREE.BoxGeometry(hr*.34,hr*.045,hr*.08),hair||dk(skin,.55),s*hr*.34,hr*.25,hr*.86,{rz:-s*.12});
-      if(ears)Hd.add("skin",new THREE.ConeGeometry(hr*.2,hr*1.15,5),skin,s*hr*1.05,hr*.2,-hr*.12,{rz:-s*1.05,rx:-.35,sz:.45});
+      if(ears)Hd.add("skin",new THREE.ConeGeometry(hr*.2,hr*1.15*earK,5),skin,s*hr*(.86+.19*earK),hr*(.06+.14*earK),-hr*.12,{rz:-s*1.05,rx:-.35,sz:.45});
       else Hd.add("skin",t3c_ball(hr*.2,6,5),skin,s*hr*.9,0,-hr*.05,{sx:.5});}}
   if(eyes)for(const s of[-1,1])Hd.add("glow",t3c_ball(hr*.13,8,6),"#fff",s*hr*.32,hr*.04,hood?hr*1.0:hr*.84,{sz:.6});
   if(hair&&!hood){const cap=(r,tl,rx)=>Hd.add("hair",new THREE.SphereGeometry(r,hi?16:10,hi?10:7,0,Math.PI*2,0,Math.PI*tl),hair,0,hr*.04,-hr*.02,{rx,sx:.95});
@@ -6503,6 +6594,18 @@ function t3body(fig,o){if(T3AV)o=Object.assign({},o,T3AV);const {beard=null,h=.7
       Hd.add("hair",t3c_lathe([[hr*.55,-hr*2.4],[hr*.85,-hr*1.7],[hr*1.05,-hr*.8],[hr*1.1,0],[hr*1.02,hr*.45]],hi?16:10,Math.PI*.5,Math.PI),hair,0,0,-hr*.05,{sz:.8});
       for(const s of[-1,1])Hd.add("hair",t3c_limb(V3(s*hr*.78,hr*.35,hr*.32),V3(s*hr*.86,-hr*1.15,hr*.2),hr*.24,hr*.12,6),hair);}
     else cap(hr*1.08,.6,-.35);}
+  // what a race grows: a dragonborn's muzzle and crest, tusks, horns, a halo, a tail
+  if(!hood){const bone="#e6dcc4";
+    if(snout){Hd.add("skin",t3c_ball(hr*.62,10,8),skin,0,-hr*.28,hr*.82,{sx:.95,sy:.72,sz:1.35}).add("skin",t3c_ball(hr*.5,8,6),dk(skin,.86),0,-hr*.5,hr*.7,{sx:.9,sy:.5,sz:1.3});
+      for(const s of[-1,1]){Hd.add("skin",t3c_ball(hr*.07,6,5),"#140e0a",s*hr*.2,-hr*.14,hr*1.6);
+        for(let i=0;i<3;i++)Hd.add("skin",new THREE.ConeGeometry(hr*.13,hr*(.62-i*.12),5),dk(skin,.72),s*hr*(.3+i*.24),hr*(.86-i*.16),-hr*(.42+i*.14),{rx:-.9,rz:-s*.35});}}
+    if(tusks)for(const s of[-1,1])Hd.add("skin",new THREE.ConeGeometry(hr*.085,hr*.42*tusks,5),bone,s*hr*.3,-hr*(.5-.12*tusks),hr*.88,{rx:-.18,rz:s*.12});
+    if(horns)for(const s of[-1,1]){const hc="#3a2a24",A=V3(s*hr*.55,hr*.72,hr*.25),Bq=V3(s*hr*.95,hr*1.3,-hr*.25),Cq=V3(s*hr*.8,hr*1.75,-hr*.8);
+      Hd.add("skin",t3c_limb(A,Bq,hr*.2,hr*.14,6),hc).add("skin",t3c_ball(hr*.14,6,5),hc,Bq.x,Bq.y,Bq.z).add("skin",t3c_limb(Bq,Cq,hr*.14,hr*.03,6),hc);}}
+  if(halo)Hd.add("metal",new THREE.TorusGeometry(hr*.78,hr*.07,6,hi?22:14),"#ffe9a8",0,hr*1.62,-hr*.05,{rx:Math.PI/2});
+  if(tail){const tr=tail>1?.05*bk:.022,tc=tail>1?skin:dk(skin,.9),P=[V3(0,Y0-.02,-.09*bk),V3(0,Y0-.14,-.2*bk),V3(.05,.2,-.3*bk),V3(.12,.13,-.36*bk),V3(.2,tail>1?.1:.2,-.34*bk)];
+    for(let i=0;i<4;i++)F.add("skin",t3c_limb(P[i],P[i+1],tr*(1-i*.2),tr*(1-(i+1)*.2),6),tc).add("skin",t3c_ball(tr*(1-(i+1)*.2),6,5),tc,P[i+1].x,P[i+1].y,P[i+1].z);
+    if(tail===1)F.add("skin",new THREE.ConeGeometry(.03,.06,4),tc,.23,.22,-.33*bk,{rz:-1.2});}
   if(beard&&beard!=="none"&&!hood){const bc=hair||dk(skin,.5),full=beard==="full";
     Hd.add("hair",t3c_ball(hr*.5,hi?12:8,hi?9:6),bc,0,-hr*(full?.66:.56),hr*.4,{sx:1.3,sy:full?1.25:.62,sz:.95});
     if(full)for(const s of[-1,1])Hd.add("hair",t3c_ball(hr*.3,8,6),bc,s*hr*.62,-hr*.3,hr*.42,{sy:1.5,sz:.8});}
@@ -6981,7 +7084,7 @@ function t3mini(Vb,u){const g=new THREE.Group(),fig=new THREE.Group(),s=u.size||
   const base=new THREE.Mesh(t3uBaseGeo(s),new THREE.MeshStandardMaterial({vertexColors:true,roughness:.52,metalness:.38}));base.receiveShadow=true;g.add(base);
   const rim=new THREE.Mesh(new THREE.TorusGeometry(.436*s,.016+.004*s,6,44),new THREE.MeshStandardMaterial({color:sideCol,emissive:sideCol,emissiveIntensity:.7,roughness:.35,metalness:.2}));rim.rotation.x=Math.PI/2;rim.position.y=.071;g.add(rim);
   const ring=new THREE.Mesh(new THREE.PlaneGeometry(2*s,2*s),t3uRingMat(sideCol));ring.rotation.x=-Math.PI/2;ring.position.y=.018;ring.visible=false;ring.renderOrder=2;g.add(ring);
-  let b;try{T3AV=u.crew||u.side==="pc"?avOpts(u.key):null;b=(T3MINI[u.key]||((f)=>t3body(f,{cloth:u.hex||"#666",skin:"#c9b49a"})))(fig,u);}catch(e){console.error(e);b={up:fig,top:.8,hand:new THREE.Vector3(0,.4,.1)};}finally{T3AV=null;}
+  let b;try{T3AV=u.crew||u.side==="pc"?avOpts(u.key):null;b=(T3MINI[u.key]||((f)=>t3body(f,{cloth:u.hex||"#666",skin:"#c9b49a"})))(fig,u);if(T3AV&&T3AV.sc&&T3AV.sc!==1){fig.scale.multiplyScalar(T3AV.sc);b.top*=T3AV.sc;}}catch(e){console.error(e);b={up:fig,top:.8,hand:new THREE.Vector3(0,.4,.1)};}finally{T3AV=null;}
   if(!b.big&&s>1)fig.scale.setScalar(s*.8);
   fig.traverse(o=>{if(o.isMesh){o.castShadow=T3Q.hi;}}); // phones draw no shadow maps
   const top=(b.top||1)*(b.big?1:s>1?s*.8:1),hr=(SMALL?.62:.52)*s; // a generous hit volume, wider on touch screens
@@ -8173,7 +8276,7 @@ function actInfo(u,a){const p=u.crew?P(u.key):null,c=u.crew?CREW[u.key]:null,m=A
   if(m&&m[1]&&!/ft|touch|next to/.test(s))s=s?s+" · "+m[1]:m[1];
   return {text:s,cost:cost?h("span",{class:"ac",title:lv?`Level ${lv} slots left`:"Uses left"},cost[0],pips(cost[1],cost[2])):null};}
 function actBtn(u,a,onAct,scene,quick){const inf=actInfo(u,a),bo=quick&&a.kind==="bonus";
-  return h("button",{type:"button",class:"pl-act"+(scene?" scene":"")+(a.warn?" warn":""),disabled:!a.ok,title:a.n+(a.sub?" · "+a.sub:""),onclick:()=>onAct(a)},
+  return h("button",{type:"button",class:"pl-act"+(scene?" scene":"")+(a.warn?" warn":"")+(quick&&a.n.length>15?" long":""),disabled:!a.ok,title:a.n+(a.sub?" · "+a.sub:""),onclick:()=>onAct(a)},
     h("span",{class:"ai",html:svgI(actIcon(a,scene))}),h("span",{class:"at"},h("b",{},a.n)),
     h("span",{class:"ad"},inf.cost,(bo?"Bonus"+(inf.text?" · ":""):"")+inf.text||" "));}
 const endBtn=(onEnd,label="End turn")=>h("button",{type:"button",class:"pl-end",onclick:onEnd},h("span",{html:svgI("end"),style:"display:contents"}),label);
@@ -11071,9 +11174,9 @@ function avStage(host){
     const base=new THREE.Mesh(t3uBaseGeo(1),new THREE.MeshStandardMaterial({vertexColors:true,roughness:.52,metalness:.38}));g.add(base);
     const ring=new THREE.Mesh(new THREE.TorusGeometry(.436,.02,6,44),new THREE.MeshStandardMaterial({color:SHEET_HEX[id]||"#c9a35c",emissive:SHEET_HEX[id]||"#c9a35c",emissiveIntensity:.7}));ring.rotation.x=Math.PI/2;ring.position.y=.071;g.add(ring);
     let b=null; // built with the look on the bench, not the saved one
-    try{T3AV=avOpts(id,avClean(id,look));b=T3MINI[id](fig,{key:id,side:"pc",size:1,crew:true});}catch(e){console.error(e);}finally{T3AV=null;}
+    try{T3AV=avOpts(id,avClean(id,look));b=T3MINI[id](fig,{key:id,side:"pc",size:1,crew:true});if(b&&T3AV.sc!==1){fig.scale.multiplyScalar(T3AV.sc);b.top*=T3AV.sc;}}catch(e){console.error(e);}finally{T3AV=null;}
     scene.add(g);S.g=g;S.anim=b&&b.anim;S.id=id;const top=S.top=(b&&b.top)||1;
-    cam.position.set(0,top*.66+.12,top*1.75+.55);cam.lookAt(0,top*.47,0);};
+    const ft=Math.max(top,.8);cam.position.set(0,ft*.66+.12,ft*1.75+.55);cam.lookAt(0,ft*.47,0);};
   S.frame=now=>{if(!host.isConnected||!host.contains(r.domElement)||t3on()){S.stop();return;}
     const dt=Math.min(.05,(now-S.last)/1000);S.last=now;const tt=(now-S.t0)/1000;
     if(host.clientWidth&&Math.abs(r.domElement.width-host.clientWidth*r.getPixelRatio())>2)fit();

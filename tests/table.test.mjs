@@ -92,7 +92,7 @@ test("a note without text can't break the map for everyone", async () => {
   assert.equal((await setDoc(s, ann, "answers", "ann", { s9: { stars: 5 } })).status, 200);
 });
 
-const look = { h: 0.8, bulk: 1, skin: "#e8c3a0", hair: "#8a3b22", style: "long", beard: "none", ears: true, hood: false, eyes: "", cloth: "#3f6b45", cloak: "", pants: "#4a3a2c", boots: "#5a3a22" };
+const look = { race: "halfelf", h: 0.8, bulk: 1, skin: "#e8c3a0", hair: "#8a3b22", style: "long", beard: "none", hood: false, iris: "#4f8fd0", eyes: "", desc: "Tall, tired, kind.", cloth: "#3f6b45", cloak: "", pants: "#4a3a2c", boots: "#5a3a22" };
 
 test("a player paints the mini of their own character only; Sam may paint any", async () => {
   const s = fakeStore();
@@ -112,7 +112,9 @@ test("a painted mini must look like the workshop made it", async () => {
     { ...look, skin: "red" },
     { ...look, h: 3 },
     { ...look, style: "mohawk" },
-    { ...look, ears: "yes" },
+    { ...look, race: "owlbear" },
+    { ...look, desc: "x".repeat(601) },
+    { ...look, iris: "blue" },
     { ...look, extra: 1 },
     (({ boots, ...rest }) => rest)(look),
   ];

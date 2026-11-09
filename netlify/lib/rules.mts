@@ -108,24 +108,26 @@ export function validInterlude(r: unknown): boolean {
 }
 
 export const AVATAR_CHARACTERS = ["katy", "saphira", "stig"];
+export const AVATAR_RACES = ["human", "elf", "halfelf", "dwarf", "halfling", "gnome", "halforc", "orc", "tiefling", "dragonborn", "aasimar", "goliath"]; // AV_RACES in chronicle.html
 const HEX_RE = /^#[0-9a-f]{6}$/;
 
-/** A painted mini: fixed fields, colours as #rrggbb, height and build within the workshop's sliders. */
+/** A painted mini: fixed fields, a known race, colours as #rrggbb, height and build within the workshop's sliders, and the player's own description. */
 export function validAvatar(d: unknown): boolean {
   if (!isObj(d) || !onlyKeys(d, ["character", "look", "at"])) return false;
   const { character, look, at } = d;
   if (typeof character !== "string" || !AVATAR_CHARACTERS.includes(character)) return false;
   if (typeof at !== "number" || !Number.isFinite(at)) return false;
   if (!isObj(look)) return false;
-  const keys = ["h", "bulk", "skin", "hair", "style", "beard", "ears", "hood", "eyes", "cloth", "cloak", "pants", "boots"];
+  const keys = ["race", "h", "bulk", "skin", "hair", "style", "beard", "hood", "iris", "eyes", "cloth", "cloak", "pants", "boots", "desc"];
   if (!onlyKeys(look, keys) || !keys.every((k) => k in look)) return false;
   const hex = (x: unknown, empty = false) => typeof x === "string" && (HEX_RE.test(x) || (empty && x === ""));
   const num = (x: unknown, a: number, z: number) => typeof x === "number" && Number.isFinite(x) && x >= a && x <= z;
   return (
     num(look.h, 0.7, 0.86) && num(look.bulk, 0.85, 1.2) &&
-    ["skin", "hair", "cloth", "pants", "boots"].every((k) => hex(look[k])) && hex(look.cloak, true) && hex(look.eyes, true) &&
+    ["skin", "hair", "cloth", "pants", "boots"].every((k) => hex(look[k])) && hex(look.cloak, true) && hex(look.eyes, true) && hex(look.iris, true) &&
+    AVATAR_RACES.includes(look.race as string) && str(look.desc, 600) &&
     ["short", "cap", "long", "bald"].includes(look.style as string) && ["none", "short", "full"].includes(look.beard as string) &&
-    typeof look.ears === "boolean" && typeof look.hood === "boolean"
+    typeof look.hood === "boolean"
   );
 }
 
