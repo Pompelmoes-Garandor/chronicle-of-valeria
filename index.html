@@ -8345,10 +8345,12 @@ function tgtList(list){return h("div",{class:"pl-tlist",role:"group","aria-label
 /* once picked: the prompt says what's happening, no Cancel */
 function aimed(t){const pr=panel.querySelector(".pl-prompt");if(!pr)return;pr.classList.add("go");pr.querySelector(".pl-btn")?.remove();panel.querySelector(".pl-tlist")?.remove();
   if(t)pr.querySelector(".pq").textContent="→ "+nameOf(t);}
-function pickTarget(list,hint){if(PLAY.auto)return Promise.resolve(list.length?pick(list):null);return new Promise(res=>{
+function pickTarget(list,hint){if(PLAY.auto)return Promise.resolve(!list.length?null:PLAY.aim?list.slice().sort((a,b)=>PLAY.aim(a)-PLAY.aim(b))[0]:pick(list));return new Promise(res=>{
   const fin=t=>{oddsBadges(false);if(t)aimed(t);res(t);};
   B.tgt={list,res:fin};renderTokens();B.reach=null;drawHi();oddsBadges(true);setHint(hint+" (tap a highlighted token)",()=>{B.tgt=null;renderTokens();fin(null);});});}
-function pickCell(cellsList,hint,areaFn){if(PLAY.auto)return Promise.resolve(cellsList.length?pick(cellsList):null);return new Promise(res=>{B.cellPick=cellsList;B.cellRes=v=>{if(v)aimed(null);res(v);};B.areaFn=areaFn;B.reach=null;drawHi();setHint(hint,()=>{B.cellPick=null;B.area=null;drawHi();res(null);});});}
+function pickCell(cellsList,hint,areaFn){if(PLAY.auto){if(!cellsList.length)return Promise.resolve(null);if(!areaFn||!PLAY.aim)return Promise.resolve(pick(cellsList));
+    const score=c=>{const a=new Set(areaFn(c[0],c[1]).map(q=>q.join(",")));let n=0;for(const o of B.units)if(alive(o)&&a.has(o.x+","+o.y))n+=o.side==="foe"?1:-3;return n;}; // the test player aims areas at the most foes, never at friends
+    const best=cellsList.slice().sort((a,b)=>score(b)-score(a))[0];return Promise.resolve(score(best)>0?best:null);}return new Promise(res=>{B.cellPick=cellsList;B.cellRes=v=>{if(v)aimed(null);res(v);};B.areaFn=areaFn;B.reach=null;drawHi();setHint(hint,()=>{B.cellPick=null;B.area=null;drawHi();res(null);});});}
 let hintEl=null;
 function setHint(t,cancel){const a=actCtx&&actCtx.a,raw=String(t).replace(/ \(tap a highlighted token\)$/,""),done=/\(Cancel when done\)/.test(raw),i=raw.indexOf(": ");
   const title=i>0?raw.slice(0,i):(a?a.n:""),q=cap((i>0?raw.slice(i+2):raw).replace(/ \(Cancel when done\)/,""));
@@ -8396,7 +8398,17 @@ function playerTurn(u){if(PLAY.auto)return autoTurn(u);return new Promise(done=>
     setPanel("turn",u,[initEl,whoRow(u,{eco:true}),quickBar(u,acts,act,()=>openActs(u,acts,act,end),end),h("div",{class:"pl-grps"},...actGroups(u,acts,act)),h("div",{class:"pl-endw"},endBtn(end))]);};
   refreshPanel=draw;draw();panel.scrollTop=0;});}
 
-async function autoTurn(u){const f=enemiesOf(u).filter(o=>o.hp>0);if(f.length&&speedOf(u)>0&&Math.random()<.7)await approach(u,nearest(u,f),u.key==="stig"||u.key==="katy"?4:1);if(u.hp<=0)return;
+async function autoTurn(u){
+  // fights with something to protect (B.def.guard: the candle, the sleeper): the test player stays by it, uses the scene's own moves, and hits whatever is closest to it
+  const G=B.def.guard&&B.def.guard();if(G){PLAY.aim=o=>dist(o,G);try{
+    if(speedOf(u)>0&&dist(u,G)>1)await approach(u,G,1);if(u.hp<=0)return;
+    const sc=sceneNames(u);for(const a of crewActions(u).filter(a=>a.ok&&sc.has(a.n))){await a.run();await checkEnd();if(B.over||u.hp<=0)return;}
+    const near=enemiesOf(u).filter(o=>alive(o)&&dist(o,G)<=2).length;
+    for(const kind of ["action","bonus"]){const l=crewActions(u).filter(a=>a.kind===kind&&a.ok&&!sc.has(a.n)&&!/^(Dash|Dodge|Disengage|Hide)$/.test(a.n));if(!l.length)continue;
+      const pref=l.find(a=>near>=2&&/Turn Undead|Thunderwave|Thunderclap|Shatter/.test(a.n))||l.find(a=>/Mockery|Sacred Flame|Toll the Dead|Eldritch|Fire Bolt|Guiding Bolt|Shortbow/.test(a.n))||l[0];
+      await pref.run();await checkEnd();if(B.over||u.hp<=0)return;}
+    return;}finally{PLAY.aim=null;}}
+  const f=enemiesOf(u).filter(o=>o.hp>0);if(f.length&&speedOf(u)>0&&Math.random()<.7)await approach(u,nearest(u,f),u.key==="stig"||u.key==="katy"?4:1);if(u.hp<=0)return;
   for(const kind of ["action","bonus"]){const l=crewActions(u).filter(a=>a.kind===kind&&a.ok&&!/^(Dash|Dodge|Disengage)$/.test(a.n));if(l.length){await (Math.random()<.5?l[0]:pick(l)).run();await checkEnd();if(B.over||u.hp<=0)return;}}}
 /* everything one of the crew can do this turn */
 function crewActions(u){
@@ -10876,6 +10888,7 @@ IFIGHTS.katy={key:"i-katy",map:"imemory",dim:true,sc:{flame:3,at:[4,1],cup:false
     if(r===3){log("Two more, climbing up out of the dark below.","r");iSpawn("shade",[[7,10],[6,11]]);}},
   async startTurn(u){if(u.key==="katy"&&B.sc.cup){B.sc.cup=false;log("Katy takes her hands from the flame.");}return false;},
   async onRoundEnd(r){if(r>=5&&B.sc.flame>0&&!B.over){log("Down in the house a bell rings, once. The shades stop, and come apart like smoke. The candle is still burning.","h");for(const u of live("foe"))u.gone=true;renderTokens();B.over="win";}},
+  guard(){return {x:B.sc.at[0],y:B.sc.at[1],size:1};},
   sceneActs(u){const S=B.sc,C={x:S.at[0],y:S.at[1],size:1};if(u.key!=="katy"||S.flame<=0)return [];
     return [{n:"Cup the flame",sub:`bonus · next to the candle · ${S.flame}/3`,kind:"bonus",ok:dist(u,C)<=1&&!S.cup,run:async()=>{u.bonus--;S.cup=true;log("Katy cups her hands round the candle. The flame leans, and holds.","g");}}];},
   async check(){if(iDown("katy")){log("Katy goes down, and the room goes dark.","r");return "lose";}
@@ -10908,6 +10921,7 @@ IFIGHTS.stig={key:"i-stig",map:"iprayer",dim:true,undead:true,sc:{tide:1},
   async onRoundEnd(r){const S=B.sc;
     if(r>=5){log("The tide turns. The grey water goes back out, and takes the drowned with it.","h");for(const u of B.units)if(u.side==="foe")u.gone=true;renderTokens();B.over="win";return;}
     if(S.tide<3){S.tide++;log(S.tide===3?"The water is everywhere now, but for the rise where the sleeper lies.":"The tide comes in. More of the floor goes under.","r");iRepaint();}},
+  guard(){return B.units.find(o=>o.key==="sleeper")||null;},
   async check(){if(iDown("sleeper")){log("The water closes over the sleeper.","r");return "lose";}
     if(iDown("stig")){log("Stig goes under.","r");return "lose";}
     if(B.round>=3&&!iFoes().length)return "win";return null;}};
