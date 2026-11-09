@@ -54,6 +54,8 @@ const POSES = {
   night:  { lon: -30, lat: 28, zoom: 0.40, sun: 150 },
   wind:   { lon: -20, lat: 25.6, zoom: 0.05, sun: -70 },   // the flying city of the Wind Vault, close up
   windfar:{ lon: -21, lat: 25, zoom: 0.16, sun: -55 },     // the same, from further out
+  sea:    { lon: -42, lat: 12, zoom: 0.06, sun: -70 },     // open water off the west coast, close up
+  seafar: { lon: -40, lat: 14, zoom: 0.22, sun: -60 },     // the same coast, from further out
 };
 const poses = list(opt.poses, Object.keys(POSES).join(',')).filter(k => POSES[k] || console.warn('unknown pose', k));
 const SIZES = {
