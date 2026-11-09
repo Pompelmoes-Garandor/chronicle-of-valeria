@@ -38,7 +38,6 @@ Top of the list is what to work on next.
 
 - [ ] **People directory** · New · either · Needs Sam. A list of the people the crew has met (Gerda, Thorn, Pieter-Bas, Teenoog, Calysta...), next to Places. Each player keeps how they feel about them (−10 to +10) and a note, saved on their own device like sheet edits.
 - [ ] **Richer place records** · New · either · Needs Sam. Add region and controlling faction to the places database (Order of the Seal for Orda and the Crow's Nest), and a "Mentioned in" list on each place: sessions, people and places that refer to it.
-- [ ] **Spell slots and resources as tappable dots** · New · either · On the character sheets: slots per level, sorcery points, Bardic Inspiration, plus an exhaustion counter. Saved on the device like HP.
 
 ## Later
 
@@ -61,6 +60,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Spell slots and resources as tappable dots** (slots, pact slots, Bardic Inspiration, Channel Divinity, Eyes of the Grave, exhaustion, short rest) · New · Sam · PR #68
 - [x] **Rename the "Character sheets" panel title to "Characters"** · Changed · either · PR #66
 - [x] **Long action names are cut off in the phone quick bar** · Fixed · Sam · PR #66
 - [x] **Rock and root pillars no longer hide the acting mini (cavern wall on phones, Saphira's root pillars): they open up like a window** · Fixed · Sam · PR #65
