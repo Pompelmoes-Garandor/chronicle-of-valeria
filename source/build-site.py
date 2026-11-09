@@ -122,4 +122,11 @@ if os.path.isdir(world):
     for n in sorted(os.listdir(world)):
         if n.endswith(".webp"):
             shutil.copy(os.path.join(world, n), os.path.join(a.out, "world", n))
+# painted pictures (source/art): copied as is into the site's art/ folder
+art = os.path.join(os.path.dirname(os.path.abspath(a.src)), "art")
+if os.path.isdir(art):
+    os.makedirs(os.path.join(a.out, "art"), exist_ok=True)
+    for n in sorted(os.listdir(art)):
+        if n.endswith(".webp"):
+            shutil.copy(os.path.join(art, n), os.path.join(a.out, "art", n))
 print("built", a.out, "session", as_of, "base", base)

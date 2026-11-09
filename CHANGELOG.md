@@ -6,6 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **Changed** The painting in the galley of *Protocol Zero* is a real oil painting now: the Steward at rest on a green couch, a blue-striped tea towel where a towel would go, berries within reach. Still signed with a small berry. (Sam)
 - **Changed** Saphira's fights follow the 2014 rules her player uses: after a bonus-action spell (Hex, Shadow Blade, Misty Step) her action can only be a cantrip, and after Shatter she can't cast a bonus-action spell that turn. (Sam)
 - **Changed** In the fights, Katy and Stig now follow the 2024 rule of one spell slot per turn, so a levelled bonus-action spell and a levelled action spell no longer fit in the same turn (cantrips still do). Saphira keeps her older rules, as at the table. (Sam)
 - **Fixed** Small things on the map and the sheets. Sound now goes quiet when you switch apps or lock your phone, and Hans's beat no longer bursts out when you come back. Tapping *Recap* again stops the recap. Tapping Sacred Flame or Toll the Dead on Stig's sheet throws only the damage and shows the save DC, instead of rolling "d20 + 17 to hit", and Toll the Dead no longer adds both damage dice together. A second roll before the first lands no longer mixes up the two results. Escape while typing on a sheet no longer closes it. In the HP box you can type −7 or +5 to change hit points. (Sam)

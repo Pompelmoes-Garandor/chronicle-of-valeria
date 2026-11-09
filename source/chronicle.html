@@ -9848,7 +9848,7 @@ function iSnd(k){if(!opt.sound)return;const N=NOTE;if(typeof iScoreSnd==="functi
     hum:()=>{iDrone(110,3.2,.07);iDrone(165.5,3.2,.03);},heart:()=>thump(),release:()=>{pluck(N.A4,0,1.2,.06,"sine");pluck(N.E4,.05,1.4,.05,"sine");},
     low:()=>pluck(110,0,3.2,.14,"sine"),strike:()=>{[0,.32,.66].forEach(d=>setTimeout(()=>hitSnd("miss"),d*1000));pluck(N.D4,.9,2.6,.1);pluck(N.A4,1.02,2.8,.07);},
     echo:()=>[N.A4,N.D4*2,N.F4*2,N.E4*2].forEach((f,i)=>pluck(f,.35+i*.3,2.4,.06,"sine")),seal:()=>hitSnd("hit"),tie:()=>fourNotes(false,.09,true)}[k]||(()=>{}))();}
-function iArtTo(key,ms){if(!artCv)return;const box=artCv.parentNode;
+function iArtTo(key,ms){if(!artCv)return;SW_CUR=key;const box=artCv.parentNode;
   if(ms&&!reduced&&box){const old=h("canvas",{width:artCv.width,height:artCv.height,class:"ic-old","aria-hidden":"true"});
     try{old.getContext("2d").drawImage(artCv,0,0);}catch(e){}
     old.style.transition=`opacity ${ms}ms ease-in-out`;box.append(old);requestAnimationFrame(()=>requestAnimationFrame(()=>{old.style.opacity="0";}));setTimeout(()=>old.remove(),ms+100);}
@@ -11374,7 +11374,7 @@ function iChap([eye,t]){const box=artCv&&artCv.parentNode;if(!box)return;if(IST)
   const c=h("div",{class:"sw-chap","aria-hidden":"true"},h("div",{class:"ic-eye"},eye),h("div",{class:"ic-t"},t),h("div",{class:"ic-rule"}));box.append(c);setTimeout(()=>c.remove(),reduced?1800:3600);}
 const swIn=()=>!!(IST&&IST.I&&IST.I.id===SW_ID);
 /* the story view for the level: a wider, letterboxed picture */
-function swView(art){storyView(art);storyEl.classList.add("sw");if(innerWidth>=700&&artCv.width<1920){artCv.width=1920;artCv.height=1080;paintArt(artCv,art);}return storyEl;}
+function swView(art){SW_CUR=art;swPic();storyView(art);storyEl.classList.add("sw");if(innerWidth>=700&&artCv.width<1920){artCv.width=1920;artCv.height=1080;paintArt(artCv,art);}return storyEl;}
 
 /* ---- the fights open on the 3D table: a title card, the camera finds the room, the threat, him ---- */
 const SW_CINE={
@@ -12016,6 +12016,10 @@ function swOil(src,R,u){const w=src.width,h=src.height,d=src.getContext("2d").ge
   for(let i=0;i<26;i++){let x=R()*w,y=R()*h,a=R()*6.283;g.beginPath();g.moveTo(x,y);for(let k=0;k<7;k++){a+=(R()-.5)*1.5;x+=Math.cos(a)*9*u;y+=Math.sin(a)*9*u;g.lineTo(x,y);}g.stroke();}
   const sheen=g.createLinearGradient(0,0,w*.6,h);sheen.addColorStop(0,"rgba(255,250,235,.1)");sheen.addColorStop(.25,"rgba(255,250,235,0)");sheen.addColorStop(.62,"rgba(255,250,235,0)");sheen.addColorStop(.7,"rgba(255,250,235,.06)");sheen.addColorStop(.8,"rgba(255,250,235,0)");g.fillStyle=sheen;g.fillRect(0,0,w,h);
   return out;}
+/* the portrait as a real painting (art/steward-portrait.webp, made with an image generator); until it has loaded, or if it is missing, the one painted in code below hangs there */
+let SW_PIC=null,SW_CUR="";
+function swPic(){if(!SW_PIC){SW_PIC=new Image();SW_PIC.decoding="async";SW_PIC.onload=()=>{if(SW_CUR.includes("portrait")||SW_CUR.includes("galley")){try{if(storyEl.isConnected&&storyEl.classList.contains("sw"))paintArt(artCv,SW_CUR);}catch(e){}}};SW_PIC.src="art/steward-portrait.webp";}
+  return SW_PIC.complete&&SW_PIC.naturalWidth?SW_PIC:null;}
 /* the canvas itself, in its gilt frame: a red curtain, a green velvet couch, a bowl of berries, the sitter; lit from the upper left like an old master */
 function swPortrait(g,S,x,y,w,hh){const {rr,R}=S,k=w/480,T=g.getTransform(),dev=Math.hypot(T.a,T.b);g.save();g.translate(x,y);
   g.fillStyle="rgba(0,0,0,.45)";g.fillRect(8*k,10*k,w,hh);
@@ -12026,6 +12030,8 @@ function swPortrait(g,S,x,y,w,hh){const {rr,R}=S,k=w/480,T=g.getTransform(),dev=
   g.fillStyle="rgba(60,36,8,.55)";const nb=Math.round(w/(9*k));for(let i=1;i<nb;i++){for(const fy of[5.2*k,hh-5.2*k]){g.beginPath();g.arc(i*w/nb,fy,1.5*k,0,7);g.fill();}}const nv=Math.round(hh/(9*k));for(let i=1;i<nv;i++){for(const fx of[5.2*k,w-5.2*k]){g.beginPath();g.arc(fx,i*hh/nv,1.5*k,0,7);g.fill();}}
   for(const [cx,cy] of[[0,0],[w,0],[0,hh],[w,hh]]){const ox=cx+(cx?-11:11)*k,oy=cy+(cy?-11:11)*k,q=g.createRadialGradient(ox-2*k,oy-2*k,0,ox,oy,7*k);q.addColorStop(0,"#fff0b8");q.addColorStop(1,"#8a5e22");g.fillStyle=q;g.beginPath();g.arc(ox,oy,6*k,0,7);g.fill();}
   const m=20*k,iw=w-2*m,ih=hh-2*m,u=dev*k,cv=ia_cv(Math.max(8,Math.round(iw*dev)),Math.max(8,Math.round(ih*dev))),c=cv.getContext("2d");c.scale(cv.width/iw,cv.height/ih);
+  const pic=swPic();let oil;
+  if(pic){const pa=pic.naturalWidth/pic.naturalHeight,ca=iw/ih,sw=pa>ca?pic.naturalHeight*ca:pic.naturalWidth,sh=pa>ca?pic.naturalHeight:pic.naturalWidth/ca;c.imageSmoothingQuality="high";c.drawImage(pic,(pic.naturalWidth-sw)/2,(pic.naturalHeight-sh)/2,sw,sh,0,0,iw,ih);c.fillStyle="#ffd27a";c.beginPath();c.arc(iw-16*k,ih-14*k,3.2*k,0,7);c.fill();c.strokeStyle="#8ac878";c.lineWidth=1.2*k;c.beginPath();c.moveTo(iw-16*k,ih-17*k);c.quadraticCurveTo(iw-12*k,ih-24*k,iw-8*k,ih-22*k);c.stroke();oil=cv;}else{
   // the curtain: heavy folds, each with a lit side and a deep shadow
   c.fillStyle="#3a100c";c.fillRect(0,0,iw,ih);for(let i=0;i<10;i++){const fx=i*iw/9+rr(-6,6)*k,fw=iw/9,q=c.createLinearGradient(fx,0,fx+fw,0);q.addColorStop(0,"rgba(150,44,30,.9)");q.addColorStop(.35,"rgba(96,24,18,.9)");q.addColorStop(.8,"rgba(24,6,5,.95)");q.addColorStop(1,"rgba(60,14,10,.9)");c.fillStyle=q;
     c.beginPath();c.moveTo(fx,0);c.quadraticCurveTo(fx+10*k,ih*.4,fx-5*k,ih);c.lineTo(fx+fw-5*k,ih);c.quadraticCurveTo(fx+fw+10*k,ih*.4,fx+fw,0);c.fill();}
@@ -12045,12 +12051,12 @@ function swPortrait(g,S,x,y,w,hh){const {rr,R}=S,k=w/480,T=g.getTransform(),dev=
   // berries in a copper bowl, one of them out of it
   const bw=c.createLinearGradient(iw*.33-24*k,0,iw*.33+24*k,0);bw.addColorStop(0,SWK.cuH);bw.addColorStop(.4,SWK.cu);bw.addColorStop(1,"#2a160a");c.fillStyle=bw;c.beginPath();c.ellipse(iw*.33,ih*.80,24*k,10*k,0,0,Math.PI);c.fill();c.fillStyle=SWK.cuH;c.fillRect(iw*.33-24*k,ih*.80-2*k,48*k,2.4*k);
   for(const [bx,by] of[[-12,-6],[0,-9],[12,-6],[-5,-14],[7,-14],[36,7]]){const ox=iw*.33+bx*k,oy=ih*.80+by*k;ia_glow(c,ox,oy,11*k,[[0,"rgba(255,210,120,.6)"],[1,"rgba(255,210,120,0)"]]);const q=c.createRadialGradient(ox-1.4*k,oy-1.6*k,0,ox,oy,4.8*k);q.addColorStop(0,"#fff6d0");q.addColorStop(.4,"#ffd27a");q.addColorStop(1,"#b8741e");c.fillStyle=q;c.beginPath();c.arc(ox,oy,4.6*k,0,7);c.fill();}
-  const oil=swOil(cv,R,u);const oc=oil.getContext("2d");oc.scale(cv.width/iw,cv.height/ih);
+  oil=swOil(cv,R,u);const oc=oil.getContext("2d");oc.scale(cv.width/iw,cv.height/ih);
   // the last touches, put on after everything else: the light in the lens, a glint on a joint, and the signature
   ia_glow(oc,iw*.475-106*1.32*k,ih*.75-90*1.32*k,9*k,[[0,"rgba(230,255,248,.95)"],[.3,ia_a(SWK.teal,.5)],[1,ia_a(SWK.teal,0)]]);
   oc.fillStyle="rgba(255,252,240,.9)";for(const [hx,hy,r] of[[-109,-93,1.5],[-70,-73,1.6],[-123,-14,1.3],[103,-97,1.4],[20,-88,1.1],[-32,-52,1.2]]){oc.beginPath();oc.arc(iw*.475+hx*1.32*k,ih*.75+hy*1.32*k,r*k,0,7);oc.fill();}
   oc.fillStyle="#ffd27a";oc.beginPath();oc.arc(iw-16*k,ih-14*k,3.2*k,0,7);oc.fill();oc.strokeStyle="#8ac878";oc.lineWidth=1.2*k;oc.beginPath();oc.moveTo(iw-16*k,ih-17*k);oc.quadraticCurveTo(iw-12*k,ih-24*k,iw-8*k,ih-22*k);oc.stroke();
-  g.imageSmoothingQuality="high";g.drawImage(oil,m,m,iw,ih);
+  }g.imageSmoothingQuality="high";g.drawImage(oil,m,m,iw,ih);
   // the slip's shadow on the paint, and glass-less glare off the gilding
   const sl=g.createLinearGradient(0,m,0,m+10*k);sl.addColorStop(0,"rgba(0,0,0,.5)");sl.addColorStop(1,"rgba(0,0,0,0)");g.fillStyle=sl;g.fillRect(m,m,iw,10*k);const s2=g.createLinearGradient(m,0,m+8*k,0);s2.addColorStop(0,"rgba(0,0,0,.4)");s2.addColorStop(1,"rgba(0,0,0,0)");g.fillStyle=s2;g.fillRect(m,m,8*k,ih);
   g.restore();}
