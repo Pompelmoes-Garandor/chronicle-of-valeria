@@ -5220,7 +5220,7 @@ menuBtn.onclick=()=>{if(menuEl){closeMenu();return;}
   const tg=(k,l)=>h("button",{type:"button",class:"pl-btn"+(opt[k]?" on":""),"aria-pressed":String(!!opt[k]),onclick:e=>{opt[k]=!opt[k];saveOpt();e.currentTarget.classList.toggle("on",opt[k]);e.currentTarget.setAttribute("aria-pressed",String(opt[k]));if(k==="sound"&&!opt[k])pulse(false);if(k==="flat"&&B){closeMenu();const keep=[...stage.querySelectorAll(".pl-modal,.pl-chip")];t3dispose();for(const u of B.units)u.el=null;buildBattleView();renderTokens();renderInit();for(const m of keep)stage.append(m);}}},l);
   const inI=!!IST||PLAY.inter; // in an interlude the chapters belong to session 10, so the menu offers a way out instead
   menuEl=h("div",{class:"pl-menu"},
-    ...(inI?[h("div",{class:"pl-sec"},"Interlude"),h("button",{type:"button",class:"pl-btn",onclick:async()=>{closeMenu();if(await ask("Leave this interlude?","What you played so far is not kept. You can start it again from Interludes.","Leave","Stay")){PLAY.iList=true;playHub();}}},"Leave this interlude")]:[]),
+    ...(inI?[h("div",{class:"pl-sec"},"Interlude"),h("button",{type:"button",class:"pl-btn",onclick:async()=>{closeMenu();if(await ask("Leave this interlude?","Your place is kept on this phone: open it again from Interludes to pick up where you left off.","Leave","Stay")){PLAY.iList=true;playHub();}}},"Leave this interlude")]:[]),
     ...(inI?[]:[h("div",{class:"pl-sec"},"Chapters")]),
     ...(inI?[]:SCENES).map((s,i)=>h("button",{type:"button",class:"pl-btn"+(i===ST.scene?" on":""),onclick:async()=>{closeMenu();if(await ask("Jump to "+s.t+"?","The crew keeps the hit points and spell slots they have now.","Jump","Stay")){ST.scene=i;ST.snap=null;saveState();runScene();}}},(i+1)+". "+s.t)),
     ...(inI?[]:t3cineMenu()),
@@ -7879,7 +7879,8 @@ async function hurt(t,amt,type,src,o={}){
   if(B.def.onHurt)await B.def.onHurt(t,src);
   renderTokens();}
 function dropConc(u){const c=u.conc;if(!c)return;u.conc=null;for(const o of B.units)for(const k of c.conds||[])if(o.cond[k]&&o.cond[k].by===u.id)delete o.cond[k];log(`  ${nameOf(u)} loses concentration on ${c.n}.`,"r");}
-async function zero(t,src,type,o){
+async function zero(t,src,type,o){for(const g of B.units)if(g.cond.grappled&&g.cond.grappled.by===t.id){delete g.cond.grappled;log(`  ${nameOf(g)} is free of the grip.`,"g");} // a grapple ends when the grappler goes down
+  
   t.hp=0;if(t.conc)dropConc(t);
   if(t.side==="foe"){
     if(MON[t.key].fort&&type!=="radiant"&&!o.crit){const dc=5+(o.lastDmg||5);const r=d20();if(r.v+3>=dc){t.hp=1;log(`  ${t.name} won't stay down (Undead Fortitude): 1 HP.`,"r");return;}}
@@ -9019,7 +9020,7 @@ async function sOverclock(){
     if(S.round===2){const id=S.st.rhythm;log(`The floor shakes under ${who(id)} at the rhythm station.`,"r");const r=await crewRoll(id,"Dex save",CREW[id].sv.dex,14);if(!r.ok){proneRhythm=true;log(`${who(id)} is knocked prone: disadvantage on the rhythm roll.`,"r");}}
     await new Promise(resolve=>{
       const tEl=h("div",{class:"pl-timer"},String(secs));let left=PLAY.auto?1:secs;
-      const finish=()=>{clearInterval(timerT);resolve();};
+      let over=false;const busy={};const finish=()=>{over=true;clearInterval(timerT);resolve();}; // a roll that lands after the round is over counts for nothing
       timerT=setInterval(()=>{left--;tEl.textContent=String(Math.max(0,left));tEl.classList.toggle("hot",left<=10);if(left<=10&&left>0)pluck(880,0,.08,.05,"square");if(left<=0){timeUp=true;finish();}},1000);
       const draw=()=>{clearStory();
         storyEl.append(h("div",{class:"pl-spk"},`Round ${S.round} · DC ${dc}`),tEl,
@@ -9029,15 +9030,15 @@ async function sOverclock(){
               ...(done?[]:[...d.sk.map(([l,sk])=>h("button",{type:"button",class:"pl-btn",onclick:()=>roll(k,sk,l)},"Roll "+l,h("small",{},sgn(sk==="con"?CREW[id].ab.con:skillMod(id,sk))))),
                 hasSlot?h("button",{type:"button",class:"pl-btn",onclick:()=>slotIn(k)},"Pour a spell slot",h("small",{},"auto success")):null]));})),
           h("p",{class:"pl-hint m"},(hint?"Hans's hint is ready: the next roll has advantage. ":"")+(P("katy").res.bi>0?"Katy can spend Bardic Inspiration on the others' rolls (it's offered when a roll misses).":"")));};
-      const tally=async(k,ok)=>{rolled[k]=ok?"ok":"bad";if(ok)S.ok++;else{S.bad++;roundFails++;failedSt.push(k);if(S.bad<=2){P("hans").hp=Math.max(1,P("hans").hp-10);log("Hans −10 HP from the overload.","r");}}
+      const tally=async(k,ok)=>{busy[k]=false;if(over)return;rolled[k]=ok?"ok":"bad";if(ok)S.ok++;else{S.bad++;roundFails++;failedSt.push(k);if(S.bad<=2){P("hans").hp=Math.max(1,P("hans").hp-10);log("Hans −10 HP from the overload.","r");}}
         if(S.ok>=6||S.bad>=3||order.every(x=>rolled[x])){finish();return;}draw();};
-      const roll=async(k,sk,l)=>{const id=S.st[k];let adv=false;if(hint){hint=false;adv=true;log("Hans's hint: advantage.","h");}
+      const roll=async(k,sk,l)=>{if(over||rolled[k]||busy[k])return;busy[k]=true;const id=S.st[k];let adv=false;if(hint){hint=false;adv=true;log("Hans's hint: advantage.","h");}
         if(k==="core"&&id==="stig"&&S.tattoo){S.tattoo=false;adv=true;log("Stig's Water tattoo cools Hans's core: advantage.","h");}
         const mod=sk==="con"?CREW[id].ab.con:skillMod(id,sk);
         const ins=id!=="katy"&&P("katy").res.bi>0;const r=await crewRoll(id,l,mod,dc,{adv,dis:k==="rhythm"&&proneRhythm,u:ins?{cond:{insp:8}}:null});
         if(ins&&r.ok&&r.tot<dc+8&&r.v+mod<dc){P("katy").res.bi--;}
         await tally(k,r.ok);};
-      const slotIn=async k=>{const id=S.st[k],p=P(id);if(!(await ask("Pour a spell slot into Hans?","An automatic success. The Blight Heart is next, so every slot counts.","Pour it in","Roll instead")))return;
+      const slotIn=async k=>{if(over||rolled[k]||busy[k])return;busy[k]=true;const id=S.st[k],p=P(id);if(!(await ask("Pour a spell slot into Hans?","An automatic success. The Blight Heart is next, so every slot counts.","Pour it in","Roll instead"))){busy[k]=false;return;}if(over)return;
         if(p.pact>0)p.pact--;else{const i=p.slots.findIndex(n=>n>0);p.slots[i]--;}log(`${who(id)} pours a spell slot into Hans.`,"g");await tally(k,true);};
       draw();});
     clearInterval(timerT);
@@ -9728,11 +9729,11 @@ async function runInterlude(I){
   const mine=IST={I,seen:[],path:[],verse:{},votes:{}},live=()=>{if(IST!==mine)throw ABORT;}; // left midway: this run stops quietly
   storyView(I.art);setTitle(I.eye,T.title);clearLog();
   // a bookmark on this device: a reload, a locked phone or a trip to WhatsApp picks up at the same passage (or at the start of the fight)
-  const RK="chron-inter-run-"+I.id,mark=()=>store.set(RK,JSON.stringify({v:1,at:IST.at,seen:IST.seen,path:IST.path,verse:IST.verse,fight:!!IST.fight,t:Date.now()}));
+  const RK="chron-inter-run-"+I.id,mark=()=>{if(!PLAY.auto)store.set(RK,JSON.stringify({v:1,at:IST.at,seen:IST.seen,path:IST.path,verse:IST.verse,fight:!!IST.fight,done:IST.done||null,t:Date.now()}));};
   let bm=null;try{bm=JSON.parse(store.get(RK)||"null");}catch(e){}
   if(bm&&bm.v===1&&!PLAY.auto&&(bm.fight||T.passages[bm.at])&&Array.isArray(bm.seen)&&bm.seen.length>1){
-    const c=await choose(bm.fight?"You stopped in the middle of the fight.":"You stopped part way through.",[{t:bm.fight?"Back to the fight":"Pick up where you left off",sub:bm.fight?"it starts again from the first round":"your choices so far are kept"},{t:"Start from the beginning"}],{spk:T.title});live();
-    if(c===0){IST.seen=bm.seen.slice();IST.path=(bm.path||[]).slice();IST.verse=bm.verse||{};IST.fight=bm.fight;storyView(I.art);setTitle(I.eye,T.title);}else bm=null;}
+    const inF=bm.fight&&!bm.done,c=await choose(inF?"You stopped in the middle of the fight.":"You stopped part way through.",[{t:inF?"Back to the fight":"Pick up where you left off",sub:inF?"it starts again from the first round":"your choices so far are kept"},{t:"Start from the beginning"}],{spk:T.title});live();
+    if(c===0){IST.seen=bm.seen.slice();IST.path=(bm.path||[]).slice();IST.verse=bm.verse||{};IST.fight=bm.fight;IST.done=bm.done||null;storyView(I.art);setTitle(I.eye,T.title);}else bm=null;}
   else bm=null;
   let id=bm&&!bm.fight?bm.at:T.first;if(bm&&!bm.fight)IST.seen.pop(); // the loop below adds the bookmarked passage again
   while(!(bm&&bm.fight)){const p=T.passages[id];IST.seen.push(id);IST.at=id;mark();
@@ -9748,7 +9749,8 @@ async function runInterlude(I){
   if(I.prologue){store.set("chron-prologue-"+I.id,"1");store.set(RK,"");IST=null;return;} // read; nothing to keep or send
   // the small fight: a test of the engine, then the memory lets go
   let fight=null;
-  if(IFIGHTS[I.fight]){IST.fight=true;mark();const out=await iFight(I);live();fight={won:out==="win",rounds:IST.rounds||0};}
+  if(IST.done)fight=IST.done; // the fight was already fought before the reload: straight to the Echo
+  else if(IFIGHTS[I.fight]){IST.fight=true;mark();const out=await iFight(I);live();fight={won:out==="win",rounds:IST.rounds||0};IST.done=fight;mark();}
   const ek=Object.entries(I.endBy).find(([k])=>IST.seen.includes(k))?.[1]||Object.keys(T.ends)[0],e=T.ends[ek];
   storyView(I.art);setTitle(I.eye,e.h);
   await iPassage({html:e.html+`<div class="pl-echo" role="note" aria-label="Your Echo"><b>Echo: ${escapeHtml(e.echo.name)}</b><span>${escapeHtml(e.echo.text)}</span><small>You can use this Echo once, at the table; Sam decides when it applies. It waits on your character sheet.</small></div>`},[{t:"Keep it"}],{spk:"Your Echo"});
@@ -9766,7 +9768,7 @@ async function runInterlude(I){
 /* ---- the fight: its own party state, so it never touches the session 10 save ---- */
 // saveState() skips while PLAY.inter; IFK keeps the session 10 state so iLeave() can put it back if the player walks out mid-fight.
 async function iFight(I){const mine={keep:ST};IFK=mine;ST=freshState();PLAY.inter=true;let out=null;
-  try{while(true){try{out=await battle(IFIGHTS[I.fight]);}catch(e){if(e===ABORT)throw e;console.error(e);out=null;break;} // a broken fight never strands the story
+  try{while(true){try{out=await battle(IFIGHTS[I.fight]);}catch(e){if(e===ABORT||IFK!==mine||!PLAY.on)throw ABORT;console.error(e);out=null;break;} // a broken fight never strands the story
       if(IST)IST.rounds=(B&&B.round)||0;if(out!=="lose")break;
       storyView(I.art);const i=await choose("The memory slips. Everything goes grey.",[{t:"Try the fight again"},{t:"Let the memory go",sub:"you keep the story and the Echo"}]);
       if(i===1)break;ST=freshState();}}
