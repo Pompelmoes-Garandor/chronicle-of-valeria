@@ -28,6 +28,7 @@ Things that are wrong on the live site today. Check this list before **Now**: a 
 
 Top of the list is what to work on next.
 
+- [ ] **Sam plays Protocol Zero and says when players see it** · Lore · Sam · Needs Sam. The Steward's bonus level is built but only Sam (signed in as DM), `?interlude` and `?steward` open it; `SW_ON` in `chronicle.html` turns it on for everyone. The ten open questions in the script doc (the ship's name *the Echo*, the invented bridge and engine room, Teenoog's mount, two lines to spoiler-check) are still Sam's: https://claude.ai/artifact/6AQmuc6JWHMxYcD2FuRZmf
 - [ ] **Sam reads the architecture doc for live online storage** · Changed · Sam · Ask this first when Sam starts his next session. Niels wrote a plan to move the site to Netlify, with shared lore in Netlify Blobs, table-only sign-in (email or Google), and players proposing changes that Sam approves as DM: https://claude.ai/artifact/GAzMi1qU52yxoCkHtLsWyW (Niels shares it with Sam; it only opens for people it's shared with). Ask Sam (1) whether he wants to read it now and (2) whether to make it available in GitHub, as an `ARCHITECTURE.md` in the repo root or as an issue. The doc's open questions need his answer before any building starts. Fleshes out **Live online storage** under Later.
 - [ ] **Sam checks the place classifications** · Lore · Sam · Valarius and Orda as town or city, Valethorn as castle, the ravine as natural wonder, the Dead Valley and Summerwood as realms, the waystone as ancient tech. Questions are in PR #4.
 - [ ] **Passive Perception for Katy and Hans** · Lore · Sam · Their papers don't list it, so the sheet shows 12 and 11 worked out from Wisdom (marked *). Put the real numbers under Senses.
@@ -58,6 +59,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Protocol Zero, the Steward's last stand, as a playable bonus level (only Sam sees it for now)** · New · Sam · PR #61
 - [x] **Town names win over the small seals around them (Valarius over Gerda's inn)** · Fixed · Sam · PR #73
 - [x] **Trackers panel:** Hans's tally in the Chronicle (crew HP and resources, sigils 2 of 4, places explored). Per region waits for a region on each place · New · Sam · PR #72
 - [x] **Fight rules from the whole-app pass: exhaustion on saves, Sneak Attack with disadvantage, crits on the downed, stable then hit, one concentration save per attack, Uncanny Dodge, Heroic reroll; flat-board switch froze an open question; minis' shine after the first fight** · Fixed · Sam · PR #74
