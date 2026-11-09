@@ -23,8 +23,6 @@ Things that are wrong on the live site today. Check this list before **Now**: a 
 - Anyone at the table can report a bug to Sam or Niels; whoever hears it adds it here. Fixing one is a **Fixed** line in the patch notes, and the bug moves to **Done**.
 
 - [ ] **The open sea is one flat colour up close** · cosmetic · Map · Zoomed in, the ocean has no texture or swell left, so it looks empty next to the land. Seen in the test screenshots of 2026-11-01.
-- [ ] **The acting mini can hide behind the cavern's wall rocks on phones** · annoying · Play session 10, Blight Heart fight, phone · The crew start against the south wall and the close phone camera looks through the rocks. A planned fix tilts the camera up until the line to the mini's feet is clear.
-- [ ] **The camera can end up behind the root pillars in Saphira's interlude fight** · cosmetic · Interludes, Saphira's fight, 3D · Turn or re-centre to see the board again.
 - [ ] **Saphira's Passive Perception doesn't add up** · cosmetic · Characters, Saphira · Her paper says Passive Perception 15, but her Perception skill is +4, which gives 14. The sheet shows the paper's 15. Lore question for Sam: which number is right?
 
 ## Now
@@ -65,6 +63,7 @@ Newest first, with the PR that shipped it.
 
 - [x] **Rename the "Character sheets" panel title to "Characters"** · Changed · either · PR #66
 - [x] **Long action names are cut off in the phone quick bar** · Fixed · Sam · PR #66
+- [x] **Rock and root pillars no longer hide the acting mini (cavern wall on phones, Saphira's root pillars): they open up like a window** · Fixed · Sam · PR #65
 - [x] **End of an interlude in Hans's voice, with a WhatsApp button to send the log to the DM** · Changed · Sam · PR #56
 - [x] **Interludes run straight through: who you are → Round the Fire → your own interlude** · Changed · Sam · PR #55
 - [x] **The shared interlude becomes the prologue *Round the Fire* (no votes, fight or Echo; the vote version kept in source/interludes/drafts/)** · New · Sam · PR #53

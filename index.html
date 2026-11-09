@@ -5348,15 +5348,22 @@ function t3dressTunnel(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,S=seeded(9091),rr=(a,b)=
 
 /* walls nearest the camera are cut down so the board stays in view from any side */
 const T3W_STRATA=[["#2a2621","#36302a","#2e2a26","#433c34"],["#26231f","#3a352e","#312c27","#4a433a"],["#2c2722","#332f2b","#3d3730","#2a2723"],["#24211d","#38322b","#2f2b25","#463f37"]];
-function t3w_cutSetup(Vb){const mp=Vb.mp,U=Vb.t3wU={c:{value:new THREE.Vector4(0,0,0,1)},k:{value:new THREE.Vector3(99,1.3,.45)}};Vb.t3wTorch=[];
+let t3w_hole=1; // ?playtest: __t3.hole(0) closes it to compare
+/* and a see-through hole: rock between the camera and the acting mini is opened up (dithered), so nobody fights hidden behind a pillar or a wall */
+function t3w_cutSetup(Vb){const mp=Vb.mp,U=Vb.t3wU={c:{value:new THREE.Vector4(0,0,0,1)},k:{value:new THREE.Vector3(99,1.3,.45)},f:{value:new THREE.Vector4(0,0,0,0)}};Vb.t3wTorch=[];
+  const fg=new THREE.Vector3();let fr=0;
+  Vb.ticks.push((dt)=>{const m=B&&B.cur&&Vb.minis&&Vb.minis.get(B.cur),on=!!(m&&m.g.visible&&!m.gone&&!T3C);
+    if(m)fg.set(m.g.position.x,m.g.position.y+m.top*.55,m.g.position.z);const k=1-Math.exp(-(dt||.016)*7);fr+=((on?1:0)-fr)*k;
+    if(m){const F=U.f.value;if(F.w<.01)F.set(fg.x,fg.y,fg.z,0);else{F.x+=(fg.x-F.x)*k;F.y+=(fg.y-F.y)*k;F.z+=(fg.z-F.z)*k;}}U.f.value.w=fr<.02?0:fr*(innerWidth<700?1.05:.9)*t3w_hole;});
   Vb.ticks.push(()=>{const Vw=Vb.view,cp=Vb.cam.position;let dx=cp.x-Vw.tx,dz=cp.z-Vw.tz;const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;
     const ext=.5*(mp.W*Math.abs(dx)+mp.H*Math.abs(dz))-(Vw.tx*dx+Vw.tz*dz),a0=Math.max(.8,ext-2.7),hl=.35+.25*Math.max(0,Math.sin(Vw.pitch)-.5);U.c.value.set(Vw.tx,Vw.tz,dx,dz);U.k.value.set(a0,1.3,hl);
     for(const [st,fl,pl] of Vb.t3wTorch){const a=(st.position.x-Vw.tx)*dx+(st.position.z-Vw.tz)*dz;st.visible=fl.visible=a<a0+.5;if(pl)pl.visible=st.visible;}});}
 function t3w_cut(Vb,kind){const m=t3surf(kind,Vb),c=m.clone();c.onBeforeCompile=m.onBeforeCompile;if(Object.prototype.hasOwnProperty.call(m,"customProgramCacheKey"))c.customProgramCacheKey=m.customProgramCacheKey;return t3w_cutMat(Vb,c);}
 function t3w_cutMat(Vb,m){if(m.userData.t3wCut)return m;m.userData.t3wCut=1;const prev=m.onBeforeCompile,key=m.customProgramCacheKey()+"|t3wcut",U=Vb.t3wU;
-  m.onBeforeCompile=function(sh,r){if(prev)prev.call(this,sh,r);if(!sh.vertexShader.includes("#include <project_vertex>")||!sh.fragmentShader.includes("void main() {"))return;sh.uniforms.t3wC=U.c;sh.uniforms.t3wK=U.k;
+  m.onBeforeCompile=function(sh,r){if(prev)prev.call(this,sh,r);if(!sh.vertexShader.includes("#include <project_vertex>")||!sh.fragmentShader.includes("void main() {"))return;sh.uniforms.t3wC=U.c;sh.uniforms.t3wK=U.k;sh.uniforms.t3wF=U.f;
     sh.vertexShader="varying vec3 vT3w;\n"+sh.vertexShader.replace("#include <project_vertex>","#include <project_vertex>\n{vec4 q=vec4(transformed,1.);\n#ifdef USE_INSTANCING\nq=instanceMatrix*q;\n#endif\nvT3w=(modelMatrix*q).xyz;}");
-    sh.fragmentShader="varying vec3 vT3w;uniform vec4 t3wC;uniform vec3 t3wK;\n"+sh.fragmentShader.replace("void main() {","void main() {\n{float a=dot(vT3w.xz-t3wC.xy,t3wC.zw),lim=mix(60.,t3wK.z,smoothstep(t3wK.x,t3wK.x+t3wK.y,a)),n=fract(sin(dot(floor(gl_FragCoord.xy),vec2(12.9898,78.233)))*43758.5453);if(vT3w.y>lim+.16*(n-.5))discard;}");};
+    sh.fragmentShader="varying vec3 vT3w;uniform vec4 t3wC,t3wF;uniform vec3 t3wK;\n"+sh.fragmentShader.replace("void main() {","void main() {\n{float a=dot(vT3w.xz-t3wC.xy,t3wC.zw),lim=mix(60.,t3wK.z,smoothstep(t3wK.x,t3wK.x+t3wK.y,a)),n=fract(sin(dot(floor(gl_FragCoord.xy),vec2(12.9898,78.233)))*43758.5453);if(vT3w.y>lim+.16*(n-.5))discard;\n"
+      +"if(t3wF.w>.01&&vT3w.y>.12){vec3 v=t3wF.xyz-cameraPosition;float L=length(v);v/=L;float t=dot(vT3w-cameraPosition,v);if(t>0.&&t<L-.3){float d=length(vT3w-cameraPosition-v*t),r=t3wF.w*mix(.55,1.,clamp(t/L,0.,1.));if(d<r*(.9+.14*n))discard;}}}");};
   m.customProgramCacheKey=()=>key;return m;}
 /* a rock slab: a box with rounded, chipped corners */
 function t3w_slab(w,h,d,seed,j=.07){const g=new THREE.BoxGeometry(w,h,d,3,2,3),p=g.attributes.position;
@@ -5424,7 +5431,7 @@ function t3dressCavern(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,S=seeded(707),rr=(a,b)=>
     const p0=new THREE.Vector3(c.x+ax,.9,c.z+az),p1=new THREE.Vector3(c.x+bx,1.6,c.z+bz),pts=[];
     for(let k=0;k<=8;k++){const t=k/8;pts.push(new THREE.Vector3().lerpVectors(p0,p1,t).add(new THREE.Vector3(rr(-.06,.06),Math.sin(t*Math.PI)*(hgt-1.2)+t*.9,rr(-.06,.06))));}
     pts.push(new THREE.Vector3(c.x+bx*1.15,3.3,c.z+bz*1.08));ribs.push(t3tint(t3hTube(pts,.2,.08,hi),"#18110c"));}
-  const rm=t3surf("root",Vb);Vb.root.add(t3mesh(t3merge(roots),rm,{cast:true,recv:true}));if(ribs.length)Vb.root.add(t3mesh(t3merge(ribs),rm,{cast:true,recv:true}));
+  const rm=Vb.t3wU?t3w_cut(Vb,"root"):t3surf("root",Vb);Vb.root.add(t3mesh(t3merge(roots),rm,{cast:true,recv:true}));if(ribs.length)Vb.root.add(t3mesh(t3merge(ribs),rm,{cast:true,recv:true}));
   const U=Vb.t3h={ph:{value:0},beat:{value:0},life:{value:1}};
   if(veins.length){const vm=new THREE.MeshStandardMaterial({color:0x2c3f1c,roughness:.35,emissive:0x9cf06a,emissiveIntensity:1});
     vm.onBeforeCompile=sh=>{Object.assign(sh.uniforms,{uPh:U.ph,uBeat:U.beat,uLife:U.life});
@@ -7545,7 +7552,7 @@ function t3start(){t3dispose();const host=h("div",{class:"pl-3d"}),tags=h("div",
   mapEl=host;tkLayer=tags;
   for(const u of B.units)V.minis.set(u,t3mini(V,u));
   t3fit();t3hi();t3last=0;cancelAnimationFrame(t3raf);t3raf=requestAnimationFrame(t3loop);return true;}
-if(/[?&]playtest/.test(location.search))window.__t3={settle(){if(V){V.intro=false;Object.assign(V.view,V.goal);}},zoom(f,y){if(V){V.goal.dist=V.home.dist*f;if(y!=null)V.goal.yaw+=y;this.settle();}},cam(){return V?{view:Object.assign({},V.view),pitch:V.t3k_pitch,pos:V.cam.position.toArray()}:null}};
+if(/[?&]playtest/.test(location.search))window.__t3={settle(){if(V){V.intro=false;Object.assign(V.view,V.goal);}},zoom(f,y){if(V){V.goal.dist=V.home.dist*f;if(y!=null)V.goal.yaw+=y;this.settle();}},hole(k){t3w_hole=k;},cam(){return V?{view:Object.assign({},V.view),pitch:V.t3k_pitch,pos:V.cam.position.toArray()}:null}};
 // playtest hook (camera framing): where each mini stands on screen and how tall it is there, in CSS px
 if(/[?&]playtest/.test(location.search))window.__t3.probe=()=>{if(!V||!B)return null;const rc=V.host.getBoundingClientRect(),W2=rc.width/2,H2=rc.height/2,q=new THREE.Vector3(),sc=v=>{q.copy(v).project(V.cam);return [rc.left+q.x*W2+W2,rc.top-q.y*H2+H2,q.z];};
   const C=V.t3c||{};return {t3c:{on:!!C.on,hold:!!C.hold,follow:t3c_follow,zoom:t3c_zoom,dMin:C.dMin,dPref:C.dPref,dMax:C.dMax,fm:C.focus&&C.focus.mode,aim:C.aim,act:!!V.t3k_act,intro:!!V.intro,userAgo:performance.now()-V.userT},host:[rc.left,rc.top,rc.width,rc.height],fov:V.cam.fov,pitch:V.t3k_pitch,view:Object.assign({},V.view),goal:Object.assign({},V.goal),home:Object.assign({},V.home),cur:B.cur&&B.cur.key,
