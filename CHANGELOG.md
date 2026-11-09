@@ -6,6 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **Fixed** Town names no longer lose out to the small places around them. Zoomed out a little, Valarius used to drop its name because Gerda's inn sat right under it; now the town keeps its name and the inn's seal steps aside until you zoom in far enough for both. (Sam)
 - **New** *Hans's tally* at the top of the Chronicle: the whole crew at a glance (hit points, slots and class resources left, exhaustion and conditions, as you keep them on your device; tap someone to open their sheet), the sigils found (2 of 4), and how many places on the chart you have explored. (Sam)
 - **Fixed** Zoom in on the map and the sea and the fog no longer turn into one flat grey. The fog rolls in finer banks, lit on the side that faces the sun, and the clouds over uncharted ground break into wisps. Water the crew has seen gets a slow swell, inked form lines along the coast and small engraved wave marks out at sea, like an old atlas. Over rumoured seas, such as the Fire Sea, the mist thins a little when you look close. (Sam)
 - **Changed** An interlude now keeps your place. If your phone locks, you pop over to WhatsApp or the page reloads, opening it again asks *Pick up where you left off*: you're back at the same passage with your choices kept. Stopped during the fight? *Back to the fight* starts it again from the first round, without replaying the story. (Sam)
