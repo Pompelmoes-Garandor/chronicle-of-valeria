@@ -60,6 +60,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Fights on phones: tap twice to move (first tap previews the path), End turn asks once when an action is left** · Changed · Sam · PR #70
 - [x] **Spell slots and resources as tappable dots** (slots, pact slots, Bardic Inspiration, Channel Divinity, Eyes of the Grave, exhaustion, short rest) · New · Sam · PR #68
 - [x] **Rename the "Character sheets" panel title to "Characters"** · Changed · either · PR #66
 - [x] **Long action names are cut off in the phone quick bar** · Fixed · Sam · PR #66
