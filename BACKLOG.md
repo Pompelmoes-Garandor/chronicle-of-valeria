@@ -63,6 +63,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Make your own mini: each player paints their avatar in Hans's workshop, used on the 3D table and the sheet** · New · Sam · PR #NN
 - [x] **Rock and root pillars no longer hide the acting mini (cavern wall on phones, Saphira's root pillars): they open up like a window** · Fixed · Sam · PR #65
 - [x] **End of an interlude in Hans's voice, with a WhatsApp button to send the log to the DM** · Changed · Sam · PR #56
 - [x] **Interludes run straight through: who you are → Round the Fire → your own interlude** · Changed · Sam · PR #55

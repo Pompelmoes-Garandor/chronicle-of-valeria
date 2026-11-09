@@ -91,3 +91,31 @@ test("a note without text can't break the map for everyone", async () => {
   assert.equal((await setDoc(s, ann, "answers", "ann", { missed: [{ text: "Gerda", lon: 1.5, lat: -3 }] })).status, 200);
   assert.equal((await setDoc(s, ann, "answers", "ann", { s9: { stars: 5 } })).status, 200);
 });
+
+const look = { h: 0.8, bulk: 1, skin: "#e8c3a0", hair: "#8a3b22", style: "long", beard: "none", ears: true, hood: false, eyes: "", cloth: "#3f6b45", cloak: "", pants: "#4a3a2c", boots: "#5a3a22" };
+
+test("a player paints the mini of their own character only; Sam may paint any", async () => {
+  const s = fakeStore();
+  await setDoc(s, ann, "players", "ann", { character: "katy", at: 1 });
+  assert.equal((await setDoc(s, ann, "avatars", "ann", { character: "katy", look, at: 2 })).status, 200);
+  assert.equal((await setDoc(s, ann, "avatars", "ann", { character: "stig", look, at: 3 })).status, 403);
+  assert.equal((await setDoc(s, bob, "avatars", "bob", { character: "katy", look, at: 4 })).status, 403); // bob plays nobody yet
+  assert.equal((await setDoc(s, bob, "avatars", "ann", { character: "katy", look, at: 5 })).status, 403);
+  assert.equal((await setDoc(s, sam, "avatars", "sam", { character: "saphira", look, at: 6 })).status, 200);
+  const all = await sync(s, bob, null);
+  assert.equal(all.body.avatars.ann.character, "katy"); // everyone's table draws it
+});
+
+test("a painted mini must look like the workshop made it", async () => {
+  const s = fakeStore();
+  const bad = [
+    { ...look, skin: "red" },
+    { ...look, h: 3 },
+    { ...look, style: "mohawk" },
+    { ...look, ears: "yes" },
+    { ...look, extra: 1 },
+    (({ boots, ...rest }) => rest)(look),
+  ];
+  for (const l of bad) assert.equal((await setDoc(s, sam, "avatars", "sam", { character: "katy", look: l, at: 1 })).status, 400);
+  assert.equal((await setDoc(s, sam, "avatars", "sam", { character: "hans", look, at: 1 })).status, 400);
+});

@@ -6,6 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **New** Make your own mini. On your character sheet, tap **Make your mini** and Hans opens his workshop: pick your height and build, skin, hair and beard, hood up or down, glowing eyes, and the colours of your tunic (or Stig's plate), cloak, trousers and boots, while your mini turns on his bench. Save it, and from the next fight or interlude your mini on the 3D table wears it, and your sheet shows its portrait. Your own gear stays: Katy's ukulele, Stig's plate and Saphira's blades. *Pass it round* sends it to the group chat so everyone's table draws it; signed in on the Netlify site, Save puts it on everyone's table by itself. Hans keeps his own body. (Sam)
 - **Fixed** In a fight, rock and root pillars no longer hide whoever is acting. The stone between the camera and that mini now opens up like a window, so on phones you can always see your character, even pressed against a cavern wall or behind the roots in Saphira's fight. (Sam)
 - **Changed** The end of an interlude now says it in Hans's words: nothing is lost, your choices and Echo are safe, and when you're ready Hans can carry his log to the DM. One button, *Send to the DM on WhatsApp*, opens WhatsApp with the log; just press send. (Sam)
 - **Changed** *Interludes* now walks you straight through: say who you are, read *Round the Fire*, then your own interlude and its Echo. The list only shows up afterwards, to send it to Sam or read again. (Sam)

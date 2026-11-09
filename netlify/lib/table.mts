@@ -72,6 +72,7 @@ export async function setDoc(store: BlobStore, v: Viewer, col: string, id: strin
     const others = await readCollection(store, "players");
     ctx = { existing: others[id], others };
   }
+  if (col === "avatars") ctx = { existing: await store.get("players/" + id, { type: "json" }) }; // the character this account plays
   const check = checkDoc(v, col, id, doc, ctx);
   if (!check.ok) return { status: check.status, body: { error: check.error } };
   await store.setJSON(col + "/" + id, doc);
