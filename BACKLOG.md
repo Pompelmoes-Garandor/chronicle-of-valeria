@@ -63,8 +63,8 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
-- [x] **Rename the "Character sheets" panel title to "Characters"** · Changed · either · PR #NN
-- [x] **Long action names are cut off in the phone quick bar** · Fixed · Sam · PR #NN
+- [x] **Rename the "Character sheets" panel title to "Characters"** · Changed · either · PR #66
+- [x] **Long action names are cut off in the phone quick bar** · Fixed · Sam · PR #66
 - [x] **End of an interlude in Hans's voice, with a WhatsApp button to send the log to the DM** · Changed · Sam · PR #56
 - [x] **Interludes run straight through: who you are → Round the Fire → your own interlude** · Changed · Sam · PR #55
 - [x] **The shared interlude becomes the prologue *Round the Fire* (no votes, fight or Echo; the vote version kept in source/interludes/drafts/)** · New · Sam · PR #53
