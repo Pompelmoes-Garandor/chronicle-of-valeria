@@ -5,7 +5,7 @@
 **Script:** the full story script for Sam is the doc "Protocol Zero: The Steward's Last Stand". This file is the playable text.
 **Engine hooks:** a choice that goes to `@name` hands over to the game (`@deck`, `@galley`, `@grove`, `@bridge` are fights, `@zero` the engine room, `@steer` the glide, `@send` the last line, `@glitch` the black box, `@end` the finish). `W0` and `R0` are hubs: the game greys out the rooms already visited and moves on when all are done. A ```log block is the Steward's own log, shown in his type.
 
-Invented, for Sam to change: the ship's name (the Echo, after the "Echo bases" on the copper paintings), the Bridge and the Heart, the hellbats' look, Teenoog's mount and his lines, the chores, the tea towel, the berry behind the chest plate, what the Steward chooses to keep in the box, and how Teenoog gets away. Hodle is not in it (his fate is open). Nothing here says what the black box holds now.
+Invented, for Sam to change: the ship's name (the Echo, after the "Echo bases" on the copper paintings), the Bridge and the Heart, the hellbats' look, Teenoog's mount and his lines, the chores, the tea towel, the portrait in the galley (who painted it is left open; it is signed with a berry), the berry behind the chest plate, what the Steward chooses to keep in the box, and how Teenoog gets away. Hodle is not in it (his fate is open). Nothing here says what the black box holds now.
 
 ---
 
@@ -53,7 +53,7 @@ Katy Berry passes with the ukulele on her back and taps your shield twice, the w
 
 She tells you you're a sweetheart. "That is not among my designations," you say.
 
-Stig stops in front of you, a big man with a big pack, and puts a tea towel in your good hand, folded small. Bread is proving in the galley, he says. When it has doubled, it goes in. The oven door sticks, so use the towel. Don't let it over-rise.
+Stig stops in front of you, a big man with a big pack, and puts a tea towel in your good hand, folded small: white, with blue stripes. Bread is proving in the galley, he says. When it has doubled, it goes in. The oven door sticks, so use the towel. Don't let it over-rise.
 
 "I will monitor it," you say. You have no idea what doubled looks like. You tuck the towel under your shield strap, where it will be safe.
 
@@ -125,6 +125,28 @@ You lift the cloth. It has risen. You look at it for a long moment, and you have
 SCAN: DOUGH. STATUS: RISING.
 ACTION: NONE REQUIRED. PROBABLY.
 ```
+
+→ There is something new on the wall (go to W3b)
+
+## W3b. The portrait
+
+On the wall by the oven hangs a painting in a gold frame. You did not hang it.
+
+It is you. You are lying on a green couch, propped on one elbow, with all your plating off. A bowl of berries sits at your feet. One of Stig's tea towels, white with blue stripes, lies across your hips, where a towel would go.
+
+It is signed with a small berry. Somebody has screwed a brass plate under it: *UNIT #34, AT REST.*
+
+```log
+SCAN: PORTRAIT. SUBJECT: UNIT #34. PLATING: ABSENT.
+I DID NOT POSE FOR THIS.
+I HAVE NO RECORD OF POSING FOR THIS.
+QUERY: WHY THE TOWEL. I HAVE NOTHING TO COVER.
+REMOVAL ATTEMPTED: 3 TIMES. THE COOK PUTS IT BACK.
+```
+
+You look at the towel under your shield strap. You look at the towel in the painting.
+
+You straighten the frame.
 
 → Back to the stairs (go to W0)
 
@@ -323,6 +345,19 @@ SCAN: DOUGH. STATUS: OVER-RISEN.
 I DID NOT MONITOR IT.
 ```
 
+→ The wall by the oven (go to R2c)
+
+## R2c. At rest
+
+The painting has survived. Of course it has. It hangs crooked, dusted white, with claw marks along the bottom of the frame, and in it you are still lying on the couch without a care in the world.
+
+```log
+SCAN: PORTRAIT. STATUS: INTACT.
+REGRETTABLE.
+```
+
+You straighten the frame. Then you wipe the flour off it with the towel, the real one, because that is what the towel is for.
+
 → Back to the stairs (go to R0)
 
 ## R3. The grove
@@ -451,6 +486,7 @@ KEEP: THE BARD. TAP, TAP. FOR LUCK.
 KEEP: THE COOK. THE BREAD. (OVER-RISEN. SORRY.)
 KEEP: THE CARTOGRAPHER. "DON'T WAIT FOR US." I DID NOT WAIT.
 KEEP: THE TREE. ONE FRUIT LEFT.
+KEEP: THE PAINTING. UNDER PROTEST.
 DISCARD: EVERYTHING ELSE. EVERYTHING BEFORE THEM.
 DESIGNATION ADDED: SWEETHEART. UNCONFIRMED.
 ```
@@ -490,7 +526,7 @@ INTEGRITY 61%.
 
 Hans doesn't say anything for a long time.
 
-"He kept the bread," he says at last, very quietly. "Everything he was before them, he let go. And he kept the bread."
+"He kept the painting," he says at last. It is nearly a laugh. Then, very quietly: "He kept the bread." "Everything he was before them, he let go. And he kept the bread."
 
 "That's all of it," he says. "That's all it'll give me." A pause. "He moved the whole ship. With his own core. I didn't know we could do that."
 
