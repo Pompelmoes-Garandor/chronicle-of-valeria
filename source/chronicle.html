@@ -8092,7 +8092,7 @@ async function checkEnd(){if(B.over)return;const r=await B.def.check();if(r)B.ov
 function addUnit(u,join){B.units.push(u);if(join&&B.order.length){B.order.push({u});}if(tkLayer)renderTokens();return u;}
 
 async function takeTurn(u){
-  B.cur=u;tickC(u,"start");u.slotUsed=false;u.act=1;u.bonus=1;u.react=true;u.mv=speedOf(u);u.moved=0;u.disengage=false;u.teleport=false;u.sneakUsed=false;u.talked=false;u.dashed=false;
+  B.cur=u;tickC(u,"start");u.slotUsed=false;u.bSpell=false;u.lvAct=false;u.act=1;u.bonus=1;u.react=true;u.mv=speedOf(u);u.moved=0;u.disengage=false;u.teleport=false;u.sneakUsed=false;u.talked=false;u.dashed=false;
   if(u.key==="heart")B.sc.turnDmg=0;else B.sc.turnDmg=0;
   renderTokens();renderInit();
   await paceTurn(u); // a beat to see whose turn it is: the camera eases to them, their name shows
@@ -8440,15 +8440,16 @@ function crewActions(u){
     A("Eldritch Blast","two beams · +6 · 1d10+3",inRange(24).length>0,atkAct({n:"Eldritch Blast",hit:6,dmg:"1d10+3",type:"force",range:[24,24],magic:true},24,2));
     A("Fire Bolt","+6 · 2d10 fire",inRange(24).length>0,atkAct({n:"Fire Bolt",hit:6,dmg:"2d10",type:"fire",range:[24,24],magic:true},24));
     A("Thunderclap","Con DC 14 · 2d6+1d4 · next to her",true,area("Thunderclap",true,1,"con",14,"2d6+1d4","thunder",{friendly:true}));
-    A("Shatter",p.res.echo?"Petrified Echo · free once":"pact slot",(p.res.echo>0||p.pact>0),area("Shatter",false,2,"con",14,"3d8+1d4","thunder",{range:12,cost:()=>{if(p.res.echo>0)p.res.echo--;else p.pact--;}}));
-    A("Hex","bonus · pact slot · +1d6 necrotic",p.pact>0&&!u.conc&&inRange(18,false).length>0,async()=>{const t=await pickTarget(inRange(18),"Hex whom?");if(!t)return;useB();p.pact--;u.conc={n:"Hex",conds:["hexed"]};addC(t,"hexed",{by:u.id});log(`Saphira hexes ${nameOf(t)}.`,"b");},"bonus");
+    // Saphira plays by the 2014 rules: after a bonus-action spell her action can only be a cantrip, and a levelled action spell rules out a bonus-action spell
+    A("Shatter",u.bSpell?"only a cantrip after a bonus-action spell":p.res.echo?"Petrified Echo · free once":"pact slot",!u.bSpell&&(p.res.echo>0||p.pact>0),area("Shatter",false,2,"con",14,"3d8+1d4","thunder",{range:12,cost:()=>{u.lvAct=true;if(p.res.echo>0)p.res.echo--;else p.pact--;}}));
+    A("Hex","bonus · pact slot · +1d6 necrotic",!u.lvAct&&p.pact>0&&!u.conc&&inRange(18,false).length>0,async()=>{const t=await pickTarget(inRange(18),"Hex whom?");if(!t)return;useB();u.bSpell=true;p.pact--;u.conc={n:"Hex",conds:["hexed"]};addC(t,"hexed",{by:u.id});log(`Saphira hexes ${nameOf(t)}.`,"b");},"bonus");
     A("Hexblade's Curse","bonus · +3 damage, crit 19–20",p.res.curse>0&&inRange(6,false).length>0,async()=>{const t=await pickTarget(inRange(6),"Curse whom?");if(!t)return;useB();p.res.curse--;addC(t,"cursed",{by:u.id});log(`Saphira lays the Hexblade's Curse on ${nameOf(t)}.`,"b");},"bonus");
-    if(p.lv>=6)A("Shadow Blade","bonus · pact slot · 2d8 psychic",p.pact>0&&!u.conc&&!B.sc.blade,async()=>{useB();p.pact--;B.sc.blade=true;u.conc={n:"Shadow Blade",conds:[]};log("A blade of shadow forms in Saphira's hand.","b");},"bonus");
+    if(p.lv>=6)A("Shadow Blade","bonus · pact slot · 2d8 psychic",!u.lvAct&&p.pact>0&&!u.conc&&!B.sc.blade,async()=>{useB();u.bSpell=true;p.pact--;B.sc.blade=true;u.conc={n:"Shadow Blade",conds:[]};log("A blade of shadow forms in Saphira's hand.","b");},"bonus");
     A("Hide","bonus · Stealth +11",!u.hidden&&!enemiesOf(u).some(o=>dist(o,u)<=1),async()=>{useB();const r=await crewRoll(k,"Stealth",11,13,{u,quiet:!opt.dice});if(r.ok){u.hidden=true;log("Saphira melts into the shadows.","b");}else log("She can't find cover.");},"bonus");
     A("Disengage","bonus",true,async()=>{useB();u.disengage=true;log("Saphira disengages.");},"bonus");
     A("Dash","bonus",true,async()=>{useB();u.mv+=speedOf(u);},"bonus");
     A("Healing potion",`bonus · 2d4+2 · ${p.res.pot} left`+(p.res.gpot?` (+1 greater)`:""),(p.res.pot>0||p.res.gpot>0)&&u.hp<u.max,async()=>{useB();if(p.res.pot>0){p.res.pot--;heal(u,dice("2d4+2").t);}else{p.res.gpot--;heal(u,dice("4d4+4").t);}},"bonus");
-    A("Misty Step","cloak · once",p.res.misty>0,teleport(u,6,()=>p.res.misty--),"bonus");
+    A("Misty Step","cloak · once",!u.lvAct&&p.res.misty>0,teleport(u,6,()=>{u.bSpell=true;p.res.misty--;}),"bonus");
   }
   if(k==="hans"){
     if(!piled)A("Slam ×2","+6 · 2d6+4 each",inRange(1).length>0,atkAct({n:"Slam",hit:6,dmg:"2d6+4",type:"bludgeoning"},1,2));
@@ -10858,7 +10859,7 @@ IFIGHTS.saphira={key:"i-saphira",map:"ipatron",dim:true,sc:{},
     if(B.sc.blade&&!u.conc){B.sc.blade=false;log("The Shadow Blade goes back to shadow.","r");}return false;},
   async onHurt(t){if(t.key==="shadowself"&&t.hp<=0)for(const o of B.units)if(o.key==="hand"&&alive(o)){o.gone=true;log(`${o.name} sinks back into the floor.`,"g");}},
   sceneActs(u){const p=P("saphira");if(u.key!=="saphira"||B.sc.blade||p.lv>=6)return [];
-    return [{n:"Shadow Blade",sub:"bonus · pact slot · 2d8 psychic",kind:"bonus",ok:p.pact>0&&!u.conc,run:async()=>{u.bonus--;p.pact--;B.sc.blade=true;u.conc={n:"Shadow Blade",conds:[]};log("Saphira draws black glass up out of her own shadow: the Shadow Blade.","b");}}];},
+    return [{n:"Shadow Blade",sub:"bonus · pact slot · 2d8 psychic",kind:"bonus",ok:!u.lvAct&&p.pact>0&&!u.conc,run:async()=>{u.bonus--;u.bSpell=true;p.pact--;B.sc.blade=true;u.conc={n:"Shadow Blade",conds:[]};log("Saphira draws black glass up out of her own shadow: the Shadow Blade.","b");}}];},
   async check(){if(iDown("saphira")){log("Saphira falls, and her shadow lies back down over her.","r");return "lose";}
     if(!B.units.some(o=>o.key==="shadowself"&&alive(o)))return "win";return null;}};
 
