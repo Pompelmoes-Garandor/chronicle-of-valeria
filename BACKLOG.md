@@ -22,7 +22,6 @@ Things that are wrong on the live site today. Check this list before **Now**: a 
 - **Severity**: **blocker** (the table can't use the site), **annoying** (works, but gets in the way), **cosmetic** (looks off).
 - Anyone at the table can report a bug to Sam or Niels; whoever hears it adds it here. Fixing one is a **Fixed** line in the patch notes, and the bug moves to **Done**.
 
-- [ ] **The open sea is one flat colour up close** · cosmetic · Map · Zoomed in, the ocean has no texture or swell left, so it looks empty next to the land. Seen in the test screenshots of 2026-11-01.
 - [ ] **Saphira's Passive Perception doesn't add up** · cosmetic · Characters, Saphira · Her paper says Passive Perception 15, but her Perception skill is +4, which gives 14. The sheet shows the paper's 15. Lore question for Sam: which number is right?
 
 ## Now
@@ -60,6 +59,9 @@ Not planned. Kept so nobody re-proposes them without a reason.
 Newest first, with the PR that shipped it.
 
 - [x] **Trackers panel:** Hans's tally in the Chronicle (crew HP and resources, sigils 2 of 4, places explored). Per region waits for a region on each place · New · Sam · PR #72
+- [x] **The open sea is one flat colour up close:** fog with shape, engraved sea, swell and wave marks · Fixed · Sam · PR #69
+- [x] **Interludes keep your place through a reload or a locked phone (story passage, or back to the fight)** · Changed · Sam · PR #71
+- [x] **Fights on phones: tap twice to move (first tap previews the path), End turn asks once when an action is left** · Changed · Sam · PR #70
 - [x] **Spell slots and resources as tappable dots** (slots, pact slots, Bardic Inspiration, Channel Divinity, Eyes of the Grave, exhaustion, short rest) · New · Sam · PR #68
 - [x] **Rename the "Character sheets" panel title to "Characters"** · Changed · either · PR #66
 - [x] **Long action names are cut off in the phone quick bar** · Fixed · Sam · PR #66

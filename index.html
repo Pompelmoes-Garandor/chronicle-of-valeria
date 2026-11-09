@@ -986,6 +986,9 @@ body.playing header.top,body.playing nav.dock,body.playing .eggs,body.playing #p
 .pl-end{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;min-height:50px;border-radius:12px;border:1px solid #ecd08f;background:linear-gradient(180deg,#dcbb78,#a9823e);color:#1a1307;font:700 15px/1 var(--label);letter-spacing:.1em;cursor:pointer;box-shadow:inset 0 1px 0 #fff5,0 2px 0 #0009;-webkit-tap-highlight-color:transparent;transition:filter .15s,transform .1s}
 @media (hover:hover){.pl-end:hover{filter:brightness(1.07)}}
 .pl-end:active{transform:translateY(1px)}
+.pl-end.warn{background:linear-gradient(180deg,#e8a45c,#b0602a);border-color:#ffc58a;animation:plWarn .35s ease-out}
+@keyframes plWarn{0%{transform:translateX(0)}25%{transform:translateX(-4px)}50%{transform:translateX(3px)}75%{transform:translateX(-2px)}100%{transform:translateX(0)}}
+@media (prefers-reduced-motion:reduce){.pl-end.warn{animation:none}}
 .pl-end:focus-visible{outline:2px solid var(--steward);outline-offset:2px}
 .pl-say{margin:0;font:italic 16px/1.45 var(--body);color:var(--parch-dim)}
 .pl-say::after{content:"…";margin-left:1px}
@@ -1804,6 +1807,26 @@ void main(){
     float floe=smoothstep(th-ffw,th+ffw,fn)*smoothstep(0.0,0.15,iceZ);
     col=mix(col,vec3(0.93,0.95,0.96)*(0.97+0.04*grain),0.9*floe);
     col=mix(col,vec3(0.52,0.64,0.74),0.5*smoothstep(0.0,0.15,iceZ)*(1.0-smoothstep(0.0,ffw*1.5,abs(fn-th))));}
+  // up close the open water keeps its life: a fine swell that moves, form lines along the shore and small engraved
+  // wave marks out at sea, like the old atlases. It grows in with zoom and only on water the crew has seen
+  float zs=smoothstep(3.0,8.0,0.4/pl)*dv*smoothstep(0.0,0.004,dpt);
+  if(zs>0.0){
+    float sw=gn(p*120.0+vec3(t*0.10,0.0,-t*0.08))*0.6+gn(p*300.0+vec3(-t*0.18,t*0.13,0.0))*0.4;
+    col*=1.0+zs*(0.10*sw-0.02)*(1.0-fsea*0.5);
+    // three engraved form lines that follow the coast, fading with depth
+    float fl3=0.0; for(int i=1;i<4;i++){float d=0.011*float(i)+0.002*sin(t*0.3+float(i)); fl3+=(1.0-smoothstep(0.0,fw*0.9,abs(dpt-d)))*(1.0-0.22*float(i));}
+    col=mix(col,ink,0.24*zs*fl3*(1.0-fsea*0.5));
+    // wave marks: one small double arc per cell, rocking slowly, more of them in deep water and none against the shore
+    float C=0.6; vec2 g=ll/C, id=floor(g), q=fract(g)-0.5; vec3 r=hash3(id+31.0);
+    float on=step(0.55-0.35*smoothstep(0.05,0.3,dpt),r.z)*smoothstep(0.035,0.07,dpt)*smoothstep(12.0,24.0,C/pl);
+    if(on>0.0){
+      vec2 d=q-(r.xy-0.5)*0.4; d.x+=0.03*sin(t*0.5+r.x*6.283);
+      float aa=pl/C*1.2, wx=abs(d.x);
+      float arc=abs(d.y-0.05*cos(d.x*21.0)+0.02)-0.012;
+      float wm=(1.0-smoothstep(-aa,aa,arc))*(1.0-smoothstep(0.17,0.2,wx));
+      col=mix(col,mix(ink,deepW*0.6,0.4),0.45*zs*on*wm*(1.0-fsea*0.4));
+    }
+  }
   // one slow ripple line travelling out from the shore, and the foam line
   float ph=fract(t*0.04);
   {float th=-0.012-0.05*ph; float a=0.22*smoothstep(0.0,0.2,ph)*(1.0-ph)*dv*smoothstep(2.0,5.0,0.4/pl);
@@ -1995,6 +2018,19 @@ void main(){
     float drift2=fbm3(p*9.0-vec3(uTime*0.03,0.0,uTime*0.02))*0.5+0.5;
     float fogA=clamp((1.0-seen)*(0.78+0.45*drift)-0.08*drift2,0.0,1.0);
     vec3 fogC=mix(vec3(0.10,0.12,0.16),vec3(0.55,0.58,0.64),smoothstep(0.25,0.85,drift*0.7+drift2*0.3));
+    // up close the fog keeps its shape: finer banks roll in, lit on the side that faces the sun, darker in the folds
+    float zf=smoothstep(3.0,8.0,0.5/pl)*(1.0-seen);
+    if(zf>0.0){
+      vec3 m=p*38.0+vec3(t*0.05,-t*0.03,t*0.04);
+      float b1=gn(m)*0.65+gn(p*105.0-vec3(t*0.07,0.0,t*0.06))*0.35;
+      float b2=gn(m+(uSun-p*dot(p,uSun))*1.6);
+      float lit=clamp(0.5+(b1-b2)*2.2,0.0,1.0);
+      fogC*=1.0+zf*(0.30*b1+0.26*(lit-0.5));
+      fogC=mix(fogC,vec3(0.78,0.80,0.84),zf*0.16*smoothstep(0.25,0.6,b1));
+      fogA=clamp(fogA-zf*0.2*smoothstep(-0.15,-0.5,b1),0.0,1.0);
+      // over rumoured water the mist thins up close, so the swell and the Fire Sea's glow read through it
+      fogA*=1.0-0.4*zf*smoothstep(0.3,0.45,vis)*smoothstep(fw,-0.02,h);
+    }
     col=mix(col,fogC,fogA);}
   // the flying city of the Wind Vault drags its shadow over the land below as the sun goes round
   if(uShadeAx.w>0.0){vec3 q=p-uShade.xyz; float al=dot(q,uShadeAx.xyz), pr=length(q-al*uShadeAx.xyz);
@@ -2028,12 +2064,21 @@ void main(){
   float seen=max(mk.r,mk.g*smoothstep(rn-0.06,rn+0.06,uReveal*1.15-0.05));
   float c=0.5; if(seen<1.0) c=fbm(p*5.0+vec3(uTime*0.035,-uTime*0.02,uTime*0.01))*0.5+0.5;   // the fog clouds only over unseen ground
   float a=smoothstep(0.52,0.78,c)*(1.0-seen)*0.55;
+  // up close the fog clouds break into wisps with lit tops instead of one soft grey sheet
+  float zc=smoothstep(4.0,10.0,0.5/(fwidth(vUv.y)*180.0+1e-5))*(1.0-seen);
+  float cl=0.5;
+  if(zc>0.0){vec3 m=p*30.0+vec3(uTime*0.06,-uTime*0.04,uTime*0.03);
+    float w1=gn(m)*0.6+gn(p*85.0-vec3(uTime*0.09,0.0,uTime*0.07))*0.4, w2=gn(m+(uSun-p*dot(p,uSun))*1.4);
+    cl=clamp(0.5+(w1-w2)*2.4,0.0,1.0);
+    a*=mix(1.0,smoothstep(-0.25,0.35,w1)*1.25,zc);
+    c=mix(c,c+0.35*w1,zc);}
   // weather: a few large, soft cells over the ground the crew has seen, lit on the sun side like a watercolour cloud
   float wx=vWx;
   float wa=smoothstep(0.62,0.82,wx)*seen*0.42;
   float day=smoothstep(-0.42,0.02,dot(p,uSun));
   float lit=clamp(0.5+(wx-vWs)*9.0,0.0,1.0);
   vec3 cc=mix(mix(vec3(0.62,0.65,0.71),vec3(0.9,0.9,0.92),c),mix(vec3(0.70,0.72,0.80),vec3(0.99,0.97,0.93),lit),wa/(wa+a+1e-4));
+  cc*=1.0+zc*0.28*(cl-0.5);
   cc*=mix(0.45,1.0,day);
   // lightning lights up the cloud around the strike from inside
   float fl=0.0; if(uFlash.w>0.0) fl=uFlash.w*exp(-pow(acos(clamp(dot(p,uFlash.xyz),-1.0,1.0))*57.2958,2.0)/18.0);
@@ -2101,7 +2146,7 @@ void main(){vec4 b=texture2D(tMap,vUv); float v=min(b.r*255.0+b.g,254.99), hi=fl
   },undefined,()=>{}),1200);
   return W;})();
 const cloudU = {...uniforms,uLift:{value:0.024},uOpacity:{value:1}};
-const clouds = new THREE.Mesh(new THREE.PlaneGeometry(1,1,512,256),new THREE.ShaderMaterial({uniforms:cloudU,vertexShader:CVERT,fragmentShader:CLOUD_FRAG,transparent:true,depthWrite:false,side:THREE.DoubleSide}));
+const clouds = new THREE.Mesh(new THREE.PlaneGeometry(1,1,512,256),new THREE.ShaderMaterial({uniforms:cloudU,vertexShader:CVERT,fragmentShader:CLOUD_FRAG,transparent:true,depthWrite:false,side:THREE.DoubleSide,extensions:{derivatives:true}}));
 clouds.frustumCulled=false; scene.add(clouds);
 // the air: a thin shell of scattered sunlight round the world. Blue on the day side, amber along the terminator, a bright ring
 // when the sun stands behind the globe, and a faint haze over the ground. Worked out per pixel along the view ray (single scattering)
@@ -7187,7 +7232,7 @@ function t3uBoard(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,tree=Vb.tree,N=tree?new THREE
     U.rib.material.uniforms.uT.value=tt;U.mk.material.uniforms.uT.value=tt;U.circ.material.uniforms.uT.value=tt;
     if(B&&U.pathR!==B.reach){U.pathR=B.reach;t3uPathOff();if(B.reach&&U.last&&!t3hv)t3hv=U.last;}
     if(U.ftOn){pp.copy(U.mk.position);Vb.root.localToWorld(pp);pp.project(Vb.cam);const w=Vb.host.clientWidth/2,hh=Vb.host.clientHeight/2;
-      U.ft.style.transform=`translate(${(pp.x*w+w).toFixed(1)}px,${(-pp.y*hh+hh).toFixed(1)}px) translate(-50%,calc(-100% - 22px))`;}});}
+      const fw=U.ft.offsetWidth/2+6,fx=Math.min(Math.max(pp.x*w+w,fw),2*w-fw);U.ft.style.transform=`translate(${fx.toFixed(1)}px,${(-pp.y*hh+hh).toFixed(1)}px) translate(-50%,calc(-100% - 22px))`;}});}
 function t3uPathOff(){if(!V||!V.t3u)return;const U=V.t3u;U.rib.visible=U.mk.visible=false;U.ftOn=false;U.ft.hidden=true;U.pathK=null;}
 /* t3u: put the end marker on a cell */
 function t3uMark(cell,col,sc){const U=V.t3u;U.mk.position.copy(V.cell(cell[0],cell[1])).addScaledVector(U.N,U.lift+.008);U.mk.material.uniforms.uC.value.copy(col);U.mk.scale.setScalar(sc);U.mk.visible=true;}
@@ -7655,7 +7700,8 @@ function t3start(){t3dispose();const host=h("div",{class:"pl-3d"}),tags=h("div",
   mapEl=host;tkLayer=tags;
   for(const u of B.units)V.minis.set(u,t3mini(V,u));
   t3fit();t3hi();t3last=0;cancelAnimationFrame(t3raf);t3raf=requestAnimationFrame(t3loop);return true;}
-if(/[?&]playtest/.test(location.search))window.__t3={settle(){if(V){V.intro=false;Object.assign(V.view,V.goal);}},zoom(f,y){if(V){V.goal.dist=V.home.dist*f;if(y!=null)V.goal.yaw+=y;this.settle();}},hole(k){t3w_hole=k;},cam(){return V?{view:Object.assign({},V.view),pitch:V.t3k_pitch,pos:V.cam.position.toArray()}:null}};
+if(/[?&]playtest/.test(location.search))window.__t3={settle(){if(V){V.intro=false;Object.assign(V.view,V.goal);}},zoom(f,y){if(V){V.goal.dist=V.home.dist*f;if(y!=null)V.goal.yaw+=y;this.settle();}},hole(k){t3w_hole=k;},manual(){PLAY.auto=false;},cur(){return B&&B.cur?{key:B.cur.key,crew:!!B.cur.crew,x:B.cur.x,y:B.cur.y,mv:B.cur.mv,act:B.cur.act}:null;},reach(){return B&&B.reach?[...B.reach.d.keys()].filter(k=>{const n=B.reach.d.get(k);return !n.occ&&k!==B.reach.start;}):[];},
+  cellXY(x,y){if(!V)return null;const p=V.cell(x,y).clone();p.project(V.cam);const rc=V.r.domElement.getBoundingClientRect();return {x:rc.left+(p.x+1)/2*rc.width,y:rc.top+(1-p.y)/2*rc.height};},pathK(){return V&&V.t3u?V.t3u.pathK:null;},cam(){return V?{view:Object.assign({},V.view),pitch:V.t3k_pitch,pos:V.cam.position.toArray()}:null}};
 // playtest hook (camera framing): where each mini stands on screen and how tall it is there, in CSS px
 if(/[?&]playtest/.test(location.search))window.__t3.probe=()=>{if(!V||!B)return null;const rc=V.host.getBoundingClientRect(),W2=rc.width/2,H2=rc.height/2,q=new THREE.Vector3(),sc=v=>{q.copy(v).project(V.cam);return [rc.left+q.x*W2+W2,rc.top-q.y*H2+H2,q.z];};
   const C=V.t3c||{};return {t3c:{on:!!C.on,hold:!!C.hold,follow:t3c_follow,zoom:t3c_zoom,dMin:C.dMin,dPref:C.dPref,dMax:C.dMax,fm:C.focus&&C.focus.mode,aim:C.aim,act:!!V.t3k_act,intro:!!V.intro,userAgo:performance.now()-V.userT},host:[rc.left,rc.top,rc.width,rc.height],fov:V.cam.fov,pitch:V.t3k_pitch,view:Object.assign({},V.view),goal:Object.assign({},V.goal),home:Object.assign({},V.home),cur:B.cur&&B.cur.key,
@@ -8231,7 +8277,11 @@ function onMapClick(e){if(!B)return;let x,y,u;const tok=e.target.closest(".tk");
   else{const r=mapEl.getBoundingClientRect();x=Math.floor((e.clientX-r.left)/CS);y=Math.floor((e.clientY-r.top)/CS);}
   if(B.tgt){const t=u||occupant(x,y);if(t&&B.tgt.list.includes(t)){const r2=B.tgt.res;B.tgt=null;renderTokens();r2(t);}return;}
   if(B.cellPick){if(B.cellPick.some(([a,b])=>a===x&&b===y)){const r2=B.cellRes;B.cellPick=null;B.area=null;drawHi();r2([x,y]);}return;}
-  if(B.reach&&B.onMove){const n=B.reach.d.get(x+","+y);if(n&&!n.occ&&x+","+y!==B.reach.start)B.onMove(x,y);}}
+  if(B.reach&&B.onMove){const k=x+","+y,n=B.reach.d.get(k);if(n&&!n.occ&&k!==B.reach.start){
+    // on a touch screen the first tap shows the path and its length, a second tap on the same square walks it (a mouse already sees it on hover)
+    if(t3on()&&plPtr!=="mouse"&&V.t3u&&V.t3u.pathK!==k){t3hv={x:e.clientX,y:e.clientY};t3hoverTick();const U=V.t3u;if(U.pathK===k&&U.ftOn)U.ft.insertAdjacentHTML("beforeend","<small>tap again</small>");return;}
+    if(t3on())t3uPathOff();B.onMove(x,y);}}}
+let plPtr="mouse";addEventListener("pointerdown",e=>{plPtr=e.pointerType||"mouse";},{capture:true,passive:true});
 let refreshPanel=null;
 document.addEventListener("pointermove",e=>{if(!B||!B.cellPick||!B.areaFn||!mapEl||t3on())return;const r=mapEl.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)/CS),y=Math.floor((e.clientY-r.top)/CS);
   if(B.cellPick.some(([a,b])=>a===x&&b===y)){B.area=B.areaFn(x,y);drawHi();}});
@@ -8245,7 +8295,13 @@ function playerTurn(u){if(PLAY.auto)return autoTurn(u);return new Promise(done=>
     if(u.cond.prone){delete u.cond.prone;u.mv=Math.max(0,u.mv-Math.ceil(speedOf(u)/2));log(`${u.short} gets up.`);}
     u.mv-=c;u.moved+=c;if(B.def.onMoveStart)B.def.onMoveStart(u);await moveAlong(u,path);});
   const act=a=>run(async()=>{actCtx={u,a};try{await a.run();}finally{actCtx=null;oddsBadges(false);}});
-  const end=()=>{if(busy)return;B.onMove=null;fin();};
+  // ending with the action unused asks once: the button turns to "tap again" for a few seconds
+  let warned=0;const unused=()=>{if(u.act<=0||u.cond.ko)return "";const ok=crewActions(u).filter(a=>a.ok&&!/^(Dash|Dodge|Disengage|Help|Hide|Ready|Search)$/.test(a.n));
+    return ok.some(a=>a.kind==="action")?"Action left":ok.some(a=>a.kind==="bonus")&&u.bonus>0?"Bonus left":"";};
+  const end=()=>{if(busy)return;const left=unused();
+    if(left&&performance.now()-warned>3500){warned=performance.now();document.querySelectorAll(".pl-end").forEach(b=>{const t=b.lastChild,was=t.textContent;b.classList.add("warn");t.textContent=left+" · end?";
+      setTimeout(()=>{if(b.isConnected){b.classList.remove("warn");t.textContent=was;}},3500);});if(navigator.vibrate)try{navigator.vibrate(20);}catch(e){}return;}
+    B.onMove=null;fin();};
   const draw=()=>{
     if(B.over||u.hp<=0){fin();return;}
     B.reach0=reachable(u,Math.max(0,u.cond.prone?u.mv-Math.ceil(speedOf(u)/2):u.mv));B.reach=u.mv>0?B.reach0:null;drawHi();renderTokens();
@@ -9630,8 +9686,15 @@ async function runInterlude(I){
   const T=INTERLUDE_TEXT[I.id];if(!T){await read("This interlude isn't written yet.");return;}
   const mine=IST={I,seen:[],path:[],verse:{},votes:{}},live=()=>{if(IST!==mine)throw ABORT;}; // left midway: this run stops quietly
   storyView(I.art);setTitle(I.eye,T.title);clearLog();
-  let id=T.first;
-  while(true){const p=T.passages[id];IST.seen.push(id);IST.at=id;
+  // a bookmark on this device: a reload, a locked phone or a trip to WhatsApp picks up at the same passage (or at the start of the fight)
+  const RK="chron-inter-run-"+I.id,mark=()=>store.set(RK,JSON.stringify({v:1,at:IST.at,seen:IST.seen,path:IST.path,verse:IST.verse,fight:!!IST.fight,t:Date.now()}));
+  let bm=null;try{bm=JSON.parse(store.get(RK)||"null");}catch(e){}
+  if(bm&&bm.v===1&&!PLAY.auto&&(bm.fight||T.passages[bm.at])&&Array.isArray(bm.seen)&&bm.seen.length>1){
+    const c=await choose(bm.fight?"You stopped in the middle of the fight.":"You stopped part way through.",[{t:bm.fight?"Back to the fight":"Pick up where you left off",sub:bm.fight?"it starts again from the first round":"your choices so far are kept"},{t:"Start from the beginning"}],{spk:T.title});live();
+    if(c===0){IST.seen=bm.seen.slice();IST.path=(bm.path||[]).slice();IST.verse=bm.verse||{};IST.fight=bm.fight;storyView(I.art);setTitle(I.eye,T.title);}else bm=null;}
+  else bm=null;
+  let id=bm&&!bm.fight?bm.at:T.first;if(bm&&!bm.fight)IST.seen.pop(); // the loop below adds the bookmarked passage again
+  while(!(bm&&bm.fight)){const p=T.passages[id];IST.seen.push(id);IST.at=id;mark();
     let i;
     if(I.votes&&I.votes[id])i=await iVote(p,I.votes[id]);
     else{const single=p.opts.length===1;i=await iPassage(p,p.opts.map(o=>({t:single?(o.t==="Continue"?"Continue":o.t):o.t})));}
@@ -9641,10 +9704,10 @@ async function runInterlude(I){
     if(go==="@end")break;
     if(go.startsWith("@"))go=I.jump[go.slice(1)](IST.seen);
     id=go;}
-  if(I.prologue){store.set("chron-prologue-"+I.id,"1");IST=null;return;} // read; nothing to keep or send
+  if(I.prologue){store.set("chron-prologue-"+I.id,"1");store.set(RK,"");IST=null;return;} // read; nothing to keep or send
   // the small fight: a test of the engine, then the memory lets go
   let fight=null;
-  if(IFIGHTS[I.fight]){const out=await iFight(I);live();fight={won:out==="win",rounds:IST.rounds||0};}
+  if(IFIGHTS[I.fight]){IST.fight=true;mark();const out=await iFight(I);live();fight={won:out==="win",rounds:IST.rounds||0};}
   const ek=Object.entries(I.endBy).find(([k])=>IST.seen.includes(k))?.[1]||Object.keys(T.ends)[0],e=T.ends[ek];
   storyView(I.art);setTitle(I.eye,e.h);
   await iPassage({html:e.html+`<div class="pl-echo" role="note" aria-label="Your Echo"><b>Echo: ${escapeHtml(e.echo.name)}</b><span>${escapeHtml(e.echo.text)}</span><small>You can use this Echo once, at the table; Sam decides when it applies. It waits on your character sheet.</small></div>`},[{t:"Keep it"}],{spk:"Your Echo"});
@@ -9656,7 +9719,7 @@ async function runInterlude(I){
     echo:{id:I.id+"-"+ek,text:(e.echo.name+": "+e.echo.text).slice(0,300),used:false},lore:lore.map(s=>s.slice(0,1000)),finishedAt:Date.now()};
   if(IST.verse[1])r.verse=["Foxglove bells over the sleeping roots",IST.verse[1],IST.verse[2],IST.verse[3]].map(s=>String(s||"").slice(0,200));
   if(fight)r.fight=fight;
-  await iFinalize(I,r);
+  store.set(RK,"");await iFinalize(I,r);
   IST=null;}
 
 /* ---- the fight: its own party state, so it never touches the session 10 save ---- */
