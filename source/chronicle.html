@@ -928,6 +928,9 @@ body.playing header.top,body.playing nav.dock,body.playing .eggs,body.playing #p
 .pl-end{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;min-height:50px;border-radius:12px;border:1px solid #ecd08f;background:linear-gradient(180deg,#dcbb78,#a9823e);color:#1a1307;font:700 15px/1 var(--label);letter-spacing:.1em;cursor:pointer;box-shadow:inset 0 1px 0 #fff5,0 2px 0 #0009;-webkit-tap-highlight-color:transparent;transition:filter .15s,transform .1s}
 @media (hover:hover){.pl-end:hover{filter:brightness(1.07)}}
 .pl-end:active{transform:translateY(1px)}
+.pl-end.warn{background:linear-gradient(180deg,#e8a45c,#b0602a);border-color:#ffc58a;animation:plWarn .35s ease-out}
+@keyframes plWarn{0%{transform:translateX(0)}25%{transform:translateX(-4px)}50%{transform:translateX(3px)}75%{transform:translateX(-2px)}100%{transform:translateX(0)}}
+@media (prefers-reduced-motion:reduce){.pl-end.warn{animation:none}}
 .pl-end:focus-visible{outline:2px solid var(--steward);outline-offset:2px}
 .pl-say{margin:0;font:italic 16px/1.45 var(--body);color:var(--parch-dim)}
 .pl-say::after{content:"…";margin-left:1px}
@@ -7100,7 +7103,7 @@ function t3uBoard(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,tree=Vb.tree,N=tree?new THREE
     U.rib.material.uniforms.uT.value=tt;U.mk.material.uniforms.uT.value=tt;U.circ.material.uniforms.uT.value=tt;
     if(B&&U.pathR!==B.reach){U.pathR=B.reach;t3uPathOff();if(B.reach&&U.last&&!t3hv)t3hv=U.last;}
     if(U.ftOn){pp.copy(U.mk.position);Vb.root.localToWorld(pp);pp.project(Vb.cam);const w=Vb.host.clientWidth/2,hh=Vb.host.clientHeight/2;
-      U.ft.style.transform=`translate(${(pp.x*w+w).toFixed(1)}px,${(-pp.y*hh+hh).toFixed(1)}px) translate(-50%,calc(-100% - 22px))`;}});}
+      const fw=U.ft.offsetWidth/2+6,fx=Math.min(Math.max(pp.x*w+w,fw),2*w-fw);U.ft.style.transform=`translate(${fx.toFixed(1)}px,${(-pp.y*hh+hh).toFixed(1)}px) translate(-50%,calc(-100% - 22px))`;}});}
 function t3uPathOff(){if(!V||!V.t3u)return;const U=V.t3u;U.rib.visible=U.mk.visible=false;U.ftOn=false;U.ft.hidden=true;U.pathK=null;}
 /* t3u: put the end marker on a cell */
 function t3uMark(cell,col,sc){const U=V.t3u;U.mk.position.copy(V.cell(cell[0],cell[1])).addScaledVector(U.N,U.lift+.008);U.mk.material.uniforms.uC.value.copy(col);U.mk.scale.setScalar(sc);U.mk.visible=true;}
@@ -7568,7 +7571,8 @@ function t3start(){t3dispose();const host=h("div",{class:"pl-3d"}),tags=h("div",
   mapEl=host;tkLayer=tags;
   for(const u of B.units)V.minis.set(u,t3mini(V,u));
   t3fit();t3hi();t3last=0;cancelAnimationFrame(t3raf);t3raf=requestAnimationFrame(t3loop);return true;}
-if(/[?&]playtest/.test(location.search))window.__t3={settle(){if(V){V.intro=false;Object.assign(V.view,V.goal);}},zoom(f,y){if(V){V.goal.dist=V.home.dist*f;if(y!=null)V.goal.yaw+=y;this.settle();}},hole(k){t3w_hole=k;},cam(){return V?{view:Object.assign({},V.view),pitch:V.t3k_pitch,pos:V.cam.position.toArray()}:null}};
+if(/[?&]playtest/.test(location.search))window.__t3={settle(){if(V){V.intro=false;Object.assign(V.view,V.goal);}},zoom(f,y){if(V){V.goal.dist=V.home.dist*f;if(y!=null)V.goal.yaw+=y;this.settle();}},hole(k){t3w_hole=k;},manual(){PLAY.auto=false;},cur(){return B&&B.cur?{key:B.cur.key,crew:!!B.cur.crew,x:B.cur.x,y:B.cur.y,mv:B.cur.mv,act:B.cur.act}:null;},reach(){return B&&B.reach?[...B.reach.d.keys()].filter(k=>{const n=B.reach.d.get(k);return !n.occ&&k!==B.reach.start;}):[];},
+  cellXY(x,y){if(!V)return null;const p=V.cell(x,y).clone();p.project(V.cam);const rc=V.r.domElement.getBoundingClientRect();return {x:rc.left+(p.x+1)/2*rc.width,y:rc.top+(1-p.y)/2*rc.height};},pathK(){return V&&V.t3u?V.t3u.pathK:null;},cam(){return V?{view:Object.assign({},V.view),pitch:V.t3k_pitch,pos:V.cam.position.toArray()}:null}};
 // playtest hook (camera framing): where each mini stands on screen and how tall it is there, in CSS px
 if(/[?&]playtest/.test(location.search))window.__t3.probe=()=>{if(!V||!B)return null;const rc=V.host.getBoundingClientRect(),W2=rc.width/2,H2=rc.height/2,q=new THREE.Vector3(),sc=v=>{q.copy(v).project(V.cam);return [rc.left+q.x*W2+W2,rc.top-q.y*H2+H2,q.z];};
   const C=V.t3c||{};return {t3c:{on:!!C.on,hold:!!C.hold,follow:t3c_follow,zoom:t3c_zoom,dMin:C.dMin,dPref:C.dPref,dMax:C.dMax,fm:C.focus&&C.focus.mode,aim:C.aim,act:!!V.t3k_act,intro:!!V.intro,userAgo:performance.now()-V.userT},host:[rc.left,rc.top,rc.width,rc.height],fov:V.cam.fov,pitch:V.t3k_pitch,view:Object.assign({},V.view),goal:Object.assign({},V.goal),home:Object.assign({},V.home),cur:B.cur&&B.cur.key,
@@ -8144,7 +8148,11 @@ function onMapClick(e){if(!B)return;let x,y,u;const tok=e.target.closest(".tk");
   else{const r=mapEl.getBoundingClientRect();x=Math.floor((e.clientX-r.left)/CS);y=Math.floor((e.clientY-r.top)/CS);}
   if(B.tgt){const t=u||occupant(x,y);if(t&&B.tgt.list.includes(t)){const r2=B.tgt.res;B.tgt=null;renderTokens();r2(t);}return;}
   if(B.cellPick){if(B.cellPick.some(([a,b])=>a===x&&b===y)){const r2=B.cellRes;B.cellPick=null;B.area=null;drawHi();r2([x,y]);}return;}
-  if(B.reach&&B.onMove){const n=B.reach.d.get(x+","+y);if(n&&!n.occ&&x+","+y!==B.reach.start)B.onMove(x,y);}}
+  if(B.reach&&B.onMove){const k=x+","+y,n=B.reach.d.get(k);if(n&&!n.occ&&k!==B.reach.start){
+    // on a touch screen the first tap shows the path and its length, a second tap on the same square walks it (a mouse already sees it on hover)
+    if(t3on()&&plPtr!=="mouse"&&V.t3u&&V.t3u.pathK!==k){t3hv={x:e.clientX,y:e.clientY};t3hoverTick();const U=V.t3u;if(U.pathK===k&&U.ftOn)U.ft.insertAdjacentHTML("beforeend","<small>tap again</small>");return;}
+    if(t3on())t3uPathOff();B.onMove(x,y);}}}
+let plPtr="mouse";addEventListener("pointerdown",e=>{plPtr=e.pointerType||"mouse";},{capture:true,passive:true});
 let refreshPanel=null;
 document.addEventListener("pointermove",e=>{if(!B||!B.cellPick||!B.areaFn||!mapEl||t3on())return;const r=mapEl.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)/CS),y=Math.floor((e.clientY-r.top)/CS);
   if(B.cellPick.some(([a,b])=>a===x&&b===y)){B.area=B.areaFn(x,y);drawHi();}});
@@ -8158,7 +8166,13 @@ function playerTurn(u){if(PLAY.auto)return autoTurn(u);return new Promise(done=>
     if(u.cond.prone){delete u.cond.prone;u.mv=Math.max(0,u.mv-Math.ceil(speedOf(u)/2));log(`${u.short} gets up.`);}
     u.mv-=c;u.moved+=c;if(B.def.onMoveStart)B.def.onMoveStart(u);await moveAlong(u,path);});
   const act=a=>run(async()=>{actCtx={u,a};try{await a.run();}finally{actCtx=null;oddsBadges(false);}});
-  const end=()=>{if(busy)return;B.onMove=null;fin();};
+  // ending with the action unused asks once: the button turns to "tap again" for a few seconds
+  let warned=0;const unused=()=>{if(u.act<=0||u.cond.ko)return "";const ok=crewActions(u).filter(a=>a.ok&&!/^(Dash|Dodge|Disengage|Help|Hide|Ready|Search)$/.test(a.n));
+    return ok.some(a=>a.kind==="action")?"Action left":ok.some(a=>a.kind==="bonus")&&u.bonus>0?"Bonus left":"";};
+  const end=()=>{if(busy)return;const left=unused();
+    if(left&&performance.now()-warned>3500){warned=performance.now();document.querySelectorAll(".pl-end").forEach(b=>{const t=b.lastChild,was=t.textContent;b.classList.add("warn");t.textContent=left+" · end?";
+      setTimeout(()=>{if(b.isConnected){b.classList.remove("warn");t.textContent=was;}},3500);});if(navigator.vibrate)try{navigator.vibrate(20);}catch(e){}return;}
+    B.onMove=null;fin();};
   const draw=()=>{
     if(B.over||u.hp<=0){fin();return;}
     B.reach0=reachable(u,Math.max(0,u.cond.prone?u.mv-Math.ceil(speedOf(u)/2):u.mv));B.reach=u.mv>0?B.reach0:null;drawHi();renderTokens();
