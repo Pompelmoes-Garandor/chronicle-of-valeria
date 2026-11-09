@@ -132,12 +132,12 @@ ACTION: NONE REQUIRED. PROBABLY.
 
 On the wall by the oven hangs a painting in a gold frame. You did not hang it.
 
-It is you. You are lying on a green couch, propped on one elbow, with all your plating off. A bowl of berries sits within reach. One of Stig's tea towels, white with blue stripes, lies across your hips, where a towel would go.
+It is you. You are lying on a green couch, propped on one elbow, with most of your plating off. A bowl of berries sits in your lap. One of Stig's tea towels, white with blue stripes, lies across your hips, where a towel would go.
 
 It is signed with a small berry. Somebody has screwed a brass plate under it: *UNIT #34, AT REST.*
 
 ```log
-SCAN: PORTRAIT. SUBJECT: UNIT #34. PLATING: ABSENT.
+SCAN: PORTRAIT. SUBJECT: UNIT #34. PLATING: MOSTLY ABSENT.
 I DID NOT POSE FOR THIS.
 I HAVE NO RECORD OF POSING FOR THIS.
 QUERY: WHY THE TOWEL. I HAVE NOTHING TO COVER.
