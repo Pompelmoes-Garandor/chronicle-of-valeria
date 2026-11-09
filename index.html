@@ -2944,14 +2944,20 @@ function updatePins(){
     const r=o.r; if(o.small){r.el.classList.remove("crowd","up");continue;}
     if(!r.lw){r.el.classList.remove("crowd","up");const l=r.el.querySelector(".lbl");r.lw=l.offsetWidth;r.lh=l.offsetHeight;r.lt=l.offsetTop-r.sc;}
     // the name sits under its seal; if that spot is taken it tries above the seal, and if that is taken too it fades out
-    const fits=t=>{const box={l:o.x-r.lw/2,r:o.x+r.lw/2,t,b:t+r.lh};
-      const ok=o.rank>=10||!(box.l<4||box.r>w-4||box.t<4||box.b>h-4||clear.some(c=>hit(box,c,2))||taken.some(q=>hit(box,q,3))||seals.some(q=>q.o!==o&&hit(box,q,0)));
+    // first a spot that covers no seal at all; failing that, a town may cover a lesser seal (which then steps aside, below)
+    const fits=(t,loose)=>{const box={l:o.x-r.lw/2,r:o.x+r.lw/2,t,b:t+r.lh};
+      const ok=o.rank>=10||!(box.l<4||box.r>w-4||box.t<4||box.b>h-4||clear.some(c=>hit(box,c,2))||taken.some(q=>hit(box,q,3))||seals.some(q=>q.o!==o&&(!loose||q.o.rank>=o.rank)&&hit(box,q,0)));
       return ok?box:null;};
-    let up=false, box=fits(o.y+r.lt);
-    if(!box){box=fits(o.y-r.sh/2-2-r.lh); up=!!box;}
+    const below=o.y+r.lt, above=o.y-r.sh/2-2-r.lh;
+    let up=false, box=fits(below);
+    if(!box){box=fits(above); up=!!box;}
+    if(!box&&o.rank>=5){box=fits(below,true); if(!box){box=fits(above,true); up=!!box;}}
     r.el.classList.toggle("up",up); r.el.classList.toggle("crowd",!box);
-    if(box) taken.push(box);
+    if(box){box.rank=o.rank; taken.push(box);}
   }
+  // a town's name wins over a lesser seal it lands on (Valarius over Gerda's inn): that seal steps aside until there is room
+  for(const q of seals){const lo=q.o; if(lo.r===partyPin) continue;
+    if(taken.some(b=>b.rank>lo.rank&&hit(b,q,0))) lo.r.el.hidden=true;}
 }
 
 /* =================== LIVING SKY =================== */
