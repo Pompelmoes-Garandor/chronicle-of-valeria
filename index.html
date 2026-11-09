@@ -8126,7 +8126,7 @@ async function checkEnd(){if(B.over)return;const r=await B.def.check();if(r)B.ov
 function addUnit(u,join){B.units.push(u);if(join&&B.order.length){B.order.push({u});}if(tkLayer)renderTokens();return u;}
 
 async function takeTurn(u){
-  B.cur=u;tickC(u,"start");u.act=1;u.bonus=1;u.react=true;u.mv=speedOf(u);u.moved=0;u.disengage=false;u.teleport=false;u.sneakUsed=false;u.talked=false;u.dashed=false;
+  B.cur=u;tickC(u,"start");u.slotUsed=false;u.act=1;u.bonus=1;u.react=true;u.mv=speedOf(u);u.moved=0;u.disengage=false;u.teleport=false;u.sneakUsed=false;u.talked=false;u.dashed=false;
   if(u.key==="heart")B.sc.turnDmg=0;else B.sc.turnDmg=0;
   renderTokens();renderInit();
   await paceTurn(u); // a beat to see whose turn it is: the camera eases to them, their name shows
@@ -8402,7 +8402,8 @@ async function autoTurn(u){const f=enemiesOf(u).filter(o=>o.hp>0);if(f.length&&s
 function crewActions(u){
   const p=P(u.key),k=u.key,out=[],A=(n,sub,ok,run,kind="action",o={})=>out.push(Object.assign({n,sub,ok:ok&&(kind==="action"?u.act>0:kind==="bonus"?u.bonus>0:true),run,kind},o));
   const foes=()=>enemiesOf(u).filter(o=>(!o.hidden||dist(u,o)<=1)&&(!u.cond.called||o.key==="grey")),inRange=(r,lo=true)=>foes().filter(o=>dist(u,o)<=r&&(lo?los(u,o):true)),friends=r=>B.units.filter(o=>o.side!=="foe"&&!o.gone&&!o.dead&&dist(u,o)<=r&&!o.untarget);
-  const slot=lv=>{if(!p.slots)return 0;for(let i=lv-1;i<p.slots.length;i++)if(p.slots[i]>0)return i+1;return 0;},spend=lv=>{const s=slot(lv);if(s)p.slots[s-1]--;return s;};
+  const once=k!=="saphira"&&u.slotUsed; // 2024 rules: one spell slot per turn (Saphira's player uses the older rules, so not her)
+  const slot=lv=>{if(!p.slots||once)return 0;for(let i=lv-1;i<p.slots.length;i++)if(p.slots[i]>0)return i+1;return 0;},spend=lv=>{const s=slot(lv);if(s){p.slots[s-1]--;u.slotUsed=true;}return s;};
   const useA=()=>{u.act--;},useB=()=>{u.bonus--;};
   const atkAct=(at,r,count=1,kind="action",cost=null)=>async()=>{const list=inRange(r);const t=await pickTarget(list,`${at.n}: pick a target`);if(!t)return;
     kind==="action"?useA():useB();if(cost)cost();for(let i=0;i<count;i++){let tt=t;if(i>0&&!alive(t)){const l=inRange(r);if(!l.length)break;tt=await pickTarget(l,`${at.n}: next target`);if(!tt)break;}await attack(u,tt,at);await sleep(250);}};
