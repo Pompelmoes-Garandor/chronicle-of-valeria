@@ -23,9 +23,6 @@ Things that are wrong on the live site today. Check this list before **Now**: a 
 - Anyone at the table can report a bug to Sam or Niels; whoever hears it adds it here. Fixing one is a **Fixed** line in the patch notes, and the bug moves to **Done**.
 
 - [ ] **The open sea is one flat colour up close** · cosmetic · Map · Zoomed in, the ocean has no texture or swell left, so it looks empty next to the land. Seen in the test screenshots of 2026-11-01.
-- [ ] **The acting mini can hide behind the cavern's wall rocks on phones** · annoying · Play session 10, Blight Heart fight, phone · The crew start against the south wall and the close phone camera looks through the rocks. A planned fix tilts the camera up until the line to the mini's feet is clear.
-- [ ] **The camera can end up behind the root pillars in Saphira's interlude fight** · cosmetic · Interludes, Saphira's fight, 3D · Turn or re-centre to see the board again.
-- [ ] **Long action names are cut off in the phone quick bar** · cosmetic · Play mode, phone · For example "Throw the d…". *All* shows the full names.
 - [ ] **Saphira's Passive Perception doesn't add up** · cosmetic · Characters, Saphira · Her paper says Passive Perception 15, but her Perception skill is +4, which gives 14. The sheet shows the paper's 15. Lore question for Sam: which number is right?
 
 ## Now
@@ -36,14 +33,12 @@ Top of the list is what to work on next.
 - [ ] **Sam reads the architecture doc for live online storage** · Changed · Sam · Ask this first when Sam starts his next session. Niels wrote a plan to move the site to Netlify, with shared lore in Netlify Blobs, table-only sign-in (email or Google), and players proposing changes that Sam approves as DM: https://claude.ai/artifact/GAzMi1qU52yxoCkHtLsWyW (Niels shares it with Sam; it only opens for people it's shared with). Ask Sam (1) whether he wants to read it now and (2) whether to make it available in GitHub, as an `ARCHITECTURE.md` in the repo root or as an issue. The doc's open questions need his answer before any building starts. Fleshes out **Live online storage** under Later.
 - [ ] **Sam checks the place classifications** · Lore · Sam · Valarius and Orda as town or city, Valethorn as castle, the ravine as natural wonder, the Dead Valley and Summerwood as realms, the waystone as ancient tech. Questions are in PR #4.
 - [ ] **Passive Perception for Katy and Hans** · Lore · Sam · Their papers don't list it, so the sheet shows 12 and 11 worked out from Wisdom (marked *). Put the real numbers under Senses.
-- [ ] **Rename the "Character sheets" panel title to "Characters"** · Changed · either · Matches the dock button.
 - [ ] **Trackers panel** · New · either · Needs Sam for the counters. Places explored per region (Hans's chart: 13 of 23), Sigils claimed 2/4, and a party strip with everyone's HP at a glance. Idea from Craft RPG's trackers.
 
 ## Next
 
 - [ ] **People directory** · New · either · Needs Sam. A list of the people the crew has met (Gerda, Thorn, Pieter-Bas, Teenoog, Calysta...), next to Places. Each player keeps how they feel about them (−10 to +10) and a note, saved on their own device like sheet edits.
 - [ ] **Richer place records** · New · either · Needs Sam. Add region and controlling faction to the places database (Order of the Seal for Orda and the Crow's Nest), and a "Mentioned in" list on each place: sessions, people and places that refer to it.
-- [ ] **Spell slots and resources as tappable dots** · New · either · On the character sheets: slots per level, sorcery points, Bardic Inspiration, plus an exhaustion counter. Saved on the device like HP.
 
 ## Later
 
@@ -67,6 +62,11 @@ Not planned. Kept so nobody re-proposes them without a reason.
 Newest first, with the PR that shipped it.
 
 - [x] **Protocol Zero, the Steward's last stand, as a playable bonus level (only Sam sees it for now)** · New · Sam · PR #61
+- [x] **Fights on phones: tap twice to move (first tap previews the path), End turn asks once when an action is left** · Changed · Sam · PR #70
+- [x] **Spell slots and resources as tappable dots** (slots, pact slots, Bardic Inspiration, Channel Divinity, Eyes of the Grave, exhaustion, short rest) · New · Sam · PR #68
+- [x] **Rename the "Character sheets" panel title to "Characters"** · Changed · either · PR #66
+- [x] **Long action names are cut off in the phone quick bar** · Fixed · Sam · PR #66
+- [x] **Rock and root pillars no longer hide the acting mini (cavern wall on phones, Saphira's root pillars): they open up like a window** · Fixed · Sam · PR #65
 - [x] **End of an interlude in Hans's voice, with a WhatsApp button to send the log to the DM** · Changed · Sam · PR #56
 - [x] **Interludes run straight through: who you are → Round the Fire → your own interlude** · Changed · Sam · PR #55
 - [x] **The shared interlude becomes the prologue *Round the Fire* (no votes, fight or Echo; the vote version kept in source/interludes/drafts/)** · New · Sam · PR #53
