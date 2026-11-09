@@ -148,6 +148,32 @@ aside#sheet{position:fixed;z-index:6;color:var(--parch);background:var(--brk),li
 .btn:disabled{opacity:.45;cursor:default}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .sessions{display:flex;flex-direction:column;gap:2px;margin:0;padding:0;list-style:none}
+/* Hans's tally at the top of the Chronicle: the crew at a glance, the sigils and the chart */
+.tly{display:flex;flex-direction:column;gap:8px}
+.tly-crew{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.tly-pc{display:flex;flex-direction:column;gap:5px;text-align:left;padding:9px 11px 10px;border-radius:12px;border:1px solid var(--hairline);background:#0b0d1240;color:var(--parch);font:inherit;cursor:pointer;min-width:0}
+.tly-pc:hover{border-color:var(--c)}
+.tly-pc:focus-visible{outline:2px solid var(--parch);outline-offset:2px}
+.tly-pc .nm{display:flex;justify-content:space-between;align-items:baseline;gap:6px;font:500 13px/1.1 var(--label);letter-spacing:.08em;color:var(--c)}
+.tly-pc .nm b{font:500 12px/1 var(--mono);letter-spacing:0;color:var(--parch)}
+.tly-pc .nm b small{color:var(--parch-dim);font-size:10px}
+.tly-pc .bar{height:4px;border-radius:2px;background:#ffffff14;overflow:hidden}
+.tly-pc .bar i{display:block;height:100%;background:var(--steward)}
+.tly-pc .bar i.bloodied{background:var(--ember)} .tly-pc .bar i.critical,.tly-pc .bar i.down{background:#ff5a4a}
+.tly-pc .sub{font:400 10px/1.4 var(--mono);color:var(--parch-dim)}
+.tly-pc .sub.warn{color:var(--ember)}
+.tly-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.tly-box{padding:10px 11px;border-radius:12px;border:1px solid var(--hairline);background:#0b0d1240;min-width:0}
+.tly-box .k{display:block;font:500 10px/1.2 var(--label);letter-spacing:.12em;color:var(--brass);text-transform:uppercase}
+.tly-box .v{display:block;font:500 24px/1.1 var(--display);color:var(--parch);margin:4px 0 6px}
+.tly-box .v small{font-size:14px;color:var(--parch-dim)}
+.tly-sig{display:flex;gap:6px;margin-bottom:6px}
+.tly-sig i{width:14px;height:14px;transform:rotate(45deg);border-radius:2px;box-shadow:inset 0 0 0 1.5px var(--brass-dim)}
+.tly-sig i.on{background:var(--steward);box-shadow:0 0 8px #8fd3c888}
+.tly-box p{margin:0;font:400 11px/1.4 var(--mono);color:var(--parch-dim)}
+.tly-meter{height:4px;border-radius:2px;background:#ffffff14;overflow:hidden;margin-bottom:6px}
+.tly-meter i{display:block;height:100%;background:var(--brass)}
+.tly-note{margin:0;font:italic 12px/1.4 var(--body);color:var(--parch-dim)}
 .sessions button{width:100%;text-align:left;background:none;border:0;border-left:2px solid var(--brass-dim);color:var(--parch);padding:8px 10px;cursor:pointer;font:inherit;display:grid;grid-template-columns:44px minmax(0,1fr);gap:8px}
 .sessions button:hover,.sessions button[aria-pressed="true"]{background:var(--panel-2);border-left-color:var(--brass)}
 .sessions .n{font:500 12px/1.6 var(--mono);color:var(--steward);letter-spacing:.06em}
@@ -1809,6 +1835,26 @@ void main(){
     float floe=smoothstep(th-ffw,th+ffw,fn)*smoothstep(0.0,0.15,iceZ);
     col=mix(col,vec3(0.93,0.95,0.96)*(0.97+0.04*grain),0.9*floe);
     col=mix(col,vec3(0.52,0.64,0.74),0.5*smoothstep(0.0,0.15,iceZ)*(1.0-smoothstep(0.0,ffw*1.5,abs(fn-th))));}
+  // up close the open water keeps its life: a fine swell that moves, form lines along the shore and small engraved
+  // wave marks out at sea, like the old atlases. It grows in with zoom and only on water the crew has seen
+  float zs=smoothstep(3.0,8.0,0.4/pl)*dv*smoothstep(0.0,0.004,dpt);
+  if(zs>0.0){
+    float sw=gn(p*120.0+vec3(t*0.10,0.0,-t*0.08))*0.6+gn(p*300.0+vec3(-t*0.18,t*0.13,0.0))*0.4;
+    col*=1.0+zs*(0.10*sw-0.02)*(1.0-fsea*0.5);
+    // three engraved form lines that follow the coast, fading with depth
+    float fl3=0.0; for(int i=1;i<4;i++){float d=0.011*float(i)+0.002*sin(t*0.3+float(i)); fl3+=(1.0-smoothstep(0.0,fw*0.9,abs(dpt-d)))*(1.0-0.22*float(i));}
+    col=mix(col,ink,0.24*zs*fl3*(1.0-fsea*0.5));
+    // wave marks: one small double arc per cell, rocking slowly, more of them in deep water and none against the shore
+    float C=0.6; vec2 g=ll/C, id=floor(g), q=fract(g)-0.5; vec3 r=hash3(id+31.0);
+    float on=step(0.55-0.35*smoothstep(0.05,0.3,dpt),r.z)*smoothstep(0.035,0.07,dpt)*smoothstep(12.0,24.0,C/pl);
+    if(on>0.0){
+      vec2 d=q-(r.xy-0.5)*0.4; d.x+=0.03*sin(t*0.5+r.x*6.283);
+      float aa=pl/C*1.2, wx=abs(d.x);
+      float arc=abs(d.y-0.05*cos(d.x*21.0)+0.02)-0.012;
+      float wm=(1.0-smoothstep(-aa,aa,arc))*(1.0-smoothstep(0.17,0.2,wx));
+      col=mix(col,mix(ink,deepW*0.6,0.4),0.45*zs*on*wm*(1.0-fsea*0.4));
+    }
+  }
   // one slow ripple line travelling out from the shore, and the foam line
   float ph=fract(t*0.04);
   {float th=-0.012-0.05*ph; float a=0.22*smoothstep(0.0,0.2,ph)*(1.0-ph)*dv*smoothstep(2.0,5.0,0.4/pl);
@@ -2000,6 +2046,19 @@ void main(){
     float drift2=fbm3(p*9.0-vec3(uTime*0.03,0.0,uTime*0.02))*0.5+0.5;
     float fogA=clamp((1.0-seen)*(0.78+0.45*drift)-0.08*drift2,0.0,1.0);
     vec3 fogC=mix(vec3(0.10,0.12,0.16),vec3(0.55,0.58,0.64),smoothstep(0.25,0.85,drift*0.7+drift2*0.3));
+    // up close the fog keeps its shape: finer banks roll in, lit on the side that faces the sun, darker in the folds
+    float zf=smoothstep(3.0,8.0,0.5/pl)*(1.0-seen);
+    if(zf>0.0){
+      vec3 m=p*38.0+vec3(t*0.05,-t*0.03,t*0.04);
+      float b1=gn(m)*0.65+gn(p*105.0-vec3(t*0.07,0.0,t*0.06))*0.35;
+      float b2=gn(m+(uSun-p*dot(p,uSun))*1.6);
+      float lit=clamp(0.5+(b1-b2)*2.2,0.0,1.0);
+      fogC*=1.0+zf*(0.30*b1+0.26*(lit-0.5));
+      fogC=mix(fogC,vec3(0.78,0.80,0.84),zf*0.16*smoothstep(0.25,0.6,b1));
+      fogA=clamp(fogA-zf*0.2*smoothstep(-0.15,-0.5,b1),0.0,1.0);
+      // over rumoured water the mist thins up close, so the swell and the Fire Sea's glow read through it
+      fogA*=1.0-0.4*zf*smoothstep(0.3,0.45,vis)*smoothstep(fw,-0.02,h);
+    }
     col=mix(col,fogC,fogA);}
   // the flying city of the Wind Vault drags its shadow over the land below as the sun goes round
   if(uShadeAx.w>0.0){vec3 q=p-uShade.xyz; float al=dot(q,uShadeAx.xyz), pr=length(q-al*uShadeAx.xyz);
@@ -2033,12 +2092,21 @@ void main(){
   float seen=max(mk.r,mk.g*smoothstep(rn-0.06,rn+0.06,uReveal*1.15-0.05));
   float c=0.5; if(seen<1.0) c=fbm(p*5.0+vec3(uTime*0.035,-uTime*0.02,uTime*0.01))*0.5+0.5;   // the fog clouds only over unseen ground
   float a=smoothstep(0.52,0.78,c)*(1.0-seen)*0.55;
+  // up close the fog clouds break into wisps with lit tops instead of one soft grey sheet
+  float zc=smoothstep(4.0,10.0,0.5/(fwidth(vUv.y)*180.0+1e-5))*(1.0-seen);
+  float cl=0.5;
+  if(zc>0.0){vec3 m=p*30.0+vec3(uTime*0.06,-uTime*0.04,uTime*0.03);
+    float w1=gn(m)*0.6+gn(p*85.0-vec3(uTime*0.09,0.0,uTime*0.07))*0.4, w2=gn(m+(uSun-p*dot(p,uSun))*1.4);
+    cl=clamp(0.5+(w1-w2)*2.4,0.0,1.0);
+    a*=mix(1.0,smoothstep(-0.25,0.35,w1)*1.25,zc);
+    c=mix(c,c+0.35*w1,zc);}
   // weather: a few large, soft cells over the ground the crew has seen, lit on the sun side like a watercolour cloud
   float wx=vWx;
   float wa=smoothstep(0.62,0.82,wx)*seen*0.42;
   float day=smoothstep(-0.42,0.02,dot(p,uSun));
   float lit=clamp(0.5+(wx-vWs)*9.0,0.0,1.0);
   vec3 cc=mix(mix(vec3(0.62,0.65,0.71),vec3(0.9,0.9,0.92),c),mix(vec3(0.70,0.72,0.80),vec3(0.99,0.97,0.93),lit),wa/(wa+a+1e-4));
+  cc*=1.0+zc*0.28*(cl-0.5);
   cc*=mix(0.45,1.0,day);
   // lightning lights up the cloud around the strike from inside
   float fl=0.0; if(uFlash.w>0.0) fl=uFlash.w*exp(-pow(acos(clamp(dot(p,uFlash.xyz),-1.0,1.0))*57.2958,2.0)/18.0);
@@ -2106,7 +2174,7 @@ void main(){vec4 b=texture2D(tMap,vUv); float v=min(b.r*255.0+b.g,254.99), hi=fl
   },undefined,()=>{}),1200);
   return W;})();
 const cloudU = {...uniforms,uLift:{value:0.024},uOpacity:{value:1}};
-const clouds = new THREE.Mesh(new THREE.PlaneGeometry(1,1,512,256),new THREE.ShaderMaterial({uniforms:cloudU,vertexShader:CVERT,fragmentShader:CLOUD_FRAG,transparent:true,depthWrite:false,side:THREE.DoubleSide}));
+const clouds = new THREE.Mesh(new THREE.PlaneGeometry(1,1,512,256),new THREE.ShaderMaterial({uniforms:cloudU,vertexShader:CVERT,fragmentShader:CLOUD_FRAG,transparent:true,depthWrite:false,side:THREE.DoubleSide,extensions:{derivatives:true}}));
 clouds.frustumCulled=false; scene.add(clouds);
 // the air: a thin shell of scattered sunlight round the world. Blue on the day side, amber along the terminator, a bright ring
 // when the sun stands behind the globe, and a faint haze over the ground. Worked out per pixel along the view ray (single scattering)
@@ -4123,6 +4191,34 @@ function postcard(){
 }
 
 /* =================== CHRONICLE =================== */
+/* Hans's tally: hit points and what is left of each crew member's slots (this device), the sigils, and the chart.
+   A card opens that crew member's sheet. */
+const SIGILS=[["Water","on the cleric's skin",true],["Earth","in the bard's pack",true],["Fire","still out there",false],["Wind","still out there",false]];
+function crewTally(){
+  const crew=Object.values(SHEETS).map(c=>{const s=liveSheet(c.id),hp=hpOf(c.id,s),R=resOf(c.id,s),st=hpState[c.id]||{},exh=Math.max(0,Math.min(6,st.exh|0));
+    const sl=R.filter(r=>r.slot),left=sl.reduce((a,r)=>a+r.left,0),max=sl.reduce((a,r)=>a+r.max,0);
+    const cond=hp?hp.cond:[], bits=[];
+    if(max)bits.push(`slots ${left}/${max}`);
+    R.filter(r=>!r.slot).forEach(r=>bits.push(`${r.sn||r.n.toLowerCase()} ${r.left}/${r.max}`));
+    const warn=[hp&&hp.st==="down"?"down":"",exh?`exhaustion ${exh}`:"",...cond.map(x=>x.toLowerCase())].filter(Boolean).join(" · ");
+    return h("button",{type:"button",class:"tly-pc",style:`--c:${SHEET_HEX[c.id]}`,"aria-label":`${c.name}${hp?`, ${hp.cur} of ${hp.max} hit points`:""}. Open the sheet.`,
+      onclick:()=>{store.set("chron-sheet",c.id);document.querySelector('[data-tab="sheets"]')?.click();}},
+      h("span",{class:"nm"},c.name.split(" ")[0],hp?h("b",{},String(hp.cur),h("small",{},"/"+hp.max)):null),
+      hp?h("span",{class:"bar"},h("i",{class:hp.st,style:`width:${Math.max(0,Math.min(100,hp.cur/hp.max*100))}%`})):null,
+      h("span",{class:"sub"},bits.join(" · ")||"no slots. a beat."),
+      warn?h("span",{class:"sub warn"},warn):null);});
+  const known=GAZ.filter(e=>e.state==="explored").length, all=GAZ.length, rum=GAZ.filter(e=>e.state==="rumour").length, got=SIGILS.filter(x=>x[2]).length;
+  return h("div",{class:"tly"},
+    h("div",{class:"tly-crew"},...crew),
+    h("p",{class:"tly-note"},"Hit points and slots as you keep them on this device. Tap someone to open their sheet."),
+    h("div",{class:"tly-two"},
+      h("div",{class:"tly-box"},h("span",{class:"k"},"Sigils"),h("span",{class:"v"},String(got),h("small",{}," of "+SIGILS.length)),
+        h("div",{class:"tly-sig","aria-hidden":"true"},SIGILS.map(([n,w,on])=>h("i",{class:on?"on":"",title:n+": "+w}))),
+        h("p",{},SIGILS.filter(x=>x[2]).map(x=>x[0]).join(" and ")+" found. "+SIGILS.filter(x=>!x[2]).map(x=>x[0]).join(" and ")+": out there.")),
+      h("div",{class:"tly-box"},h("span",{class:"k"},"Places explored"),h("span",{class:"v"},String(known),h("small",{}," of "+all)),
+        h("div",{class:"tly-meter","aria-hidden":"true"},h("i",{style:`width:${Math.round(known/all*100)}%`})),
+        h("p",{},`${rum} more only rumoured, or seen in a vision.`))));
+}
 function showChronicle(){
   const list=h("ul",{class:"sessions"},SESSIONS.map(s=>h("li",{},h("button",{type:"button",onclick:(e)=>{
       if(s.recap){startRecap();return;}
@@ -4130,15 +4226,14 @@ function showChronicle(){
       flyToPlace(s.at,.42); [...list.querySelectorAll("button")].forEach(b=>b.setAttribute("aria-pressed",String(b===e.currentTarget)));
     }},h("span",{class:"n"},"S"+(typeof s.n==="number"?String(s.n).padStart(2,"0"):s.n)),h("span",{},h("span",{class:"t"},s.t),h("span",{class:"by"},s.v==="hans"?"Hans":"The Steward, as told to Hans"),h("span",{class:"s"},s.s))))));
   openSheet("The Chronicle",[h("p",{class:"eyebrow m"},"DECODED FROM THE BLACK BOX · AS OF SESSION "+AS_OF),h("p",{class:"muted small"},"Hans placed the black box from the ship inside his own body to decode its beeping. This chart is what he has decoded so far. Where the data is still scrambled, there is cloud. Tap a session to see the chart as it stood after it."),
+    h("p",{class:"eyebrow"},"HANS'S TALLY"),crewTally(),
     h("div",{class:"row-btns"},
       h("button",{class:"btn replay",type:"button",onclick:()=>startJourney(MIN_S,{auto:true})},"Replay the whole journey"),
       h("button",{class:"btn ghost replay",type:"button",onclick:()=>postcard()},"Postcard from Hans")),list,
     h("p",{class:"eyebrow"},"WHAT THE PARTY CARRIES"),
     h("p",{class:"small voice"},"The black box from the ship, now inside me. The ring and booklet of Vayne and a green bracelet, all still to identify. The ash blade +1. A towel that drinks 200 litres. The Vial of Dragon's Fire. I have catalogued all of it. Twice."),
     h("p",{class:"eyebrow"},"HANS'S FILES"),
-    h("div",{class:"scan",html:"STIG, THE CLERIC<br>ORIGINS: MYRATMA, THE PAPER SAYS. A MONASTERY. SHIPS.<br>THE REST: ANALYZING<span class='cur'></span>"}),
-    h("p",{class:"eyebrow"},"SIGILS · 2 OF 4"),
-    h("p",{class:"small voice"},"Water: on the cleric's skin. Earth: in the bard's pack. Fire and Wind: still out there.")],"chronicle");
+    h("div",{class:"scan",html:"STIG, THE CLERIC<br>ORIGINS: MYRATMA, THE PAPER SAYS. A MONASTERY. SHIPS.<br>THE REST: ANALYZING<span class='cur'></span>"})],"chronicle");
 }
 
 /* =================== CHARACTER SHEETS =================== */
@@ -4167,8 +4262,8 @@ function setDs(id,which,n){const st=hpState[id]||(hpState[id]={});st.ds=Array.is
   if(which===1&&n>was)toast(["Hans: Not yet.","Hans: Stay with me.","Hans: …"][n-1]);if(which===0&&n===3&&was<3)toast("Hans: Stable. Good.");}
 /* spell slots and class resources. Slots come from the sheet's own line, so an amended page carries over; the class
    resources are read off the crew's papers (rest: what brings them back; short: how many a short rest returns). */
-const RES_EXTRA={katy:[{k:"bi",n:"Bardic Inspiration",max:4,rest:"short",d:"d8"}],
-  stig:[{k:"cd",n:"Channel Divinity",max:2,rest:"long",short:1},{k:"eyes",n:"Eyes of the Grave",max:4,rest:"long"}]};
+const RES_EXTRA={katy:[{k:"bi",n:"Bardic Inspiration",sn:"inspiration",max:4,rest:"short",d:"d8"}],
+  stig:[{k:"cd",n:"Channel Divinity",sn:"channel",max:2,rest:"long",short:1},{k:"eyes",n:"Eyes of the Grave",sn:"eyes",max:4,rest:"long"}]};
 const ORD=["1st","2nd","3rd","4th","5th","6th","7th","8th","9th"], WORDN={one:1,two:2,three:3,four:4,five:5};
 function resOf(id,s){s=s||liveSheet(id);const out=[],sl=String(s.magic&&s.magic.slots||"");
   const m=sl.match(/spell slots\s*([\d\s·,]+)/i);
@@ -9621,8 +9716,15 @@ async function runInterlude(I){
   const T=INTERLUDE_TEXT[I.id];if(!T){await read("This interlude isn't written yet.");return;}
   const mine=IST={I,seen:[],path:[],verse:{},votes:{}},live=()=>{if(IST!==mine)throw ABORT;}; // left midway: this run stops quietly
   storyView(I.art);setTitle(I.eye,T.title);clearLog();
-  let id=T.first;
-  while(true){const p=T.passages[id];IST.seen.push(id);IST.at=id;
+  // a bookmark on this device: a reload, a locked phone or a trip to WhatsApp picks up at the same passage (or at the start of the fight)
+  const RK="chron-inter-run-"+I.id,mark=()=>store.set(RK,JSON.stringify({v:1,at:IST.at,seen:IST.seen,path:IST.path,verse:IST.verse,fight:!!IST.fight,t:Date.now()}));
+  let bm=null;try{bm=JSON.parse(store.get(RK)||"null");}catch(e){}
+  if(bm&&bm.v===1&&!PLAY.auto&&(bm.fight||T.passages[bm.at])&&Array.isArray(bm.seen)&&bm.seen.length>1){
+    const c=await choose(bm.fight?"You stopped in the middle of the fight.":"You stopped part way through.",[{t:bm.fight?"Back to the fight":"Pick up where you left off",sub:bm.fight?"it starts again from the first round":"your choices so far are kept"},{t:"Start from the beginning"}],{spk:T.title});live();
+    if(c===0){IST.seen=bm.seen.slice();IST.path=(bm.path||[]).slice();IST.verse=bm.verse||{};IST.fight=bm.fight;storyView(I.art);setTitle(I.eye,T.title);}else bm=null;}
+  else bm=null;
+  let id=bm&&!bm.fight?bm.at:T.first;if(bm&&!bm.fight)IST.seen.pop(); // the loop below adds the bookmarked passage again
+  while(!(bm&&bm.fight)){const p=T.passages[id];IST.seen.push(id);IST.at=id;mark();
     let i;
     if(I.votes&&I.votes[id])i=await iVote(p,I.votes[id]);
     else{const single=p.opts.length===1;i=await iPassage(p,p.opts.map(o=>({t:single?(o.t==="Continue"?"Continue":o.t):o.t})));}
@@ -9632,10 +9734,10 @@ async function runInterlude(I){
     if(go==="@end")break;
     if(go.startsWith("@"))go=I.jump[go.slice(1)](IST.seen);
     id=go;}
-  if(I.prologue){store.set("chron-prologue-"+I.id,"1");IST=null;return;} // read; nothing to keep or send
+  if(I.prologue){store.set("chron-prologue-"+I.id,"1");store.set(RK,"");IST=null;return;} // read; nothing to keep or send
   // the small fight: a test of the engine, then the memory lets go
   let fight=null;
-  if(IFIGHTS[I.fight]){const out=await iFight(I);live();fight={won:out==="win",rounds:IST.rounds||0};}
+  if(IFIGHTS[I.fight]){IST.fight=true;mark();const out=await iFight(I);live();fight={won:out==="win",rounds:IST.rounds||0};}
   const ek=Object.entries(I.endBy).find(([k])=>IST.seen.includes(k))?.[1]||Object.keys(T.ends)[0],e=T.ends[ek];
   storyView(I.art);setTitle(I.eye,e.h);
   await iPassage({html:e.html+`<div class="pl-echo" role="note" aria-label="Your Echo"><b>Echo: ${escapeHtml(e.echo.name)}</b><span>${escapeHtml(e.echo.text)}</span><small>You can use this Echo once, at the table; Sam decides when it applies. It waits on your character sheet.</small></div>`},[{t:"Keep it"}],{spk:"Your Echo"});
@@ -9647,7 +9749,7 @@ async function runInterlude(I){
     echo:{id:I.id+"-"+ek,text:(e.echo.name+": "+e.echo.text).slice(0,300),used:false},lore:lore.map(s=>s.slice(0,1000)),finishedAt:Date.now()};
   if(IST.verse[1])r.verse=["Foxglove bells over the sleeping roots",IST.verse[1],IST.verse[2],IST.verse[3]].map(s=>String(s||"").slice(0,200));
   if(fight)r.fight=fight;
-  await iFinalize(I,r);
+  store.set(RK,"");await iFinalize(I,r);
   IST=null;}
 
 /* ---- the fight: its own party state, so it never touches the session 10 save ---- */
