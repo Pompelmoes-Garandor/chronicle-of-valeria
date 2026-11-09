@@ -6,6 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **Changed** Small polish across the map. The character panel is now just called *Characters*, like its button. Rows you can swipe sideways (the kinds and tags in *Places*, the turn order and targets in a fight) fade out at the edge where there is more to see. On phones, long action names in a fight's quick bar (like *Press the Sigil of Earth*) now wrap onto two lines instead of being cut off. Small headings no longer leave one lonely word on their last line. (Sam)
 - **Fixed** In a fight, rock and root pillars no longer hide whoever is acting. The stone between the camera and that mini now opens up like a window, so on phones you can always see your character, even pressed against a cavern wall or behind the roots in Saphira's fight. (Sam)
 - **Changed** The end of an interlude now says it in Hans's words: nothing is lost, your choices and Echo are safe, and when you're ready Hans can carry his log to the DM. One button, *Send to the DM on WhatsApp*, opens WhatsApp with the log; just press send. (Sam)
 - **Changed** *Interludes* now walks you straight through: say who you are, read *Round the Fire*, then your own interlude and its Echo. The list only shows up afterwards, to send it to Sam or read again. (Sam)
