@@ -9633,8 +9633,15 @@ async function runInterlude(I){
   const T=INTERLUDE_TEXT[I.id];if(!T){await read("This interlude isn't written yet.");return;}
   const mine=IST={I,seen:[],path:[],verse:{},votes:{}},live=()=>{if(IST!==mine)throw ABORT;}; // left midway: this run stops quietly
   storyView(I.art);setTitle(I.eye,T.title);clearLog();
-  let id=T.first;
-  while(true){const p=T.passages[id];IST.seen.push(id);IST.at=id;
+  // a bookmark on this device: a reload, a locked phone or a trip to WhatsApp picks up at the same passage (or at the start of the fight)
+  const RK="chron-inter-run-"+I.id,mark=()=>store.set(RK,JSON.stringify({v:1,at:IST.at,seen:IST.seen,path:IST.path,verse:IST.verse,fight:!!IST.fight,t:Date.now()}));
+  let bm=null;try{bm=JSON.parse(store.get(RK)||"null");}catch(e){}
+  if(bm&&bm.v===1&&!PLAY.auto&&(bm.fight||T.passages[bm.at])&&Array.isArray(bm.seen)&&bm.seen.length>1){
+    const c=await choose(bm.fight?"You stopped in the middle of the fight.":"You stopped part way through.",[{t:bm.fight?"Back to the fight":"Pick up where you left off",sub:bm.fight?"it starts again from the first round":"your choices so far are kept"},{t:"Start from the beginning"}],{spk:T.title});live();
+    if(c===0){IST.seen=bm.seen.slice();IST.path=(bm.path||[]).slice();IST.verse=bm.verse||{};IST.fight=bm.fight;storyView(I.art);setTitle(I.eye,T.title);}else bm=null;}
+  else bm=null;
+  let id=bm&&!bm.fight?bm.at:T.first;if(bm&&!bm.fight)IST.seen.pop(); // the loop below adds the bookmarked passage again
+  while(!(bm&&bm.fight)){const p=T.passages[id];IST.seen.push(id);IST.at=id;mark();
     let i;
     if(I.votes&&I.votes[id])i=await iVote(p,I.votes[id]);
     else{const single=p.opts.length===1;i=await iPassage(p,p.opts.map(o=>({t:single?(o.t==="Continue"?"Continue":o.t):o.t})));}
@@ -9644,10 +9651,10 @@ async function runInterlude(I){
     if(go==="@end")break;
     if(go.startsWith("@"))go=I.jump[go.slice(1)](IST.seen);
     id=go;}
-  if(I.prologue){store.set("chron-prologue-"+I.id,"1");IST=null;return;} // read; nothing to keep or send
+  if(I.prologue){store.set("chron-prologue-"+I.id,"1");store.set(RK,"");IST=null;return;} // read; nothing to keep or send
   // the small fight: a test of the engine, then the memory lets go
   let fight=null;
-  if(IFIGHTS[I.fight]){const out=await iFight(I);live();fight={won:out==="win",rounds:IST.rounds||0};}
+  if(IFIGHTS[I.fight]){IST.fight=true;mark();const out=await iFight(I);live();fight={won:out==="win",rounds:IST.rounds||0};}
   const ek=Object.entries(I.endBy).find(([k])=>IST.seen.includes(k))?.[1]||Object.keys(T.ends)[0],e=T.ends[ek];
   storyView(I.art);setTitle(I.eye,e.h);
   await iPassage({html:e.html+`<div class="pl-echo" role="note" aria-label="Your Echo"><b>Echo: ${escapeHtml(e.echo.name)}</b><span>${escapeHtml(e.echo.text)}</span><small>You can use this Echo once, at the table; Sam decides when it applies. It waits on your character sheet.</small></div>`},[{t:"Keep it"}],{spk:"Your Echo"});
@@ -9659,7 +9666,7 @@ async function runInterlude(I){
     echo:{id:I.id+"-"+ek,text:(e.echo.name+": "+e.echo.text).slice(0,300),used:false},lore:lore.map(s=>s.slice(0,1000)),finishedAt:Date.now()};
   if(IST.verse[1])r.verse=["Foxglove bells over the sleeping roots",IST.verse[1],IST.verse[2],IST.verse[3]].map(s=>String(s||"").slice(0,200));
   if(fight)r.fight=fight;
-  await iFinalize(I,r);
+  store.set(RK,"");await iFinalize(I,r);
   IST=null;}
 
 /* ---- the fight: its own party state, so it never touches the session 10 save ---- */
