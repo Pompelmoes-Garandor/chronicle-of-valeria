@@ -660,6 +660,23 @@ details[open]>.cs-eb .tri{transform:rotate(90deg)}
 .ds button{width:24px;height:24px;border-radius:50%;border:1px solid var(--brass-dim);background:none;cursor:pointer;padding:0}
 .ds button[aria-pressed="true"]{background:var(--steward);border-color:var(--steward)} .ds .f button[aria-pressed="true"]{background:#ff5a4a;border-color:#ff5a4a}
 .conds{display:flex;flex-wrap:wrap;gap:5px}
+/* spell slots, class resources and exhaustion: dots to tap, kept on this device like hit points */
+.rs{display:flex;flex-direction:column;gap:2px;margin-top:6px;padding:8px 12px 10px;border:1px solid var(--hairline);border-radius:12px;background:#0b0d1240}
+.rs-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:10px;min-height:40px}
+.rs-k{font:500 10px/1.25 var(--label);letter-spacing:.12em;text-transform:uppercase;color:var(--brass)}
+.rs-k small{display:block;font:400 10px/1.3 var(--mono);letter-spacing:.04em;text-transform:none;color:var(--parch-dim);margin-top:2px}
+.rs-dots{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:0}
+.rs-dots button{width:34px;height:40px;border:0;background:none;padding:0;cursor:pointer;display:grid;place-items:center;-webkit-tap-highlight-color:transparent}
+.rs-dots button i{display:block;width:18px;height:18px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--brass-dim);transition:background .15s,box-shadow .15s,transform .15s}
+.rs-dots button[aria-pressed="true"] i{background:var(--c,var(--steward));box-shadow:inset 0 0 0 1.5px var(--c,var(--steward)),0 0 8px color-mix(in srgb,var(--c,var(--steward)) 45%,transparent)}
+.rs-dots button:active i{transform:scale(.88)}
+.rs-dots button:focus-visible{outline:2px solid var(--parch);outline-offset:-4px;border-radius:8px}
+.rs-row.exh .rs-dots button[aria-pressed="true"] i{background:var(--ember);box-shadow:inset 0 0 0 1.5px var(--ember)}
+.rs-row.exh .rs-dots button i{border-radius:4px;width:15px;height:15px}
+.rs-note{margin:2px 0 0;font:italic 13px/1.4 var(--body);color:var(--ember)}
+.rs-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px}
+.rs-foot .note{margin:0}
+.rs-foot button{flex:none;min-height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--brass-dim);background:#0b0d1266;color:var(--parch-dim);font:500 10px/1 var(--label);letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
 .conds .chip{font-size:11px;padding:6px 9px}
 .conds .chip[aria-pressed="true"]{background:var(--ember);border-color:var(--ember);color:#1b0a02}
 /* ---- the seal: the black box stays shut until the crew opens it together at the table (start of session 10) ---- */
@@ -4113,10 +4130,29 @@ function hpOf(id,s){const max=parseInt(String(((s||liveSheet(id)).vit.find(x=>x[
   const st=hpState[id]||{};let c=Number.isFinite(st.cur)?st.cur:max;c=Math.max(0,Math.min(max,c));const r=c/max;
   return {cur:c,max,ds:Array.isArray(st.ds)?st.ds:[0,0],cond:Array.isArray(st.cond)?st.cond:[],st:c<=0?"down":r<=.25?"critical":r<=.5?"bloodied":"ok"};}
 function setHp(id,n,rest){const hp=hpOf(id);if(!hp)return;const st=hpState[id]||(hpState[id]={});const was=hp.st;
-  st.cur=Math.max(0,Math.min(hp.max,Number.isFinite(n)?n:hp.cur));if(rest){st.ds=[0,0];st.cond=[];}else if(st.cur>0)st.ds=[0,0];saveHp();showSheets(true);
+  st.cur=Math.max(0,Math.min(hp.max,Number.isFinite(n)?n:hp.cur));if(rest){st.ds=[0,0];st.cond=[];st.res={};st.exh=Math.max(0,(st.exh|0)-1);}else if(st.cur>0)st.ds=[0,0];saveHp();showSheets(true);
   const now=hpOf(id).st;if(now!==was&&!rest){const L={bloodied:"Hans: Bloodied.",critical:"Hans: Hold on.",down:id==="hans"?"Hans: Shutting down. Stable.":"Hans: Down. Not gone."};if(L[now])toast(L[now]);}}
 function setDs(id,which,n){const st=hpState[id]||(hpState[id]={});st.ds=Array.isArray(st.ds)?st.ds:[0,0];const was=st.ds[which]||0;st.ds[which]=Math.max(0,Math.min(3,n));saveHp();showSheets(true);
   if(which===1&&n>was)toast(["Hans: Not yet.","Hans: Stay with me.","Hans: …"][n-1]);if(which===0&&n===3&&was<3)toast("Hans: Stable. Good.");}
+/* spell slots and class resources. Slots come from the sheet's own line, so an amended page carries over; the class
+   resources are read off the crew's papers (rest: what brings them back; short: how many a short rest returns). */
+const RES_EXTRA={katy:[{k:"bi",n:"Bardic Inspiration",max:4,rest:"short",d:"d8"}],
+  stig:[{k:"cd",n:"Channel Divinity",max:2,rest:"long",short:1},{k:"eyes",n:"Eyes of the Grave",max:4,rest:"long"}]};
+const ORD=["1st","2nd","3rd","4th","5th","6th","7th","8th","9th"], WORDN={one:1,two:2,three:3,four:4,five:5};
+function resOf(id,s){s=s||liveSheet(id);const out=[],sl=String(s.magic&&s.magic.slots||"");
+  const m=sl.match(/spell slots\s*([\d\s·,]+)/i);
+  if(m)m[1].split(/[\s·,]+/).filter(Boolean).map(Number).forEach((n,i)=>{if(n>0&&n<10)out.push({k:"s"+(i+1),n:ORD[i]+" level",max:n,rest:"long",slot:1});});
+  const p=sl.match(/(\w+)\s+pact slots?\s*\((\d)\w*/i);
+  if(p){const n=WORDN[p[1].toLowerCase()]||parseInt(p[1],10);if(n>0&&n<10)out.push({k:"pact",n:"Pact slots",max:n,rest:"short",d:ORD[+p[2]-1]+" level",slot:1});}
+  out.push(...(RES_EXTRA[id]||[]));
+  const st=(hpState[id]||{}).res||{};
+  return out.map(r=>({...r,left:Number.isFinite(st[r.k])?Math.max(0,Math.min(r.max,st[r.k])):r.max}));}
+function setRes(id,k,n){const st=hpState[id]||(hpState[id]={});st.res=st.res&&typeof st.res==="object"?st.res:{};st.res[k]=n;saveHp();showSheets(true);}
+function setExh(id,n){const st=hpState[id]||(hpState[id]={});st.exh=Math.max(0,Math.min(6,n));saveHp();showSheets(true);
+  if(st.exh===6)toast(id==="hans"?"Hans: Battery at zero.":"Hans: Six. That is the end of the road. Ask the DM.");}
+function shortRest(id){const st=hpState[id]||(hpState[id]={});const res=st.res||{};
+  resOf(id).forEach(r=>{if(r.rest==="short")delete res[r.k];else if(r.short)res[r.k]=Math.min(r.max,r.left+r.short);});
+  st.res=res;saveHp();showSheets(true);toast(id==="hans"?"Hans: Short reboot. Fans spinning down.":"Hans: Short rest. Some of it back.");}
 const CONDS=["Poisoned","Frightened","Prone","Grappled","Restrained","Concentrating","Inspired"];
 function toggleCond(id,c){const st=hpState[id]||(hpState[id]={});st.cond=Array.isArray(st.cond)?st.cond:[];const i=st.cond.indexOf(c);if(i<0)st.cond.push(c);else st.cond.splice(i,1);saveHp();showSheets(true);}
 const b64u=u8=>{let b="";for(let i=0;i<u8.length;i+=0x8000)b+=String.fromCharCode.apply(null,u8.subarray(i,i+0x8000));return btoa(b).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");};
@@ -4186,6 +4222,19 @@ function editorNode(s,key){
   setTimeout(()=>{try{box.querySelector("textarea,input")?.focus({preventScroll:true});}catch(e){}},50);
   return box;
 }
+// slots, resources and exhaustion: a filled dot is one you still have; tap any filled dot to spend one, any empty dot to get one back
+function resNode(cur,s,hex){const R=resOf(cur,s),exh=Math.max(0,Math.min(6,(hpState[cur]||{}).exh|0));
+  const dots=(r,label)=>h("div",{class:"rs-dots",role:"group","aria-label":label},Array.from({length:r.max},(_,i)=>{const on=i<r.left;
+    return h("button",{type:"button","aria-pressed":String(on),"aria-label":`${label}: ${on?"spend":"get back"} one (${r.left} of ${r.max} left)`,onclick:()=>setRes(cur,r.k,r.left+(on?-1:1))},h("i",{}));}));
+  const restTxt=r=>r.rest==="short"?"back on a short rest":r.short?`${r.short} back on a short rest`:"back on a long rest";
+  const rows=R.map(r=>h("div",{class:"rs-row"},h("span",{class:"rs-k"},r.n,h("small",{},(r.d?r.d+" · ":"")+restTxt(r))),dots(r,r.n)));
+  const exhRow=h("div",{class:"rs-row exh"},h("span",{class:"rs-k"},"Exhaustion",h("small",{},exh?`level ${exh} of 6`:"none")),
+    h("div",{class:"rs-dots",role:"group","aria-label":"Exhaustion"},Array.from({length:6},(_,i)=>h("button",{type:"button","aria-pressed":String(i<exh),"aria-label":`Exhaustion level ${i+1}`,onclick:()=>setExh(cur,i<exh?i:i+1)},h("i",{})))));
+  const hasShort=R.some(r=>r.rest==="short"||r.short);
+  return h("div",{class:"rs",style:`--c:${hex}`},...rows,exhRow,
+    exh?h("p",{class:"rs-note"},`−${2*exh} on every d20 test, and ${5*exh} ft less speed.`):null,
+    h("div",{class:"rs-foot"},h("p",{class:"note"},"Rest refills it all and takes off one exhaustion."),
+      hasShort?h("button",{type:"button",onclick:()=>shortRest(cur)},"Short rest"):null));}
 function showSheets(keep){
   let cur=store.get("chron-sheet"); if(!SHEETS[cur]) cur=SHEETS[myPick]?myPick:"katy";
   document.querySelector('[data-tab="sheets"] .dot')?.remove();
@@ -4252,7 +4301,8 @@ function showSheets(keep){
       h("span",{},"SAVES",[0,1,2].map(i=>h("button",{type:"button","aria-pressed":String(hp.ds[0]>i),"aria-label":"Success "+(i+1),onclick:()=>setDs(cur,0,hp.ds[0]>i?i:i+1)}))),
       h("span",{class:"f"},"FAILS",[0,1,2].map(i=>h("button",{type:"button","aria-pressed":String(hp.ds[1]>i),"aria-label":"Failure "+(i+1),onclick:()=>setDs(cur,1,hp.ds[1]>i?i:i+1)})))):null,
     h("p",{class:"note"},hpLine),
-    h("div",{class:"conds",role:"group","aria-label":"Conditions"},CONDS.map(c=>h("button",{type:"button",class:"chip","aria-pressed":String(hp.cond.includes(c)),onclick:()=>toggleCond(cur,c)},c)))]:[];
+    h("div",{class:"conds",role:"group","aria-label":"Conditions"},CONDS.map(c=>h("button",{type:"button",class:"chip","aria-pressed":String(hp.cond.includes(c)),onclick:()=>toggleCond(cur,c)},c))),
+    resNode(cur,s,hex)]:[];
   // saving throws as a grid when the line has the usual shape
   const savesNode=(()=>{if(!s.saves)return null;const parts=s.saves.split(/\s*·\s*/);if(parts.length>=4&&parts.every(p=>/^\S+\s+[+−-]\s?\d+$/.test(p)))return h("div",{class:"skl"},parts.map(p=>{const m=p.match(/^(\S+)\s+(.+)$/);return h("span",{},m[1],h("b",{},m[2].replace(/\s/g,"")));}));return h("p",{class:"mono"},s.saves);})();
   const m=s.magic;
