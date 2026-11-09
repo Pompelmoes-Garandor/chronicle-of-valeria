@@ -180,6 +180,32 @@ aside#sheet{position:fixed;z-index:6;color:var(--parch);background:var(--brk),li
 .btn:disabled{opacity:.45;cursor:default}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .sessions{display:flex;flex-direction:column;gap:2px;margin:0;padding:0;list-style:none}
+/* Hans's tally at the top of the Chronicle: the crew at a glance, the sigils and the chart */
+.tly{display:flex;flex-direction:column;gap:8px}
+.tly-crew{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.tly-pc{display:flex;flex-direction:column;gap:5px;text-align:left;padding:9px 11px 10px;border-radius:12px;border:1px solid var(--hairline);background:#0b0d1240;color:var(--parch);font:inherit;cursor:pointer;min-width:0}
+.tly-pc:hover{border-color:var(--c)}
+.tly-pc:focus-visible{outline:2px solid var(--parch);outline-offset:2px}
+.tly-pc .nm{display:flex;justify-content:space-between;align-items:baseline;gap:6px;font:500 13px/1.1 var(--label);letter-spacing:.08em;color:var(--c)}
+.tly-pc .nm b{font:500 12px/1 var(--mono);letter-spacing:0;color:var(--parch)}
+.tly-pc .nm b small{color:var(--parch-dim);font-size:10px}
+.tly-pc .bar{height:4px;border-radius:2px;background:#ffffff14;overflow:hidden}
+.tly-pc .bar i{display:block;height:100%;background:var(--steward)}
+.tly-pc .bar i.bloodied{background:var(--ember)} .tly-pc .bar i.critical,.tly-pc .bar i.down{background:#ff5a4a}
+.tly-pc .sub{font:400 10px/1.4 var(--mono);color:var(--parch-dim)}
+.tly-pc .sub.warn{color:var(--ember)}
+.tly-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.tly-box{padding:10px 11px;border-radius:12px;border:1px solid var(--hairline);background:#0b0d1240;min-width:0}
+.tly-box .k{display:block;font:500 10px/1.2 var(--label);letter-spacing:.12em;color:var(--brass);text-transform:uppercase}
+.tly-box .v{display:block;font:500 24px/1.1 var(--display);color:var(--parch);margin:4px 0 6px}
+.tly-box .v small{font-size:14px;color:var(--parch-dim)}
+.tly-sig{display:flex;gap:6px;margin-bottom:6px}
+.tly-sig i{width:14px;height:14px;transform:rotate(45deg);border-radius:2px;box-shadow:inset 0 0 0 1.5px var(--brass-dim)}
+.tly-sig i.on{background:var(--steward);box-shadow:0 0 8px #8fd3c888}
+.tly-box p{margin:0;font:400 11px/1.4 var(--mono);color:var(--parch-dim)}
+.tly-meter{height:4px;border-radius:2px;background:#ffffff14;overflow:hidden;margin-bottom:6px}
+.tly-meter i{display:block;height:100%;background:var(--brass)}
+.tly-note{margin:0;font:italic 12px/1.4 var(--body);color:var(--parch-dim)}
 .sessions button{width:100%;text-align:left;background:none;border:0;border-left:2px solid var(--brass-dim);color:var(--parch);padding:8px 10px;cursor:pointer;font:inherit;display:grid;grid-template-columns:44px minmax(0,1fr);gap:8px}
 .sessions button:hover,.sessions button[aria-pressed="true"]{background:var(--panel-2);border-left-color:var(--brass)}
 .sessions .n{font:500 12px/1.6 var(--mono);color:var(--steward);letter-spacing:.06em}
@@ -4137,6 +4163,34 @@ function postcard(){
 }
 
 /* =================== CHRONICLE =================== */
+/* Hans's tally: hit points and what is left of each crew member's slots (this device), the sigils, and the chart.
+   A card opens that crew member's sheet. */
+const SIGILS=[["Water","on the cleric's skin",true],["Earth","in the bard's pack",true],["Fire","still out there",false],["Wind","still out there",false]];
+function crewTally(){
+  const crew=Object.values(SHEETS).map(c=>{const s=liveSheet(c.id),hp=hpOf(c.id,s),R=resOf(c.id,s),st=hpState[c.id]||{},exh=Math.max(0,Math.min(6,st.exh|0));
+    const sl=R.filter(r=>r.slot),left=sl.reduce((a,r)=>a+r.left,0),max=sl.reduce((a,r)=>a+r.max,0);
+    const cond=hp?hp.cond:[], bits=[];
+    if(max)bits.push(`slots ${left}/${max}`);
+    R.filter(r=>!r.slot).forEach(r=>bits.push(`${r.sn||r.n.toLowerCase()} ${r.left}/${r.max}`));
+    const warn=[hp&&hp.st==="down"?"down":"",exh?`exhaustion ${exh}`:"",...cond.map(x=>x.toLowerCase())].filter(Boolean).join(" · ");
+    return h("button",{type:"button",class:"tly-pc",style:`--c:${SHEET_HEX[c.id]}`,"aria-label":`${c.name}${hp?`, ${hp.cur} of ${hp.max} hit points`:""}. Open the sheet.`,
+      onclick:()=>{store.set("chron-sheet",c.id);document.querySelector('[data-tab="sheets"]')?.click();}},
+      h("span",{class:"nm"},c.name.split(" ")[0],hp?h("b",{},String(hp.cur),h("small",{},"/"+hp.max)):null),
+      hp?h("span",{class:"bar"},h("i",{class:hp.st,style:`width:${Math.max(0,Math.min(100,hp.cur/hp.max*100))}%`})):null,
+      h("span",{class:"sub"},bits.join(" · ")||"no slots. a beat."),
+      warn?h("span",{class:"sub warn"},warn):null);});
+  const known=GAZ.filter(e=>e.state==="explored").length, all=GAZ.length, rum=GAZ.filter(e=>e.state==="rumour").length, got=SIGILS.filter(x=>x[2]).length;
+  return h("div",{class:"tly"},
+    h("div",{class:"tly-crew"},...crew),
+    h("p",{class:"tly-note"},"Hit points and slots as you keep them on this device. Tap someone to open their sheet."),
+    h("div",{class:"tly-two"},
+      h("div",{class:"tly-box"},h("span",{class:"k"},"Sigils"),h("span",{class:"v"},String(got),h("small",{}," of "+SIGILS.length)),
+        h("div",{class:"tly-sig","aria-hidden":"true"},SIGILS.map(([n,w,on])=>h("i",{class:on?"on":"",title:n+": "+w}))),
+        h("p",{},SIGILS.filter(x=>x[2]).map(x=>x[0]).join(" and ")+" found. "+SIGILS.filter(x=>!x[2]).map(x=>x[0]).join(" and ")+": out there.")),
+      h("div",{class:"tly-box"},h("span",{class:"k"},"Places explored"),h("span",{class:"v"},String(known),h("small",{}," of "+all)),
+        h("div",{class:"tly-meter","aria-hidden":"true"},h("i",{style:`width:${Math.round(known/all*100)}%`})),
+        h("p",{},`${rum} more only rumoured, or seen in a vision.`))));
+}
 function showChronicle(){
   const list=h("ul",{class:"sessions"},SESSIONS.map(s=>h("li",{},h("button",{type:"button",onclick:(e)=>{
       if(s.recap){startRecap();return;}
@@ -4144,15 +4198,14 @@ function showChronicle(){
       flyToPlace(s.at,.42); [...list.querySelectorAll("button")].forEach(b=>b.setAttribute("aria-pressed",String(b===e.currentTarget)));
     }},h("span",{class:"n"},"S"+(typeof s.n==="number"?String(s.n).padStart(2,"0"):s.n)),h("span",{},h("span",{class:"t"},s.t),h("span",{class:"by"},s.v==="hans"?"Hans":"The Steward, as told to Hans"),h("span",{class:"s"},s.s))))));
   openSheet("The Chronicle",[h("p",{class:"eyebrow m"},"DECODED FROM THE BLACK BOX · AS OF SESSION "+AS_OF),h("p",{class:"muted small"},"Hans placed the black box from the ship inside his own body to decode its beeping. This chart is what he has decoded so far. Where the data is still scrambled, there is cloud. Tap a session to see the chart as it stood after it."),
+    h("p",{class:"eyebrow"},"HANS'S TALLY"),crewTally(),
     h("div",{class:"row-btns"},
       h("button",{class:"btn replay",type:"button",onclick:()=>startJourney(MIN_S,{auto:true})},"Replay the whole journey"),
       h("button",{class:"btn ghost replay",type:"button",onclick:()=>postcard()},"Postcard from Hans")),list,
     h("p",{class:"eyebrow"},"WHAT THE PARTY CARRIES"),
     h("p",{class:"small voice"},"The black box from the ship, now inside me. The ring and booklet of Vayne and a green bracelet, all still to identify. The ash blade +1. A towel that drinks 200 litres. The Vial of Dragon's Fire. I have catalogued all of it. Twice."),
     h("p",{class:"eyebrow"},"HANS'S FILES"),
-    h("div",{class:"scan",html:"STIG, THE CLERIC<br>ORIGINS: MYRATMA, THE PAPER SAYS. A MONASTERY. SHIPS.<br>THE REST: ANALYZING<span class='cur'></span>"}),
-    h("p",{class:"eyebrow"},"SIGILS · 2 OF 4"),
-    h("p",{class:"small voice"},"Water: on the cleric's skin. Earth: in the bard's pack. Fire and Wind: still out there.")],"chronicle");
+    h("div",{class:"scan",html:"STIG, THE CLERIC<br>ORIGINS: MYRATMA, THE PAPER SAYS. A MONASTERY. SHIPS.<br>THE REST: ANALYZING<span class='cur'></span>"})],"chronicle");
 }
 
 /* =================== CHARACTER SHEETS =================== */
@@ -4181,8 +4234,8 @@ function setDs(id,which,n){const st=hpState[id]||(hpState[id]={});st.ds=Array.is
   if(which===1&&n>was)toast(["Hans: Not yet.","Hans: Stay with me.","Hans: …"][n-1]);if(which===0&&n===3&&was<3)toast("Hans: Stable. Good.");}
 /* spell slots and class resources. Slots come from the sheet's own line, so an amended page carries over; the class
    resources are read off the crew's papers (rest: what brings them back; short: how many a short rest returns). */
-const RES_EXTRA={katy:[{k:"bi",n:"Bardic Inspiration",max:4,rest:"short",d:"d8"}],
-  stig:[{k:"cd",n:"Channel Divinity",max:2,rest:"long",short:1},{k:"eyes",n:"Eyes of the Grave",max:4,rest:"long"}]};
+const RES_EXTRA={katy:[{k:"bi",n:"Bardic Inspiration",sn:"inspiration",max:4,rest:"short",d:"d8"}],
+  stig:[{k:"cd",n:"Channel Divinity",sn:"channel",max:2,rest:"long",short:1},{k:"eyes",n:"Eyes of the Grave",sn:"eyes",max:4,rest:"long"}]};
 const ORD=["1st","2nd","3rd","4th","5th","6th","7th","8th","9th"], WORDN={one:1,two:2,three:3,four:4,five:5};
 function resOf(id,s){s=s||liveSheet(id);const out=[],sl=String(s.magic&&s.magic.slots||"");
   const m=sl.match(/spell slots\s*([\d\s·,]+)/i);
