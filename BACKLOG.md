@@ -60,6 +60,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 Newest first, with the PR that shipped it.
 
 - [x] **Protocol Zero, the Steward's last stand, as a playable bonus level (only Sam sees it for now)** · New · Sam · PR #61
+- [x] **Town names win over the small seals around them (Valarius over Gerda's inn)** · Fixed · Sam · PR #73
 - [x] **Trackers panel:** Hans's tally in the Chronicle (crew HP and resources, sigils 2 of 4, places explored). Per region waits for a region on each place · New · Sam · PR #72
 - [x] **The open sea is one flat colour up close:** fog with shape, engraved sea, swell and wave marks · Fixed · Sam · PR #69
 - [x] **Interludes keep your place through a reload or a locked phone (story passage, or back to the fight)** · Changed · Sam · PR #71
