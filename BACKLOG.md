@@ -59,7 +59,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
-- [x] **Saphira follows the 2014 bonus-action spell rule in the fights** · Changed · Sam · PR #NN
+- [x] **Saphira follows the 2014 bonus-action spell rule in the fights** · Changed · Sam · PR #78
 - [x] **One spell slot per turn for Katy and Stig in the fights (Saphira keeps the older rules)** · Changed · Sam · PR #77
 - [x] **Map and sheets from the whole-app pass: sound when hidden, Recap toggle, save-spell rolls, dice race, Escape in editors, ±HP** · Fixed · Sam · PR #76
 - [x] **Protocol Zero, the Steward's last stand, as a playable bonus level (only Sam sees it for now)** · New · Sam · PR #61
