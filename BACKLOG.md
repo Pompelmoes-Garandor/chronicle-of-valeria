@@ -63,7 +63,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 Newest first, with the PR that shipped it.
 
 - [x] **Painted foe portraits in the interlude fights (ribbon, panel, targets, flat tokens, first-sight card), Round the Fire repainted** · New · Sam · PR #84
-- [x] **Fight music (dark folk, follows the battle) and a sound for every weapon, element, crit, heal and fall** · New · Sam · PR #PRNUM
+- [x] **Fight music (dark folk, follows the battle) and a sound for every weapon, element, crit, heal and fall** · New · Sam · PR #86
 - [x] **Secrets on the map: eight glints with plot hooks Hans decodes** · New · Sam · PR #83
 - [x] **Interludes: real paintings for the four title cards and story pictures (image files in `art/`, code paintings as fallback)** · Changed · Sam · PR #82
 - [x] **Session 10 on the map: recap, The Heart's cave, seal opened** · Lore · Sam · PR #81
