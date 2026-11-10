@@ -4,25 +4,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Chronicle of Valeria</title>
-<meta name="description" content="The black box is sealed. Hans cannot open it alone. Bring your crew.">
+<meta name="description" content="Hans has decoded more of the black box. The map of Valeria and the story so far, up to session 10.">
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="theme-color" content="#0b0d12">
 <meta name="color-scheme" content="dark">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Chronicle of Valeria">
-<meta property="og:title" content="The Chronicle of Valeria · Sealed">
-<meta property="og:description" content="The black box is sealed. Hans cannot open it alone. Bring your crew.">
+<meta property="og:title" content="The Chronicle of Valeria · Session 10">
+<meta property="og:description" content="Hans has decoded more of the black box. The map of Valeria and the story so far, up to session 10.">
 <meta property="og:url" content="https://pompelmoes-garandor.github.io/chronicle-of-valeria/">
-<meta property="og:image" content="https://pompelmoes-garandor.github.io/chronicle-of-valeria/og.jpg?v=s9">
-<meta property="og:image:secure_url" content="https://pompelmoes-garandor.github.io/chronicle-of-valeria/og.jpg?v=s9">
+<meta property="og:image" content="https://pompelmoes-garandor.github.io/chronicle-of-valeria/og.jpg?v=s10">
+<meta property="og:image:secure_url" content="https://pompelmoes-garandor.github.io/chronicle-of-valeria/og.jpg?v=s10">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Hans, the android with blue headphones, beside the fog-covered globe of Valeria">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="The Chronicle of Valeria · Sealed">
-<meta name="twitter:description" content="The black box is sealed. Hans cannot open it alone. Bring your crew.">
-<meta name="twitter:image" content="https://pompelmoes-garandor.github.io/chronicle-of-valeria/og.jpg?v=s9">
+<meta name="twitter:title" content="The Chronicle of Valeria · Session 10">
+<meta name="twitter:description" content="Hans has decoded more of the black box. The map of Valeria and the story so far, up to session 10.">
+<meta name="twitter:image" content="https://pompelmoes-garandor.github.io/chronicle-of-valeria/og.jpg?v=s10">
 <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -1255,8 +1255,8 @@ addEventListener("error",function(e){if(e.target&&e.target.tagName==="LINK")retu
     <span id="hans-hud"></span>
     <div class="hud-txt">
       <h1><span class="the">The </span>Chronicle of Valeria</h1>
-      <p id="asof">DECODED FROM THE BLACK BOX · AS OF SESSION 9</p>
-      <p class="restore" id="restore"><span>S09 · DECODED</span><b id="pct">–</b><i class="dbar"><span id="dbar"></span></i></p>
+      <p id="asof">DECODED FROM THE BLACK BOX · AS OF SESSION 10</p>
+      <p class="restore" id="restore"><span>S10 · DECODED</span><b id="pct">–</b><i class="dbar"><span id="dbar"></span></i></p>
     </div>
   </div>
   <div class="seg" role="group" aria-label="View">
@@ -1332,7 +1332,7 @@ var s=document.getElementById("seal");if(open)s.hidden=true;else document.body.c
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js";
 
 /* =================== WORLD DATA (only what the party knows) =================== */
-const AS_OF = 9, NEXT = 10, SKEY = "s9";
+const AS_OF = 10, NEXT = 11, SKEY = "s10";
 // old parchment map coordinates (1000 x 700) -> lon/lat
 const M = (x,y)=>({lon:-48+x*0.07, lat:50-y*(54/700)});
 const P = (id,name,pos,o)=>Object.assign({id,name,lon:pos.lon,lat:pos.lat},o);
@@ -1353,10 +1353,12 @@ const PLACES = [
     body:"<p>After its last stand on the hills, the ship came down here, near Valarius. The party pulled the black box from the wreck. It beeps. It now beeps inside me. I am decoding it. This map is what I have so far.</p>"}),
   P("ravine","The ravine",{lon:-37.4,lat:17.6},{voice:"steward",state:"explored",minor:true,sessions:[7],
     body:"<p>Thorias pushed the cleric off the edge here. <em>They took my wife and children</em>, he said. He worked for the Blood Guild. He is dead. The cleric survived. The cleric is strong.</p>"}),
-  P("waystone","The waystone",{lon:M(300,430).lon-2.6,lat:M(300,430).lat+2.2},{voice:"hans",state:"explored",isNew:true,sessions:[9],
+  P("waystone","The waystone",{lon:M(300,430).lon-2.6,lat:M(300,430).lat+2.2},{voice:"hans",state:"explored",sessions:[9],
     body:"<p>Old Valerian tech. I explained it to the party. They nodded. The Sigils of Earth and Water woke it, and it carried us across the Fire Sea in one breath. Three months of travel saved. I used the time to listen to a full set.</p>"}),
-  P("forest","The blighted forest",{lon:86,lat:16},{voice:"hans",state:"explored",major:true,isNew:true,sessions:[9],
+  P("forest","The blighted forest",{lon:86,lat:16},{voice:"hans",state:"explored",major:true,sessions:[9],
     body:"<p>Summerwood, where the waystone set us down. A forest gone grey. The Battle with the Tree: vine blights, needle blights and a crab tree.</p><p>Kalian Greenleaf, called Thorn, joined the fight. He is the bard's uncle. He says her father came back one year later. He says the letter was a lie.</p>"}),
+  P("cave","The Heart's cave",{lon:88.6,lat:13.2},{voice:"hans",state:"explored",isNew:true,sessions:[10],
+    body:"<p>Under the grey forest, a cave that goes down and keeps going down. The walls are roots, not stone, and the floor is ash. At the bottom lay the Blight Heart: a knot of black roots the size of a house, beating like a heart.</p><p>Inside it sat a man with a lute, holding it still with four notes. He had been playing for three days. His name is Matthew Berry. The Heart is dust now. The man is not. I count that as a win.</p>"}),
   P("v-earth","Earth Vault",{lon:-4.2,lat:39.2},{voice:"steward",state:"explored",vault:"claimed",color:"#9bc46a",sessions:[],
     body:"<p>A little north of where the ship was found. The bard took the Sigil of Earth from here and still carries it. It hums at a frequency I find pleasant.</p>"}),
   P("v-water","Water Vault",M(205,560),{voice:"hans",state:"explored",vault:"claimed",color:"#7fb8dc",sessions:[],
@@ -1382,23 +1384,23 @@ const PLACES = [
   P("cathedral","Black-sand cathedral",{lon:-6,lat:-31},{voice:"fragment",state:"rumour",sessions:[6],
     body:"<p>Not from the box. From Saphira's vision: an old cathedral in a desert of jet-black sand. Master Black Sand has awakened. I have no data. I do not like having no data.</p>"}),
 ];
-const PARTY_AT = "forest";
-const ROUTE = ["orda","ship","hills","v-fire","hills","crash","valeria","ravine","valeria","waystone","forest"]; // S5..S9; legs from index 8 are session 9
+const PARTY_AT = "cave";
+const ROUTE = ["orda","ship","hills","v-fire","hills","crash","valeria","ravine","valeria","waystone","forest","cave"]; // S5..S10; legs from index 10 are session 10
 const TELEPORT = "waystone>forest";
-const ROUTE_NEW_FROM = 8;
+const ROUTE_NEW_FROM = 10;
 const FOG = { // [lon,lat,radiusDeg,value 0..1]
-  old:[ ["valeria",5,1],["icy",3.5,1],["hills",5,1],["v-fire",4,1],["ship",3.5,1],["orda",5,1],["crash",3.5,1],["ravine",3,1],["v-earth",3.5,1],["v-water",3.5,1] ],
+  old:[ ["valeria",5,1],["icy",3.5,1],["hills",5,1],["v-fire",4,1],["ship",3.5,1],["orda",5,1],["crash",3.5,1],["ravine",3,1],["v-earth",3.5,1],["v-water",3.5,1],["waystone",2.2,1],["forest",6,1] ],
   rumour:[ [-14,24,26,.5],[-20,27,6,.55],[44,20,16,.42],[92,24,17,.45],[-14,-27,13,.42],[47,-30,5,.42] ],
-  fresh:[ ["waystone",2.2,1],["forest",6,1] ]
+  fresh:[ ["cave",2.6,1] ]
 };
 const RECAP = [
-  {at:"crash",zoom:.55,voice:"steward",title:"Black box · decoding",text:"SIGNAL: BEEP. BEEP. BEEP.\nRECORD: PARTIAL. CLOUD = NOT YET DECODED.\nSECOND PROCESS DETECTED: ID UNKNOWN\nREPLAYING SESSION 9"},
-  {at:"valeria",zoom:.42,title:"Valarius, four in the afternoon",text:"Session nine. We returned to Valarius. The bard instructed a small human in combat. The cleric located soup. Soup drunk from the towel improves one's knowledge of history. I do not question this."},
-  {at:"inn",zoom:.3,title:"Gerda's inn",text:"Saphira gave me three hundred gold. I smiled. This was new. Then the party paid Gerda one thousand two hundred gold, and I was free. Gerda had planned to have me kill you. I have deleted that plan."},
-  {at:"inn",zoom:.3,title:"A contract on the table",text:"Saphira found a Blood Guild contract: Attempt no. 43 on Gerda. We invited a family to stay at the inn. The mother of the small human the bard trains gave the cleric her own mother's booklet, Control over Water: a children's tale about a sigil, passed down for generations. It is hard to translate. The cleric can do it. Interesting."},
-  {at:"waystone",zoom:.42,reveal:true,title:"The waystone",text:"Summerwood, where the bard grew up, lies three months away across the Fire Sea. I explained a faster way: a waystone. Old Valerian tech. The Earth and Water sigils woke it. We stepped through, and the sea passed beneath us in one breath."},
-  {at:"forest",zoom:.4,title:"The Battle with the Tree",text:"We arrived in Summerwood, in a forest gone grey. We walked into the forest. The forest walked back. Three vine blights, six needle blights and one crab tree. The bard fought as Tessa."},
-  {at:"forest",zoom:.3,title:"Thorn",text:"A wood elf named Kalian Greenleaf, called Thorn, stepped into the fight. He is the bard's uncle. He said her father, Matthew Berry, came back one year later. He said the letter was a lie to bring her here. The rest of the record is still decoding."},
+  {at:"forest",zoom:.5,voice:"steward",title:"Black box · overclock",text:"SIGNAL: ONE TONE. TOO FAST.\nDOWNLOAD: COMPLETE.\nMAP: UNSEALED.\nSECOND PROCESS: STILL HERE\nREPLAYING SESSION 10"},
+  {at:"cave",zoom:.42,title:"The cave mouth",text:"Session ten. Our rest ended at the mouth of the cave. Then my music stopped. The box in my chest found something big and pulled it in faster than I could hold. The cleric cooled my core. The bard kept the beat. Saphira read the runes off my chest. I downloaded the world. You are looking at it."},
+  {at:"cave",zoom:.36,title:"Thorn",text:"Thorn stood at the edge of the dark and did not argue. Yes, he wrote that her father was sick, to bring her home. The man inside had gone in after the blight's heart three days ago and never came out. The lie, he said, was not a lie anymore."},
+  {at:"cave",zoom:.3,title:"Roots and ash",text:"The cave went down and kept going down. Roots for walls, ash for a floor. Somewhere ahead, someone played four notes on a stringed instrument. The same four notes, over and over. The bard knew them before she knew why."},
+  {at:"cave",zoom:.26,title:"The Blight Heart",text:"At the bottom, a knot of black roots the size of a house, beating like a heart. Inside it sat a grey-bearded man with a lute, holding it still with those four notes. He saw the bard's ukulele. His fingers stopped. The Heart woke. We fought it, and it crumbled to dust."},
+  {at:"cave",zoom:.26,title:"Father and daughter",text:"The man slid out of the dead roots into the ash. He looked at the bard for a long time. \"You have her eyes. My name is Matthew Berry. I think I'm your father.\" I have downloaded the whole world. I had no file for this."},
+  {at:"cave",zoom:.3,title:"A quiet word",text:"Later, Matthew caught the cleric's sleeve and asked him something, quietly. The cleric has not told me what. I did not ask. I am learning when not to."},
 ];
 const SESSIONS = [
   {n:"1–3",v:"steward",t:"Lost to the mists",s:"The Steward's memory of these sessions is corrupted. If you remember anything, tell me under Missed?",at:"hills"},
@@ -1407,7 +1409,8 @@ const SESSIONS = [
   {n:6,v:"steward",t:"Fire and ice",s:"They found the ship east of Orda. Vayne died at the Fire Vault and the ice melted. Teenoog's swarm attacked the hills. The Steward's last entry: It was an honour serving with you all. The ship crashed near Valarius.",at:"hills"},
   {n:7,v:"steward",t:"Thorias",s:"Thorias betrays the cleric at the ravine. The black box is taken from the wreck. Doloris, the elf with her ears cut off. A book: Beware of Katy Berry.",at:"ravine"},
   {n:8,v:"hans",t:"The white door",s:"I met them. Doloris was buried. Saphira's patron broke the chains. The bard's white door, a shadow demon, and Karthus. I fought beside them. I was still Gerda's then.",at:"inn"},
-  {n:9,v:"hans",t:"The Battle with the Tree",s:"I am free. The cleric's booklet. The waystone to Summerwood. Thorn, the bard's uncle.",at:"forest",recap:true}
+  {n:9,v:"hans",t:"The Battle with the Tree",s:"I am free. The cleric's booklet. The waystone to Summerwood. Thorn, the bard's uncle.",at:"forest"},
+  {n:10,v:"hans",t:"The Black Ash",s:"I downloaded the world. Thorn told the truth. Under the forest, the Blight Heart, and inside it a man with a lute. Matthew Berry.",at:"cave",recap:true}
 ];
 const CHARS = [
   {id:"katy",name:"Katy Berry",c:"var(--katy)",hex:"#e7a3b8"},
@@ -1531,6 +1534,7 @@ const PLACE_DB = {
   ravine:    {kind:"nature",     tags:["blood guild","danger"]},
   waystone:  {kind:"ancient",    tags:["travel"]},
   forest:    {kind:"forest",     tags:["elves","danger"]},
+  cave:      {kind:"cave",       tags:["danger"]},
   "v-earth": {kind:"vault",      tags:[]},
   "v-water": {kind:"vault",      tags:[]},
   "v-fire":  {kind:"vault",      tags:["danger"]},
@@ -3486,6 +3490,7 @@ function chapterCard(then){
 }
 function showStop(){
   const s=RECAP[recapI]; clearTimeout(recapTimer);
+  if(!s){endRecap();return;}   // a quick double tap on the last arrow
   flyToPlace(s.at,s.zoom);
   if(s.reveal) setTimeout(()=>{reveal.goal=1},reduced?0:1300);
   const prog=h("div",{class:"progress","aria-hidden":"true"},RECAP.map((_,i)=>h("i",{class:i<recapI?"on":i===recapI?"cur":""})));

@@ -42,10 +42,10 @@ Before starting something larger than a small fix, open a GitHub issue first (or
 From the repo root, with Python 3 and Pillow (`pip install pillow`):
 
 ```
-python3 source/build-site.py source/chronicle.html . --sealed --base https://pompelmoes-garandor.github.io/chronicle-of-valeria/ --assets source/assets
+python3 source/build-site.py source/chronicle.html . --base https://pompelmoes-garandor.github.io/chronicle-of-valeria/ --assets source/assets
 ```
 
-- `--sealed`: the link preview says the black box is sealed. The live site uses it today. Sam or Niels decides when to drop it.
+- `--sealed`: the link preview says the black box is sealed. Dropped at the session 10 update (the crew opened the box at the table); only Sam or Niels puts it back.
 - `--open`: writes the remote unlock into `version.json`, which opens the seal on every player's device. **Only Sam or Niels does this, on purpose, at the table.** A Claude never adds it on its own.
 - The session number comes from `const AS_OF = …, NEXT = …, SKEY = …` in `chronicle.html`. Bumping it tells every open copy a new recap is out, so only bump it as part of a session update Sam or Niels asked for.
 
