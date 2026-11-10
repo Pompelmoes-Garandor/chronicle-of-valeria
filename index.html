@@ -162,10 +162,22 @@ aside#sheet{position:fixed;z-index:6;color:var(--parch);background:var(--brk),li
   .grab::after{content:"";display:block;width:36px;height:4px;border-radius:2px;background:#c9a35c66;margin:8px auto 0}
   .sheet-head{touch-action:none}
   .sheet-head h2{font-size:22px}
+  aside#sheet.art .grab{position:absolute;left:0;right:0;top:0;z-index:1;margin:0}
+  aside#sheet.art .sheet-head{min-height:88px}
+  aside#sheet.art.place .sheet-head{min-height:128px}
 }
 .sheet-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:16px 16px 10px 20px;border-bottom:1px solid #c9a35c22}
 .sheet-head h2{margin:0;font:400 24px/1.15 var(--display);text-wrap:balance}
 .x{background:none;border:0;color:var(--parch-dim);font:18px/1 var(--body);cursor:pointer;width:44px;height:44px;border-radius:10px;flex:none}
+/* painted headers: a painting behind the sheet's title (panels and the places the crew knows), fading into the housing */
+aside#sheet.art{overflow:hidden}
+aside#sheet.art .sheet-head{min-height:104px;align-items:flex-end;padding-top:20px;border-bottom-color:#c9a35c33;
+  background:linear-gradient(180deg,#13161c00 0%,#13161c22 40%,#181c24e6 88%,#1a1e26 100%),var(--art) center 40%/cover no-repeat}
+aside#sheet.art.place .sheet-head{min-height:168px}
+aside#sheet.art .sheet-head h2{text-shadow:0 1px 2px #000,0 0 16px #000d}
+aside#sheet.art .sheet-head .x{align-self:flex-start;background:#0b0d12a8;color:var(--parch)}
+@media (prefers-reduced-motion:no-preference){aside#sheet.art .sheet-head{animation:artIn .6s ease-out}}
+@keyframes artIn{from{filter:brightness(.55)}}
 .x:hover{background:#ffffff0a;color:var(--parch)}
 .sheet-body{padding:14px 20px 20px;overflow-y:auto;min-height:0;display:flex;flex-direction:column;gap:12px}
 .sheet-body p{margin:0}
@@ -3371,7 +3383,12 @@ const sheet=document.getElementById("sheet"), sTitle=document.getElementById("sh
 const tabs=[...document.querySelectorAll(".dock button")]; let tab=null;
 function h(tag,attrs={},...kids){const e=document.createElement(tag);for(const [k,v] of Object.entries(attrs)){if(k==="class")e.className=v;else if(k==="html")e.innerHTML=v;else if(k.startsWith("on"))e.addEventListener(k.slice(2),v);else if(v!==false&&v!=null)e.setAttribute(k,v===true?"":v);}for(const c of kids.flat()){if(c==null||c===false)continue;e.append(c.nodeType?c:document.createTextNode(c));}return e;}
 const TALL=new Set(["chronicle","missed","dm","ask","sheets","places","proposals"]);
-function openSheet(title,nodes,which=null){delete sTitle.dataset.place;const was=!sheet.hidden&&sTitle.dataset.t===title;sTitle.dataset.t=title;if(!was)scramble(sTitle,title);sBody.replaceChildren(...nodes);sBody.classList.toggle("rollable",which==="sheets");
+const SHEET_ART={sheets:"art/head-characters.webp",places:"art/head-places.webp",missed:"art/head-missed.webp"};
+const PLACE_ART={valeria:"art/place-valeria.webp",hills:"art/place-hills.webp",orda:"art/place-orda.webp","v-fire":"art/place-v-fire.webp",
+  "v-wind":"art/place-v-wind.webp",crash:"art/place-crash.webp",forest:"art/place-forest.webp",waystone:"art/place-waystone.webp"};
+function sheetArt(src,place){sheet.classList.toggle("art",!!src);sheet.classList.toggle("place",!!(src&&place));
+  if(src)sheet.style.setProperty("--art",`url("${src}")`);else sheet.style.removeProperty("--art");}
+function openSheet(title,nodes,which=null,art){delete sTitle.dataset.place;sheetArt(art||SHEET_ART[which],!!art);const was=!sheet.hidden&&sTitle.dataset.t===title;sTitle.dataset.t=title;if(!was)scramble(sTitle,title);sBody.replaceChildren(...nodes);sBody.classList.toggle("rollable",which==="sheets");
   sheet.classList.toggle("tall",TALL.has(which)&&nodes.length>3);sheet.hidden=false;sBody.scrollTop=0;setTab(which);}
 function closeSheet(){sheet.hidden=true;delete sTitle.dataset.place;setTab(null);}
 function setTab(t){tab=t;tabs.forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.tab===t)));}
@@ -3428,7 +3445,7 @@ function openPlace(id,after){
   const here=allNotes.filter(n=>Math.hypot(n.lon-p.lon,n.lat-p.lat)<3);
   openSheet(p.name,[meta.back,tags,sess,h("div",{class:"voice",html:p.voice==="hans"?squawkHtml(p.body):p.body}),
     id==="crash"&&!reduced?h("div",{class:"row"},h("button",{class:"btn ghost",type:"button",onclick:playCrash},"Replay the last flight")):null,
-    ...meta.foot, ...tableNotesNodes(id), here.length?h("p",{class:"eyebrow"},"NOTES PINNED NEARBY"):null, ...here.map(noteCard), ...proposeNoteNodes(id)].filter(Boolean)); sTitle.dataset.place=id;
+    ...meta.foot, ...tableNotesNodes(id), here.length?h("p",{class:"eyebrow"},"NOTES PINNED NEARBY"):null, ...here.map(noteCard), ...proposeNoteNodes(id)].filter(Boolean),null,PLACE_ART[id]); sTitle.dataset.place=id;
 }
 /* =================== PLACES TAB: the gazetteer =================== */
 const KORD=Object.fromEntries(Object.keys(KINDS).map((k,i)=>[k,i]));
