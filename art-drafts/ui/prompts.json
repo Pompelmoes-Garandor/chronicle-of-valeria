@@ -1,0 +1,74 @@
+[
+ {
+  "id": "head-chronicle",
+  "w": 1280,
+  "h": 448,
+  "prompt": "wide panoramic still life: an old parchment world chart unrolled on a dark wooden workbench, brass compass, magnifying lens, a small beeping black metal box with a teal light, ink pot and quill, warm oil lamp glow, deep shadows, hand-painted fantasy illustration, D&D handbook art, visible brushwork, gouache and ink, muted earthy palette with teal and brass accents, soft painterly edges, no people, no text, no letters, no signature, no watermark"
+ },
+ {
+  "id": "head-places",
+  "w": 1280,
+  "h": 448,
+  "prompt": "wide panoramic landscape seen from a high ridge: thawing snowy hills, a meltwater river winding to a walled ruin town with smoke from chimneys, distant mountains, a tiny flying island city on the far horizon, golden hour light, hand-painted fantasy illustration, D&D handbook art, visible brushwork, gouache and ink, muted earthy palette with teal and brass accents, soft painterly edges, no people, no text, no letters, no signature, no watermark"
+ },
+ {
+  "id": "head-characters",
+  "w": 1280,
+  "h": 448,
+  "prompt": "wide panoramic still life on a tavern table: a bronze ukulele, a curved dagger, a steel mace, a black kite shield, a dark hooded cloak, blue headphones, candlelight, deep shadows, hand-painted fantasy illustration, D&D handbook art, visible brushwork, gouache and ink, muted earthy palette with teal and brass accents, soft painterly edges, no people, no text, no letters, no signature, no watermark"
+ },
+ {
+  "id": "head-missed",
+  "w": 1280,
+  "h": 448,
+  "prompt": "wide panoramic still life: an open blank leather journal with a feather quill and an ink pot by a single candle, scattered loose pages, dark wood, warm light, deep shadows, hand-painted fantasy illustration, D&D handbook art, visible brushwork, gouache and ink, muted earthy palette with teal and brass accents, soft painterly edges, no people, no text, no letters, no signature, no watermark"
+ },
+ {
+  "id": "place-valeria",
+  "w": 1024,
+  "h": 576,
+  "prompt": "a walled town of ancient ruins in a valley, freshly thawed after a long freeze, meltwater streams, lively smoke from chimneys, snow on the surrounding hills, hand-painted fantasy illustration, D&D handbook art, visible brushwork, gouache and ink, muted earthy palette with teal and brass accents, soft painterly edges, no people, no text, no letters, no signature, no watermark"
+ },
+ {
+  "id": "place-hills",
+  "w": 1024,
+  "h": 576,
+  "prompt": "an ice-covered mountain range with a hidden rebel camp of tents and banners among the rocks, cold blue light, wind-blown snow, hand-painted fantasy illustration, D&D handbook art, visible brushwork, gouache and ink, muted earthy palette with teal and brass accents, soft painterly edges, no people, no text, no letters, no signature, no watermark"
+ },
+ {
+  "id": "place-orda",
+  "w": 1024,
+  "h": 576,
+  "prompt": "a white marble city on a hill with tall spires and a grim fortress prison tower, banners with a wax seal emblem, overcast sky, hand-painted fantasy illustration, D&D handbook art, visible brushwork, gouache and ink, muted earthy palette with teal and brass accents, soft painterly edges, no people, no text, no letters, no signature, no watermark"
+ },
+ {
+  "id": "place-v-fire",
+  "w": 1024,
+  "h": 576,
+  "prompt": "a burst ancient vault inside frozen hills, glowing orange lava cracks and rising embers melting the snow around it, steam clouds, night, hand-painted fantasy illustration, D&D handbook art, visible brushwork, gouache and ink, muted earthy palette with teal and brass accents, soft painterly edges, no people, no text, no letters, no signature, no watermark"
+ },
+ {
+  "id": "place-v-wind",
+  "w": 1024,
+  "h": 576,
+  "prompt": "a floating island city in the clouds, white walls and towers with blue and red roofs, two windmills, waterfalls spilling off the rock edge into mist, hand-painted fantasy illustration, D&D handbook art, visible brushwork, gouache and ink, muted earthy palette with teal and brass accents, soft painterly edges, no people, no text, no letters, no signature, no watermark"
+ },
+ {
+  "id": "place-crash",
+  "w": 1024,
+  "h": 576,
+  "prompt": "the wreck of a crashed flying castle ship half buried in a scorched valley, broken masts and brass machinery, smoke, overcast light, hand-painted fantasy illustration, D&D handbook art, visible brushwork, gouache and ink, muted earthy palette with teal and brass accents, soft painterly edges, no people, no text, no letters, no signature, no watermark"
+ },
+ {
+  "id": "place-forest",
+  "w": 1024,
+  "h": 576,
+  "prompt": "a dying blighted elven forest, grey twisted trees with sickly green veins and glowing roots, thin mist, eerie light, hand-painted fantasy illustration, D&D handbook art, visible brushwork, gouache and ink, muted earthy palette with teal and brass accents, soft painterly edges, no people, no text, no letters, no signature, no watermark"
+ },
+ {
+  "id": "place-waystone",
+  "w": 1024,
+  "h": 576,
+  "prompt": "a tall ancient runic standing stone of old machinery on a grassy hill, faint teal glowing glyphs and brass inlays, wide sky, hand-painted fantasy illustration, D&D handbook art, visible brushwork, gouache and ink, muted earthy palette with teal and brass accents, soft painterly edges, no people, no text, no letters, no signature, no watermark"
+ }
+]
