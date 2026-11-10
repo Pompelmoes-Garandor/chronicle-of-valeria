@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Plays every interlude end to end, the way a player would, and checks what it would send to Sam.
 //
+// The prologue (round the fire) is only read: it passes when it is read to the end and keeps nothing to send.
 // Each interlude runs in ?playtest=auto (the page picks the choices, the crew fights by itself) at phone and desktop
 // size. For each run it checks: the result reaches this device's chron-interludes, it passes the server's own check
 // (validInterlude in netlify/lib/rules.mts), the session 10 save is never written, and the page logs no errors
@@ -91,7 +92,8 @@ const snap = (page, file) => page.screenshot({ path: path.join(out, file), timeo
   }
   const state = (page, id) => Promise.race([new Promise(r => setTimeout(() => r({ busy: true }), 30000)), page.evaluate(id => { const x = window.__inter; if (!x) return { ready: false };
     const ist = x.ist(); return { ready: true, at: ist ? ist.at : null, fight: x.inter(), on: x.on(), res: x.results()[id] || null,
-      save: localStorage.getItem('chron-play-s10'), echo: !!document.querySelector('#play .pl-echo') }; }, id).catch(e => ({ error: e.message }))]); // software WebGL can keep the page busy for a while
+      save: localStorage.getItem('chron-play-s10'), echo: !!document.querySelector('#play .pl-echo'),
+      prologue: !!(x.list.find(i => i.id === id) || {}).prologue, read: localStorage.getItem('chron-prologue-' + id) === '1' }; }, id).catch(e => ({ error: e.message }))]); // software WebGL can keep the page busy for a while
 
   for (const size of sizeNames) for (const id of IDS) {
     const name = `${id}-${size}`, t0 = Date.now(), fail = m => problems.push(`${name}: ${m}`);
@@ -102,10 +104,13 @@ const snap = (page, file) => page.screenshot({ path: path.join(out, file), timeo
       if (st.save && !savedDuring) savedDuring = st.at || 'fight';
       if (!shot && st.at) { shot = true; await snap(page, `${name}-passage.png`); }
       if (!echoShot && st.echo) { echoShot = true; await snap(page, `${name}-echo.png`); }
-      if (st.res) break;
+      if (st.res || st.prologue && st.read) break; // a prologue is only read: nothing to keep or send
     }
     const errs = errors.slice(); // errors after the result belong to whatever the auto player does next
-    if (!st.res) fail(`no result after ${Math.round((Date.now() - t0) / 1000)} s (last passage ${lastAt || '?'})`);
+    if (st.prologue) {
+      if (!st.read) fail(`not read to the end after ${Math.round((Date.now() - t0) / 1000)} s (last passage ${lastAt || '?'})`);
+      if (st.res) fail('a prologue kept a result to send');
+    } else if (!st.res) fail(`no result after ${Math.round((Date.now() - t0) / 1000)} s (last passage ${lastAt || '?'})`);
     else {
       if (!echoShot) fail('the Echo card never showed');
       if (validInterlude && !validInterlude(st.res)) fail('the result would be refused by the server: ' + JSON.stringify(st.res).slice(0, 300));
@@ -116,7 +121,7 @@ const snap = (page, file) => page.screenshot({ path: path.join(out, file), timeo
     if (errs.length) fail('console errors: ' + errs.slice(0, 5).join(' | '));
     results.push({ name, ok: !problems.some(p => p.startsWith(name + ':')), seconds: Math.round((Date.now() - t0) / 1000), result: st.res });
     for (const p of problems.filter(p => p.startsWith(name + ':'))) console.log('  ' + p);
-    console.log(`${results.at(-1).ok ? 'ok  ' : 'FAIL'} ${name} · ${results.at(-1).seconds} s` + (st.res ? ` · ending ${st.res.ending}` + (st.res.fight ? ` · fight ${st.res.fight.won ? 'won' : 'lost'} in ${st.res.fight.rounds}` : '') : ''));
+    console.log(`${results.at(-1).ok ? 'ok  ' : 'FAIL'} ${name} · ${results.at(-1).seconds} s` + (st.prologue && st.read ? ' · read to the end' : '') + (st.res ? ` · ending ${st.res.ending}` + (st.res.fight ? ` · fight ${st.res.fight.won ? 'won' : 'lost'} in ${st.res.fight.rounds}` : '') : ''));
     await ctx.close();
   }
 

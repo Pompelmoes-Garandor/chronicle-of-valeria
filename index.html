@@ -2520,6 +2520,8 @@ let crash=null;
 // The last flight, as the box remembers it: over the Hills the Steward trades fire with Teenoog's swarm,
 // takes the hit, and the ship comes down near Valarius.
 const BATTLE=10000, FALL=10500;
+let crashSndFn=null; // set by the fight sound, further down: the sound of the last flight
+function crashSnd(k,o){if(crashSndFn)crashSndFn(k,o);}
 function playCrash(){
   if(reduced) return;
   endCrash(); const a=byId.hills, b=byId.crash;
@@ -2575,12 +2577,12 @@ function tickCrash(now){
     ship.position.copy(pos); ship.up.copy(surfUp(p.lon,p.lat)); const tgt=worldPos(c.b.lon,c.b.lat,p.lift); _f.copy(tgt).sub(pos);
     _f.addScaledVector(ship.up,-_f.dot(ship.up)); ship.lookAt(_q.copy(pos).add(_f)); ship.rotateZ(Math.sin(now/700)*.06);
     if(now-c.lastEnemy>170&&live.length){c.lastEnemy=now; const m=live[Math.random()*live.length|0];
-      shoot({lon:m.lon,lat:m.lat,lift:.004},{lon:p.lon+(Math.random()-.5)*.5,lat:p.lat+(Math.random()-.5)*.5,lift:p.lift},0xff5a3a,650,.012,
+      if(Math.random()<.35)crashSnd("zap",{pan:(Math.random()-.5)*1.2});shoot({lon:m.lon,lat:m.lat,lift:.004},{lon:p.lon+(Math.random()-.5)*.5,lat:p.lat+(Math.random()-.5)*.5,lift:p.lift},0xff5a3a,650,.012,
         ()=>{if(Math.random()<.35)puff(worldPos(p.lon,p.lat,p.lift),0xffb070,.01,.03,250,.9);});}
-    if(now-c.lastRocket>420&&live.length>6){c.lastRocket=now; const m=live[Math.random()*live.length|0];
+    if(now-c.lastRocket>420&&live.length>6){c.lastRocket=now; const m=live[Math.random()*live.length|0];const rp=Math.random()-.5;crashSnd("rocket",{pan:rp});
       shoot({lon:p.lon,lat:p.lat,lift:p.lift},{lon:m.lon,lat:m.lat,lift:.003},0x8fd3c8,700,.016,
-        ()=>{m.alive=false;const g=worldPos(m.lon,m.lat,.004);puff(g,0xffd38a,.01,.06,500,1);puff(g,0x3a3530,.015,.05,1400,.6);});}
-    if(T>BATTLE-1300&&!c.struck){c.struck=true; puff(pos,0xffd38a,.02,.14,600,1); puff(pos,0xe8743b,.03,.1,900,.9); cineClear(); cine([{who:"THE STEWARD · LAST ENTRY",voice:"steward",text:"It was an honour serving with you all.",ms:4400},
+        ()=>{m.alive=false;crashSnd("boom",{pan:rp});const g=worldPos(m.lon,m.lat,.004);puff(g,0xffd38a,.01,.06,500,1);puff(g,0x3a3530,.015,.05,1400,.6);});}
+    if(T>BATTLE-1300&&!c.struck){c.struck=true;crashSnd("struck"); puff(pos,0xffd38a,.02,.14,600,1); puff(pos,0xe8743b,.03,.1,900,.9); cineClear(); cine([{who:"THE STEWARD · LAST ENTRY",voice:"steward",text:"It was an honour serving with you all.",ms:4400},
       {who:"BLACK BOX · EMERGENCY PROTOCOL",voice:"steward",glitch:true,ms:10500,text:
 "!! PROTOCOL ZERO: INITIATED\nHULL BREACH · POWER 12%… 7%… 4%\nNOT ENOUGH TIME\nPRIORITY: PROTECT THE CR— ░▒ ERR0R ▒░\nMUST… MUST…\nREROUTING ALL ENERGY → THRUSTERS\nBACKUP PROTOCOL: C0RRUPT▒D\nSELF-DESTRUCT: ARMED · OVERRIDE · OVERRIDE ·\nSELF-DESTRUCT: PREVENTED\nWRITING LAST MEMORY TO BLACK BOX ▮▮▮▮▮▯▯▯\n…must protect…"}]);}
     if(c.struck&&now-c.lastPuff>60){c.lastPuff=now;puff(pos,0x2e2925,0.015,0.07,2200,.6);}
@@ -2592,12 +2594,13 @@ function tickCrash(now){
     ship.position.copy(pos); ship.up.copy(surfUp(p.lon,p.lat)); _f.copy(nxt).sub(pos);
     _f.addScaledVector(ship.up,-_f.dot(ship.up)); ship.lookAt(_q.copy(pos).add(_f));
     ship.rotateX(.15+t*t*.6); ship.rotateZ(Math.sin(t*14)*.25*t+t*.5);
+    if(!c.fallSnd){c.fallSnd=true;crashSnd("fall",{ms:FALL});}
     if(!c.follow&&t>.08){c.follow=true; flyTo(c.b.lon,c.b.lat-1,.34,FALL*.85);}
     if(now-c.lastPuff>55){c.lastPuff=now;
       puff(pos,0x2e2925,0.02,0.1+t*.06,2600,.7+t*.25);
       if(t>.1) puff(pos,0xff8a3d,0.03,0.05,320,.95);}
   } else if(!c.hit){
-    c.hit=true; const p=crashPath(1), pos=worldPos(p.lon,p.lat,0.002), up=surfUp(p.lon,p.lat).clone();
+    c.hit=true;crashSnd("impact"); const p=crashPath(1), pos=worldPos(p.lon,p.lat,0.002), up=surfUp(p.lon,p.lat).clone();
     ship.position.copy(worldPos(p.lon,p.lat,-0.004)); ship.rotateX(.35);
     puff(pos,0xffd38a,0.02,0.24,700,1); puff(pos,0xe8743b,0.03,0.18,1000,.9);
     for(let i=0;i<16;i++){const v=new THREE.Vector3(Math.random()-.5,Math.random()-.5,Math.random()-.5).multiplyScalar(.035).addScaledVector(up,.02);
@@ -3327,6 +3330,7 @@ if(BENCH) window.__chron={
     if(q.pr) setPR(q.pr);
     if(q.lock!=null) res.lock=!!q.lock;
     return this.info();},
+  crash(){playCrash(); return !!crash;},          // the last flight (with map Sound on, it is heard)
   measure:ms=>new Promise(done=>{const f=[]; meter.rec=f; setTimeout(()=>{meter.rec=null; done(frameStats(f));},ms);}),
 };
 function frame(now){
@@ -5357,7 +5361,7 @@ function liftSeal(){
 const PLAY={on:false,auto:/[?&]playtest=auto/.test(location.search)};  // playtest=auto: the crew plays itself (for testing)
 {
 const PKEY="chron-play-s10", POPT="chron-play-opt";
-const opt=Object.assign({dice:!PLAY.auto,fast:PLAY.auto,sound:!PLAY.auto},(()=>{try{return JSON.parse(store.get(POPT)||"{}")}catch(e){return{}}})());
+const opt=Object.assign({dice:!PLAY.auto,fast:PLAY.auto,sound:!PLAY.auto,music:true},(()=>{try{return JSON.parse(store.get(POPT)||"{}")}catch(e){return{}}})());
 const saveOpt=()=>store.set(POPT,JSON.stringify(opt));
 const ABORT={abort:true};PLAY.gen=0;
 const sleep=ms=>new Promise((r,j)=>{const g=PLAY.gen;setTimeout(()=>PLAY.gen!==g?j(ABORT):r(),opt.fast?ms*.35:ms);});
@@ -5471,6 +5475,160 @@ function hitSnd(kind){const a=pAc();if(!a)return;const t=a.currentTime,n=a.sampl
   const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();s.buffer=b;f.type=kind==="miss"?"highpass":"lowpass";f.frequency.value=kind==="miss"?2400:900;g.gain.value=kind==="miss"?.08:.3;s.connect(f).connect(g).connect(pOut);s.start(t);}
 let pulseIv=0;function pulse(on){clearInterval(pulseIv);if(on)pulseIv=setInterval(thump,1500);}
 
+/* ---- fight sound: a voice for every blow, spell, heal and fall, and music that follows the battle. All made here, no files.
+   A blade rings, a club thuds, an arrow thunks, fire whooms and crackles, cold cracks like ice, lightning snaps, thunder booms,
+   radiant chimes, necrotic sinks, psychic rings out of tune, poison bubbles, force punches. Crits get a bright crack on top;
+   sounds sit left or right with the target on the board.
+   The music is dark folk in D minor, the key of the Foxglove Lullaby: frame drums, a low bowed drone that follows the chords,
+   a string ostinato, and the lullaby's four notes on a horn when it gets serious (the wrong, flat fourth note when the crew is
+   losing). It builds with the rounds and the crew's wounds, goes low and heavy on the enemy's turn, and ends on a win or loss
+   sting. Off with play Sound or Music, silent while the page is hidden, steps back while Hans reads aloud. Protocol Zero keeps
+   its own music. */
+const FS={b:null,mus:null,crit:0};
+const FSHZ=m=>440*Math.pow(2,(m-69)/12);
+function fsBus(a,to){const lim=a.createDynamicsCompressor();lim.threshold.value=-12;lim.knee.value=8;lim.ratio.value=6;lim.attack.value=.003;lim.release.value=.25;lim.connect(to);
+  const sfx=a.createGain();sfx.connect(lim);const mus=a.createGain(),mhp=a.createBiquadFilter();mhp.type="highpass";mhp.frequency.value=45;mus.gain.value=1e-4;mus.connect(mhp).connect(lim); // no rumble under the drums
+  const n=Math.floor(a.sampleRate*1.8),ir=a.createBuffer(2,n,a.sampleRate);for(let c=0;c<2;c++){const d=ir.getChannelData(c);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,3.2);}
+  const rv=a.createConvolver();rv.buffer=ir;const rg=a.createGain();rg.gain.value=.3;rv.connect(rg).connect(lim);
+  const nb=a.createBuffer(1,a.sampleRate*2,a.sampleRate),nd=nb.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
+  return {a,lim,sfx,mus,rv,nb};}
+function fsGet(){const a=pAc();if(!a||document.hidden)return null;if(!FS.b||FS.b.a!==a)FS.b=fsBus(a,pOut);return FS.b;}
+function fsEnv(g,t,att,v,dec){g.gain.setValueAtTime(1e-4,t);g.gain.exponentialRampToValueAtTime(Math.max(2e-4,v),t+att);g.gain.exponentialRampToValueAtTime(1e-4,t+att+dec);}
+function fsOut(b,n,pan,rev,to){if(pan&&b.a.createStereoPanner){const p=b.a.createStereoPanner();p.pan.value=Math.max(-1,Math.min(1,pan));n=n.connect(p);}
+  n.connect(to||b.sfx);if(rev){const s=b.a.createGain();s.gain.value=rev;n.connect(s).connect(b.rv);}}
+function fsN(b,t,{type="lowpass",f=800,f1=0,q=.7,v=.3,att=.003,dec=.2,pan=0,rev=0,to}={}){const a=b.a,s=a.createBufferSource();s.buffer=b.nb;s.loop=true;
+  const x=a.createBiquadFilter();x.type=type;x.frequency.setValueAtTime(f,t);if(f1)x.frequency.exponentialRampToValueAtTime(f1,t+att+dec);x.Q.value=q;
+  const g=a.createGain();fsEnv(g,t,att,v,dec);fsOut(b,s.connect(x).connect(g),pan,rev,to);s.start(t,Math.random()*1.5);s.stop(t+att+dec+.05);}
+function fsT(b,t,{f=220,f1=0,type="sine",v=.2,att=.004,dec=.4,pan=0,lp=0,q=.7,rev=0,det=0,to}={}){const a=b.a,o=a.createOscillator();o.type=type;o.frequency.setValueAtTime(f,t);if(det)o.detune.value=det;
+  if(f1)o.frequency.exponentialRampToValueAtTime(f1,t+att+dec*.9);let n=o;if(lp){const x=a.createBiquadFilter();x.type="lowpass";x.frequency.value=lp;x.Q.value=q;n=o.connect(x);}
+  const g=a.createGain();fsEnv(g,t,att,v,dec);fsOut(b,n.connect(g),pan,rev,to);o.start(t);o.stop(t+att+dec+.05);}
+const fsR=(a,b)=>a+Math.random()*(b-a);
+const FSX={
+  slashing(b,t,o){fsN(b,t,{type:"bandpass",f:3400,f1:900,q:1.3,v:.3*o.v,att:.01,dec:.15,pan:o.pan});fsT(b,t+.03,{f:1850,type:"triangle",v:.05*o.v,dec:.38,pan:o.pan,rev:.4});
+    fsT(b,t+.03,{f:2710,type:"triangle",v:.03*o.v,dec:.3,pan:o.pan,rev:.4});fsT(b,t+.04,{f:140,f1:60,v:.3*o.v,dec:.18,pan:o.pan});fsN(b,t+.04,{f:700,v:.2*o.v,dec:.12,pan:o.pan});},
+  piercing(b,t,o){fsN(b,t,{type:"highpass",f:3500,v:.2*o.v,dec:.03,pan:o.pan});fsT(b,t+.01,{f:210,f1:95,v:.38*o.v,dec:.14,pan:o.pan});fsN(b,t+.01,{type:"bandpass",f:1300,q:2,v:.16*o.v,dec:.08,pan:o.pan});},
+  bludgeoning(b,t,o){fsT(b,t,{f:110,f1:42,v:.55*o.v,dec:.3,pan:o.pan});fsN(b,t,{f:700,f1:200,v:.36*o.v,dec:.25,pan:o.pan});fsN(b,t,{type:"highpass",f:2000,v:.06*o.v,dec:.04,pan:o.pan});},
+  fire(b,t,o){fsN(b,t,{f:250,f1:2400,v:.34*o.v,att:.06,dec:.5,pan:o.pan,rev:.2});fsT(b,t,{f:75,f1:45,v:.3*o.v,dec:.4,pan:o.pan});
+    for(let i=0;i<7;i++)fsN(b,t+.08+Math.random()*.6,{type:"bandpass",f:fsR(1800,4800),q:4,v:fsR(.12,.28)*o.v,att:.001,dec:fsR(.015,.05),pan:o.pan+fsR(-.2,.2),rev:.3});},
+  cold(b,t,o){[2093,3136,4186,5274].forEach((f,i)=>fsT(b,t+i*.012,{f,v:.055*o.v,dec:fsR(.5,.9),pan:o.pan,rev:.5}));fsN(b,t,{type:"highpass",f:4500,v:.26*o.v,dec:.06,pan:o.pan});
+    fsN(b,t+.02,{type:"bandpass",f:2400,q:6,v:.1*o.v,dec:.3,pan:o.pan});},
+  lightning(b,t,o){fsT(b,t,{f:1800,f1:140,type:"sawtooth",v:.11*o.v,dec:.22,lp:6000,pan:o.pan});for(let i=0;i<4;i++)fsN(b,t+i*.045,{type:"highpass",f:3000,v:.22*o.v,att:.001,dec:.03,pan:o.pan,rev:.3});
+    fsT(b,t,{f:60,f1:35,v:.3*o.v,dec:.3,pan:o.pan});},
+  thunder(b,t,o){fsT(b,t,{f:72,f1:28,v:.6*o.v,dec:.9,pan:o.pan});fsN(b,t,{f:500,f1:120,v:.45*o.v,att:.01,dec:1.1,pan:o.pan,rev:.4});fsN(b,t+.05,{type:"bandpass",f:180,v:.2*o.v,att:.1,dec:1.4,pan:o.pan});},
+  radiant(b,t,o){[1174.7,1480,1760,2349.3].forEach((f,i)=>fsT(b,t+i*.03,{f,v:.055*o.v,dec:1.1,pan:o.pan,rev:.6}));fsN(b,t,{type:"highpass",f:6000,v:.06*o.v,att:.05,dec:.5,pan:o.pan,rev:.3});
+    fsT(b,t,{f:587.3,v:.05*o.v,dec:.9,pan:o.pan,rev:.5});},
+  necrotic(b,t,o){fsT(b,t,{f:58,type:"sawtooth",v:.12*o.v,att:.12,dec:.7,lp:380,pan:o.pan});fsT(b,t,{f:61.5,type:"sawtooth",v:.1*o.v,att:.12,dec:.7,lp:380,pan:o.pan});
+    fsN(b,t,{type:"bandpass",f:500,f1:140,q:3,v:.22*o.v,att:.1,dec:.6,pan:o.pan,rev:.3});fsT(b,t,{f:233,f1:110,v:.08*o.v,att:.05,dec:.6,pan:o.pan});},
+  psychic(b,t,o){fsT(b,t,{f:660,f1:560,v:.07*o.v,dec:.9,pan:o.pan,rev:.6});fsT(b,t,{f:698,f1:590,v:.07*o.v,dec:.9,pan:o.pan,rev:.6});fsT(b,t+.05,{f:1320,v:.03*o.v,dec:.6,pan:o.pan,rev:.5});
+    fsN(b,t,{type:"bandpass",f:900,q:8,v:.1*o.v,att:.1,dec:.5,pan:o.pan});},
+  poison(b,t,o){for(let i=0;i<7;i++){const f=fsR(300,800);fsT(b,t+Math.random()*.5,{f,f1:f*1.6,v:.08*o.v,att:.005,dec:.06,pan:o.pan});}fsN(b,t,{type:"bandpass",f:2800,v:.12*o.v,att:.05,dec:.5,pan:o.pan});},
+  acid(b,t,o){fsN(b,t,{type:"highpass",f:3000,v:.22*o.v,att:.02,dec:.7,pan:o.pan,rev:.2});for(let i=0;i<4;i++){const f=fsR(250,600);fsT(b,t+Math.random()*.5,{f,f1:f*1.5,v:.07*o.v,att:.005,dec:.06,pan:o.pan});}},
+  force(b,t,o){fsT(b,t,{f:260,f1:120,v:.4*o.v,dec:.2,pan:o.pan});fsT(b,t,{f:130,f1:65,type:"square",lp:900,v:.12*o.v,dec:.15,pan:o.pan});fsN(b,t,{f:1500,v:.15*o.v,dec:.08,pan:o.pan});},
+  crit(b,t,o){fsN(b,t,{type:"highpass",f:5000,v:.25*o.v,dec:.05,pan:o.pan});fsT(b,t+.02,{f:1760,f1:1320,type:"triangle",v:.07*o.v,dec:.45,pan:o.pan,rev:.6});fsT(b,t,{f:95,f1:38,v:.45*o.v,dec:.45,pan:o.pan});},
+  whoosh(b,t,o){fsN(b,t,{type:"bandpass",f:500,f1:2600,q:1.2,v:.22*o.v,att:.08,dec:.14,pan:o.pan});},
+  whiz(b,t,o){fsN(b,t,{type:"bandpass",f:5200,f1:1400,q:3,v:.14*o.v,att:.02,dec:.25,pan:o.pan});},
+  fizzle(b,t,o){fsT(b,t,{f:700,f1:180,v:.06*o.v,dec:.35,pan:o.pan,rev:.3});fsN(b,t,{type:"bandpass",f:1200,f1:300,q:2,v:.1*o.v,dec:.3,pan:o.pan});},
+  bow(b,t,o){fsT(b,t,{f:196,f1:176,type:"triangle",v:.22*o.v,dec:.25,lp:2000,pan:o.pan});fsN(b,t,{type:"highpass",f:2500,v:.12*o.v,dec:.02,pan:o.pan});},
+  cast(b,t,o){const up=o.heal?2:1;fsT(b,t,{f:300*up,f1:900*up,v:.05*o.v,att:.25,dec:.15,pan:o.pan,rev:.5});fsN(b,t,{type:"bandpass",f:600,f1:3000,q:3,v:.08*o.v,att:.3,dec:.1,pan:o.pan,rev:.3});},
+  heal(b,t,o){[74,77,81,86].forEach((m,i)=>fsT(b,t+i*.08,{f:FSHZ(m),v:.065*o.v,dec:1.2,pan:o.pan,rev:.6}));fsN(b,t,{type:"highpass",f:7000,v:.03*o.v,att:.2,dec:.6,pan:o.pan,rev:.4});},
+  fall(b,t,o){fsT(b,t,{f:90,f1:35,v:.45*o.v,dec:.5,pan:o.pan});fsN(b,t,{f:900,f1:150,v:.3*o.v,att:.02,dec:.8,pan:o.pan,rev:.2});
+    for(let i=0;i<5;i++)fsN(b,t+.1+Math.random()*.5,{f:fsR(800,1800),v:.08*o.v,att:.001,dec:.04,pan:o.pan});},
+  down(b,t,o){[0,.3].forEach((d,i)=>fsT(b,t+d,{f:62-i*6,f1:38,v:(i?.3:.45)*o.v,att:.02,dec:.35,pan:o.pan}));fsT(b,t+.1,{f:110,type:"triangle",lp:600,v:.1*o.v,att:.05,dec:2.2,pan:o.pan,rev:.6});},
+  die(b,t,o){[[1,.22],[2,.09],[2.76,.07],[5.4,.025]].forEach(([k,v])=>fsT(b,t,{f:98*k,v:v*o.v,att:.005,dec:4/Math.sqrt(k),rev:.7}));},
+  saveOk(b,t,o){fsT(b,t,{f:880,v:.05*o.v,dec:.5,rev:.5});fsT(b,t+.07,{f:1318.5,v:.045*o.v,dec:.6,rev:.5});},
+  saveBad(b,t,o){fsT(b,t,{f:80,f1:50,v:.35*o.v,dec:.25});fsN(b,t,{f:400,v:.2*o.v,dec:.15});},
+  turnCrew(b,t,o){fsT(b,t,{f:587.3,type:"triangle",v:.05*o.v,dec:.5,lp:2500,pan:o.pan,rev:.4});fsN(b,t,{type:"bandpass",f:1200,q:3,v:.06*o.v,dec:.03,pan:o.pan});},
+  turnFoe(b,t,o){fsT(b,t,{f:98,f1:70,v:.3*o.v,dec:.35,pan:o.pan});fsN(b,t,{f:300,v:.15*o.v,dec:.2,pan:o.pan});},
+  init(b,t,o){let d=0;for(let i=0;i<14;i++){fsMusDrum(b,t+d,.12+.5*i/13,b.sfx);d+=.11-.004*i;}fsMusDrum(b,t+d+.05,1.4,b.sfx);fsN(b,t+d+.05,{f:300,v:.2,dec:1,rev:.5});},
+  win(b,t,o){[50,57,62,66,69].forEach(m=>{fsT(b,t,{f:FSHZ(m),type:"sawtooth",v:.035,att:.5,dec:2.6,lp:2400,rev:.6});});
+    [69,74,78,81].forEach((m,i)=>fsT(b,t+.3+i*.3+fsR(-.02,.02),{f:FSHZ(m),type:"sawtooth",v:.055,att:.06,dec:i===3?1.6:.6,lp:2000,rev:.6}));fsMusDrum(b,t,1.2,b.sfx);fsMusDrum(b,t+1.2,1.4,b.sfx);},
+  lose(b,t,o){[62,60,58,57].forEach((m,i)=>fsT(b,t+i*.6,{f:FSHZ(m),type:"sawtooth",v:.05,att:.1,dec:1.1,lp:900,rev:.6}));[38,45].forEach(m=>fsT(b,t,{f:FSHZ(m),type:"sawtooth",v:.05,att:.6,dec:3,lp:400}));FSX.die(b,t+2.4,{v:1});}};
+const FS_DMG={slashing:1,piercing:1,bludgeoning:1,fire:1,cold:1,lightning:1,thunder:1,radiant:1,necrotic:1,psychic:1,poison:1,acid:1,force:1};
+function fsPan(u){if(!u||!B||!B.mp)return 0;const W=B.mp.W||1;return W>1?((u.x+((u.size||1)-1)/2)/(W-1)*2-1)*.6:0;}
+function fsSfx(k,o={}){const b=fsGet();if(!b||!FSX[k])return;try{FSX[k](b,b.a.currentTime+.01+(o.d||0),Object.assign({v:1,pan:0},o));}catch(e){console.error(e);}}
+function fsHit(t,type,n,o={}){const v=Math.min(1.3,.7+.6*Math.min(1,n/Math.max(1,t.max||n))),pan=fsPan(t);fsSfx(FS_DMG[type]?type:"bludgeoning",{v,pan});
+  if(o.crit&&performance.now()-FS.crit>400){FS.crit=performance.now();fsSfx("crit",{v,pan});}}
+function fsWind(a,t,at){const k=paceKind(at);if(k==="shot"&&!(typeof swIn==="function"&&swIn()))fsSfx("bow",{pan:fsPan(a)});else if(k==="spell")fsSfx("cast",{pan:fsPan(a),v:.8});}
+function fsMiss(t,at){const k=paceKind(at);fsSfx(k==="spell"?"fizzle":k==="shot"?"whiz":"whoosh",{pan:fsPan(t)});}
+
+/* the music */
+const FSM={bpm:100,prog:[[62,65,69],[58,62,65],[60,64,67],[57,61,64]], // Dm Bb C A, two bars each
+  low:[[0,10],[0,6,10],[0,3,6,10,13]],high:[[],[4,12],[4,7,12,15]],ost:[0,1,2,1,0,1,2,1]};
+function fsMusDrum(b,t,v,to){fsT(b,t,{f:88,f1:50,v:.5*v,dec:.38,to});fsN(b,t,{f:420,v:.2*v,dec:.2,to});fsN(b,t,{type:"bandpass",f:180,q:.8,v:.12*v,att:.004,dec:.5,to,rev:.2});}
+function fsMusSlap(b,t,v,to){fsN(b,t,{type:"bandpass",f:1700,q:1.5,v:.16*v,dec:.06,to});fsT(b,t,{f:300,f1:220,v:.06*v,dec:.05,to});}
+function fsMood(){const crew=B.units.filter(u=>u.crew&&!u.ghost),foes=B.units.filter(u=>u.side==="foe"&&alive(u)),
+    frac=us=>{let h=0,m=0;for(const u of us){h+=Math.max(0,u.hp);m+=u.max||1;}return m?h/m:1;},crewHp=frac(crew),down=crew.filter(u=>u.hp<=0).length,
+    boss=foes.some(u=>MON[u.key]&&MON[u.key].boss);
+  return {lv:Math.max(0,Math.min(1,.25+.07*Math.min(B.round||1,5)+.6*(1-crewHp)+.12*down+(boss?.15:0))),tense:!!(B.cur&&B.cur.side==="foe"),bad:crewHp<.4||down>0};}
+function fsMusicStart(){fsMusicStop(.2);if(!opt.music||(typeof swIn==="function"&&swIn()))return;const b=fsGet();if(!b||!B)return;const a=b.a,t=a.currentTime,S=fsMusNew(b,t);
+  b.mus.gain.cancelScheduledValues(t);b.mus.gain.setValueAtTime(Math.max(1e-4,b.mus.gain.value),t);b.mus.gain.exponentialRampToValueAtTime(.45*(PLAY.inter?.75:1),t+1.5);
+  FS.mus=S;S.iv=setInterval(()=>fsMusTick(S),90);}
+function fsMusNew(b,t){const a=b.a,out=a.createGain();out.gain.value=1;out.connect(b.mus);
+  const dg=a.createGain();dg.gain.value=1e-4;const dl=a.createBiquadFilter();dl.type="lowpass";dl.frequency.value=380;dl.Q.value=.5;dl.connect(dg).connect(out);
+  const dr=[[38,0],[38,7],[45,-6],[50,5]].map(([m,det])=>{const o=a.createOscillator();o.type="sawtooth";o.frequency.value=FSHZ(m);o.detune.value=det;o.connect(dl);o.start(t);return o;});
+  return {b,a,B,out,dg,dl,dr,step:0,next:t+.25,lv:.3,mood:null,iv:0};}
+function fsMusicStop(fade=1.5){const S=FS.mus;if(!S)return;FS.mus=null;clearInterval(S.iv);const a=S.a,t=a.currentTime;
+  try{S.out.gain.cancelScheduledValues(t);S.out.gain.setValueAtTime(S.out.gain.value,t);S.out.gain.linearRampToValueAtTime(0,t+fade);for(const o of S.dr)o.stop(t+fade+.1);}catch(e){}
+  setTimeout(()=>{try{S.out.disconnect();}catch(e){}},(fade+.5)*1000);}
+function fsMusTick(S){if(FS.mus!==S)return;const a=S.a,b=S.b;
+  if(!opt.sound||!opt.music||!PLAY.on||!B||B!==S.B||B.over||FS.b!==b||(typeof swIn==="function"&&swIn())){fsMusicStop(B&&B===S.B&&B.over?2.5:1);return;}
+  const now=a.currentTime;if(document.hidden){S.next=now+.2;return;}if(S.next<now)S.next=now+.05;
+  const talk=SND.duck<1||!!(window.speechSynthesis&&speechSynthesis.speaking);S.out.gain.setTargetAtTime(talk?.4:1,now,.15);
+  const m=fsMood();S.mood=m;fsMusSched(S,m,now+.35);}
+function fsMusSched(S,m,until){const b=S.b,sd=60/FSM.bpm/4;
+  while(S.next<until){const t=S.next,st=S.step%16,bar=Math.floor(S.step/16),ch=FSM.prog[Math.floor(bar/2)%4];
+    S.lv+=(m.lv-S.lv)*.04;const L=S.lv,lvl=L>.65?2:L>.4?1:0,hum=()=>fsR(-.012,.012);
+    if(st===0){const root=ch[0]-24;[root,root,root+7,root+12].forEach((n,i)=>S.dr[i].frequency.setTargetAtTime(FSHZ(n),t,.12));
+      S.dg.gain.setTargetAtTime(.022+.04*L,t,.6);S.dl.frequency.setTargetAtTime(m.tense?260:360+500*L,t,.5);}
+    // frame drums: the low skin, the slap on the rim; heavier and lower on the enemy's turn
+    if(FSM.low[lvl].includes(st)||(m.tense&&(st===14||st===7)))fsMusDrum(b,t+hum(),(st===0?1:.7)*(m.tense?1.1:.85),S.out);
+    if(FSM.high[lvl].includes(st)&&!m.tense)fsMusSlap(b,t+hum(),.9,S.out);
+    if(m.tense&&st%4===2)fsT(b,t,{f:FSHZ(ch[0]-24),f1:FSHZ(ch[0]-26),v:.18,dec:.22,to:S.out});
+    // bowed ostinato in eighths, from the second level up (always on the enemy's turn), an octave down when they act
+    if(st%2===0&&(lvl>=1||m.tense)){const k=FSM.ost[(st/2)%8],n=ch[k%3]+(k===2?0:-12)-(m.tense?12:0);
+      fsT(b,t+hum(),{f:FSHZ(n),type:"sawtooth",v:.035+.02*L,att:.012,dec:sd*1.6,lp:m.tense?800:1300+900*L,to:S.out,rev:.15});}
+    // the lullaby on a horn, every four bars once it's serious: A D F E, or the wrong E flat when the crew is losing
+    if(st===0&&bar%4===2&&lvl===2){const notes=[69,74,77,m.bad?75:76],beats=[0,3,6,9];
+      notes.forEach((n,i)=>fsT(b,t+beats[i]*sd*2+hum()*2,{f:FSHZ(n-12),type:"sawtooth",v:.05,att:.09,dec:i===3?1.4:.7,lp:1500,to:S.out,rev:.5}));}
+    S.next+=sd;S.step++;}}
+/* the last flight, heard (map Sound on): the swarm's fire, the Steward's rockets and where they land, the hit, the engines
+   failing on the way down, the impact, and the black box beeping in the quiet after. Made with the fight sound's voices. */
+function crashBus(){if(FS.off)return FS.off;if(!SND.on||!SND.nodes||document.hidden)return null;const n=SND.nodes;if(!FS.map||FS.map.a!==n.a)FS.map=fsBus(n.a,n.out);return FS.map;}
+crashSndFn=(k,o={})=>{const b=crashBus();if(!b)return;const t=b.a.currentTime+.01,pan=o.pan||0;try{({
+  zap:()=>fsN(b,t,{type:"bandpass",f:fsR(2200,3200),f1:700,q:3,v:.05,dec:.12,pan}),
+  rocket:()=>{fsN(b,t,{type:"bandpass",f:500,f1:3200,q:2.5,v:.12,att:.05,dec:.45,pan});fsT(b,t,{f:140,f1:70,v:.08,dec:.3,pan});},
+  boom:()=>{fsT(b,t,{f:85,f1:35,v:.22,dec:.6,pan});fsN(b,t,{f:900,f1:160,v:.2,dec:.7,pan,rev:.4});},
+  struck:()=>{FSX.thunder(b,t,{v:1.2,pan:0});FSX.fire(b,t+.1,{v:1,pan:0});[0,.45,.9,1.35,1.8,2.25].forEach(d=>fsT(b,t+1.2+d,{f:880,type:"square",lp:2400,v:.05,dec:.22}));},
+  fall:()=>{const ms=(o.ms||6000)/1000;fsT(b,t,{f:330,f1:55,type:"sawtooth",lp:900,v:.07,att:.4,dec:ms});fsT(b,t,{f:333,f1:57,type:"sawtooth",lp:900,v:.05,att:.4,dec:ms});
+    fsN(b,t,{type:"bandpass",f:300,f1:1800,q:.8,v:.18,att:ms*.8,dec:.3});},
+  impact:()=>{fsT(b,t,{f:62,f1:24,v:.85,dec:2.6});fsN(b,t,{f:1400,f1:90,v:.6,att:.01,dec:2.6,rev:.6});FSX.fall(b,t+.15,{v:1.2,pan:0});
+    [3.2,4.4,5.6].forEach(d=>fsT(b,t+d,{f:1046.5,type:"square",lp:2000,v:.035,dec:.16,rev:.3}));}}[k]||(()=>{}))();}catch(e){console.error(e);}};
+setTimeout(()=>{if(devPlay())window.__fsnd=FS_DEV;},0);const FS_DEV={ // for tests: render sounds and music offline. score: [[sec,"sfxname",opts]] and [sec,"mood",{lv,tense,bad}]
+  async render(score,secs,{wav=false}={}){const sr=44100,ctx=new OfflineAudioContext(2,Math.ceil(secs*sr),sr),b=fsBus(ctx,ctx.destination);b.mus.gain.value=.45;
+    const ev=[...score].sort((x,y)=>x[0]-y[0]);let S=null,m={lv:.3,tense:false,bad:false};
+    for(let t=0;t<secs;t+=.1){while(ev.length&&ev[0][0]<=t+.1){const [w,k,o]=ev.shift();if(k==="mood"){m=Object.assign({},m,o);if(!S)S=fsMusNew(b,w);}else if(k==="stop"){if(S){S.out.gain.setValueAtTime(1,w);S.out.gain.linearRampToValueAtTime(0,w+1.2);for(const d of S.dr)d.stop(w+1.3);S=null;}}
+        else FSX[k](b,w,Object.assign({v:1,pan:0},o));}
+      if(S)fsMusSched(S,m,t+.1);}
+    const buf=await ctx.startRendering(),L=buf.getChannelData(0),R=buf.getChannelData(1);let pk=0,nan=0;for(let i=0;i<L.length;i++){const v=Math.max(Math.abs(L[i]),Math.abs(R[i]));if(!(v===v))nan++;else if(v>pk)pk=v;}
+    const res={peak:Math.round(200*Math.log10(pk||1e-9))/10,nan,len:buf.duration};
+    if(wav){const n=L.length,dv=new DataView(new ArrayBuffer(44+n*4)),w=(o,str)=>{for(let i=0;i<str.length;i++)dv.setUint8(o+i,str.charCodeAt(i));};
+      w(0,"RIFF");dv.setUint32(4,36+n*4,true);w(8,"WAVEfmt ");dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,2,true);dv.setUint32(24,sr,true);dv.setUint32(28,sr*4,true);dv.setUint16(32,4,true);dv.setUint16(34,16,true);w(36,"data");dv.setUint32(40,n*4,true);
+      for(let i=0;i<n;i++){dv.setInt16(44+i*4,Math.max(-1,Math.min(1,L[i]))*32767,true);dv.setInt16(46+i*4,Math.max(-1,Math.min(1,R[i]))*32767,true);}
+      let bin="";const u8=new Uint8Array(dv.buffer);for(let i=0;i<u8.length;i+=32768)bin+=String.fromCharCode.apply(null,u8.subarray(i,i+32768));res.wav=btoa(bin);}
+    return res;},
+  async renderCrash(){const sr=44100,secs=27,ctx=new OfflineAudioContext(2,secs*sr,sr),T=[[0,"zap"],[.4,"rocket"],[1.1,"boom"],[1.3,"zap"],[1.9,"zap"],[2.2,"rocket"],[2.9,"boom"],[3.4,"zap"],[4,"rocket"],[4.7,"boom"],
+      [5.2,"zap"],[6,"rocket"],[6.7,"boom"],[7.5,"struck"],[10,"fall",{ms:10500}],[20.5,"impact"]];FS.off=fsBus(ctx,ctx.destination);
+    try{for(const [w,k,o] of T)ctx.suspend(w+.05).then(()=>{try{crashSnd(k,o);}finally{ctx.resume();}},()=>{});const buf=await ctx.startRendering();return FS_DEV.wav(buf);}finally{FS.off=null;}},
+  wav(buf){const L=buf.getChannelData(0),R=buf.getChannelData(1),sr=buf.sampleRate,n=L.length;let pk=0,nan=0;for(let i=0;i<n;i++){const v=Math.max(Math.abs(L[i]),Math.abs(R[i]));if(!(v===v))nan++;else if(v>pk)pk=v;}
+    const dv=new DataView(new ArrayBuffer(44+n*4)),w=(o,str)=>{for(let i=0;i<str.length;i++)dv.setUint8(o+i,str.charCodeAt(i));};
+    w(0,"RIFF");dv.setUint32(4,36+n*4,true);w(8,"WAVEfmt ");dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,2,true);dv.setUint32(24,sr,true);dv.setUint32(28,sr*4,true);dv.setUint16(32,4,true);dv.setUint16(34,16,true);w(36,"data");dv.setUint32(40,n*4,true);
+    for(let i=0;i<n;i++){dv.setInt16(44+i*4,Math.max(-1,Math.min(1,L[i]))*32767,true);dv.setInt16(46+i*4,Math.max(-1,Math.min(1,R[i]))*32767,true);}
+    let bin="";const u8=new Uint8Array(dv.buffer);for(let i=0;i<u8.length;i+=32768)bin+=String.fromCharCode.apply(null,u8.subarray(i,i+32768));
+    return {peak:Math.round(200*Math.log10(pk||1e-9))/10,nan,len:buf.duration,wav:btoa(bin)};},
+  state:()=>({music:!!FS.mus,mood:FS.mus&&FS.mus.mood,lv:FS.mus&&FS.mus.lv,bus:!!FS.b})};
+function fsFightStart(){if(!opt.sound)return;fsSfx("init");setTimeout(()=>{if(B&&!B.over&&PLAY.on)fsMusicStart();},1600);}
+function fsFightEnd(out){fsMusicStop(1.2);if(out==="win"||out==="lose")fsSfx(out,{d:.3});}
+
 /* ---- the overlay ---- */
 const root=h("div",{id:"play",hidden:true,role:"dialog","aria-modal":"true","aria-label":"Play session 10"});
 const topEye=h("div",{class:"pl-eye"},"Session 10 · The Black Ash"), topH=h("h2",{class:"pl-h"},"");
@@ -5502,7 +5660,7 @@ function askMany(title,text,opts){return tray(title,text,opts.map((o,i)=>[o,i,i=
 let menuEl=null;
 function closeMenu(){menuEl?.remove();menuEl=null;}
 menuBtn.onclick=()=>{if(menuEl){closeMenu();return;}
-  const tg=(k,l)=>h("button",{type:"button",class:"pl-btn"+(opt[k]?" on":""),"aria-pressed":String(!!opt[k]),onclick:e=>{opt[k]=!opt[k];saveOpt();e.currentTarget.classList.toggle("on",opt[k]);e.currentTarget.setAttribute("aria-pressed",String(opt[k]));if(k==="sound"&&!opt[k])pulse(false);if(k==="flat"&&B){closeMenu();const keep=[...stage.querySelectorAll(".pl-modal,.pl-chip")];t3dispose();for(const u of B.units)u.el=null;buildBattleView();renderTokens();renderInit();for(const m of keep)stage.append(m);}}},l);
+  const tg=(k,l)=>h("button",{type:"button",class:"pl-btn"+(opt[k]?" on":""),"aria-pressed":String(!!opt[k]),onclick:e=>{opt[k]=!opt[k];saveOpt();e.currentTarget.classList.toggle("on",opt[k]);e.currentTarget.setAttribute("aria-pressed",String(opt[k]));if(k==="sound"&&!opt[k])pulse(false);if(k==="music"){if(!opt[k])fsMusicStop(.6);else if(B&&!B.over)fsMusicStart();}if(k==="flat"&&B){closeMenu();const keep=[...stage.querySelectorAll(".pl-modal,.pl-chip")];t3dispose();for(const u of B.units)u.el=null;buildBattleView();renderTokens();renderInit();for(const m of keep)stage.append(m);}}},l);
   const inI=!!IST||PLAY.inter; // in an interlude the chapters belong to session 10, so the menu offers a way out instead
   menuEl=h("div",{class:"pl-menu"},
     ...(inI?[h("div",{class:"pl-sec"},"Interlude"),h("button",{type:"button",class:"pl-btn",onclick:async()=>{closeMenu();if(await ask("Leave this interlude?","Your place is kept on this phone: open it again from Interludes to pick up where you left off.","Leave","Stay")){PLAY.iList=true;playHub();}}},"Leave this interlude")]:[]),
@@ -5510,7 +5668,7 @@ menuBtn.onclick=()=>{if(menuEl){closeMenu();return;}
     ...(inI?[]:SCENES).map((s,i)=>h("button",{type:"button",class:"pl-btn"+(i===ST.scene?" on":""),onclick:async()=>{closeMenu();if(await ask("Jump to "+s.t+"?","The crew keeps the hit points and spell slots they have now.","Jump","Stay")){ST.scene=i;ST.snap=null;saveState();runScene();}}},(i+1)+". "+s.t)),
     ...(inI?[]:t3cineMenu()),
     h("div",{class:"pl-sec"},"Table"),
-    tg("dice","3D dice for the crew"),tg("flat","Flat 2D board"),tg("fast","Faster monsters"),tg("sound","Sound"),
+    tg("dice","3D dice for the crew"),tg("flat","Flat 2D board"),tg("fast","Faster monsters"),tg("sound","Sound"),tg("music","Fight music"),
     h("div",{class:"pl-sec"},"Pace of the fights"),paceMenu(),
     inI?null:h("button",{type:"button",class:"pl-btn",onclick:async()=>{closeMenu();if(await ask("Start the session again?","Everyone back to full, chapter 1.","Start again","Cancel")){ST=freshState();saveState();runScene();}}},"Start the session again"),
     h("button",{type:"button",class:"pl-btn",onclick:()=>{closeMenu();exitPlay();}},"Back to the map"));
@@ -8163,7 +8321,7 @@ function attackMode(a,t,at){let adv=[],dis=[];const melee=!at.range,d=dist(a,t);
   return {adv:adv.length>0,dis:dis.length>0,why:[...adv.map(x=>"+"+x),...dis.map(x=>"−"+x)].join(", ")};}
 
 /* one attack roll, reactions included. Returns {hit,crit} */
-async function attack(a,t,at,o={}){if(typeof swOnAtk==="function")swOnAtk(a,at);
+async function attack(a,t,at,o={}){if(typeof swOnAtk==="function")swOnAtk(a,at);fsWind(a,t,at);
   const m=attackMode(a,t,at);let r=d20(m.adv,m.dis,a.crew&&CREW[a.key].lucky);const critOn=(t.cond.cursed&&t.cond.cursed.by===a.id)?19:20;
   let bonus=at.hit;if(a.crew&&P(a.key).ex)bonus-=2*P(a.key).ex;if(a.cond.bane){const b=rnd(4);bonus-=b;}
   if(a.cond.mocked)delete a.cond.mocked;if(t.cond.guided&&!at.noGuide)delete t.cond.guided;
@@ -8185,7 +8343,7 @@ async function attack(a,t,at,o={}){if(typeof swOnAtk==="function")swOnAtk(a,at);
     if(t.key==="saphira"&&P("saphira").pact>0&&await ask("Saphira: cast Shield?",`${res.tot} hits AC ${acOf(t)}. Shield gives +5 AC until her next turn (one pact slot, ${P("saphira").pact} left).`,"Shield","Take it")){P("saphira").pact--;t.react=false;addC(t,"shield",{exp:{u:t.id,at:"start"}});res=roll();log("  Saphira raises Shield: "+(res.hit?"still hits":"miss"),"g");}
     else if(t.key==="stig"&&P("stig").res.shield>0&&await ask("Stig: cast Shield?",`${res.tot} hits AC ${acOf(t)}. Once a day, +5 AC until his next turn.`,"Shield","Take it")){P("stig").res.shield--;t.react=false;addC(t,"shield",{exp:{u:t.id,at:"start"}});res=roll();log("  Stig raises Shield: "+(res.hit?"still hits":"miss"),"g");}}
   hide3d();
-  if(!res.hit){if(cin)await paceRelease(a,t,at,false);floatTxt(t,"miss","miss");hitSnd("miss");if(cin)await paceSettle(a,t,false);return {hit:false};}
+  if(!res.hit){if(cin)await paceRelease(a,t,at,false);floatTxt(t,"miss","miss");fsMiss(t,at);if(cin)await paceSettle(a,t,false);return {hit:false};}
   let tgt=t;
   if(t.crew&&t.key!=="hans"&&!o.noGuard){const hans=B.units.find(u=>u.key==="hans"&&alive(u));
     if(hans&&hans.react&&!incap(hans)&&!hans.cond.drained&&dist(hans,t)<=1&&await ask("Hans: Bodyguard?",`${at.n} hits ${t.short}. Hans can step in and take it.`,"Take the hit","Let it land")){hans.react=false;tgt=hans;log("  Hans steps in front: Bodyguard.","h");o.guarded=true;}}
@@ -8232,7 +8390,7 @@ async function hurt(t,amt,type,src,o={}){
   if(n<=0){floatTxt(t,"0"+note.trim(),"miss");log(`  ${nameOf(t)} takes 0${note}`);return;}
   if(t.temp>0){const s=Math.min(t.temp,n);t.temp-=s;n-=s;}
   if(t.key==="heart")B.sc.turnDmg=(B.sc.turnDmg||0)+n;
-  const was=t.hp;t.hp-=n;shake(t,type);hitSnd("hit");floatTxt(t,"−"+n);log(`  ${nameOf(t)} takes ${n} ${type}${note} → ${Math.max(0,t.hp)}/${t.max}`,t.crew?"r":"");
+  const was=t.hp;t.hp-=n;shake(t,type);fsHit(t,type,n,o);floatTxt(t,"−"+n);log(`  ${nameOf(t)} takes ${n} ${type}${note} → ${Math.max(0,t.hp)}/${t.max}`,t.crew?"r":"");
   if(t.crew&&was<=0&&!t.dead){t.hp=0;if(t.key==="hans"||t.cond.ko){renderTokens();return;}delete t.cond.stable;t.ds[1]+=o.crit?2:1;log(`  ${t.short} fails a death save from the hit (${t.ds[1]}/3).`,"r");if(t.ds[1]>=3)die(t);renderTokens();return;}
   if(t.conc&&t.hp>0&&!o.noConc){const dc=Math.max(10,Math.floor(n/2));if(!(await save(t,"con",dc,"Concentration")))dropConc(t);}
   if(t.hp<=0)await zero(t,src,type,Object.assign({},o,{lastDmg:n}));
@@ -8247,15 +8405,16 @@ async function zero(t,src,type,o){for(const g of B.units)if(g.cond.grappled&&g.c
     if(MON[t.key].fort&&type!=="radiant"&&!o.crit){const dc=5+(o.lastDmg||5);const r=d20();if(r.v+3>=dc){t.hp=1;log(`  ${t.name} won't stay down (Undead Fortitude): 1 HP.`,"r");return;}}
     if(t.key==="heart"){spit();B.sc.heartDead=true;return;}
     if(MON[t.key].escape){t.hp=1;return;} // he gets away (B.def.onHurt takes him off the board)
-    t.gone=true;log(`  ${t.name} falls.`,"g");
+    t.gone=true;fsSfx("fall",{pan:fsPan(t)});log(`  ${t.name} falls.`,"g");
     if(MON[t.key].burst){log("  Ash bursts from the husk.","r");for(const u of B.units.filter(u=>alive(u)&&u!==t&&dist(u,t)<=1)){if(!(await save(u,"con",12,"Ash Burst"))){await hurt(u,dice("1d6").t,"poison",t,{aoe:true});if(alive(u))addC(u,"poisoned",{exp:{u:u.id,at:"end"}});}}}
     return;}
+  fsSfx("down",{pan:fsPan(t)});
   if(t.key==="hans"){addC(t,"stable");log("  Hans shuts down. The beeping stops. (Stable; he wakes after the fight.)","r");return;}
   if(t.side==="ally"){addC(t,"stable");log(`  ${t.name} goes down, out of the fight.`,"r");return;}
   if(t.key==="katy"&&B.def.key==="ambush"&&src&&src.key==="grey"){addC(t,"ko");addC(t,"stable");log("  Katy is knocked out, not killed. He wanted that.","r");return;}
   t.ds=[0,0];delete t.cond.stable;addC(t,"prone");if(t.cond.engulfed)spit();log(`  ${t.short} drops to 0 HP and is dying.`,"r");}
-function die(t){t.dead=true;t.hp=0;log(`  ${t.short} is dead.`,"r");}
-function heal(t,n,src){if(!t||t.dead||t.gone)return;const was=t.hp;t.hp=Math.min(t.max,Math.max(0,t.hp)+n);if(was<=0){t.ds=[0,0];delete t.cond.stable;delete t.cond.ko;delete t.cond.prone;}floatTxt(t,"+"+(t.hp-Math.max(0,was)),"heal");log(`  ${nameOf(t)} heals ${t.hp-Math.max(0,was)} → ${t.hp}/${t.max}${was<=0?", back on their feet":""}`,"g");renderTokens();}
+function die(t){t.dead=true;t.hp=0;fsSfx("die");log(`  ${t.short} is dead.`,"r");}
+function heal(t,n,src){if(!t||t.dead||t.gone)return;if(B&&n>0)fsSfx("heal",{pan:fsPan(t),v:.8});const was=t.hp;t.hp=Math.min(t.max,Math.max(0,t.hp)+n);if(was<=0){t.ds=[0,0];delete t.cond.stable;delete t.cond.ko;delete t.cond.prone;}floatTxt(t,"+"+(t.hp-Math.max(0,was)),"heal");log(`  ${nameOf(t)} heals ${t.hp-Math.max(0,was)} → ${t.hp}/${t.max}${was<=0?", back on their feet":""}`,"g");renderTokens();}
 function spit(){const g=B.sc.engulfed;if(!g)return;B.sc.engulfed=null;delete g.cond.engulfed;delete g.cond.restrained;delete g.cond.blinded;const [x,y]=g.out||[g.x,g.y];const c=freeNear(x,y);g.x=c[0];g.y=c[1];renderTokens();}
 function freeNear(x,y){for(let r=0;r<6;r++)for(let dx=-r;dx<=r;dx++)for(let dy=-r;dy<=r;dy++){const nx=x+dx,ny=y+dy;if(cost(B.mp,nx,ny)>0&&!occupant(nx,ny))return [nx,ny];}return [x,y];}
 
@@ -8314,13 +8473,13 @@ async function paceRelease(a,t,at,hit,crit){const ma=t3on()&&V.minis.get(a);if(m
   if(hit)t3p_stop(crit?140:85);else t3p_duck(a,t);}
 async function paceSettle(a,t,hit){if(!paceCine())return;if(a)a.paceT=performance.now();await beat(t&&!alive(t)?PACE_MS.settleDown:hit?PACE_MS.settle:PACE_MS.settleMiss);}
 // a spell with a saving throw (or a heal): the caster gathers it, it goes to the target, then the save decides
-async function paceCast(u,t,n,type){if(!paceCine())return;const heal=type==="heal",col=heal?"#a8f090":DMG_COL[type]||"#e8dcc0";
+async function paceCast(u,t,n,type){fsSfx("cast",{pan:fsPan(u),heal:type==="heal",v:.8});if(!paceCine())return;const heal=type==="heal",col=heal?"#a8f090":DMG_COL[type]||"#e8dcc0";
   const ma=t3p_windUp(u,t&&t!==u?t:null,"spell",pms(PACE_MS.windSpell),col,type==="radiant");if(ma&&t&&t!==u)t3p_pair(u,t,ma);
   await beat(t3on()?PACE_MS.windSpell:260);if(ma&&ma.t3p_wd)ma.t3p_wd.rel=performance.now();
   if(t3on()&&t)t3p_bolt(u,t,n,type,col);await beat(heal?140:PACE_MS.cast);}
 function paceLand(hits,u,t){if(!paceCine())return;if(hits)t3p_stop(85);else t3p_duck(u,t);}
 // an area: the cells light up and the force gathers, then it lands all at once
-async function paceArea(u,cx,cy,r,n,type){if(!paceCine()||!B)return;const col=DMG_COL[type]||"#e8dcc0",cells=[];
+async function paceArea(u,cx,cy,r,n,type){fsSfx("cast",{pan:fsPan(u)});if(!paceCine()||!B)return;const col=DMG_COL[type]||"#e8dcc0",cells=[];
   for(let y=Math.round(cy-r);y<=Math.round(cy+r);y++)for(let x=Math.round(cx-r);x<=Math.round(cx+r);x++)if(x>=0&&y>=0&&x<B.mp.W&&y<B.mp.H)cells.push([x,y]);
   B.area=cells;drawHi();
   if(t3on()){const c=V.cell(cx,cy),self=Math.abs(cx-u.x-((u.size||1)-1)/2)<.6&&Math.abs(cy-u.y-((u.size||1)-1)/2)<.6;
@@ -8425,7 +8584,7 @@ async function battle(def){
   B.order=B.units.filter(u=>!u.ghost||u.lateJoin).sort((a,b)=>b.init-a.init).map(u=>({u}));
   if(def.lair)B.order.splice(B.order.findIndex(e=>e.u.init<20)<0?B.order.length:B.order.findIndex(e=>e.u.init<20),0,{lair:true,init:20});
   log("Initiative: "+B.order.map(e=>e.lair?"lair (20)":`${nameOf(e.u)} ${Math.floor(e.u.init)}`).join(" · "));
-  renderTokens();
+  renderTokens();fsFightStart();
   while(!B.over){
     B.round++;log(`— Round ${B.round} —`,"h");if(def.onRound)await def.onRound(B.round);if(B.over)break;
     for(B.ti=0;B.ti<B.order.length;B.ti++){const e=B.order[B.ti];if(B.over)break;
@@ -8434,7 +8593,7 @@ async function battle(def){
       await takeTurn(u);await checkEnd();if(B.over)break;
       if(def.after)await def.after(u);await checkEnd();}
     if(!B.over&&def.onRoundEnd)await def.onRoundEnd(B.round);await checkEnd();}
-  const out=B.over;B.reach=B.tgt=B.area=null;drawHi();
+  const out=B.over;fsFightEnd(out);B.reach=B.tgt=B.area=null;drawHi();
   // the crew's state goes back to the party sheet
   for(const u of B.units)if(u.crew){const p=P(u.key);p.hp=u.dead?0:Math.max(u.key==="hans"?1:0,u.hp);p.temp=u.temp;if(u.dead)p.dead=true;}
   return out;}
@@ -8445,6 +8604,7 @@ async function takeTurn(u){
   B.cur=u;tickC(u,"start");u.slotUsed=false;u.bSpell=false;u.lvAct=false;u.act=1;u.bonus=1;u.react=true;u.mv=speedOf(u);u.moved=0;u.disengage=false;u.teleport=false;u.sneakUsed=false;u.talked=false;u.dashed=false;
   if(u.key==="heart")B.sc.turnDmg=0;else B.sc.turnDmg=0;
   renderTokens();renderInit();
+  if(!u.ghost&&!(u.hp<=0&&(u.dead||!u.crew)))fsSfx(u.side==="foe"?"turnFoe":"turnCrew",{pan:fsPan(u),v:.8});
   await paceTurn(u); // a beat to see whose turn it is: the camera eases to them, their name shows
   if(u.cond.surprised){delete u.cond.surprised;log(`${nameOf(u)} is surprised and loses the turn.`,"r");u.hasActed=true;await sleep(500);B.cur=null;return;}
   if(B.def.startTurn){const skip=await B.def.startTurn(u);if(skip){u.hasActed=true;tickC(u,"end");B.cur=null;return;}}
@@ -8458,7 +8618,7 @@ async function takeTurn(u){
 async function deathSave(u){panelMsg(u,`${u.short} is dying. Roll a death save.`,[["Roll a death save",true]]);await waitBtn();
   const r=d20();await show3d([{sides:20,value:r.v}]);hide3d();
   if(r.v===20){log(`${u.short} · death save: 20! Back up with 1 HP.`,"g");heal(u,1);return;}
-  if(r.v===1)u.ds[1]+=2;else if(r.v>=10)u.ds[0]++;else u.ds[1]++;
+  if(r.v===1)u.ds[1]+=2;else if(r.v>=10)u.ds[0]++;else u.ds[1]++;fsSfx(r.v>=10?"saveOk":"saveBad");
   log(`${u.short} · death save: ${r.v} · ${u.ds[0]} saved, ${u.ds[1]} failed`,r.v>=10?"g":"r");
   if(u.ds[0]>=3){addC(u,"stable");log(`${u.short} is stable.`,"g");}if(u.ds[1]>=3)die(u);renderTokens();}
 
