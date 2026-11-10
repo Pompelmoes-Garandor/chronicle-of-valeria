@@ -379,7 +379,7 @@ table.ans td,table.ans th{border-bottom:1px solid #c9a35c22;padding:6px 4px;text
 .hv-wh{opacity:.8}@media (prefers-reduced-motion:no-preference){.hv-wh{opacity:0}}
 @keyframes hvIn{0%{opacity:0;filter:blur(6px);transform:translateX(-6px)}18%{opacity:.9}23%{opacity:.15}30%{opacity:.8;filter:blur(1px)}100%{opacity:.85;filter:blur(0);transform:none}}
 /* the fever dream (v2): the loop, the dread drift, the boy and his future self, ash-eaten words, the cutscenes' veils */
-.pl-story.hv-again{--ic-a:#160f1c}.pl-story.hv-again .art canvas{transform:scaleX(-1);filter:saturate(.6) hue-rotate(-14deg) contrast(1.08)}
+.pl-story.hv-again{--ic-a:#160f1c}.pl-story.hv-again .art canvas{scale:-1 1;filter:saturate(.6) hue-rotate(-14deg) contrast(1.08)}
 .pl-story.hv-again .art::after{opacity:1;background:repeating-linear-gradient(90deg,#c8b0ff08 0 2px,transparent 2px 5px),radial-gradient(ellipse at 50% 50%,transparent 40%,#0c0612cc 100%)}
 .pl-story.hv-d3 .art::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:1;mix-blend-mode:color;opacity:.28;background:linear-gradient(115deg,#4a1f5a,#0f4a48 45%,#5a3412)}
 .pl-story.hv-d5 .art::before{opacity:.42}
@@ -7661,7 +7661,7 @@ function t3g_load(id){const d=MINI3D[id];if(!d||!T3GL)return Promise.resolve(nul
   t3g_wait.set(id,job);return job;}
 function t3g_warm(){for(const id in MINI3D)t3g_load(id);}
 /* a file that lands while a fight is on the table: the stand-in steps off its plinth and the sculpt steps on */
-function t3g_swap(id){if(!V||!V.minis)return;for(const [u,m] of V.minis){if(u.key!==id||m.sculpt||!(u.crew||u.side==="pc"))continue;
+function t3g_swap(id){if(!V||!V.minis)return;for(const [u,m] of V.minis){if(m.sculpt||!(u.key===id&&(u.crew||u.side==="pc")||id==="stig"&&u.key==="future"))continue;
   const f=m.face,pz=m.pos.clone();V.root.remove(m.g);t3free(m.g);const n=t3mini(V,u);n.face=f;n.fig.rotation.y=f;n.pos.copy(pz);n.g.position.copy(pz);V.minis.set(u,n);}}
 /* the builder: a sculpt stands still like a real miniature. It only breathes a little; the table tips it over when it drops */
 function t3g_fig(f,u){const G=t3g_have.get(u.key),up=new THREE.Group(),m=new THREE.Mesh(G.geo,new THREE.MeshStandardMaterial({map:G.tex||null,vertexColors:true,roughness:.86,metalness:0}));
@@ -11972,7 +11972,7 @@ function hvFaceTo(k,x,z){const m=hvM(k);if(m)m.faceT=Math.atan2(x-m.pos.x,z-m.po
 // an overlay over the 3D (and over the flat board): the deep, the white of the fire, the well, the sea
 const HV_CAVE="url(art/interlude-stig.webp) 35.5% 68%/cover no-repeat";
 function hvVeil(S,cls,ms=900){const v=h("i",{class:"hv-veil "+cls,"aria-hidden":"true"});
-  if(cls==="hv-well")v.style.background="radial-gradient(circle at 35.5% 68%,transparent 0 9vmin,#000 10vmin),"+HV_CAVE;
+  if(cls==="hv-well")v.style.background="radial-gradient(circle at 50% 38%,transparent 0 9vmin,#000 10vmin),url(art/interlude-stig.webp) calc(50vw - 35.5vmax) calc(38vh - 38.25vmax)/100vmax auto no-repeat"; // the lamp, high in the frame, clear of the caption
   if(cls==="hv-sea")v.style.background="radial-gradient(ellipse at 50% 30%,#0b2a3a33 0,#03101acc 75%),url(art/h-hall.webp) 50% 18%/cover no-repeat,#03101a"; // the woman far below: the hall from the vision
   if(cls==="hv-dry")v.style.background="radial-gradient(ellipse at 35.5% 68%,#0000 0,#000a 30%,#000e 70%),"+HV_CAVE+",#050403";S.el.insertBefore(v,S.title);requestAnimationFrame(()=>requestAnimationFrame(()=>v.classList.add("on")));
   S.undo(()=>v.remove());return v;}
@@ -12048,6 +12048,7 @@ async function hvFace(o={}){const d3=!!(V&&B),st=hvU("stig"),fu=hvU("future");if
 async function hvDoorCut(n,o={}){const d3=!!V,gid=k=>hvU(k),boy=()=>V&&V.hvBoy;
   const walk=(k,x,y)=>{const u=gid(k);if(u){u.x=x;u.y=y;renderTokens();}};
   let plan;const F2c=d3?hvC(8,3):null,F2s=d3?hvC(6,5):null,F2=d3?Math.atan2(F2s.x-F2c.x,F2s.z-F2c.z):0; // door 2: the way the future self looks, at Stig's step back
+  const F3=d3?Math.atan2(hvC(6,2).x-hvC(11,6).x,hvC(6,2).z-hvC(11,6).z):0; // door 3: sat by the wall, he watches them at the door
   if(n==="1")plan=d3?[
     {at:S=>{const b=boy();if(b)b.mode="stay";hvDream(S,.3,2000);},cam:{from:{at:hvAt("stig",.45,.2,.3),yaw:1.35,pitch:.14,dist:2.4},to:{at:hvAt("stig",.45,.2,.3),yaw:1.2,pitch:.12,dist:2},ms:3800,fov:34,tall:{fov:48}}},
     {at:S=>{walk("stig",6,3);setTimeout(()=>{for(const k of["katy","saphira","hans","thorn"])hvFaceTo(k,hvC(6,3).x,hvC(6,3).z);},900);},cam:{from:{at:hvC(6,4,.6),yaw:-.25,pitch:.32,dist:5.2},to:{at:hvC(6,3,.6),yaw:-.15,pitch:.28,dist:4.6},ms:3600,fov:38,tall:{fov:54}}},
@@ -12066,22 +12067,23 @@ async function hvDoorCut(n,o={}){const d3=!!V,gid=k=>hvU(k),boy=()=>V&&V.hvBoy;
     {at:S=>{S.tween(3200,k=>{if(B)B.sc.fade=1-.7*k;},null);hvDream(S,.6,2500);},cam:{from:{at:hvAt("future",.42),yaw:F2+.45,pitch:.12,dist:2},to:{at:hvAt("future",.44),yaw:F2+.3,pitch:.1,dist:1.7},ms:3400,fov:30,tall:{fov:44}}},
     {at:S=>{S.shake(.02);},cam:{from:{at:hvAt("future",.48),yaw:F2+.08,pitch:.08,dist:1.6},to:{at:hvAt("future",.5),yaw:F2,pitch:.06,dist:1.35},ms:3600,fov:[30,26],tall:{fov:[44,38]}}},
     {at:S=>{const u=gid("future");if(u){u.gone=true;renderTokens();}hvSnd("silence");},cam:{from:{at:hvC(8,3,.1),yaw:-.3,pitch:.5,dist:2.4},to:{at:hvC(8,3,.1),yaw:-.2,pitch:.6,dist:2.1},ms:3400,fov:34}},
-    {at:S=>{const b=boy();if(b){b.mode="run";b.to=hvC(1,3);setTimeout(()=>{if(b)b.want=0;},3400);}hvSnd("heartbeat-one");},cam:{from:{at:hvC(5,4.4,.3),yaw:-1.2,pitch:.3,dist:4.6},to:{at:hvC(3,3.8,.3),yaw:-1.35,pitch:.26,dist:4.2},ms:4200,fov:38,tall:{fov:54}}},
-    {cam:{from:{at:hvC(1.6,3.2,.25),yaw:-.7,pitch:.14,dist:2},to:{at:hvC(1.2,3,.25),yaw:-.6,pitch:.12,dist:1.8},ms:3600,fov:34,tall:{fov:48}}},
+    {at:S=>{const b=boy();if(b){b.mode="run";b.to=hvC(3,9.4);}hvSnd("heartbeat-one");},cam:{from:{at:hvC(5.4,6,.3),yaw:Math.PI+.35,pitch:.3,dist:3},to:{at:hvC(3.6,8.6,.28),yaw:Math.PI+.25,pitch:.24,dist:3.6},ms:4200,fov:38,tall:{fov:54}}},
+    {at:S=>{const b=boy(),sm=hvM("stig");if(b){if(sm)b.look=Math.atan2(sm.pos.x-b.g.position.x,sm.pos.z-b.g.position.z);b.mode="stay";setTimeout(()=>{if(S.over||!b)return;b.look=null;b.mode="run";b.to=hvC(2,12.5);setTimeout(()=>{if(b)b.want=0;},1400);},2600);}},
+      cam:{from:{at:hvC(3,9.4,.32),yaw:Math.PI+.45,pitch:.12,dist:1.7},to:{at:hvC(3,9.4,.32),yaw:Math.PI+.35,pitch:.1,dist:1.45},ms:3600,fov:34,tall:{fov:48}}},
     {at:S=>{hvVeil(S,"hv-dry");},hold:4200},
     {at:S=>hvSnd("heartbeat-one"),hold:3000,black:true}]
   :[{},{},{},{},{at:()=>hvSnd("silence")},{at:()=>hvSnd("heartbeat-one")},{},{at:S=>hvVeil(S,"hv-dry"),hold:3600},{hold:3000,black:true}];
   else plan=d3?[
     {at:S=>{hvSnd("count");hvDream(S,.2,2000);},cam:{from:{at:hvAt("katy",.7),yaw:.5,pitch:.12,dist:2.2},to:{at:hvAt("hans",.75),yaw:-.3,pitch:.12,dist:2.4},ms:5400,ease:"soft",fov:34,tall:{fov:48}}},
     {cam:{from:{at:hvAt("stig",.78),yaw:.3,pitch:.05,dist:1.3},to:{at:hvAt("stig",.8),yaw:.2,pitch:.04,dist:1.05},ms:3000,fov:28,tall:{fov:40}}},
-    {at:S=>{hvFaceTo("stig",hvC(6,8).x,hvC(6,8).z);},cam:{from:{at:hvAt("stig",.6),yaw:Math.PI,pitch:.22,dist:2.6},to:{at:hvAt("stig",.6),yaw:Math.PI-.25,pitch:.2,dist:2.2},ms:3400,fov:36,tall:{fov:50}}},
+    {at:S=>{hvFaceTo("stig",hvC(6,8).x,hvC(6,8).z);},cam:{from:{at:hvAt("stig",.6),yaw:.35,pitch:.16,dist:2.6},to:{at:hvAt("stig",.62),yaw:.15,pitch:.12,dist:2.2},ms:3400,fov:36,tall:{fov:50}}},
     {at:S=>{walk("katy",5,5);setTimeout(()=>walk("saphira",7,5),700);setTimeout(()=>walk("hans",6,5),1300);setTimeout(()=>walk("thorn",8,5),1800);},cam:{from:{at:hvC(6,4.6,.5),yaw:.65,pitch:.48,dist:5},to:{at:hvC(6,4.6,.5),yaw:.5,pitch:.42,dist:4.4},ms:5200,fov:38,tall:{fov:54}}},
     {at:S=>{walk("stig",6,2);walk("katy",5,2);walk("saphira",7,2);walk("hans",4,2);walk("thorn",8,2);setTimeout(()=>{if(S.over||!B)return;for(const k of["stig","katy","saphira","hans","thorn"])hvFaceTo(k,hvC(6,0).x,hvC(6,0).z);
         S.tween(3000,k=>{if(B)B.sc.calm=k;},null);hvSnd("silence");setTimeout(()=>hvSnd("breath"),900);},1800);},
       cam:{from:{at:hvC(6,1,1),yaw:.3,pitch:.2,dist:5.2},to:{at:hvC(6,1,.9),yaw:.2,pitch:.16,dist:4.2},ms:6000,fov:38,ease:"soft",tall:{fov:54}}},
     {at:S=>{hvVeil(S,"hv-sea");},cam:{from:{at:hvC(6,6),yaw:.2,pitch:1.5,dist:12},to:{at:hvC(6,6),yaw:.3,pitch:1.52,dist:16},ms:5000,ease:"soft"}},
-    {at:S=>{walk("future",11,6);const v=S.el.querySelector(".hv-sea");if(v)v.classList.remove("on");},cam:{from:{at:hvC(11,6,.4),yaw:-1,pitch:.25,dist:3},to:{at:hvC(11,6,.4),yaw:-.85,pitch:.2,dist:2.5},ms:4200,fov:34,tall:{fov:48}}},
-    {cam:{from:{at:hvC(11,6,.55),yaw:-.75,pitch:.1,dist:1.6},to:{at:hvC(11,6,.58),yaw:-.65,pitch:.08,dist:1.35},ms:3000,fov:30,tall:{fov:42}}},
+    {at:S=>{walk("future",11,6);setTimeout(()=>{if(!S.over&&B)hvFaceTo("future",hvC(6,2).x,hvC(6,2).z);},1200);const v=S.el.querySelector(".hv-sea");if(v)v.classList.remove("on");},cam:{from:{at:hvC(11,6,.4),yaw:F3-.45,pitch:.25,dist:3},to:{at:hvC(11,6,.4),yaw:F3-.3,pitch:.2,dist:2.5},ms:4200,fov:34,tall:{fov:48}}},
+    {at:S=>hvFaceTo("future",hvC(6,2).x,hvC(6,2).z),cam:{from:{at:hvC(11,6,.55),yaw:F3+.2,pitch:.1,dist:1.6},to:{at:hvC(11,6,.58),yaw:F3+.1,pitch:.08,dist:1.35},ms:3000,fov:30,tall:{fov:42}}},
     {at:S=>hvSnd("heartbeat-one"),hold:3000,black:true}]
   :[{at:()=>hvSnd("count")},{},{},{},{at:()=>{hvSnd("silence");setTimeout(()=>hvSnd("breath"),900);}},{at:S=>hvVeil(S,"hv-sea")},{},{},{at:()=>hvSnd("heartbeat-one"),hold:3000,black:true}];
   plan.extra=hvDrift();
@@ -12188,15 +12190,16 @@ Object.assign(T3MINI,{
    (the hand in the old photograph); low, he's solid as stone. B.sc.fl overrides it for a cutscene, B.sc.fade fades him,
    B.sc.kneel puts him on his knees. The Ash Hands are grey and crumbling, and they come up out of the black sand. */
 Object.assign(T3MINI,{
-  future(f){const b=t3body(f,{h:.8,bulk:1.1,cloth:"#56626a",cloak:"#1b252b",skin:"#b9b3aa",hair:"#a9a9a3",hairStyle:"short",gloves:"#7d8581",boots:"#384046",belt:"#26231f",pants:"#3c454b",
+  future(f){const G=t3g_have.get("stig");let b,fin;
+    if(G){b=hvGhost(f,G);}else{b=t3body(f,{h:.8,bulk:1.1,cloth:"#56626a",cloak:"#1b252b",skin:"#b9b3aa",hair:"#a9a9a3",hairStyle:"short",gloves:"#7d8581",boots:"#384046",belt:"#26231f",pants:"#3c454b",
       eyes:0x9fd8ff,cloakLen:.95,capelet:false,hands:[[-.17,-.03,.15],[.17,-.03,.15]],
       add({U},d){const bk=d.bk,T=d.torH;
         // Stig's own tabard, years on: faded to the colour of old rope, sodden, hanging heavy
         for(const a of[0,Math.PI])U.add("tabard",t3c_lathe([[.14,-.18],[.142,-.06],[.135,T*.08],[.152,T*.4],[.172,T*.66],[.162,T*.8]].map(([r,y])=>[r*bk,y]),8,a-.5,1),"#5d7380",0,0,0,{sz:.84});
         U.add("leather",new THREE.TorusGeometry(.142*bk,.014,5,22),"#26231f",0,.02,0,{rx:Math.PI/2,sy:.86});}});
+    b.anim=t3c_anim(b,{breath:.02,look:.12,hunch:.14});}
     const mats=[];f.traverse(o=>{if(o.isMesh&&o.material&&!Array.isArray(o.material)){o.material.transparent=true;mats.push(o.material);}});
-    b.anim=t3c_anim(b,{breath:.02,look:.12,hunch:.14});
-    const fin=t3n_fin(f,b,"#9fd0e8",{s:1.12,mon:1}),an=fin.anim,up=fin.up,x0=up.position.x,y0=f.position.y;let last=-1,gl=0,kn=0;
+    fin=G?t3n_fin(f,b,"#9fd0e8",{k:.8,mon:1}):t3n_fin(f,b,"#9fd0e8",{s:1.12,mon:1});const an=fin.anim,up=fin.up,x0=up.position.x,y0=f.position.y;let last=-1,gl=0,kn=0;
     fin.anim=(dt,tt,now,st)=>{an(dt,tt,now,st);const S=B&&B.sc||{},k=Math.max(0,Math.min(5,uwFlick()))/5;
       kn+=((S.kneel?1:0)-kn)*Math.min(1,dt*2);f.scale.y=f.scale.x*(1-.24*kn);up.rotation.x+=.35*kn;
       // the bad lantern: now and then he stutters, sideways and nearly out; more often the fainter he is
@@ -12219,6 +12222,13 @@ Object.assign(T3MINI,{
       // ash falls off it as it moves
       const q=Math.floor((tt+ph)/.7);if(q!==last&&V&&V.sparks){last=q;up.updateWorldMatrix(true,false);const p=up.localToWorld(t3m_tmp.set((Math.random()-.5)*.1,.45,.12));V.root.worldToLocal(p);V.sparks.spawn(p,"#8a8680",1,{sp:.04,up:-.2,lf:.9,sz:.035});}};
     return t3n_fin(f,{up,top:.6,hand:v(0,.5,.18),anim},"#c8b8a8",{mon:1});}});
+/* his future self, when Stig's sculpt is here: the same figure, grey to the bone, blue in the hollows, half there */
+function hvGhost(f,G){const mat=new THREE.MeshStandardMaterial({map:G.tex||null,vertexColors:true,roughness:.92,metalness:0,color:0xa9b4bc,emissive:0x1d3a4a,emissiveIntensity:.55,transparent:true,opacity:.9});
+  mat.onBeforeCompile=sh=>{sh.fragmentShader=sh.fragmentShader.replace("#include <map_fragment>","#include <map_fragment>\n{float gy=dot(diffuseColor.rgb,vec3(.3,.59,.11));diffuseColor.rgb=mix(diffuseColor.rgb,vec3(gy)*vec3(.8,.9,.98),.88);}");};
+  mat.customProgramCacheKey=()=>"hvGhost";
+  const up=new THREE.Group(),m=new THREE.Mesh(G.geo,mat);m.matrixAutoUpdate=false;m.matrix.copy(G.fit);up.add(m);f.add(up);
+  const ph=Math.random()*6.28,b={up,top:G.top,hand:new THREE.Vector3(.2,G.top*.55,.12),sculpt:true};
+  b.anim=(dt,tt)=>{const br=Math.sin(tt*1.1+ph)*.008;up.scale.set(1+br*.4,1+br,1+br*.6);};return b;}
 /* the boy: Stig at nine, from under the floorboards. Barefoot, too tall for his age, wet to the knees. Not a piece on the
    board: he walks a step behind Stig (mode "follow"), stays where he's told ("stay"), or runs off ("run", to a point). */
 function hvBoy(Vb){const g=new THREE.Group(),fig=new THREE.Group();g.add(fig);
@@ -12232,7 +12242,7 @@ function hvBoy(Vb){const g=new THREE.Group(),fig=new THREE.Group();g.add(fig);
     else if(M.mode==="run"&&M.to)T.copy(M.to).setY(.03);else T.copy(g.position);
     const d=T.distanceTo(g.position),sp=M.mode==="run"?3.2:2.6;
     if(d>.02){const k=Math.min(1,dt*sp/Math.max(d,.3));M.v.subVectors(T,g.position).multiplyScalar(k);g.position.add(M.v);if(d>.08)M.face=Math.atan2(T.x-g.position.x,T.z-g.position.z);}
-    else if(m&&M.mode!=="run")M.face=m.face;
+    else if(M.look!=null)M.face=M.look;else if(m&&M.mode!=="run")M.face=m.face;
     let df=M.face-fig.rotation.y;df=Math.atan2(Math.sin(df),Math.cos(df));fig.rotation.y+=df*Math.min(1,dt*6);
     const moving=d>.08;if(moving&&Vb.sparks&&now-lastSp>140){lastSp=now;Vb.sparks.spawn(T3BOYP.set(g.position.x,.05,g.position.z),"#9fc8e0",2,{sp:.25,up:.6,lf:.5,gr:1.2,sz:.035});}
     M.op+=(M.want-M.op)*Math.min(1,dt*1.5);for(const mt of mats)mt.opacity=M.op;g.visible=M.op>.02;
