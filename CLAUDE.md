@@ -21,7 +21,7 @@ Read this first. It is how Sam and Niels (and each of their Claudes) work on thi
 ## The one rule: edit the source, never the build
 
 - All app code and lore live in `source/chronicle.html`. That is the only file you edit to change the app.
-- `index.html`, `manifest.webmanifest`, `version.json`, `README.md`, the icon PNGs and the `world/` folder in the root are **generated** by `source/build-site.py`. Never hand-edit them. A hand edit is lost on the next build.
+- `index.html`, `manifest.webmanifest`, `version.json`, `README.md`, the icon PNGs and the `world/` and `art/` folders in the root are **generated** by `source/build-site.py`. Never hand-edit them. A hand edit is lost on the next build.
 - `CHANGELOG.md` holds the patch notes. It is hand-written, not generated.
 - `BACKLOG.md` holds what is still to do. It is hand-written, not generated.
 - After editing the source, rebuild so the root matches (see "Build" below) and commit the source and the rebuilt files together.
@@ -42,10 +42,10 @@ Before starting something larger than a small fix, open a GitHub issue first (or
 From the repo root, with Python 3 and Pillow (`pip install pillow`):
 
 ```
-python3 source/build-site.py source/chronicle.html . --sealed --base https://pompelmoes-garandor.github.io/chronicle-of-valeria/ --assets source/assets
+python3 source/build-site.py source/chronicle.html . --base https://pompelmoes-garandor.github.io/chronicle-of-valeria/ --assets source/assets
 ```
 
-- `--sealed`: the link preview says the black box is sealed. The live site uses it today. Sam or Niels decides when to drop it.
+- `--sealed`: the link preview says the black box is sealed. Dropped at the session 10 update (the crew opened the box at the table); only Sam or Niels puts it back.
 - `--open`: writes the remote unlock into `version.json`, which opens the seal on every player's device. **Only Sam or Niels does this, on purpose, at the table.** A Claude never adds it on its own.
 - The session number comes from `const AS_OF = …, NEXT = …, SKEY = …` in `chronicle.html`. Bumping it tells every open copy a new recap is out, so only bump it as part of a session update Sam or Niels asked for.
 
@@ -117,7 +117,7 @@ Without `--assets`, the icons are not regenerated. That is fine for code-only ch
 - For graphics changes, run `node tests/visual/check.js` (how to set it up is at the top of the file). It opens the map in Chromium and WebKit at desktop and phone size, takes screenshots from fixed views, times the frames and lists console errors. Point it at the live site, a deploy preview (`--url`) or the local build (`--site .`). On a computer with a real graphics card use `--headed`; in a sandbox without one use `--software` (screenshots only). It never unseals the map by itself: pass `--storage` with the localStorage of an opened device, and keep that file out of the repo.
 - `?fps` on the map's address shows frames per second, frame time, the lens and paint state and the graphics card, on any device. `?bench` adds `window.__chron` for the test script. Neither changes anything for players.
 - Follow `source/design-spec.md` for anything visual (colours, type roles, layout).
-- Dependencies: Three.js 0.160.0 from jsDelivr and Google Fonts only, plus `@netlify/identity` from jsDelivr in the Netlify edition. Don't add libraries, a bundler or npm to the page without Sam and Niels agreeing first. Keep it one self-contained HTML file, plus the baked `world/` textures (Sam agreed on 2026-11-01). `package.json` is only for the server side in `netlify/functions/`.
+- Dependencies: Three.js 0.160.0 from jsDelivr and Google Fonts only, plus `@netlify/identity` from jsDelivr in the Netlify edition. Don't add libraries, a bundler or npm to the page without Sam and Niels agreeing first. Keep it one self-contained HTML file, plus the baked `world/` textures (Sam agreed on 2026-11-01) and painted pictures in `source/art/` as `.webp`, which `build-site.py` copies into `art/` (Sam agreed on 2026-11-09). A picture must have a fallback drawn in code, so the page still works without the file. `package.json` is only for the server side in `netlify/functions/`.
 
 ## Lore and secrets
 

@@ -22,17 +22,16 @@ Things that are wrong on the live site today. Check this list before **Now**: a 
 - **Severity**: **blocker** (the table can't use the site), **annoying** (works, but gets in the way), **cosmetic** (looks off).
 - Anyone at the table can report a bug to Sam or Niels; whoever hears it adds it here. Fixing one is a **Fixed** line in the patch notes, and the bug moves to **Done**.
 
-- [ ] **The open sea is one flat colour up close** · cosmetic · Map · Zoomed in, the ocean has no texture or swell left, so it looks empty next to the land. Seen in the test screenshots of 2026-11-01.
 - [ ] **Saphira's Passive Perception doesn't add up** · cosmetic · Characters, Saphira · Her paper says Passive Perception 15, but her Perception skill is +4, which gives 14. The sheet shows the paper's 15. Lore question for Sam: which number is right?
 
 ## Now
 
 Top of the list is what to work on next.
 
+- [ ] **Sam plays Protocol Zero and says when players see it** · Lore · Sam · Needs Sam. The Steward's bonus level is built but only Sam (signed in as DM), `?interlude` and `?steward` open it; `SW_ON` in `chronicle.html` turns it on for everyone. The ten open questions in the script doc (the ship's name *the Echo*, the invented bridge and engine room, Teenoog's mount, two lines to spoiler-check) are still Sam's: https://claude.ai/artifact/6AQmuc6JWHMxYcD2FuRZmf
 - [ ] **Sam reads the architecture doc for live online storage** · Changed · Sam · Ask this first when Sam starts his next session. Niels wrote a plan to move the site to Netlify, with shared lore in Netlify Blobs, table-only sign-in (email or Google), and players proposing changes that Sam approves as DM: https://claude.ai/artifact/GAzMi1qU52yxoCkHtLsWyW (Niels shares it with Sam; it only opens for people it's shared with). Ask Sam (1) whether he wants to read it now and (2) whether to make it available in GitHub, as an `ARCHITECTURE.md` in the repo root or as an issue. The doc's open questions need his answer before any building starts. Fleshes out **Live online storage** under Later.
 - [ ] **Sam checks the place classifications** · Lore · Sam · Valarius and Orda as town or city, Valethorn as castle, the ravine as natural wonder, the Dead Valley and Summerwood as realms, the waystone as ancient tech. Questions are in PR #4.
 - [ ] **Passive Perception for Katy and Hans** · Lore · Sam · Their papers don't list it, so the sheet shows 12 and 11 worked out from Wisdom (marked *). Put the real numbers under Senses.
-- [ ] **Trackers panel** · New · either · Needs Sam for the counters. Places explored per region (Hans's chart: 13 of 23), Sigils claimed 2/4, and a party strip with everyone's HP at a glance. Idea from Craft RPG's trackers.
 
 ## Next
 
@@ -60,6 +59,22 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Painted foe portraits in the interlude fights (ribbon, panel, targets, flat tokens, first-sight card), Round the Fire repainted** · New · Sam · PR #84
+- [x] **Secrets on the map: eight glints with plot hooks Hans decodes** · New · Sam · PR #83
+- [x] **Interludes: real paintings for the four title cards and story pictures (image files in `art/`, code paintings as fallback)** · Changed · Sam · PR #82
+- [x] **Session 10 on the map: recap, The Heart's cave, seal opened** · Lore · Sam · PR #81
+- [x] **Protocol Zero: the galley portrait as a real oil painting (image file in `art/`, code painting as fallback)** · Changed · Sam · PR #80
+- [x] **Saphira follows the 2014 bonus-action spell rule in the fights** · Changed · Sam · PR #78
+- [x] **One spell slot per turn for Katy and Stig in the fights (Saphira keeps the older rules)** · Changed · Sam · PR #77
+- [x] **Map and sheets from the whole-app pass: sound when hidden, Recap toggle, save-spell rolls, dice race, Escape in editors, ±HP** · Fixed · Sam · PR #76
+- [x] **Protocol Zero, the Steward's last stand, as a playable bonus level (only Sam sees it for now)** · New · Sam · PR #61
+- [x] **Interludes and Overclock from the whole-app pass: Echo-screen resume, Leave keeps your place, grapples end with the grappler, Overclock timer and double taps** · Fixed · Sam · PR #75
+- [x] **Town names win over the small seals around them (Valarius over Gerda's inn)** · Fixed · Sam · PR #73
+- [x] **Trackers panel:** Hans's tally in the Chronicle (crew HP and resources, sigils 2 of 4, places explored). Per region waits for a region on each place · New · Sam · PR #72
+- [x] **Fight rules from the whole-app pass: exhaustion on saves, Sneak Attack with disadvantage, crits on the downed, stable then hit, one concentration save per attack, Uncanny Dodge, Heroic reroll; flat-board switch froze an open question; minis' shine after the first fight** · Fixed · Sam · PR #74
+- [x] **The open sea is one flat colour up close:** fog with shape, engraved sea, swell and wave marks · Fixed · Sam · PR #69
+- [x] **Interludes keep your place through a reload or a locked phone (story passage, or back to the fight)** · Changed · Sam · PR #71
+- [x] **Fights on phones: tap twice to move (first tap previews the path), End turn asks once when an action is left** · Changed · Sam · PR #70
 - [x] **Make your own mini: each player paints their avatar in Hans's workshop, used on the 3D table and the sheet** · New · Sam · PR #67
 - [x] **Spell slots and resources as tappable dots** (slots, pact slots, Bardic Inspiration, Channel Divinity, Eyes of the Grave, exhaustion, short rest) · New · Sam · PR #68
 - [x] **Rename the "Character sheets" panel title to "Characters"** · Changed · either · PR #66
