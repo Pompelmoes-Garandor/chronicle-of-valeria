@@ -11,10 +11,12 @@
 //   accepted/lore  {items:{…}}             what Sam decided; accepted changes show on the site until filed into the repo
 //   interludes/<id> {done:{<interlude id>: Result}}  finished solo interludes ("Send to Sam"), for the DM only
 //                 (validInterlude below; listed by netlify/lib/interludes.mts, mirrored to git by github.mts)
+//   avatars/<id>  {character, look:{…}, at}  the mini the player painted in Hans's workshop; drawn on every table.
+//                 Only for the character the account plays (Sam may paint any). validAvatar below, AV_BASE in chronicle.html
 
 export type Viewer = { id: string; isDm: boolean };
 
-export const COLLECTIONS = ["players", "pins", "votes", "answers", "proposals", "accepted", "interludes"] as const;
+export const COLLECTIONS = ["players", "pins", "votes", "answers", "proposals", "accepted", "interludes", "avatars"] as const;
 export type Collection = (typeof COLLECTIONS)[number];
 
 export const MAX_DOC_BYTES = 64 * 1024;
@@ -105,6 +107,30 @@ export function validInterlude(r: unknown): boolean {
   return typeof finishedAt === "number" && Number.isFinite(finishedAt);
 }
 
+export const AVATAR_CHARACTERS = ["katy", "saphira", "stig"];
+export const AVATAR_RACES = ["human", "elf", "halfelf", "dwarf", "halfling", "gnome", "halforc", "orc", "tiefling", "dragonborn", "aasimar", "goliath"]; // AV_RACES in chronicle.html
+const HEX_RE = /^#[0-9a-f]{6}$/;
+
+/** A painted mini: fixed fields, a known race, colours as #rrggbb, height and build within the workshop's sliders, and the player's own description. */
+export function validAvatar(d: unknown): boolean {
+  if (!isObj(d) || !onlyKeys(d, ["character", "look", "at"])) return false;
+  const { character, look, at } = d;
+  if (typeof character !== "string" || !AVATAR_CHARACTERS.includes(character)) return false;
+  if (typeof at !== "number" || !Number.isFinite(at)) return false;
+  if (!isObj(look)) return false;
+  const keys = ["race", "h", "bulk", "skin", "hair", "style", "beard", "hood", "iris", "eyes", "cloth", "cloak", "pants", "boots", "desc"];
+  if (!onlyKeys(look, keys) || !keys.every((k) => k in look)) return false;
+  const hex = (x: unknown, empty = false) => typeof x === "string" && (HEX_RE.test(x) || (empty && x === ""));
+  const num = (x: unknown, a: number, z: number) => typeof x === "number" && Number.isFinite(x) && x >= a && x <= z;
+  return (
+    num(look.h, 0.7, 0.86) && num(look.bulk, 0.85, 1.2) &&
+    ["skin", "hair", "cloth", "pants", "boots"].every((k) => hex(look[k])) && hex(look.cloak, true) && hex(look.eyes, true) && hex(look.iris, true) &&
+    AVATAR_RACES.includes(look.race as string) && str(look.desc, 600) &&
+    ["short", "cap", "long", "bald"].includes(look.style as string) && ["none", "short", "full"].includes(look.beard as string) &&
+    typeof look.hood === "boolean"
+  );
+}
+
 export type Check ={ ok: true } | { ok: false; status: number; error: string };
 
 /**
@@ -136,6 +162,12 @@ export function checkDoc(
     const d = doc as Record<string, unknown>;
     const ok = onlyKeys(d, ["done"]) && isObj(d.done) && Object.entries(d.done).every(([id, r]) => INTERLUDE_ID_RE.test(id) && validInterlude(r));
     if (!ok) return { ok: false, status: 400, error: "interludes must be {done: {<interlude id>: result}}" };
+  }
+  if (col === "avatars") {
+    if (!validAvatar(doc)) return { ok: false, status: 400, error: "avatars must be {character, look, at} from the workshop" };
+    const mine = (ctx.existing as { character?: string } | undefined)?.character;
+    if (!v.isDm && mine !== (doc as { character: string }).character)
+      return { ok: false, status: 403, error: "You can only paint the mini of the character you play" };
   }
   if (col === "players") {
     const c = (doc as { character?: unknown }).character;
