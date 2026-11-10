@@ -956,6 +956,15 @@ body.playing header.top,body.playing nav.dock,body.playing .eggs,body.playing #p
 .pl-init .ri{flex:none;position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;opacity:.62;transition:opacity .2s}
 .pl-init .rp{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--c,#555);color:#14110b;font:400 12px/1 var(--display);box-shadow:0 0 0 1px #0b0d12,0 0 0 2px #ffffff12;transition:transform .2s,box-shadow .2s}
 .pl-init .foe .rp{background:#20242c;color:#e9e1cf;box-shadow:0 0 0 1.5px var(--c,#b8402a)}
+.pl-init .rp.pic,.pl-hero .pt.pic,.pl-tgt .tp.pic{background-size:cover!important;background-position:center 30%!important;background-repeat:no-repeat!important}
+@media (max-width:600px){.pl-foecard{bottom:64px;gap:10px;padding:8px 16px 8px 8px}.pl-foecard .fc-pic{width:60px;height:60px}.pl-foecard b{font-size:21px}}
+.pl-foecard{position:absolute;left:50%;bottom:72px;z-index:6;display:flex;align-items:center;gap:14px;padding:10px 20px 10px 10px;border-radius:999px;background:#0b0d12e6;border:1px solid #c9a35c55;box-shadow:0 10px 40px #000a;transform:translate(-50%,14px);opacity:0;transition:opacity .45s,transform .45s;pointer-events:none;max-width:calc(100% - 24px)}
+.pl-foecard.on{opacity:1;transform:translate(-50%,0)}
+.pl-foecard .fc-pic{flex:none;width:84px;height:84px;border-radius:50%;background:#20242c center 30%/cover no-repeat;box-shadow:0 0 0 2px #0b0d12,0 0 0 3.5px #b8402a,0 0 24px #b8402a55}
+.pl-foecard .fc-tx{display:flex;flex-direction:column;gap:4px;min-width:0}
+.pl-foecard small{font:400 11px/1.2 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--steward)}
+.pl-foecard b{font:400 26px/1.1 var(--display);color:var(--parch);font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (prefers-reduced-motion:reduce){.pl-foecard{transition:opacity .3s;transform:translate(-50%,0)}}
 .pl-init .rp svg,.pl-hero .pt svg,.pl-tgt .tp svg{width:62%;height:62%;fill:none;stroke:#e9e1cf;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .pl-init .rn{position:absolute;right:-4px;top:-3px;min-width:12px;height:12px;padding:0 2px;box-sizing:border-box;border-radius:6px;background:#0b0d12;color:var(--parch);font:500 8.5px/12px var(--mono);font-style:normal;text-align:center;box-shadow:0 0 0 1px var(--hairline)}
 .pl-init .rh{width:24px;height:3px;border-radius:2px;background:#05070a;overflow:hidden;box-shadow:0 0 0 1px #ffffff10}
@@ -5438,7 +5447,7 @@ function tokenEl(u){
   if(!u.el){const isPc=u.side!=="foe";const m=MON[u.key];
     u.el=h("button",{type:"button",class:"tk "+(isPc?"pc":"foe")+(u.size>1?" big":""),"aria-label":u.name});
     const rg=h("span",{class:"rg"});
-    if(u.crew)rg.append(h("b",{},CREW[u.key].ini));else rg.innerHTML=`<svg viewBox="0 0 24 24">${ICON[m.icon]||""}</svg>`;
+    if(u.crew)rg.append(h("b",{},CREW[u.key].ini));else if(mPic(u.key))rg.style.background=`#20242c center 30%/cover no-repeat url(${mPic(u.key)})`;else rg.innerHTML=`<svg viewBox="0 0 24 24">${ICON[m.icon]||""}</svg>`;
     u.el.append(rg,h("span",{class:"hp"},h("i")),h("span",{class:"cd"}));
     if(u.num)u.el.append(h("span",{class:"n"},String(u.num)));
     u.el.style.setProperty("--c",u.hex||"#b8402a");
@@ -8159,7 +8168,7 @@ async function battle(def){
   sideMode(true);buildBattleView();clearLog();
   def.setup();for(const u of B.units)if(u.crew&&P(u.key).hp<=0){u.hp=1;}
   fitMap();
-  log(def.intro||"Roll initiative.","h");
+  log(def.intro||"Roll initiative.","h");for(const u of B.units)if(!u.crew)mPic(u.key);foeSeen();
   // initiative: the app rolls for everyone, the crew's rolls shown in the log
   const groups={};
   for(const u of B.units){if(u.ghost)continue;const base=u.crew?CREW[u.key].init:MON[u.key].init;
@@ -8210,8 +8219,26 @@ async function deathSave(u){panelMsg(u,`${u.short} is dying. Roll a death save.`
    the target prompt with the odds, the question tray. Only the look: which actions exist and what they do stay in crewActions. ---- */
 let initEl=null;
 const hpCls=f=>f<.25?"cr":f<.5?"lo":"";
+/* painted foe portraits (source/art/foe-*.webp, made in Draw Things): they fill the round face in the turn ribbon, the panel and the target list,
+   and a card shows each one the first time it comes onto the board. Until a file has loaded, or without it, the drawn mark stays. */
+const MPIC={shade:"art/foe-shade.webp",shadowself:"art/foe-shadow.webp",hand:"art/foe-hand.webp",drowned:"art/foe-drowned.webp"},MPIC_ST={};
+function mPic(key){const src=MPIC[key];if(!src)return null;
+  if(MPIC_ST[key]===undefined){MPIC_ST[key]=0;const im=new Image();im.decoding="async";
+    im.onload=()=>{MPIC_ST[key]=1;if(!B)return;renderInit();foeSeen();
+      for(const u of B.units){const rg=u.key===key&&u.el&&u.el.querySelector(".rg");if(rg){rg.innerHTML="";rg.style.background=`#20242c center 30%/cover no-repeat url(${src})`;}}};im.onerror=()=>{MPIC_ST[key]=-1;};im.src=src;}
+  return MPIC_ST[key]===1?src:null;}
+/* the first time a painted foe is on the board: a card at the foot of the board for a moment, never in the way of a tap */
+function foeSeen(){if(!B)return;const seen=B.seenFoe||(B.seenFoe=new Set()),q=[];
+  for(const u of B.units){if(u.crew||u.side!=="foe"||u.ghost||u.gone||seen.has(u.key))continue;const pic=mPic(u.key);if(!pic)continue;seen.add(u.key);q.push([u.key,pic]);}
+  if(!q.length)return;B.foeQ=(B.foeQ||Promise.resolve()).then(async()=>{for(const [k,pic] of q){if(!B)return;
+    const c=h("div",{class:"pl-foecard","aria-hidden":"true"},h("i",{class:"fc-pic",style:`background-image:url(${pic})`}),h("div",{class:"fc-tx"},h("small",{},"A foe appears"),h("b",{},MON[k].name)));
+    stage.append(c);requestAnimationFrame(()=>requestAnimationFrame(()=>c.classList.add("on")));
+    await wait(PLAY.auto?600:2600);c.classList.remove("on");setTimeout(()=>c.remove(),500);await wait(250);}}).catch(()=>{});}
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
 /* the round face: the crew's colour and initial, a monster's mark on dark with its colour as the ring */
-function portrait(u,cls){const ic=!u.crew&&MON[u.key]&&ICON[MON[u.key].icon];
+function portrait(u,cls){const pic=!u.crew&&mPic(u.key);
+  if(pic)return h("span",{class:cls+" pic",style:`--c:${u.hex||(u.side==="foe"?"#b8402a":"#888")};background-image:url(${pic})`,"aria-hidden":"true"});
+  const ic=!u.crew&&MON[u.key]&&ICON[MON[u.key].icon];
   return h("span",{class:cls,style:`--c:${u.hex||(u.side==="foe"?"#b8402a":"#888")}`,html:ic?`<svg viewBox="0 0 24 24" aria-hidden="true">${ic}</svg>`:""},ic?null:(u.crew?CREW[u.key].ini:(MON[u.key]||{}).ini||"?"));}
 function renderInit(){if(!initEl||!B)return;
   const items=B.order.filter(e=>e.lair||(!e.u.gone&&!e.u.ghost)).map(e=>{
@@ -9112,7 +9139,7 @@ const IART={memory:iaMemory,patron:iaPatron,prayer:iaPrayer,fire:iaFire};
 const IPICT={memory:{src:"art/interlude-katy.webp",lx:.12,ly:.66,col:"#ffc070",r:.5,ash:0,sp:1},
   patron:{src:"art/interlude-saphira.webp",lx:.64,ly:.44,col:"#b49cff",r:.22,ash:1,sp:.35},
   prayer:{src:"art/interlude-stig.webp",lx:.355,ly:.68,col:"#ffc070",r:.42,ash:1,sp:.8},
-  fire:{src:"art/interlude-together.webp",lx:.53,ly:.72,col:"#ff9a40",r:.5,ash:-1,sp:1.4}};
+  fire:{src:"art/interlude-together.webp",lx:.41,ly:.63,col:"#ff9a40",r:.5,ash:-1,sp:1.4}};
 const IPIC={};
 function iPic(kind){const P=IPICT[kind];if(!P)return null;let im=IPIC[kind];
   if(!im){im=IPIC[kind]=new Image();im.decoding="async";
@@ -9911,7 +9938,7 @@ async function runInterlude(I){
 
 /* ---- the fight: its own party state, so it never touches the session 10 save ---- */
 // saveState() skips while PLAY.inter; IFK keeps the session 10 state so iLeave() can put it back if the player walks out mid-fight.
-async function iFight(I){const mine={keep:ST};IFK=mine;ST=freshState();PLAY.inter=true;let out=null;
+async function iFight(I){for(const k in MPIC)mPic(k);const mine={keep:ST};IFK=mine;ST=freshState();PLAY.inter=true;let out=null;
   try{while(true){try{out=await battle(IFIGHTS[I.fight]);}catch(e){if(e===ABORT||IFK!==mine||!PLAY.on)throw ABORT;console.error(e);out=null;break;} // a broken fight never strands the story
       if(IST)IST.rounds=(B&&B.round)||0;if(out!=="lose")break;
       storyView(I.art);const i=await choose("The memory slips. Everything goes grey.",[{t:"Try the fight again"},{t:"Let the memory go",sub:"you keep the story and the Echo"}]);
@@ -10920,7 +10947,7 @@ Object.assign(MAPS,{
 const iFoes=()=>B.units.filter(u=>u.side==="foe"&&!u.gone&&(u.hp>0||u.ghost));
 function iDown(key){const u=B.units.find(o=>o.key===key);return !u||u.hp<=0;}
 function iSpawn(key,spots,o={}){let k=B.units.filter(u=>u.key===key).length;const out=[];
-  for(const [x,y] of spots){const c=freeNear(x,y);k++;const u=mkMon(key,c[0],c[1],k,o);B.units.push(u);B.order.push({u});out.push(u);}renderTokens();renderInit();return out;}
+  for(const [x,y] of spots){const c=freeNear(x,y);k++;const u=mkMon(key,c[0],c[1],k,o);B.units.push(u);B.order.push({u});out.push(u);}renderTokens();renderInit();foeSeen();return out;}
 function iGhosts(r,spots,txt){for(const u of B.units)if(u.ghost&&!u.gone&&u.hp>0&&u.back<=r){u.ghost=false;const c=freeNear(...pick(spots));u.x=c[0];u.y=c[1];log(`${u.name} ${txt}`,"r");if(!B.order.some(e=>e.u===u))B.order.push({u});}renderTokens();}
 function iRepaint(){if(B&&mapCv&&mapEl&&!t3on()&&stage.contains(mapEl))paintMap(mapCv,B.mp,CS);}
 async function iDim(u,what){const S=B.sc;
