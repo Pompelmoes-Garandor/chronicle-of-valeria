@@ -6,7 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
-- **Lore** Session 10 is on the map. The black box is open for good, the recap tells the morning in Hans's words (the Overclock, Thorn's confession, the cave of roots and ash, the Blight Heart, and Matthew Berry), and a new place, *The Heart's cave*, sits under the grey forest where the party is now. Also fixed: a quick double tap on the last arrow of a recap no longer breaks it. (Sam)
+- **Lore** Session 10 is on the map. The black box is open for good, the recap tells it in Hans's words (the Overclock, Thorn at the cave mouth, the cave of roots and ash with its buried waystone, the Hollowers, the Blight Heart, and Matthew Berry), and a new place, *The Heart's cave*, sits under the grey forest where the party is now. The buried waystone is in *Places*, inside the cave. Also fixed: a quick double tap on the last arrow of a recap no longer breaks it. (Sam)
 - **Changed** The painting in the galley of *Protocol Zero* is a real oil painting now: the Steward at rest on a green couch, a blue-striped tea towel where a towel would go, berries within reach. Still signed with a small berry. (Sam)
 - **Changed** Saphira's fights follow the 2014 rules her player uses: after a bonus-action spell (Hex, Shadow Blade, Misty Step) her action can only be a cantrip, and after Shatter she can't cast a bonus-action spell that turn. (Sam)
 - **Changed** In the fights, Katy and Stig now follow the 2024 rule of one spell slot per turn, so a levelled bonus-action spell and a levelled action spell no longer fit in the same turn (cantrips still do). Saphira keeps her older rules, as at the table. (Sam)

@@ -1358,7 +1358,7 @@ const PLACES = [
   P("forest","The blighted forest",{lon:86,lat:16},{voice:"hans",state:"explored",major:true,sessions:[9],
     body:"<p>Summerwood, where the waystone set us down. A forest gone grey. The Battle with the Tree: vine blights, needle blights and a crab tree.</p><p>Kalian Greenleaf, called Thorn, joined the fight. He is the bard's uncle. He says her father came back one year later. He says the letter was a lie.</p>"}),
   P("cave","The Heart's cave",{lon:88.6,lat:13.2},{voice:"hans",state:"explored",isNew:true,sessions:[10],
-    body:"<p>Under the grey forest, a cave that goes down and keeps going down. The walls are roots, not stone, and the floor is ash. At the bottom lay the Blight Heart: a knot of black roots the size of a house, beating like a heart.</p><p>Inside it sat a man with a lute, holding it still with four notes. He had been playing for three days. His name is Matthew Berry. The Heart is dust now. The man is not. I count that as a win.</p>"}),
+    body:"<p>Under the grey forest, a cave that goes down and keeps going down. The walls are roots, not stone, and the floor is ash. Halfway down, a Valerian waystone sits half swallowed by black roots. At the bottom lay the Blight Heart: a knot of black roots the size of a house, beating like a heart.</p><p>Inside it sat a man with a lute, holding it still with four notes. He had been playing for three days. His name is Matthew Berry. The Heart is dust now. The man is not. I count that as a win.</p>"}),
   P("v-earth","Earth Vault",{lon:-4.2,lat:39.2},{voice:"steward",state:"explored",vault:"claimed",color:"#9bc46a",sessions:[],
     body:"<p>A little north of where the ship was found. The bard took the Sigil of Earth from here and still carries it. It hums at a frequency I find pleasant.</p>"}),
   P("v-water","Water Vault",M(205,560),{voice:"hans",state:"explored",vault:"claimed",color:"#7fb8dc",sessions:[],
@@ -1396,11 +1396,11 @@ const FOG = { // [lon,lat,radiusDeg,value 0..1]
 const RECAP = [
   {at:"forest",zoom:.5,voice:"steward",title:"Black box · overclock",text:"SIGNAL: ONE TONE. TOO FAST.\nDOWNLOAD: COMPLETE.\nMAP: UNSEALED.\nSECOND PROCESS: STILL HERE\nREPLAYING SESSION 10"},
   {at:"cave",zoom:.42,title:"The cave mouth",text:"Session ten. Our rest ended at the mouth of the cave. Then my music stopped. The box in my chest found something big and pulled it in faster than I could hold. The cleric cooled my core. The bard kept the beat. Saphira read the runes off my chest. I downloaded the world. You are looking at it."},
-  {at:"cave",zoom:.36,title:"Thorn",text:"Thorn stood at the edge of the dark and did not argue. Yes, he wrote that her father was sick, to bring her home. The man inside had gone in after the blight's heart three days ago and never came out. The lie, he said, was not a lie anymore."},
-  {at:"cave",zoom:.3,title:"Roots and ash",text:"The cave went down and kept going down. Roots for walls, ash for a floor. Somewhere ahead, someone played four notes on a stringed instrument. The same four notes, over and over. The bard knew them before she knew why."},
-  {at:"cave",zoom:.26,title:"The Blight Heart",text:"At the bottom, a knot of black roots the size of a house, beating like a heart. Inside it sat a grey-bearded man with a lute, holding it still with those four notes. He saw the bard's ukulele. His fingers stopped. The Heart woke. We fought it, and it crumbled to dust."},
+  {at:"cave",zoom:.36,title:"Thorn",text:"Thorn stood at the edge of the dark. The bard had things to say to him about that letter. He did not argue. He looked into the cave more than he looked at her. I have noted that."},
+  {at:"cave",zoom:.3,title:"Roots and ash",text:"The cave went down and kept going down. Roots for walls, ash for a floor. Halfway down, a carved stone half swallowed by black roots: a waystone, old Valerian tech, like the one that carried us here. My builders. The box in my chest liked it. Somewhere ahead, someone played four notes, over and over."},
+  {at:"cave",zoom:.28,title:"The Hollowers",text:"The four notes stopped. The shadows on the root walls peeled loose, cast by no one, and grey shapes in rags shuffled out of the ash. Their touch drains your strength. I do not have strength to drain. I have a slam. We won, and the four notes started again, closer."},
+  {at:"cave",zoom:.26,title:"The Blight Heart",text:"At the bottom, a knot of black roots the size of a house, beating like a heart. Inside it sat a grey-bearded man with a lute, holding it still with those four notes. He saw the bard's ukulele. His fingers stopped. The Heart woke. We hit it hard, and we played his four notes back to him. Between the two, it crumbled to dust."},
   {at:"cave",zoom:.26,title:"Father and daughter",text:"The man slid out of the dead roots into the ash. He looked at the bard for a long time. \"You have her eyes. My name is Matthew Berry. I think I'm your father.\" I have downloaded the whole world. I had no file for this."},
-  {at:"cave",zoom:.3,title:"A quiet word",text:"Later, Matthew caught the cleric's sleeve and asked him something, quietly. The cleric has not told me what. I did not ask. I am learning when not to."},
 ];
 const SESSIONS = [
   {n:"1–3",v:"steward",t:"Lost to the mists",s:"The Steward's memory of these sessions is corrupted. If you remember anything, tell me under Missed?",at:"hills"},
@@ -1410,7 +1410,7 @@ const SESSIONS = [
   {n:7,v:"steward",t:"Thorias",s:"Thorias betrays the cleric at the ravine. The black box is taken from the wreck. Doloris, the elf with her ears cut off. A book: Beware of Katy Berry.",at:"ravine"},
   {n:8,v:"hans",t:"The white door",s:"I met them. Doloris was buried. Saphira's patron broke the chains. The bard's white door, a shadow demon, and Karthus. I fought beside them. I was still Gerda's then.",at:"inn"},
   {n:9,v:"hans",t:"The Battle with the Tree",s:"I am free. The cleric's booklet. The waystone to Summerwood. Thorn, the bard's uncle.",at:"forest"},
-  {n:10,v:"hans",t:"The Black Ash",s:"I downloaded the world. Thorn told the truth. Under the forest, the Blight Heart, and inside it a man with a lute. Matthew Berry.",at:"cave",recap:true}
+  {n:10,v:"hans",t:"The Black Ash",s:"I downloaded the world. Under the forest, the Hollowers, a buried waystone and the Blight Heart, and inside it a man with a lute. Matthew Berry.",at:"cave",recap:true}
 ];
 const CHARS = [
   {id:"katy",name:"Katy Berry",c:"var(--katy)",hex:"#e7a3b8"},
@@ -1561,6 +1561,9 @@ const SPOTS = [
   {id:"lighthouse",name:"The Lighthouse",in:"grisshaven",kind:"inn",    voice:"fragment",state:"rumour",   sessions:[],
    tags:[],
    body:"<p>A tavern in Grisshaven. A name on the chart, nothing more yet.</p>"},
+  {id:"rootstone",name:"The buried waystone",in:"cave",kind:"ancient",voice:"hans",state:"explored",sessions:[10],
+   tags:["travel"],
+   body:"<p>Halfway down the Heart's cave: a carved stone half swallowed by black roots. A Valerian waystone, the same old tech that carried us across the Fire Sea. My builders made it. It still works, I think. There is bad music in it now. The box in my chest beeps faster near it.</p>"},
   {id:"aggron",  name:"The Pit of Aggron",in:"deadvalley", kind:"cave",   voice:"fragment",state:"rumour",   sessions:[6],
    tags:[],
    body:"<p>Not from the box. From Saphira's vision: a pit in the Dead Valley where an army gathers.</p>"},
