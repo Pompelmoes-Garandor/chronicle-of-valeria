@@ -13945,7 +13945,7 @@ void main(){
       tc=mix(tc,max(tc,ec*1.05),ek);}
     // oil slick: the dark and middle tones drift through colours along the ink field
     float L=lum(tc);tc=mix(tc,hue(tc,(n2*6.283+t*.25)*1.2),uHue*.85*smoothstep(.95,.12,L));
-    tc=mix(tc,mix(tc,vec3(lum(tc)),.6)*uTint*1.3,uTintK); // toward the look's colour: sepia for the past, cold for the future
+    tc=mix(tc,mix(tc,vec3(lum(tc)),.6)*uTint/max(lum(uTint),.05),uTintK); // toward the look's colour (sepia for the past, cold for the future), as bright as before
     tc=mix(tc,vec3(lum(tc))*vec3(.9,.95,1.1),.65*rw);
     // the picture's edge burns out into the ink instead of a clean frame; uBleed is how far
     vec2 e=abs(c)*2.;float edge=max(e.x,e.y)+(n1-.5)*.35*uBleed;
@@ -13960,7 +13960,7 @@ void main(){
   // veil: ink at the edges, closing in with dread; quieter where there is no story picture (a fight)
   float r=length((uv-.5)*vec2(asp,1.)*vec2(.85,1.));
   float vig=smoothstep(.25+.35*(1.-uVign)-.14*uDread,1.1,r+(n1-.5)*.45*uInk);
-  vig=clamp((vig*(.55+.45*uVign)+.35*sh*r)*uOut,0.,.96);
+  vig=clamp((vig*(.55+.45*uVign)+.35*sh*r)*uOut,0.,.96)*(1.-.6*col.a*(1.-.5*uDread)); // the picture itself stays lit until the dread is high
   // haze: a slow coloured fog in the dark round the picture, cut through by ink smoke
   if(uInk>.001){float fog=smoothstep(.35,.85,fbm(q*1.6+w*.8+vec2(t*.02,0.)));
     vec3 hz=mix(mix(vec3(.35,.4,.5),uTint,.7),hue(vec3(.7,.28,.6),n2*6.283+t*.12),uHue*.8);
