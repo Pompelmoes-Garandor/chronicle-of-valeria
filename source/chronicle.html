@@ -7295,8 +7295,9 @@ function t3n_fin(f,b,col,{s=1,k=1,mon=0}={}){const c0=new THREE.Color(col),U={va
 /* ---- SCULPTED MINIS. A crew mini can be a figure sculpted from a painting: source/minis/<id>.glb, about half a megabyte each.
    The file is fetched when the table, the workshop or a sheet opens. Until it is there, and on any failure, the mini drawn in code stands in.
    The GLB is read here, without a loader add-on, in the plain shape source/minis/README.md describes: one mesh, one primitive,
-   float or quantized attributes and one embedded picture. h = height on the table, ry = turn it to face forward, rim = its edge light.
-   One line per sculpted mini, for example  stig:{src:"minis/stig.glb",h:.98,ry:0,rim:"#8fc8ff"}  ---- */
+   float or quantized attributes and one embedded picture. h = height from soles to crown, ry = turn it to face forward, rim = its edge light,
+   sink = the share of the model's height that is its own sculpted base, which goes down into the plinth.
+   One line per sculpted mini, for example  stig:{src:"minis/stig.glb",h:.84,ry:0,rim:"#8fc8ff"}  ---- */
 const MINI3D={};
 const t3g_have=new Map(),t3g_wait=new Map();
 function t3g_read(buf){const dv=new DataView(buf);if(buf.byteLength<20||dv.getUint32(0,true)!==0x46546C67)throw new Error("not a GLB");
@@ -7326,12 +7327,12 @@ function t3g_load(id){const d=MINI3D[id];if(!d||!T3GL)return Promise.resolve(nul
     if(G.pic){const img=new Image(),url=URL.createObjectURL(G.pic);try{img.src=url;await img.decode();}finally{URL.revokeObjectURL(url);}
       const tx=new THREE.Texture(img);tx.flipY=false;tx.colorSpace=THREE.SRGBColorSpace;tx.anisotropy=4;
       if(G.tt){if(G.tt.offset)tx.offset.fromArray(G.tt.offset);if(G.tt.scale)tx.repeat.fromArray(G.tt.scale);}tx.needsUpdate=true;G.tex=tx;}
-    // stand it on the plinth: facing forward, centred, feet at zero, d.h tall
+    // stand it on the plinth (its top is .07 up): facing forward, centred, d.h tall from the soles. sink pushes a sculpted base down into the plinth
     const P=G.geo.attributes.position,v=new THREE.Vector3(),R=new THREE.Matrix4().makeRotationY(d.ry||0).multiply(G.M),bb=new THREE.Box3();
     for(let i=0;i<P.count;i++)bb.expandByPoint(v.fromBufferAttribute(P,i).applyMatrix4(R));
-    const k=d.h/Math.max(1e-6,bb.max.y-bb.min.y);
-    G.fit=new THREE.Matrix4().makeScale(k,k,k).multiply(new THREE.Matrix4().makeTranslation(-(bb.min.x+bb.max.x)/2,-bb.min.y,-(bb.min.z+bb.max.z)/2)).multiply(R);
-    G.top=d.h;G.rim=d.rim||"#c9a35c";t3g_have.set(id,G);t3g_swap(id);return G;})().catch(e=>{console.warn("sculpted mini",id,e&&e.message||e);return null;});
+    const H=Math.max(1e-6,bb.max.y-bb.min.y),sk=clamp(d.sink||0,0,.3)*H,k=d.h/(H-sk);
+    G.fit=new THREE.Matrix4().makeTranslation(0,.07,0).multiply(new THREE.Matrix4().makeScale(k,k,k)).multiply(new THREE.Matrix4().makeTranslation(-(bb.min.x+bb.max.x)/2,-bb.min.y-sk,-(bb.min.z+bb.max.z)/2)).multiply(R);
+    G.top=.07+d.h;G.rim=d.rim||"#c9a35c";t3g_have.set(id,G);t3g_swap(id);return G;})().catch(e=>{console.warn("sculpted mini",id,e&&e.message||e);return null;});
   t3g_wait.set(id,job);return job;}
 function t3g_warm(){for(const id in MINI3D)t3g_load(id);}
 /* a file that lands while a fight is on the table: the stand-in steps off its plinth and the sculpt steps on */

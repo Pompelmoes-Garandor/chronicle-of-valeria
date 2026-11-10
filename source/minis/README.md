@@ -7,10 +7,11 @@ The mini drawn in code stays. It stands in until the file has loaded, and for go
 ## Adding one
 
 1. Put the slimmed file in this folder as `<id>.glb`.
-2. Add a line to `MINI3D` in `chronicle.html`: `stig:{src:"minis/stig.glb",h:.98,ry:0,rim:"#8fc8ff"}`.
-   - `h`: height on the table, in squares. The code-drawn crew stand about 0.9 to 1 tall.
+2. Add a line to `MINI3D` in `chronicle.html`: `stig:{src:"minis/stig.glb",h:.84,ry:0,rim:"#8fc8ff"}`.
+   - `h`: height from soles to crown, in squares. The code-drawn crew stand about 0.7 (Katy) to 0.8 (Stig) tall.
    - `ry`: a turn about the upright axis, in radians, so the figure faces forward (towards +Z). Sculpts often come out turned a little.
    - `rim`: the colour of its edge light, usually the character's colour.
+   - `sink` (optional): when the sculpt came with its own little base, the share of the model's height that is base, for example `.05`. That part goes down into the plinth, so the mini doesn't stand on a base on a base.
 3. Rebuild and look at it: `?mini` opens the workshop, the character sheet shows the portrait, `?play` starts a fight.
 
 The page centres the figure, puts its feet on the plinth and scales it to `h` by itself, so the model's own size and position don't matter.
