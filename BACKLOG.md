@@ -62,7 +62,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
-- [x] **Folk music under the recap, one sound switch, a volume slider** · New · Sam · PR #PRNUM
+- [x] **Folk music under the recap, one sound switch, a volume slider** · New · Sam · PR #90
 - [x] **The crash cinematic has sound (swarm fire, rockets, the fall, impact, black-box beeps)** · New · Sam · PR #88
 - [x] **Painted foe portraits in the interlude fights (ribbon, panel, targets, flat tokens, first-sight card), Round the Fire repainted** · New · Sam · PR #84
 - [x] **Fight music (dark folk, follows the battle) and a sound for every weapon, element, crit, heal and fall** · New · Sam · PR #86
