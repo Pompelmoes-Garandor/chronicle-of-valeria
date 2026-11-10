@@ -7457,7 +7457,7 @@ function t3n_fin(f,b,col,{s=1,k=1,mon=0}={}){const c0=new THREE.Color(col),U={va
    sink = the share of the model's height that is its own sculpted base, which goes down into the plinth,
    tone = how bright the picture is painted on (.85 if left out), rimK = strength of the edge light (.45 if left out).
    One line per sculpted mini, for example  stig:{src:"minis/stig.glb",h:.84,ry:0,rim:"#8fc8ff"}  ---- */
-const MINI3D={};
+const MINI3D={stig:{src:"minis/stig.glb",h:.88,ry:-.52,rim:"#8fc8ff",sink:.11}};
 const t3g_have=new Map(),t3g_wait=new Map();
 function t3g_read(buf){const dv=new DataView(buf);if(buf.byteLength<20||dv.getUint32(0,true)!==0x46546C67)throw new Error("not a GLB");
   let off=12,J=null,bin=null;while(off+8<=buf.byteLength){const n=dv.getUint32(off,true),t=dv.getUint32(off+4,true);
@@ -8219,7 +8219,7 @@ function t3start(){t3dispose();const host=h("div",{class:"pl-3d"}),tags=h("div",
   mapEl=host;tkLayer=tags;
   for(const u of B.units)V.minis.set(u,t3mini(V,u));
   t3fit();t3hi();t3last=0;cancelAnimationFrame(t3raf);t3raf=requestAnimationFrame(t3loop);return true;}
-if(/[?&]playtest/.test(location.search))window.__t3={settle(){if(V){V.intro=false;Object.assign(V.view,V.goal);}},zoom(f,y){if(V){V.goal.dist=V.home.dist*f;if(y!=null)V.goal.yaw+=y;this.settle();}},hole(k){t3w_hole=k;},manual(){PLAY.auto=false;},cur(){return B&&B.cur?{key:B.cur.key,crew:!!B.cur.crew,x:B.cur.x,y:B.cur.y,mv:B.cur.mv,act:B.cur.act}:null;},reach(){return B&&B.reach?[...B.reach.d.keys()].filter(k=>{const n=B.reach.d.get(k);return !n.occ&&k!==B.reach.start;}):[];},
+if(/[?&]playtest/.test(location.search))window.__t3={settle(){if(V){V.intro=false;Object.assign(V.view,V.goal);}},zoom(f,y){if(V){V.goal.dist=V.home.dist*f;if(y!=null)V.goal.yaw+=y;this.settle();}},look(k){const u=B&&B.units.find(q=>q.key===k),m=u&&V&&V.minis.get(u);if(m){V.goal.tx=m.pos.x;V.goal.tz=m.pos.z;this.settle();}return !!m;},hole(k){t3w_hole=k;},manual(){PLAY.auto=false;},cur(){return B&&B.cur?{key:B.cur.key,crew:!!B.cur.crew,x:B.cur.x,y:B.cur.y,mv:B.cur.mv,act:B.cur.act}:null;},reach(){return B&&B.reach?[...B.reach.d.keys()].filter(k=>{const n=B.reach.d.get(k);return !n.occ&&k!==B.reach.start;}):[];},
   cellXY(x,y){if(!V)return null;const p=V.cell(x,y).clone();p.project(V.cam);const rc=V.r.domElement.getBoundingClientRect();return {x:rc.left+(p.x+1)/2*rc.width,y:rc.top+(1-p.y)/2*rc.height};},pathK(){return V&&V.t3u?V.t3u.pathK:null;},cam(){return V?{view:Object.assign({},V.view),pitch:V.t3k_pitch,pos:V.cam.position.toArray()}:null}};
 // playtest hook (camera framing): where each mini stands on screen and how tall it is there, in CSS px
 if(/[?&]playtest/.test(location.search))window.__t3.probe=()=>{if(!V||!B)return null;const rc=V.host.getBoundingClientRect(),W2=rc.width/2,H2=rc.height/2,q=new THREE.Vector3(),sc=v=>{q.copy(v).project(V.cam);return [rc.left+q.x*W2+W2,rc.top-q.y*H2+H2,q.z];};
