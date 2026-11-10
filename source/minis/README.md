@@ -12,6 +12,8 @@ The mini drawn in code stays. It stands in until the file has loaded, and for go
    - `ry`: a turn about the upright axis, in radians, so the figure faces forward (towards +Z). Sculpts often come out turned a little.
    - `rim`: the colour of its edge light, usually the character's colour.
    - `sink` (optional): when the sculpt came with its own little base, the share of the model's height that is base, for example `.05`. That part goes down into the plinth, so the mini doesn't stand on a base on a base.
+   - `tone` (optional, `.85` if left out): how bright the picture is painted on. A painting carries its own light, so at full brightness a sculpt looks pale next to the minis drawn in code. The page also darkens it a little toward the feet, as it does for them.
+   - `rimK` (optional, `.45` if left out): strength of the edge light. A sculpt's surface is bumpy, so a strong edge light lies over all of it like a haze.
 3. Rebuild and look at it: `?mini` opens the workshop, the character sheet shows the portrait, `?play` starts a fight.
 
 The page centres the figure, puts its feet on the plinth and scales it to `h` by itself, so the model's own size and position don't matter.

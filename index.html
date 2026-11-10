@@ -7330,7 +7330,8 @@ function t3n_fin(f,b,col,{s=1,k=1,mon=0}={}){const c0=new THREE.Color(col),U={va
    The file is fetched when the table, the workshop or a sheet opens. Until it is there, and on any failure, the mini drawn in code stands in.
    The GLB is read here, without a loader add-on, in the plain shape source/minis/README.md describes: one mesh, one primitive,
    float or quantized attributes and one embedded picture. h = height from soles to crown, ry = turn it to face forward, rim = its edge light,
-   sink = the share of the model's height that is its own sculpted base, which goes down into the plinth.
+   sink = the share of the model's height that is its own sculpted base, which goes down into the plinth,
+   tone = how bright the picture is painted on (.85 if left out), rimK = strength of the edge light (.45 if left out).
    One line per sculpted mini, for example  stig:{src:"minis/stig.glb",h:.84,ry:0,rim:"#8fc8ff"}  ---- */
 const MINI3D={};
 const t3g_have=new Map(),t3g_wait=new Map();
@@ -7366,18 +7367,22 @@ function t3g_load(id){const d=MINI3D[id];if(!d||!T3GL)return Promise.resolve(nul
     for(let i=0;i<P.count;i++)bb.expandByPoint(v.fromBufferAttribute(P,i).applyMatrix4(R));
     const H=Math.max(1e-6,bb.max.y-bb.min.y),sk=clamp(d.sink||0,0,.3)*H,k=d.h/(H-sk);
     G.fit=new THREE.Matrix4().makeTranslation(0,.07,0).multiply(new THREE.Matrix4().makeScale(k,k,k)).multiply(new THREE.Matrix4().makeTranslation(-(bb.min.x+bb.max.x)/2,-bb.min.y-sk,-(bb.min.z+bb.max.z)/2)).multiply(R);
-    G.top=.07+d.h;G.rim=d.rim||"#c9a35c";t3g_have.set(id,G);t3g_swap(id);return G;})().catch(e=>{console.warn("sculpted mini",id,e&&e.message||e);return null;});
+    // paint it like the other minis: darker toward the feet, and a touch under the picture's own brightness (a painting carries its own light)
+    const tone=d.tone==null?.85:d.tone,y0=bb.min.y+sk,col=new Float32Array(P.count*3);
+    for(let i=0;i<P.count;i++){const t=clamp((v.fromBufferAttribute(P,i).applyMatrix4(R).y-y0)/(H-sk),0,1),c=(.7+.3*t)*tone;col[i*3]=col[i*3+1]=col[i*3+2]=c;}
+    G.geo.setAttribute("color",new THREE.BufferAttribute(col,3));
+    G.top=.07+d.h;G.rim=d.rim||"#c9a35c";G.rimK=d.rimK==null?.45:d.rimK;t3g_have.set(id,G);t3g_swap(id);return G;})().catch(e=>{console.warn("sculpted mini",id,e&&e.message||e);return null;});
   t3g_wait.set(id,job);return job;}
 function t3g_warm(){for(const id in MINI3D)t3g_load(id);}
 /* a file that lands while a fight is on the table: the stand-in steps off its plinth and the sculpt steps on */
 function t3g_swap(id){if(!V||!V.minis)return;for(const [u,m] of V.minis){if(u.key!==id||m.sculpt||!(u.crew||u.side==="pc"))continue;
   const f=m.face,pz=m.pos.clone();V.root.remove(m.g);t3free(m.g);const n=t3mini(V,u);n.face=f;n.fig.rotation.y=f;n.pos.copy(pz);n.g.position.copy(pz);V.minis.set(u,n);}}
 /* the builder: a sculpt stands still like a real miniature. It only breathes a little; the table tips it over when it drops */
-function t3g_fig(f,u){const G=t3g_have.get(u.key),up=new THREE.Group(),m=new THREE.Mesh(G.geo,new THREE.MeshStandardMaterial({map:G.tex||null,roughness:.82,metalness:0}));
+function t3g_fig(f,u){const G=t3g_have.get(u.key),up=new THREE.Group(),m=new THREE.Mesh(G.geo,new THREE.MeshStandardMaterial({map:G.tex||null,vertexColors:true,roughness:.86,metalness:0}));
   m.matrixAutoUpdate=false;m.matrix.copy(G.fit);up.add(m);f.add(up);
   const b={up,top:G.top,hand:new THREE.Vector3(.2,G.top*.55,.12),sculpt:true},ph=Math.random()*6.28;let dn=0;
   b.anim=(dt,tt,now,st)=>{dn+=((st.down?1:0)-dn)*Math.min(1,dt*3);const br=Math.sin(tt*1.5+ph)*.006*(1-dn);up.scale.set(1+br*.4,1+br,1+br*.6);};
-  return t3n_fin(f,b,G.rim,{});}
+  return t3n_fin(f,b,G.rim,{k:G.rimK});} // a sculpt's surface is bumpy, so the edge light catches everywhere: keep it low
 function t3mini(Vb,u){const g=new THREE.Group(),fig=new THREE.Group(),s=u.size||1;g.add(fig);
   const sideCol=u.side==="foe"?"#c2452c":u.side==="ally"?"#7bc36a":(u.hex||"#c9a35c");
   // a turned wooden plinth with a brass band, its top painted like dark earth, and a rim in the side's colour
