@@ -2522,9 +2522,9 @@ function tickCrash(now){
     ship.position.copy(pos); ship.up.copy(surfUp(p.lon,p.lat)); const tgt=worldPos(c.b.lon,c.b.lat,p.lift); _f.copy(tgt).sub(pos);
     _f.addScaledVector(ship.up,-_f.dot(ship.up)); ship.lookAt(_q.copy(pos).add(_f)); ship.rotateZ(Math.sin(now/700)*.06);
     if(now-c.lastEnemy>170&&live.length){c.lastEnemy=now; const m=live[Math.random()*live.length|0];
-      if(Math.random()<.35)crashSnd("zap",{pan:fsR(-.6,.6)});shoot({lon:m.lon,lat:m.lat,lift:.004},{lon:p.lon+(Math.random()-.5)*.5,lat:p.lat+(Math.random()-.5)*.5,lift:p.lift},0xff5a3a,650,.012,
+      if(Math.random()<.35)crashSnd("zap",{pan:(Math.random()-.5)*1.2});shoot({lon:m.lon,lat:m.lat,lift:.004},{lon:p.lon+(Math.random()-.5)*.5,lat:p.lat+(Math.random()-.5)*.5,lift:p.lift},0xff5a3a,650,.012,
         ()=>{if(Math.random()<.35)puff(worldPos(p.lon,p.lat,p.lift),0xffb070,.01,.03,250,.9);});}
-    if(now-c.lastRocket>420&&live.length>6){c.lastRocket=now; const m=live[Math.random()*live.length|0];const rp=fsR(-.5,.5);crashSnd("rocket",{pan:rp});
+    if(now-c.lastRocket>420&&live.length>6){c.lastRocket=now; const m=live[Math.random()*live.length|0];const rp=Math.random()-.5;crashSnd("rocket",{pan:rp});
       shoot({lon:p.lon,lat:p.lat,lift:p.lift},{lon:m.lon,lat:m.lat,lift:.003},0x8fd3c8,700,.016,
         ()=>{m.alive=false;crashSnd("boom",{pan:rp});const g=worldPos(m.lon,m.lat,.004);puff(g,0xffd38a,.01,.06,500,1);puff(g,0x3a3530,.015,.05,1400,.6);});}
     if(T>BATTLE-1300&&!c.struck){c.struck=true;crashSnd("struck"); puff(pos,0xffd38a,.02,.14,600,1); puff(pos,0xe8743b,.03,.1,900,.9); cineClear(); cine([{who:"THE STEWARD · LAST ENTRY",voice:"steward",text:"It was an honour serving with you all.",ms:4400},
