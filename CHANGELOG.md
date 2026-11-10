@@ -6,6 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **New** Paintings in the panels. *Places*, *Characters* and *Missed something?* open under a painted header, and eight places you know have their own painting at the top of their card: Valarius, the Hills, Orda, the Fire Vault, the Wind Vault's flying city, the crash site, the blighted forest and the waystone. (Sam)
 - **New** The foes in the interlude fights have painted portraits: the faceless Court Shades, Saphira's own shadow and its grasping hands, the Drowned Shades out of the tide. You see them in the turn order, the side panel and the target list, on the flat board's tokens, and on a card the first time each one comes onto the board. *Round the Fire* is painted again, with Saphira as young as she should be. (Sam)
 - **New** Secrets on the map. Zoom in close and look carefully: here and there something glints, and some only show after dark. Tap one and Hans (or the black box inside him) decodes a scrambled fragment. Eight are out there. Hans's files in the Chronicle keep count, and you can hear the ones you found again. (Sam)
 - **Changed** Each interlude opens on a real painting now, and the same painting hangs over the story and your Echo: Katy's attic room under the eaves, Saphira's cloak with its eye open and a shadow waiting down the side passage, Stig's lamp on its stone, and Hans minding the fire for *Round the Fire*. The candle still flickers and the ash still falls over them. (Sam)
