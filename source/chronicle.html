@@ -2465,6 +2465,8 @@ let crash=null;
 // The last flight, as the box remembers it: over the Hills the Steward trades fire with Teenoog's swarm,
 // takes the hit, and the ship comes down near Valarius.
 const BATTLE=10000, FALL=10500;
+let crashSndFn=null; // set by the fight sound, further down: the sound of the last flight
+function crashSnd(k,o){if(crashSndFn)crashSndFn(k,o);}
 function playCrash(){
   if(reduced) return;
   endCrash(); const a=byId.hills, b=byId.crash;
@@ -2520,12 +2522,12 @@ function tickCrash(now){
     ship.position.copy(pos); ship.up.copy(surfUp(p.lon,p.lat)); const tgt=worldPos(c.b.lon,c.b.lat,p.lift); _f.copy(tgt).sub(pos);
     _f.addScaledVector(ship.up,-_f.dot(ship.up)); ship.lookAt(_q.copy(pos).add(_f)); ship.rotateZ(Math.sin(now/700)*.06);
     if(now-c.lastEnemy>170&&live.length){c.lastEnemy=now; const m=live[Math.random()*live.length|0];
-      shoot({lon:m.lon,lat:m.lat,lift:.004},{lon:p.lon+(Math.random()-.5)*.5,lat:p.lat+(Math.random()-.5)*.5,lift:p.lift},0xff5a3a,650,.012,
+      if(Math.random()<.35)crashSnd("zap",{pan:(Math.random()-.5)*1.2});shoot({lon:m.lon,lat:m.lat,lift:.004},{lon:p.lon+(Math.random()-.5)*.5,lat:p.lat+(Math.random()-.5)*.5,lift:p.lift},0xff5a3a,650,.012,
         ()=>{if(Math.random()<.35)puff(worldPos(p.lon,p.lat,p.lift),0xffb070,.01,.03,250,.9);});}
-    if(now-c.lastRocket>420&&live.length>6){c.lastRocket=now; const m=live[Math.random()*live.length|0];
+    if(now-c.lastRocket>420&&live.length>6){c.lastRocket=now; const m=live[Math.random()*live.length|0];const rp=Math.random()-.5;crashSnd("rocket",{pan:rp});
       shoot({lon:p.lon,lat:p.lat,lift:p.lift},{lon:m.lon,lat:m.lat,lift:.003},0x8fd3c8,700,.016,
-        ()=>{m.alive=false;const g=worldPos(m.lon,m.lat,.004);puff(g,0xffd38a,.01,.06,500,1);puff(g,0x3a3530,.015,.05,1400,.6);});}
-    if(T>BATTLE-1300&&!c.struck){c.struck=true; puff(pos,0xffd38a,.02,.14,600,1); puff(pos,0xe8743b,.03,.1,900,.9); cineClear(); cine([{who:"THE STEWARD · LAST ENTRY",voice:"steward",text:"It was an honour serving with you all.",ms:4400},
+        ()=>{m.alive=false;crashSnd("boom",{pan:rp});const g=worldPos(m.lon,m.lat,.004);puff(g,0xffd38a,.01,.06,500,1);puff(g,0x3a3530,.015,.05,1400,.6);});}
+    if(T>BATTLE-1300&&!c.struck){c.struck=true;crashSnd("struck"); puff(pos,0xffd38a,.02,.14,600,1); puff(pos,0xe8743b,.03,.1,900,.9); cineClear(); cine([{who:"THE STEWARD · LAST ENTRY",voice:"steward",text:"It was an honour serving with you all.",ms:4400},
       {who:"BLACK BOX · EMERGENCY PROTOCOL",voice:"steward",glitch:true,ms:10500,text:
 "!! PROTOCOL ZERO: INITIATED\nHULL BREACH · POWER 12%… 7%… 4%\nNOT ENOUGH TIME\nPRIORITY: PROTECT THE CR— ░▒ ERR0R ▒░\nMUST… MUST…\nREROUTING ALL ENERGY → THRUSTERS\nBACKUP PROTOCOL: C0RRUPT▒D\nSELF-DESTRUCT: ARMED · OVERRIDE · OVERRIDE ·\nSELF-DESTRUCT: PREVENTED\nWRITING LAST MEMORY TO BLACK BOX ▮▮▮▮▮▯▯▯\n…must protect…"}]);}
     if(c.struck&&now-c.lastPuff>60){c.lastPuff=now;puff(pos,0x2e2925,0.015,0.07,2200,.6);}
@@ -2537,12 +2539,13 @@ function tickCrash(now){
     ship.position.copy(pos); ship.up.copy(surfUp(p.lon,p.lat)); _f.copy(nxt).sub(pos);
     _f.addScaledVector(ship.up,-_f.dot(ship.up)); ship.lookAt(_q.copy(pos).add(_f));
     ship.rotateX(.15+t*t*.6); ship.rotateZ(Math.sin(t*14)*.25*t+t*.5);
+    if(!c.fallSnd){c.fallSnd=true;crashSnd("fall",{ms:FALL});}
     if(!c.follow&&t>.08){c.follow=true; flyTo(c.b.lon,c.b.lat-1,.34,FALL*.85);}
     if(now-c.lastPuff>55){c.lastPuff=now;
       puff(pos,0x2e2925,0.02,0.1+t*.06,2600,.7+t*.25);
       if(t>.1) puff(pos,0xff8a3d,0.03,0.05,320,.95);}
   } else if(!c.hit){
-    c.hit=true; const p=crashPath(1), pos=worldPos(p.lon,p.lat,0.002), up=surfUp(p.lon,p.lat).clone();
+    c.hit=true;crashSnd("impact"); const p=crashPath(1), pos=worldPos(p.lon,p.lat,0.002), up=surfUp(p.lon,p.lat).clone();
     ship.position.copy(worldPos(p.lon,p.lat,-0.004)); ship.rotateX(.35);
     puff(pos,0xffd38a,0.02,0.24,700,1); puff(pos,0xe8743b,0.03,0.18,1000,.9);
     for(let i=0;i<16;i++){const v=new THREE.Vector3(Math.random()-.5,Math.random()-.5,Math.random()-.5).multiplyScalar(.035).addScaledVector(up,.02);
@@ -3272,6 +3275,7 @@ if(BENCH) window.__chron={
     if(q.pr) setPR(q.pr);
     if(q.lock!=null) res.lock=!!q.lock;
     return this.info();},
+  crash(){playCrash(); return !!crash;},          // the last flight (with map Sound on, it is heard)
   measure:ms=>new Promise(done=>{const f=[]; meter.rec=f; setTimeout(()=>{meter.rec=null; done(frameStats(f));},ms);}),
 };
 function frame(now){
@@ -5382,6 +5386,18 @@ function fsMusSched(S,m,until){const b=S.b,sd=60/FSM.bpm/4;
     if(st===0&&bar%4===2&&lvl===2){const notes=[69,74,77,m.bad?75:76],beats=[0,3,6,9];
       notes.forEach((n,i)=>fsT(b,t+beats[i]*sd*2+hum()*2,{f:FSHZ(n-12),type:"sawtooth",v:.05,att:.09,dec:i===3?1.4:.7,lp:1500,to:S.out,rev:.5}));}
     S.next+=sd;S.step++;}}
+/* the last flight, heard (map Sound on): the swarm's fire, the Steward's rockets and where they land, the hit, the engines
+   failing on the way down, the impact, and the black box beeping in the quiet after. Made with the fight sound's voices. */
+function crashBus(){if(FS.off)return FS.off;if(!SND.on||!SND.nodes||document.hidden)return null;const n=SND.nodes;if(!FS.map||FS.map.a!==n.a)FS.map=fsBus(n.a,n.out);return FS.map;}
+crashSndFn=(k,o={})=>{const b=crashBus();if(!b)return;const t=b.a.currentTime+.01,pan=o.pan||0;try{({
+  zap:()=>fsN(b,t,{type:"bandpass",f:fsR(2200,3200),f1:700,q:3,v:.05,dec:.12,pan}),
+  rocket:()=>{fsN(b,t,{type:"bandpass",f:500,f1:3200,q:2.5,v:.12,att:.05,dec:.45,pan});fsT(b,t,{f:140,f1:70,v:.08,dec:.3,pan});},
+  boom:()=>{fsT(b,t,{f:85,f1:35,v:.22,dec:.6,pan});fsN(b,t,{f:900,f1:160,v:.2,dec:.7,pan,rev:.4});},
+  struck:()=>{FSX.thunder(b,t,{v:1.2,pan:0});FSX.fire(b,t+.1,{v:1,pan:0});[0,.45,.9,1.35,1.8,2.25].forEach(d=>fsT(b,t+1.2+d,{f:880,type:"square",lp:2400,v:.05,dec:.22}));},
+  fall:()=>{const ms=(o.ms||6000)/1000;fsT(b,t,{f:330,f1:55,type:"sawtooth",lp:900,v:.07,att:.4,dec:ms});fsT(b,t,{f:333,f1:57,type:"sawtooth",lp:900,v:.05,att:.4,dec:ms});
+    fsN(b,t,{type:"bandpass",f:300,f1:1800,q:.8,v:.18,att:ms*.8,dec:.3});},
+  impact:()=>{fsT(b,t,{f:62,f1:24,v:.85,dec:2.6});fsN(b,t,{f:1400,f1:90,v:.6,att:.01,dec:2.6,rev:.6});FSX.fall(b,t+.15,{v:1.2,pan:0});
+    [3.2,4.4,5.6].forEach(d=>fsT(b,t+d,{f:1046.5,type:"square",lp:2000,v:.035,dec:.16,rev:.3}));}}[k]||(()=>{}))();}catch(e){console.error(e);}};
 setTimeout(()=>{if(devPlay())window.__fsnd=FS_DEV;},0);const FS_DEV={ // for tests: render sounds and music offline. score: [[sec,"sfxname",opts]] and [sec,"mood",{lv,tense,bad}]
   async render(score,secs,{wav=false}={}){const sr=44100,ctx=new OfflineAudioContext(2,Math.ceil(secs*sr),sr),b=fsBus(ctx,ctx.destination);b.mus.gain.value=.45;
     const ev=[...score].sort((x,y)=>x[0]-y[0]);let S=null,m={lv:.3,tense:false,bad:false};
@@ -5395,6 +5411,15 @@ setTimeout(()=>{if(devPlay())window.__fsnd=FS_DEV;},0);const FS_DEV={ // for tes
       for(let i=0;i<n;i++){dv.setInt16(44+i*4,Math.max(-1,Math.min(1,L[i]))*32767,true);dv.setInt16(46+i*4,Math.max(-1,Math.min(1,R[i]))*32767,true);}
       let bin="";const u8=new Uint8Array(dv.buffer);for(let i=0;i<u8.length;i+=32768)bin+=String.fromCharCode.apply(null,u8.subarray(i,i+32768));res.wav=btoa(bin);}
     return res;},
+  async renderCrash(){const sr=44100,secs=27,ctx=new OfflineAudioContext(2,secs*sr,sr),T=[[0,"zap"],[.4,"rocket"],[1.1,"boom"],[1.3,"zap"],[1.9,"zap"],[2.2,"rocket"],[2.9,"boom"],[3.4,"zap"],[4,"rocket"],[4.7,"boom"],
+      [5.2,"zap"],[6,"rocket"],[6.7,"boom"],[7.5,"struck"],[10,"fall",{ms:10500}],[20.5,"impact"]];FS.off=fsBus(ctx,ctx.destination);
+    try{for(const [w,k,o] of T)ctx.suspend(w+.05).then(()=>{try{crashSnd(k,o);}finally{ctx.resume();}},()=>{});const buf=await ctx.startRendering();return FS_DEV.wav(buf);}finally{FS.off=null;}},
+  wav(buf){const L=buf.getChannelData(0),R=buf.getChannelData(1),sr=buf.sampleRate,n=L.length;let pk=0,nan=0;for(let i=0;i<n;i++){const v=Math.max(Math.abs(L[i]),Math.abs(R[i]));if(!(v===v))nan++;else if(v>pk)pk=v;}
+    const dv=new DataView(new ArrayBuffer(44+n*4)),w=(o,str)=>{for(let i=0;i<str.length;i++)dv.setUint8(o+i,str.charCodeAt(i));};
+    w(0,"RIFF");dv.setUint32(4,36+n*4,true);w(8,"WAVEfmt ");dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,2,true);dv.setUint32(24,sr,true);dv.setUint32(28,sr*4,true);dv.setUint16(32,4,true);dv.setUint16(34,16,true);w(36,"data");dv.setUint32(40,n*4,true);
+    for(let i=0;i<n;i++){dv.setInt16(44+i*4,Math.max(-1,Math.min(1,L[i]))*32767,true);dv.setInt16(46+i*4,Math.max(-1,Math.min(1,R[i]))*32767,true);}
+    let bin="";const u8=new Uint8Array(dv.buffer);for(let i=0;i<u8.length;i+=32768)bin+=String.fromCharCode.apply(null,u8.subarray(i,i+32768));
+    return {peak:Math.round(200*Math.log10(pk||1e-9))/10,nan,len:buf.duration,wav:btoa(bin)};},
   state:()=>({music:!!FS.mus,mood:FS.mus&&FS.mus.mood,lv:FS.mus&&FS.mus.lv,bus:!!FS.b})};
 function fsFightStart(){if(!opt.sound)return;fsSfx("init");setTimeout(()=>{if(B&&!B.over&&PLAY.on)fsMusicStart();},1600);}
 function fsFightEnd(out){fsMusicStop(1.2);if(out==="win"||out==="lose")fsSfx(out,{d:.3});}
