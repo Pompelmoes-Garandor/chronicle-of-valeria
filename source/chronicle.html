@@ -293,7 +293,11 @@ table.ans td,table.ans th{border-bottom:1px solid #c9a35c22;padding:6px 4px;text
 .ic-flash.ic-beat{box-shadow:inset 0 0 70px 18px #000d}
 .ic-card{position:absolute;inset:0;z-index:3;display:grid;place-items:center;text-align:center;padding:24px 20px;cursor:pointer;background:radial-gradient(ellipse at center,#0a0c10f0,#0a0c10fd)}
 .ic-card .ic-lb{position:absolute;left:0;right:0;height:11%;background:#000;pointer-events:none}.ic-card .ic-lb:first-child{top:0}.ic-card .ic-lb:nth-child(2){bottom:0}
-.ic-card .ic-in{max-width:520px}
+.ic-card .ic-in{max-width:520px;position:relative;z-index:2}.ic-card .ic-lb{z-index:1}
+.ic-card.has-pic{background:#0a0c10}.ic-card .ic-pic{position:absolute;inset:0;z-index:0;background:center/cover no-repeat;opacity:.9;animation:icPic 1.4s ease-out both,icZoom 9s ease-out both;pointer-events:none}.ic-card.has-pic .ic-in{text-shadow:0 1px 3px #000,0 0 18px #000c}
+.ic-card .ic-pic::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 55% 50% at center,#0a0c10b8 0%,#0a0c1070 60%,#0a0c1018 100%)}
+@keyframes icPic{from{opacity:0}}@keyframes icZoom{from{transform:scale(1.06)}}
+@media (prefers-reduced-motion:reduce){.ic-card .ic-pic{animation:none}}
 .ic-card .ic-eye{font:400 12px/1.4 var(--mono);letter-spacing:.3em;color:var(--steward);text-transform:uppercase}
 .ic-card .ic-t{font:400 clamp(32px,8vw,58px)/1.05 var(--display);color:var(--parch);margin:10px 0 14px;text-wrap:balance}
 .ic-card .ic-rule{width:120px;height:1px;margin:0 auto 14px;background:linear-gradient(90deg,transparent,var(--brass),transparent)}
@@ -8623,7 +8627,8 @@ async function dialogue(intro,qs,{spk,enough="Enough talking",min=0}={}){const u
 async function crewCheck(id,skill,dc,{adv=false,dis=false,label}={}){const mod=skillMod(id,skill);return crewRoll(id,label||cap(skill),mod,dc,{adv,dis});}
 
 /* ---- painted backdrops for the story scenes ---- */
-function paintArt(cv,kind){if(IART[kind])return paintInterludeArt(cv,kind);const g=cv.getContext("2d"),W=cv.width,H=cv.height,R=seeded(kind.length*131+7),rr=(a,b)=>a+(b-a)*R();
+function paintArt(cv,kind){if(IART[kind])return paintInterludeArt(cv,kind);cv.__ia=(cv.__ia||0)+1;cv.__iak=""; // a still picture: any moving one that was here stops
+  const g=cv.getContext("2d"),W=cv.width,H=cv.height,R=seeded(kind.length*131+7),rr=(a,b)=>a+(b-a)*R();
   const root=(x,y,ang,len,w,col,step=14)=>{g.strokeStyle=col;g.lineWidth=w;g.lineCap="round";g.beginPath();g.moveTo(x,y);for(let i=0;i<len;i++){ang+=rr(-.45,.45);const nx=x+Math.cos(ang)*step,ny=y+Math.sin(ang)*step;g.quadraticCurveTo((x+nx)/2+rr(-4,4),(y+ny)/2+rr(-4,4),nx,ny);x=nx;y=ny;}g.stroke();};
   const glow=(x,y,r,c)=>{const gr=g.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,c);gr.addColorStop(1,c.slice(0,7)+"00");g.fillStyle=gr;g.fillRect(0,0,W,H);};
   const P={hans:["#0a0d12","#19202a"],cave:["#0b0a09","#25211c"],heart:["#060807","#18261a"],father:["#0a0b0c","#262019"],stone:["#0b0c0d","#23272a"],road:["#060b08","#13261a"],forest:["#1c1407","#5a4417"],tree:["#070b16","#1a2438"],dawn:["#1a1220","#5a3a3a"]}[kind]||["#0b0d12","#1b1f27"];
@@ -9020,7 +9025,31 @@ function iaFire(W,H,R){const rr=(a,b)=>a+(b-a)*R(),a=ia_cv(W,H),g=a.getContext("
     g.globalCompositeOperation="source-over";g.drawImage(vig,0,0);};}
 
 const IART={memory:iaMemory,patron:iaPatron,prayer:iaPrayer,fire:iaFire};
-function paintInterludeArt(cv,kind){const W=cv.width,H=cv.height,g=cv.getContext("2d"),draw=IART[kind](W,H,seeded(kind.length*977+kind.charCodeAt(0)*31));
+/* painted pictures (source/art/interlude-*.webp, made in Draw Things on Sam's Mac). Once a file has loaded it takes the place of the picture drawn in code,
+   and the light still breathes and the ash still falls over it. Until then, or if the file is missing, the drawn picture stays. */
+const IPICT={memory:{src:"art/interlude-katy.webp",lx:.12,ly:.66,col:"#ffc070",r:.5,ash:0,sp:1},
+  patron:{src:"art/interlude-saphira.webp",lx:.64,ly:.44,col:"#b49cff",r:.22,ash:1,sp:.35},
+  prayer:{src:"art/interlude-stig.webp",lx:.355,ly:.68,col:"#ffc070",r:.42,ash:1,sp:.8},
+  fire:{src:"art/interlude-together.webp",lx:.51,ly:.68,col:"#ff9a40",r:.5,ash:-1,sp:1.4}};
+const IPIC={};
+function iPic(kind){const P=IPICT[kind];if(!P)return null;let im=IPIC[kind];
+  if(!im){im=IPIC[kind]=new Image();im.decoding="async";
+    im.onload=()=>document.querySelectorAll("canvas").forEach(c=>{if(c.__iak===kind&&c.isConnected)try{paintInterludeArt(c,kind);}catch(e){}});
+    im.src=P.src;}
+  return im.complete&&im.naturalWidth?im:null;}
+function iaPainted(W,H,R,im,P){const base=ia_cv(W,H),b=base.getContext("2d"),iw=im.naturalWidth,ih=im.naturalHeight,ca=W/H,sw=iw/ih>ca?ih*ca:iw,sh=iw/ih>ca?ih:iw/ca;
+  b.imageSmoothingQuality="high";b.drawImage(im,(iw-sw)/2,(ih-sh)/2,sw,sh,0,0,W,H);
+  const X=P.lx*W,Y=P.ly*H,rr=(a,c)=>a+(c-a)*R(),k=W/960;
+  const bits=Array.from({length:P.ash?40:14},()=>({x:rr(0,W),o:rr(0,1),p:rr(10,20)/P.sp,s:rr(.8,2.2)*k,sw:rr(6,24)*k,ph:rr(0,6.3)}));
+  return (g,t)=>{g.drawImage(base,0,0);const f=ia_fl(t,1);
+    g.globalCompositeOperation="lighter";ia_glow(g,X,Y,H*P.r*f,[[0,ia_a(P.col,.14*f)],[.45,ia_a(P.col,.05)],[1,ia_a(P.col,0)]]);
+    for(const q of bits){const ph=ia_wrap(t/q.p+q.o,0,1),x=q.x+Math.sin(t*.4*P.sp+q.ph)*q.sw,a=Math.sin(ph*Math.PI);
+      if(P.ash<0){const y=H*(1-ph);g.globalCompositeOperation="lighter";g.fillStyle=ia_a(ph<.5?"#ffc070":"#ff7a30",.7*a*(1-ph));g.beginPath();g.arc(X+(q.x-W/2)*.35+Math.sin(t+q.ph)*q.sw,y,q.s,0,7);g.fill();}
+      else if(P.ash>0){g.globalCompositeOperation="source-over";g.fillStyle=ia_a("#b8b0a6",.42*a);g.beginPath();g.ellipse(x,ph*H,q.s*1.3,q.s*.8,t*.3+q.ph,0,7);g.fill();}
+      else{g.globalCompositeOperation="lighter";g.fillStyle=ia_a("#ffe2b0",.25*a);g.beginPath();g.arc(x,H*(.15+.7*((q.o+ph*.2)%1)),q.s*.7,0,7);g.fill();}}
+    g.globalCompositeOperation="source-over";};}
+function paintInterludeArt(cv,kind){const W=cv.width,H=cv.height,g=cv.getContext("2d"),S=seeded(kind.length*977+kind.charCodeAt(0)*31),pic=iPic(kind);cv.__iak=kind;
+  const draw=pic?iaPainted(W,H,S,pic,IPICT[kind]):IART[kind](W,H,S);
   const id=cv.__ia=(cv.__ia||0)+1,t0=performance.now(),gap=typeof SMALL!=="undefined"&&SMALL?39:32;let last=-1e9;
   const frame=t=>{g.save();draw(g,t);g.restore();};frame(3.7);
   if(reduced)return;
@@ -9870,9 +9899,10 @@ function iApply(S,c){const ms=reduced?0:(c.ms||0);storyEl.style.setProperty("--i
   if("cam" in c&&typeof iCam==="function")iCam(c.cam);if(c.chap&&typeof iChap==="function")iChap(c.chap);if(c.shake&&typeof iShake==="function")iShake(c.shake);}
 /* the title card: the interlude's name, whose it is, one line of mood; letterbox in, tap to begin */
 function iTitle(I){const T=INTERLUDE_TEXT[I.id]||(typeof BONUS_TEXT!=="undefined"&&BONUS_TEXT[I.id])||{},who=I.who==="all"?PCS.map(c=>CREW[c].short).join(" · "):(CREW[I.who]||{}).name||"";
-  const card=h("div",{class:"ic-card",role:"button",tabindex:"0","aria-label":(T.title||"Interlude")+". Tap to begin."},h("i",{class:"ic-lb"}),h("i",{class:"ic-lb"}),
+  const card=h("div",{class:"ic-card"+(IPICT[I.art]?" has-pic":""),role:"button",tabindex:"0","aria-label":(T.title||"Interlude")+". Tap to begin."},h("i",{class:"ic-lb"}),h("i",{class:"ic-lb"}),
     h("div",{class:"ic-in"},h("div",{class:"ic-eye"},I.eye||"Interlude"),h("div",{class:"ic-t"},T.title||""),h("div",{class:"ic-rule"}),h("div",{class:"ic-who"},who),
-      IMOOD[I.id]?h("p",{class:"ic-mood"},IMOOD[I.id]):null,h("div",{class:"ic-tap"},"tap to begin")));
+      IMOOD[I.id]?h("p",{class:"ic-mood"},IMOOD[I.id]):null,h("div",{class:"ic-tap"},"tap to begin")),
+    IPICT[I.art]?h("i",{class:"ic-pic","aria-hidden":"true",style:`background-image:url(${IPICT[I.art].src});background-position:${Math.round(IPICT[I.art].lx*100)}% center`}):null); // the painting behind the name; without the file, the dark card as before
   let done=false;const key=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go();}};
   const go=()=>{if(done)return;done=true;clearTimeout(t);removeEventListener("keydown",key,true);card.classList.add("out");setTimeout(()=>card.remove(),reduced?0:460);};
   card.onclick=go;addEventListener("keydown",key,true);const t=setTimeout(go,PLAY.auto?1200:3000);stage.append(card);}
