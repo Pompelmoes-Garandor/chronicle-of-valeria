@@ -36,6 +36,7 @@ Top of the list is what to work on next.
 
 ## Next
 
+- [ ] **Sam answers the proofread's open lore calls** · Lore · Sam · Needs Sam. From the 2026-11-10 proofread (full list in the project files, `proofread-2026-11-10/chronicle-proofread.md`): the writer's-rules banned-word lists at the top of the public Saphira and Stig interlude scripts; Matthew's private question quoted in Stig's interlude; one expiry rule for Echoes (scripts disagree, the card says none); the `[SAM?]` lines players read as canon (Elodie's third verse and others); fire vs lamp and where Katy sits across the interludes; "Old Valarius"; session 4 pinned at Orda; the bootprints glint; *Kept the vessel* on the Protocol Zero end card. Smaller wording fixes in the same file can go in one PR after.
 - [ ] **People directory** · New · either · Needs Sam. A list of the people the crew has met (Gerda, Thorn, Pieter-Bas, Teenoog, Calysta...), next to Places. Each player keeps how they feel about them (−10 to +10) and a note, saved on their own device like sheet edits.
 - [ ] **Richer place records** · New · either · Needs Sam. Add region and controlling faction to the places database (Order of the Seal for Orda and the Crow's Nest), and a "Mentioned in" list on each place: sessions, people and places that refer to it.
 

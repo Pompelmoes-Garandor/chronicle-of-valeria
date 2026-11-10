@@ -23,7 +23,7 @@ INTEGRITY 61%
 PLAY? ▮
 ```
 
-"It's him," Hans says quietly. "The one who flew you. I have only ever heard his last line. This is more of it." A pause. "I'll play it. You'll have to be him. I can't. I'd turn the volume up."
+"It's the Steward," Hans says quietly. "The one who flew you. I have only ever heard its last line. This is more of it." A pause. "I'll play it. You'll have to be the Steward. I can't. I'd turn the volume up."
 
 → Play (go to P2)
 
@@ -526,14 +526,14 @@ INTEGRITY 61%.
 
 Hans doesn't say anything for a long time.
 
-"He kept the painting," he says at last. It is nearly a laugh. Then, very quietly: "He kept the bread." "Everything he was before them, he let go. And he kept the bread."
+"It kept the painting," he says at last. It is nearly a laugh. Then, very quietly: "It kept the bread. Everything it was before them, it let go. And it kept the bread."
 
-"That's all of it," he says. "That's all it'll give me." A pause. "He moved the whole ship. With his own core. I didn't know we could do that."
+"That's all of it," he says. "That's all it'll give me." A pause. "It moved the whole ship. With its own core. I didn't know we could do that."
 
 Another pause. "I'm not going to try it. In case you were wondering."
 
 A faint four-note beep from the box in his chest, slow.
 
-"I told you on the map I'd played his last line back eleven times," Hans says. "Twelve."
+"I told you on the map I'd played its last line back eleven times," Hans says. "Twelve."
 
 → The end (go to @end)

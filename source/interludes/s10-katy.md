@@ -200,7 +200,9 @@ Not his words. You know his now. These are different, and they are hers. You can
 *Foxglove bells over the sleeping roots,*
 *my little one, the night is long;*
 *and should I go where the bells don't ring,*
-*you'll find me waiting in the song.* [SAM?: Elodie's own third verse, new canon. Safer last line if this feels like a promise: "I'll hum you home the whole way long."]
+*you'll find me waiting in the song.*
+
+[SAM?: Elodie's own third verse, new canon. Safer last line if this feels like a promise: "I'll hum you home the whole way long."]
 
 She sings it twice. The second time she changes nothing. She has decided.
 

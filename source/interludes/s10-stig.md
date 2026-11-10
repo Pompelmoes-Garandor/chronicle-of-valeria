@@ -48,7 +48,7 @@ Someone is waiting for an answer. Not yet. First you have to set this down somew
 Where do you turn?
 
 → The tattoo on your arm: Kelemvor's Blessing. (go to G3a)
-→ Talmir's Anchor, and the tide you believe in. (go to G3b)
+→ Thalmir's Anchor, and the tide you believe in. (go to G3b)
 → Neither. The booklet. (go to G3c)
 
 ## G3a. The judge
@@ -91,7 +91,7 @@ It doesn't make the stone in your boot any lighter. It makes it fair.
 
 ## G3b. The tide
 
-Your hand closes on Talmir's Anchor. You hold it the way you'd hold a rail in bad weather.
+Your hand closes on Thalmir's Anchor. You hold it the way you'd hold a rail in bad weather.
 
 Thalmir, of tides and community. The crew heard a voice once, deep in the monastery vault, that said the vaults delay the end but do not prevent it. You've thought about that voice more than you've told anyone. [SAM?: Thalmir as the god Stig prays to, linked to Talmir's Anchor]
 
@@ -329,7 +329,7 @@ You sit down beside him, and for a moment you don't say anything at all. Across 
 ## Whom he prayed to (first line of every "Sent to Sam", from G2)
 
 - **Kelemvor (G3a):** Hans noted: the cleric prays to Kelemvor when it is bad. He does it with his eyes shut and his jaw tight.
-- **Thalmir (G3b):** Hans noted: the cleric prays to Thalmir, of the tides, when it is bad. He does it with his eyes shut and his jaw tight. [SAM?] Also sent: the memory of a night watch on a trading ship as a teenager, many hands on one line. [SAM?: Sam or Stig's player can strike it]
-- **The booklet (G3c):** Hans noted: the cleric does not always pray when it is bad. Sometimes he reads. His lips move. Also sent: the line from the front of *Control over Water*, "I only go out so I can come back in." [SAM?]
+- **Thalmir (G3b):** Hans noted: the cleric prays to Thalmir, of the tides, when it is bad. He does it with his eyes shut and his jaw tight. He remembered a night on a trading ship. Many hands on one line. [SAM?: Sam or Stig's player can strike the ship line]
+- **The booklet (G3c):** Hans noted: the cleric does not always pray when it is bad. Sometimes he reads. His lips move. He read one line out: "I only go out so I can come back in." [SAM?]
 
 **Never sent:** what his blood told Stig, whether Stig keeps the secret, or anything about why Stig's tattoo reacts to the ash.
