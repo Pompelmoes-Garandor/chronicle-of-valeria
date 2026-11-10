@@ -80,6 +80,15 @@ body{font-family:var(--body);font-size:16px;line-height:1.5;overflow:hidden;
 .pin.up .lbl{position:absolute;left:50%;bottom:calc(100% - 2px);transform:translateX(-50%)}
 .pin .lbl{transition:background .14s,opacity .25s}.pin.crowd .lbl{opacity:0;pointer-events:none}
 .pin:focus-visible{outline:2px solid var(--brass);outline-offset:2px;border-radius:4px}
+.pin.glint .lbl{display:none}
+.pin.glint .seal{width:16px;height:16px;border-radius:50%;background:radial-gradient(circle,#fffbe8 0 12%,#ffe39acc 24%,#ffcf6a33 46%,transparent 70%);box-shadow:none;animation:glint 2.6s ease-in-out infinite}
+.pin.glint .seal::before,.pin.glint .seal::after{content:"";position:absolute;left:50%;top:50%;width:18px;height:1.5px;margin:-.75px 0 0 -9px;background:linear-gradient(90deg,transparent,#fff6d6,transparent)}
+.pin.glint .seal::after{transform:rotate(90deg)}
+.pin.glint .seal{position:relative}
+.pin.glint.found .seal{opacity:.45;animation:none}
+.glint-file .scan{margin-top:10px}.glint-list{flex-wrap:wrap;gap:6px;margin-top:8px}.glint-list .btn{font-size:13px;padding:6px 10px}
+@keyframes glint{0%,100%{transform:scale(.55) rotate(0);opacity:.35}45%{transform:scale(1.1) rotate(45deg);opacity:1}60%{transform:scale(.8) rotate(60deg);opacity:.7}}
+@media (prefers-reduced-motion:reduce){.pin.glint .seal{animation:none}}
 .pin.party .seal{width:22px;height:22px;background:conic-gradient(from 45deg,var(--brass) 0 25%,var(--brass-dim) 0 50%,var(--brass) 0 75%,var(--brass-dim) 0);box-shadow:0 0 0 2px #000,0 0 14px #c9a35c88;border-radius:50%}
 .pin.party .lbl{color:var(--brass);font-size:13px;background:none;box-shadow:none;text-shadow:0 0 4px #000,0 0 8px #000}
 .pin.note .seal{width:12px;height:12px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--c);box-shadow:0 0 0 2px #000a}
@@ -2974,6 +2983,44 @@ function setNotePins(list){
   notePins.forEach(r=>{r.el.remove();pinEls.splice(pinEls.indexOf(r),1)}); notePins=[];
   for(const n of list){const r=mkPin({lon:n.lon,lat:n.lat,label:n.text.slice(0,40),aria:`${n.who}'s pin: ${n.text}`,onClick:()=>openNote(n)});r.el.classList.add("note");r.el.style.setProperty("--c",n.color);notePins.push(r);}
 }
+/* ---- secrets: small glints that only show up close (some only after dark). A tap and Hans decodes a scrambled fragment.
+   The fragments are kept encoded, so reading the page's code doesn't hand them out; they are hooks the table may follow later ---- */
+const GLINT_MIX="hans-listens";   // only scrambles the text so a glance at the code gives nothing away; not a secret
+const unglint=b=>{try{const k=new TextEncoder().encode(GLINT_MIX), raw=Uint8Array.from(atob(b),c=>c.charCodeAt(0)).map((v,i)=>v^k[i%k.length]);return new TextDecoder().decode(raw);}catch(e){return "";}};
+// [id, lon, lat, night only, who decodes it ("hans" or "steward"), the encoded captions, one blank line between them]
+const GLINTS=[
+  ["firetracks",-29.6,32.7,true,"hans","JggJG1lASRIARRobDUEoGl8JSSUVEAIHRkE6G0hMGhAVF04AHAgCHw0LBRwDFk4SSA0HB1kADF1ULABTHAkLU04DBh8RAU4fCRcPSQ0YGxIXDh1dSC0LEkkFBxRUChsHREEAHFlMAB1ab2QnBw5OEUQLSRUbF04HAAROEUweDV1UMQEcSAMHFA0KBgFUEQYWSAICFl8FCl1UMQEcSAMHFA0KBgFUCAtfSAAAFw0lSRIZRQwaD09OJEUNHRYCABxTHwAdU0seBgkRC04aBkEaG0wYSRoXAE4ECQ0FFklMCAQVHEBTPAkLU1keCBAfFk4WBgVOBEUJGxZUEQYWSBIAHFpMCxYTDAAARkE9HUIbSRAbEwsBG0EaG0QCDgBaRTobCRVOGl5MAAcHRQQcCk8="],
+  ["secondprocess",-14.3,15.3,false,"steward","OyQtPGMoSSMmKi02OzJOsZpMLyE1IiM2JjVkOnlMISY5NkBTLSgpO3lMKzImNkBTPCkrPQ0/PTwkNkB5YjIhPWpWST07MU46JkEvPXRMLzo4IEB5ISVUU3giIj07MiBdYjI6Mnk5OklUKScgPCQgOmMr"],
+  ["truename",-33.0,28.3,false,"hans","PAkLU2UFBR8HS046BkEaG0hMCx8VBgVTCg4WXw0bARYGAE4HAAROIFkJHhIGAU4fBwYJFklMHRsRRR0ECRMDXw0YARYGAE4aG0EPU0MNBBZaRSAcHEE6FkgCBhwTS04nAAAaU0QfSRwBF04dCQwLU0sDG1McDANdSCkHAA0eDBIYRQEdDU9kec/685Hi94/pzoP47c/6+FOW8/yS8sGM5bON89VaRT0QGgADEUEJDV1ULE4SBUEeElkFDB0AS046SBYHH0FMDhYARQcHRg=="],
+  ["handshake",-21.1,27.7,false,"steward","ICAgN34kKDgxRTw2KyQnJWgoYzU7NyMyPFtOIHkpPjImIUMwJCA9ICc/JiYmJitJSCAsPHspY3khKycnSCgqSQ2O/+mW8/yR/vBOW2MjPVNHUUd5OiQ9I2IiOjZORSA8JiROIGgiPQ=="],
+  ["lighthouse",44.4,-28.2,true,"hans","JggJG1lASRIXFwEAG0EaG0hMHhIAABxTDhMBHg0rGxoHFgYSHgQAXQ0tSR8dAgYHSA4AU1kEDFMXCg8AHE9OP0ICDl9UFgYcGhVCU14EBgEASU4fBw8JXQ0tDhIdC0BTKQYPGkNCY3kgDQtTJAgJG1kEBgYHAE4aG0EPU1kNHxYGC0JTIUEPHg0YBh8QS04nCRcLAUMfSRcbRQAcHEEbAFgNBR8NRQwfAQ8FXQ0lSRsVEwtTHxMHB1kJB1MADQtTGAAaB0geB1MQChkdRkEnU04NBx0bEU4BDQAKU0QYSQoREUA="],
+  ["blacksand",-4.4,-29.4,false,"hans","Ow4bB0VASRENRRobDUEMH0wPAl4HBAAXSAIPB0UJDQEVCUJTHAkLU1oFBxdUCQcVHBJOEUENChhUAhwSAQ8dU0IKD1MADQtTDAQdFl8YSRIaAU4QCRMcGkgfSQccAANTBg4cB0VCSScbEg8BDEEaG0hMLxoGAE4gDQBAeSc6CAoaAE4ECRJOPkwfHRYGRSwfCQIFU34NBxdaRTgSEQ8LU0QfSRcRBApdSDIPHUlMDRwRFk4dBxVOBl4ZCB8YHE4dDQQKU0xMBBIHEQsBRkE6G0QfSQAVCwpTDAgKXQ0/BlMDDQFTAAAdU0QYSR0bElE="],
+  ["bootprints",-27.0,29.1,false,"hans","LQAdBw0DD1MADQtTIAgCH15ASRoaRQEfDEEDBklWSREbChpTGBMHHVkfR1MnDQEBHE1OBEQIDF9UDQsSHhhAU2xMDQQVFwhUG0EMHEIYGl1+byEdDUEdFllASRsRBAoaBgZOB0IbCAEQRRobDUEdGkkJSRwSRRobDUEmGkEAGlMADQtTGxYPAUBMChIZAE4VGg4DXQ0lSRAbEAIXSA8BBw0YDB8YRRkbDRUGFl9MARZUEgsdHEEZGkEAAB0TCRddSChOBEIZBRdUCQcYDUEaHA0HBxwDSw=="],
+  ["tapping",-12.2,35.3,true,"hans","JggJG1lMAB1UKhwXCU9OJkMIDAFUEQYWSBILHV4DGwBUEQYSHEEGElkJSR4VAgcQREEdHEAJHRsdCwlTHAkLCg0IBlMaChpTBg4aGk4JU1MABB4DAQ8JXw0fHRwaAE4cBkEdB0ICDF9UAxwcBUEHHV4FDRZUEQYWSCIcHFpLGlM6AB0HRmtkJ0UeDBZYRRobDQ9OHEMJRVMADQsdSAcBBl9CSSAbCAscBgROGkMfABcRRQcASAIBBkMYAB0TS048GkEaEkEHAB0TS04wCQ0XAFkNSRIaAU42BAgPAA0bDAERRQYWBAVOG0geDF1ULE4XB0EAHFlMAh0bEk4EAA5OGl5MARYYAU4bDRMLU0MDHl0="]
+];
+const glintFound=new Set((store.get("chron-glints")||"").split(",").filter(Boolean));
+const glintPins=GLINTS.map(([id,lon,lat,night,voice,enc])=>{
+  const r=mkPin({lon,lat,label:"",aria:"Something glints here",onClick:()=>readGlint(r)});
+  Object.assign(r,{glint:{id,night,voice,enc}}); r.el.classList.add("glint"); r.el.classList.toggle("found",glintFound.has(id)); return r;});
+function glintShown(r){
+  if(sealed||viewS<AS_OF||cam.zoom>0.14) return false;
+  return !r.glint.night||sphDir(r.lon,r.lat).dot(uniforms.uSun.value)<-0.08;
+}
+function readGlint(r){
+  const g=r.glint, lines=unglint(g.enc).split("\n\n").filter(Boolean); if(!lines.length) return;
+  const isNew=!glintFound.has(g.id); glintFound.add(g.id); store.set("chron-glints",[...glintFound].join(",")); r.el.classList.add("found");
+  const who=g.voice==="steward"?"BLACK BOX · FRAGMENT":"HANS · SCRAMBLED FRAGMENT";
+  cine(lines.map((text,i)=>({who,voice:g.voice==="steward"?"steward":undefined,glitch:g.voice==="steward",text,
+    done:i===lines.length-1&&isNew?()=>toast(`Hans: fragment ${glintFound.size} of ${GLINTS.length} recovered.`):undefined})));
+}
+// in Hans's files: how many fragments this device has found, and the found ones to hear again (the rest stay unnamed)
+function glintFile(){
+  const got=GLINTS.map((g,i)=>[g,glintPins[i]]).filter(([g])=>glintFound.has(g[0])), all=GLINTS.length;
+  const name=g=>{const t=unglint(g[5]).split(/\n|\. /)[0].replace(/\.$/,""); return t.length>44?t.slice(0,44).replace(/,[^,]*$/,"")+"…":t;};
+  return h("div",{class:"glint-file"},
+    h("div",{class:"scan",html:`SCRAMBLED FRAGMENTS: ${got.length} OF ${all}<br>`+(got.length<all?"THE REST: OUT ON THE MAP. UP CLOSE ONLY. SOME ONLY AFTER DARK":"ALL RECOVERED. READING THEM: PENDING")}),
+    got.length?h("div",{class:"row-btns glint-list"},got.map(([g,r])=>h("button",{class:"btn ghost",type:"button",onclick:()=>readGlint(r)},name(g)))):null);
+}
 const v3=new THREE.Vector3();
 // labels make room: where two would touch, the less important one drops its name (the seal stays);
 // nothing is drawn under the header plate, the dock, the tools or an open panel, and no name runs off the screen
@@ -2996,6 +3043,7 @@ function updatePins(){
     if(r===partyPin&&(RP_NEW.length?trailNew.geometry.drawRange.count<=1:uniforms.uReveal.value<0.9)) vis=false;
     if(r.place&&viewS<AS_OF){const f=firstS(r.place); if(f>viewS||(f===viewS&&uniforms.uReveal.value<0.55)) vis=false;}
     if(r.place&&r.place.id==="inn"&&cam.zoom>0.3) vis=false;
+    if(r.glint&&!glintShown(r)) vis=false;
     v3.copy(p).project(camera);
     if(v3.z>1||Math.abs(v3.x)>1.2||Math.abs(v3.y)>1.2) vis=false;
     const x=(v3.x*.5+.5)*w, y=(-v3.y*.5+.5)*h;
@@ -3005,7 +3053,7 @@ function updatePins(){
     if(!r.sc){const sl=r.el.querySelector(".seal");r.sc=sl.offsetTop+sl.offsetHeight/2;r.sh=sl.offsetHeight;}
     r.el.style.transform=`translate(${x}px,${y}px) translate(-50%,${-(r.sc||11)}px)`;
     const far=cam.zoom>0.55&&m<0.5;
-    const small=!!((r.place&&(r.place.minor&&cam.zoom>0.4||(!r.place.major&&far)))||(r.el.classList.contains("note")&&cam.zoom>0.5));
+    const small=!!(r.glint||(r.place&&(r.place.minor&&cam.zoom>0.4||(!r.place.major&&far)))||(r.el.classList.contains("note")&&cam.zoom>0.5));
     r.el.classList.toggle("small",small);
     shown.push({r,x,y,small,rank:PIN_RANK(r)});
   }
@@ -4296,7 +4344,7 @@ function showChronicle(){
     h("p",{class:"eyebrow"},"WHAT THE PARTY CARRIES"),
     h("p",{class:"small voice"},"The black box from the ship, now inside me. The ring and booklet of Vayne and a green bracelet, all still to identify. The ash blade +1. A towel that drinks 200 litres. The Vial of Dragon's Fire. I have catalogued all of it. Twice."),
     h("p",{class:"eyebrow"},"HANS'S FILES"),
-    h("div",{class:"scan",html:"STIG, THE CLERIC<br>ORIGINS: MYRATMA, THE PAPER SAYS. A MONASTERY. SHIPS.<br>THE REST: ANALYZING<span class='cur'></span>"})],"chronicle");
+    h("div",{class:"scan",html:"STIG, THE CLERIC<br>ORIGINS: MYRATMA, THE PAPER SAYS. A MONASTERY. SHIPS.<br>THE REST: ANALYZING<span class='cur'></span>"}),glintFile()],"chronicle");
 }
 
 /* =================== CHARACTER SHEETS =================== */
