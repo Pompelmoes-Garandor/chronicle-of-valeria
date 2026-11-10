@@ -22,6 +22,7 @@ Things that are wrong on the live site today. Check this list before **Now**: a 
 - **Severity**: **blocker** (the table can't use the site), **annoying** (works, but gets in the way), **cosmetic** (looks off).
 - Anyone at the table can report a bug to Sam or Niels; whoever hears it adds it here. Fixing one is a **Fixed** line in the patch notes, and the bug moves to **Done**.
 
+- [ ] **The map may slow to a crawl in Safari after a few minutes** · annoying, unconfirmed · Map, Safari and iPhone (WebKit) · Found in the 2026-11-10 play-test on Sam's Mac: in Playwright's WebKit the globe falls from ~60 to ~2 fps after jumping between a dozen views (night, wind, sea), even with the lens and paint off, while each view alone holds 40-60 fps. Chromium stays at 40-77. Not yet seen in the real Safari app: open `?fps`, move around for two minutes and compare the numbers at the start and end.
 - [ ] **Saphira's Passive Perception doesn't add up** · cosmetic · Characters, Saphira · Her paper says Passive Perception 15, but her Perception skill is +4, which gives 14. The sheet shows the paper's 15. Lore question for Sam: which number is right?
 
 ## Now
