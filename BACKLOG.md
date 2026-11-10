@@ -59,6 +59,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Session 10 on the map: recap, The Heart's cave, seal opened** · Lore · Sam · PR #81
 - [x] **Protocol Zero: the galley portrait as a real oil painting (image file in `art/`, code painting as fallback)** · Changed · Sam · PR #80
 - [x] **Saphira follows the 2014 bonus-action spell rule in the fights** · Changed · Sam · PR #78
 - [x] **One spell slot per turn for Katy and Stig in the fights (Saphira keeps the older rules)** · Changed · Sam · PR #77
