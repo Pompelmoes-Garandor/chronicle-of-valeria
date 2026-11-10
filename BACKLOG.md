@@ -48,6 +48,8 @@ Top of the list is what to work on next.
 - [ ] **Map beside the recap on desktop** · Changed · either · Put the recap text next to the globe instead of over it, as Craft does with its map.
 - [ ] **Live online storage** · New · Sam and Niels · Needs Sam. Shared tags, notes and trackers for everyone at once through a hosted database (Firebase or Supabase), with sign-in limited to the table. Breaks two house rules (no new libraries, player data stays on the device), so only if both agree.
 
+- [ ] **Sound outside the fights** · New · either · The crash cinematic is silent; the map and recap have no music (only a soft soundscape, off by default); the map and play mode each have their own sound switch and there is no volume. Next step after the fight music.
+
 ## Ideas parked
 
 Not planned. Kept so nobody re-proposes them without a reason.
@@ -61,6 +63,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 Newest first, with the PR that shipped it.
 
 - [x] **Painted foe portraits in the interlude fights (ribbon, panel, targets, flat tokens, first-sight card), Round the Fire repainted** · New · Sam · PR #84
+- [x] **Fight music (dark folk, follows the battle) and a sound for every weapon, element, crit, heal and fall** · New · Sam · PR #86
 - [x] **Secrets on the map: eight glints with plot hooks Hans decodes** · New · Sam · PR #83
 - [x] **Interludes: real paintings for the four title cards and story pictures (image files in `art/`, code paintings as fallback)** · Changed · Sam · PR #82
 - [x] **Session 10 on the map: recap, The Heart's cave, seal opened** · Lore · Sam · PR #81
