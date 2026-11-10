@@ -129,4 +129,11 @@ if os.path.isdir(art):
     for n in sorted(os.listdir(art)):
         if n.endswith(".webp"):
             shutil.copy(os.path.join(art, n), os.path.join(a.out, "art", n))
+# sculpted minis (source/minis/*.glb): copied as is into the site's minis/ folder
+minis = os.path.join(os.path.dirname(os.path.abspath(a.src)), "minis")
+glbs = sorted(n for n in os.listdir(minis) if n.endswith(".glb")) if os.path.isdir(minis) else []
+if glbs:
+    os.makedirs(os.path.join(a.out, "minis"), exist_ok=True)
+    for n in glbs:
+        shutil.copy(os.path.join(minis, n), os.path.join(a.out, "minis", n))
 print("built", a.out, "session", as_of, "base", base)

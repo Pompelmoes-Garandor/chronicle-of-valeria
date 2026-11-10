@@ -4555,9 +4555,11 @@ function showSheets(keep){
     s.empty&&!nEd?h("div",{class:"scan",html:s.empty}):null,
     sec("head","",h("h3",{class:"cs-name",style:`color:${hex}`},s.name),h("p",{class:"cs-line"},s.line),s.alias?h("p",{class:"note"},s.alias):null,h("p",{class:"roll-hint"},"TAP A SKILL, SAVE OR ATTACK TO ROLL")),
     echoNode(cur),
-    AV_BASE[cur]?(()=>{const pic=AVGL?AVGL.portrait(cur):null,lk=avOf(cur),R=AV_RACES[lk.race];return h("div",{class:"cs-mini"},pic?h("img",{src:pic,alt:s.name+"'s mini"}):null,
-      h("div",{},lk.desc?h("p",{class:"cs-own"},h("span",{class:"eyebrow"},"IN THEIR OWN WORDS"),lk.desc):h("p",{class:"note"},R.n+". No description yet."),
-        h("button",{class:"btn ghost",type:"button",onclick:()=>{avDraft=null;showMini(cur);}},avPainted(cur)?"Repaint your mini":"Make your mini")));})():null,
+    AV_BASE[cur]?(()=>{const pic=AVGL?AVGL.portrait(cur):null,lk=avOf(cur),R=AV_RACES[lk.race],cut=AVGL&&AVGL.sculpt(cur),im=pic?h("img",{src:pic,alt:s.name+"'s mini"}):null;
+      if(im&&cut&&!AVGL.sculpted(cur))AVGL.ready(cur).then(G=>{if(G&&im.isConnected){const p2=AVGL.portrait(cur);if(p2)im.src=p2;}}); // the sculpt lands a moment later
+      return h("div",{class:"cs-mini"},im,
+      h("div",{},lk.desc?h("p",{class:"cs-own"},h("span",{class:"eyebrow"},"IN THEIR OWN WORDS"),lk.desc):h("p",{class:"note"},cut?"No description yet.":R.n+". No description yet."),
+        h("button",{class:"btn ghost",type:"button",onclick:()=>{avDraft=null;showMini(cur);}},cut?"See your mini":avPainted(cur)?"Repaint your mini":"Make your mini")));})():null,
     sec("vit","COMBAT",statTop,...hpNodes),
     sec("ab","ABILITIES · SAVES",abilBlock),
     sec("lvl6","SESSION "+NEXT+" · LEVEL 6",s.lvl6?h("p",{class:"small"},s.lvl6):empty("Not decoded yet. Tap edit when the new page is in.")),
@@ -4680,35 +4682,35 @@ function showMini(id){
   const picks=h("div",{class:"chips cs-picks",role:"group","aria-label":"Whose mini"},AV_IDS.map(c=>h("button",{type:"button",class:"chip cs",style:`--c:${SHEET_HEX[c]}`,"aria-pressed":String(c===id),
       onclick:()=>{avDraft=null;showMini(c);}},SHEETS[c]?SHEETS[c].name.split(" ")[0]:c)));
   const bench=h("div",{class:"av-bench",style:`--c:${hex}`});
-  const online=avMayStore(id);
+  const online=avMayStore(id),cut=!!(AVGL&&AVGL.sculpt(id)); // cut: sculpted from a painting, so no paint pots
   const nodes=[
     h("p",{class:"eyebrow m"},"HANS'S WORKSHOP · YOUR MINI"),
-    h("p",{class:"small voice"},"Hold still. I paint what you tell me, and I put it on the table for every fight."),
+    h("p",{class:"small voice"},cut?"Hold still. I sculpted this one from your painting, and it stands on the table in every fight.":"Hold still. I paint what you tell me, and I put it on the table for every fight."),
     picks,bench,
     h("p",{class:"note av-hint"},"Drag the mini to turn it."),
-    grp("RACE",h("div",{class:"chips",role:"group","aria-label":"Race"},Object.entries(AV_RACES).map(([k,R])=>h("button",{type:"button",class:"chip","aria-pressed":String(L.race===k),
+    cut?null:grp("RACE",h("div",{class:"chips",role:"group","aria-label":"Race"},Object.entries(AV_RACES).map(([k,R])=>h("button",{type:"button",class:"chip","aria-pressed":String(L.race===k),
         onclick:()=>{const was=AV_RACES[L.race]||{};L.race=k;if(R.skin)L.skin=R.skin[0];else if(was.skin)L.skin=AV_BASE[id].skin;if(R.beard&&L.beard==="none")L.beard=R.beard;redo();showMini(id);}},R.n)))),
-    grp("BODY",slider("h",.7,.86,"Short","Tall"),slider("bulk",.85,1.2,"Slight","Broad"),sw("skin",[...(RC.skin||[]),...AV_PAL.skin])),
-    grp("HEAD",chips("hood",[[false,"Hood down"],[true,"Hood up"]]),RC.bald?null:chips("style",AV_STYLES),RC.bald?null:sw("hair",AV_PAL.hair),RC.snout?null:chips("beard",AV_BEARDS),
+    cut?null:grp("BODY",slider("h",.7,.86,"Short","Tall"),slider("bulk",.85,1.2,"Slight","Broad"),sw("skin",[...(RC.skin||[]),...AV_PAL.skin])),
+    cut?null:grp("HEAD",chips("hood",[[false,"Hood down"],[true,"Hood up"]]),RC.bald?null:chips("style",AV_STYLES),RC.bald?null:sw("hair",AV_PAL.hair),RC.snout?null:chips("beard",AV_BEARDS),
       h("p",{class:"note"},"Eyes"),sw("iris",AV_PAL.iris,"Dark"),
       h("p",{class:"note"},"Glowing eyes"),sw("eyes",AV_PAL.eyes,"No glow")),
-    grp(id==="stig"?"ARMOUR AND CLOTHES":"CLOTHES",h("p",{class:"note"},id==="stig"?"Plate":"Tunic"),sw("cloth",AV_PAL.cloth),
+    cut?null:grp(id==="stig"?"ARMOUR AND CLOTHES":"CLOTHES",h("p",{class:"note"},id==="stig"?"Plate":"Tunic"),sw("cloth",AV_PAL.cloth),
       h("p",{class:"note"},"Cloak"),sw("cloak",AV_PAL.cloth,"No cloak"),
       id==="stig"?null:h("p",{class:"note"},"Trousers"),id==="stig"?null:sw("pants",AV_PAL.cloth),
       h("p",{class:"note"},"Boots"),sw("boots",AV_PAL.cloth)),
     grp("IN YOUR OWN WORDS",h("textarea",{class:"av-desc",rows:"4",maxlength:"600","aria-label":"How you describe your character",
         placeholder:"How does "+name.split(" ")[0]+" look? Age, height, eyes, hair, scars, what they wear. Your words, not mine.",oninput:ev=>{L.desc=ev.currentTarget.value;}},L.desc||""),
-      h("p",{class:"note"},"Shown on the sheet next to the portrait.")),
+      h("p",{class:"note"},cut?"Shown on the sheet next to the portrait. Want a different mini? Change your words, save them and pass them round. I paint you again and sculpt from the painting. That takes me a night.":"Shown on the sheet next to the portrait.")),
     h("div",{class:"row"},
       h("button",{class:"btn",type:"button",onclick:ev=>avSave(id,ev.currentTarget)},online?"Save for the table":"Save my mini"),
       h("button",{class:"btn ghost",type:"button",onclick:ev=>{avSaveDraft(id);avShare(id,ev.currentTarget);}},"Pass it round"),
-      h("button",{class:"btn ghost",type:"button",onclick:()=>{avDraft={id,look:{...AV_BASE[id]}};showMini(id);}},"Hans's paint"),
+      cut?null:h("button",{class:"btn ghost",type:"button",onclick:()=>{avDraft={id,look:{...AV_BASE[id]}};showMini(id);}},"Hans's paint"),
       h("button",{class:"btn ghost",type:"button",onclick:()=>{showSheets();}},"Back to the sheet")),
     h("p",{class:"note"},online?"Save puts this mini on everyone's table, the next time a fight or interlude starts. Pass it round sends a link to the group chat as well."
       :"Save keeps it on this device: your mini wears it in every fight and interlude, and your sheet shows its portrait. Pass it round sends a link, so the crew's devices draw it too.")
   ];
   if(avStageNow)avStageNow.stop();
-  openSheet("Make your mini",nodes,"sheets");
+  openSheet("Make your mini",nodes.filter(Boolean),"sheets");
   avStageNow=AVGL?AVGL.stage(bench):null;
   if(avStageNow)avStageNow.build(id,L);
   else bench.append(h("p",{class:"note av-off"},AVGL&&AVGL.fighting()?"Finish the fight first. My bench and the table share one lamp.":"This device can't draw in 3D. The look is saved all the same."));
@@ -7290,13 +7292,65 @@ function t3n_fin(f,b,col,{s=1,k=1,mon=0}={}){const c0=new THREE.Color(col),U={va
     if(mon&&st.down&&!st.gone){if(up)up.rotation.x+=(u0+.55-up.rotation.x)*q;if(hd)hd.rotation.x+=(h0+.5-hd.rotation.x)*q;}
     t3n_pose(f);};
   return b;}
+/* ---- SCULPTED MINIS. A crew mini can be a figure sculpted from a painting: source/minis/<id>.glb, about half a megabyte each.
+   The file is fetched when the table, the workshop or a sheet opens. Until it is there, and on any failure, the mini drawn in code stands in.
+   The GLB is read here, without a loader add-on, in the plain shape source/minis/README.md describes: one mesh, one primitive,
+   float or quantized attributes and one embedded picture. h = height on the table, ry = turn it to face forward, rim = its edge light.
+   One line per sculpted mini, for example  stig:{src:"minis/stig.glb",h:.98,ry:0,rim:"#8fc8ff"}  ---- */
+const MINI3D={};
+const t3g_have=new Map(),t3g_wait=new Map();
+function t3g_read(buf){const dv=new DataView(buf);if(buf.byteLength<20||dv.getUint32(0,true)!==0x46546C67)throw new Error("not a GLB");
+  let off=12,J=null,bin=null;while(off+8<=buf.byteLength){const n=dv.getUint32(off,true),t=dv.getUint32(off+4,true);
+    if(t===0x4E4F534A)J=JSON.parse(new TextDecoder().decode(new Uint8Array(buf,off+8,n)));else if(t===0x004E4942)bin=buf.slice(off+8,off+8+n);off+=8+n;}
+  if(!J||!bin)throw new Error("empty GLB");
+  const CT={5120:Int8Array,5121:Uint8Array,5122:Int16Array,5123:Uint16Array,5125:Uint32Array,5126:Float32Array},NC={SCALAR:1,VEC2:2,VEC3:3,VEC4:4};
+  const acc=i=>{const a=J.accessors[i],v=J.bufferViews[a.bufferView],T=CT[a.componentType],n=NC[a.type],o=(v.byteOffset||0)+(a.byteOffset||0),w=T.BYTES_PER_ELEMENT*n,st=v.byteStride||w;
+    if(!T||!n||a.sparse)throw new Error("unreadable GLB accessor");
+    let arr;if(st===w)arr=new T(bin,o,a.count*n);
+    else{arr=new T(a.count*n);const src=new Uint8Array(bin),dst=new Uint8Array(arr.buffer);for(let k=0;k<a.count;k++)dst.set(src.subarray(o+k*st,o+k*st+w),k*w);} // padded or interleaved: pack it tight
+    return new THREE.BufferAttribute(arr,n,!!a.normalized);};
+  const ni=J.nodes.findIndex(n=>n.mesh!=null),pr=J.meshes[J.nodes[ni].mesh].primitives[0],A=pr.attributes,geo=new THREE.BufferGeometry();
+  geo.setAttribute("position",acc(A.POSITION));if(A.NORMAL!=null)geo.setAttribute("normal",acc(A.NORMAL));if(A.TEXCOORD_0!=null)geo.setAttribute("uv",acc(A.TEXCOORD_0));
+  if(pr.indices!=null)geo.setIndex(acc(pr.indices));if(A.NORMAL==null)geo.computeVertexNormals();
+  // the node chain: quantized positions are stored small and the node scales them back
+  const M=new THREE.Matrix4(),par=new Map();J.nodes.forEach((n,i)=>(n.children||[]).forEach(c=>par.set(c,i)));
+  for(let i=ni;i!=null;i=par.get(i)){const n=J.nodes[i],m=new THREE.Matrix4();
+    if(n.matrix)m.fromArray(n.matrix);else m.compose(new THREE.Vector3(...(n.translation||[0,0,0])),new THREE.Quaternion(...(n.rotation||[0,0,0,1])),new THREE.Vector3(...(n.scale||[1,1,1])));
+    M.premultiply(m);}
+  const mt=J.materials&&J.materials[pr.material||0],bt=mt&&mt.pbrMetallicRoughness&&mt.pbrMetallicRoughness.baseColorTexture;let pic=null,tt=null;
+  if(bt){const t=J.textures[bt.index],si=t.extensions&&t.extensions.EXT_texture_webp?t.extensions.EXT_texture_webp.source:t.source,im=J.images[si],v=J.bufferViews[im.bufferView];
+    pic=new Blob([new Uint8Array(bin,v.byteOffset||0,v.byteLength)],{type:im.mimeType||"image/png"});tt=bt.extensions&&bt.extensions.KHR_texture_transform||null;}
+  return {geo,M,pic,tt};}
+function t3g_load(id){const d=MINI3D[id];if(!d||!T3GL)return Promise.resolve(null);if(t3g_wait.has(id))return t3g_wait.get(id);
+  const job=(async()=>{const r=await fetch(d.src);if(!r.ok)throw new Error(d.src+" "+r.status);const G=t3g_read(await r.arrayBuffer());
+    if(G.pic){const img=new Image(),url=URL.createObjectURL(G.pic);try{img.src=url;await img.decode();}finally{URL.revokeObjectURL(url);}
+      const tx=new THREE.Texture(img);tx.flipY=false;tx.colorSpace=THREE.SRGBColorSpace;tx.anisotropy=4;
+      if(G.tt){if(G.tt.offset)tx.offset.fromArray(G.tt.offset);if(G.tt.scale)tx.repeat.fromArray(G.tt.scale);}tx.needsUpdate=true;G.tex=tx;}
+    // stand it on the plinth: facing forward, centred, feet at zero, d.h tall
+    const P=G.geo.attributes.position,v=new THREE.Vector3(),R=new THREE.Matrix4().makeRotationY(d.ry||0).multiply(G.M),bb=new THREE.Box3();
+    for(let i=0;i<P.count;i++)bb.expandByPoint(v.fromBufferAttribute(P,i).applyMatrix4(R));
+    const k=d.h/Math.max(1e-6,bb.max.y-bb.min.y);
+    G.fit=new THREE.Matrix4().makeScale(k,k,k).multiply(new THREE.Matrix4().makeTranslation(-(bb.min.x+bb.max.x)/2,-bb.min.y,-(bb.min.z+bb.max.z)/2)).multiply(R);
+    G.top=d.h;G.rim=d.rim||"#c9a35c";t3g_have.set(id,G);t3g_swap(id);return G;})().catch(e=>{console.warn("sculpted mini",id,e&&e.message||e);return null;});
+  t3g_wait.set(id,job);return job;}
+function t3g_warm(){for(const id in MINI3D)t3g_load(id);}
+/* a file that lands while a fight is on the table: the stand-in steps off its plinth and the sculpt steps on */
+function t3g_swap(id){if(!V||!V.minis)return;for(const [u,m] of V.minis){if(u.key!==id||m.sculpt||!(u.crew||u.side==="pc"))continue;
+  const f=m.face,pz=m.pos.clone();V.root.remove(m.g);t3free(m.g);const n=t3mini(V,u);n.face=f;n.fig.rotation.y=f;n.pos.copy(pz);n.g.position.copy(pz);V.minis.set(u,n);}}
+/* the builder: a sculpt stands still like a real miniature. It only breathes a little; the table tips it over when it drops */
+function t3g_fig(f,u){const G=t3g_have.get(u.key),up=new THREE.Group(),m=new THREE.Mesh(G.geo,new THREE.MeshStandardMaterial({map:G.tex||null,roughness:.82,metalness:0}));
+  m.matrixAutoUpdate=false;m.matrix.copy(G.fit);up.add(m);f.add(up);
+  const b={up,top:G.top,hand:new THREE.Vector3(.2,G.top*.55,.12),sculpt:true},ph=Math.random()*6.28;let dn=0;
+  b.anim=(dt,tt,now,st)=>{dn+=((st.down?1:0)-dn)*Math.min(1,dt*3);const br=Math.sin(tt*1.5+ph)*.006*(1-dn);up.scale.set(1+br*.4,1+br,1+br*.6);};
+  return t3n_fin(f,b,G.rim,{});}
 function t3mini(Vb,u){const g=new THREE.Group(),fig=new THREE.Group(),s=u.size||1;g.add(fig);
   const sideCol=u.side==="foe"?"#c2452c":u.side==="ally"?"#7bc36a":(u.hex||"#c9a35c");
   // a turned wooden plinth with a brass band, its top painted like dark earth, and a rim in the side's colour
   const base=new THREE.Mesh(t3uBaseGeo(s),new THREE.MeshStandardMaterial({vertexColors:true,roughness:.52,metalness:.38}));base.receiveShadow=true;g.add(base);
   const rim=new THREE.Mesh(new THREE.TorusGeometry(.436*s,.016+.004*s,6,44),new THREE.MeshStandardMaterial({color:sideCol,emissive:sideCol,emissiveIntensity:.7,roughness:.35,metalness:.2}));rim.rotation.x=Math.PI/2;rim.position.y=.071;g.add(rim);
   const ring=new THREE.Mesh(new THREE.PlaneGeometry(2*s,2*s),t3uRingMat(sideCol));ring.rotation.x=-Math.PI/2;ring.position.y=.018;ring.visible=false;ring.renderOrder=2;g.add(ring);
-  let b;try{T3AV=u.crew||u.side==="pc"?avOpts(u.key):null;b=(T3MINI[u.key]||((f)=>t3body(f,{cloth:u.hex||"#666",skin:"#c9b49a"})))(fig,u);if(T3AV&&T3AV.sc&&T3AV.sc!==1){fig.scale.multiplyScalar(T3AV.sc);b.top*=T3AV.sc;}}catch(e){console.error(e);b={up:fig,top:.8,hand:new THREE.Vector3(0,.4,.1)};}finally{T3AV=null;}
+  const own=u.crew||u.side==="pc",cut=own&&t3g_have.get(u.key)?t3g_fig:null;if(own&&!cut)t3g_load(u.key); // not here yet: the stand-in plays, t3g_swap changes them over
+  let b;try{if(cut)b=cut(fig,u);else{T3AV=own?avOpts(u.key):null;b=(T3MINI[u.key]||((f)=>t3body(f,{cloth:u.hex||"#666",skin:"#c9b49a"})))(fig,u);if(T3AV&&T3AV.sc&&T3AV.sc!==1){fig.scale.multiplyScalar(T3AV.sc);b.top*=T3AV.sc;}}}catch(e){console.error(e);b={up:fig,top:.8,hand:new THREE.Vector3(0,.4,.1)};}finally{T3AV=null;}
   if(!b.big&&s>1)fig.scale.setScalar(s*.8);
   fig.traverse(o=>{if(o.isMesh){o.castShadow=T3Q.hi;}}); // phones draw no shadow maps
   const top=(b.top||1)*(b.big?1:s>1?s*.8:1),hr=(SMALL?.62:.52)*s; // a generous hit volume, wider on touch screens
@@ -7304,7 +7358,7 @@ function t3mini(Vb,u){const g=new THREE.Group(),fig=new THREE.Group(),s=u.size||
   const mats=[];g.traverse(o=>{if(o.isMesh&&o.material&&o.material.isMeshStandardMaterial&&o!==rim)mats.push({m:o.material,e:o.material.emissive.clone(),ei:o.material.emissiveIntensity,t:o.material.transparent});}); // t: blended by its builder; the rest only while fading (t3animMini)
   const p=Vb.unitPos(u);g.position.copy(p);fig.rotation.y=u.side==="foe"?(Vb.tree?0:Math.PI):0;
   Vb.root.add(g);
-  return {u,g,fig,up:b.up,ring,rim,hit,top,hand:b.hand,core:b.core,blade:b.blade,anim:b.anim,mats,pos:p.clone(),face:fig.rotation.y,tilt:0,fade:1,hitT:0,lunge:null,gone:false,t0:Math.random()*10};}
+  return {u,g,fig,up:b.up,ring,rim,hit,top,hand:b.hand,core:b.core,blade:b.blade,anim:b.anim,sculpt:!!b.sculpt,mats,pos:p.clone(),face:fig.rotation.y,tilt:0,fade:1,hitT:0,lunge:null,gone:false,t0:Math.random()*10};}
 /* t3u: the plinth profile (bottom to top): bevel, brass band, a dark lip, then the painted top. One draw call */
 function t3uBaseGeo(s){const P=[[0,0],[.44,0],[.458,.008],[.466,.024],[.466,.044],[.456,.058],[.43,.064],[.41,.068],[.3,.071],[0,.072]],
     C=["#140f0a","#3a2814","#8a6630","#d8b673","#c49a52","#7a5a2a","#2a2016","#3b3426","#2f2b22","#2b281f"];
@@ -12656,7 +12710,7 @@ async function runScene(){
   for(const id of CREW_IDS){const p=P(id);if(p.hp<=0){p.hp=1;p.dead=false;}}
   ST.done=[...new Set([...(ST.done||[]),ST.scene])];ST.scene++;ST.snap=null;saveState();runScene();}
 // every pause checks that the scene it belongs to is still the one being played
-function enterPlay(){if(PLAY.on)return;PLAY.on=true;ST=loadState()||freshState();root.hidden=false;document.body.classList.add("playing");closeSheet();
+function enterPlay(){if(PLAY.on)return;PLAY.on=true;ST=loadState()||freshState();root.hidden=false;document.body.classList.add("playing");closeSheet();t3g_warm();
   if(typeof keepAwake==="function")keepAwake(true);
   const want=(location.search.match(/[?&]interlude=([a-z0-9-]+)/)||[])[1];
   if(PLAY.toHub){PLAY.toHub=false;const g=PLAY.gen;interludeHub().then(()=>PLAY.on&&g===PLAY.gen&&playHub());return;} // back from signing in
@@ -12695,8 +12749,10 @@ function avStage(host){
     const g=new THREE.Group(),fig=new THREE.Group();g.add(fig);
     const base=new THREE.Mesh(t3uBaseGeo(1),new THREE.MeshStandardMaterial({vertexColors:true,roughness:.52,metalness:.38}));g.add(base);
     const ring=new THREE.Mesh(new THREE.TorusGeometry(.436,.02,6,44),new THREE.MeshStandardMaterial({color:SHEET_HEX[id]||"#c9a35c",emissive:SHEET_HEX[id]||"#c9a35c",emissiveIntensity:.7}));ring.rotation.x=Math.PI/2;ring.position.y=.071;g.add(ring);
-    let b=null; // built with the look on the bench, not the saved one
-    try{T3AV=avOpts(id,avClean(id,look));b=T3MINI[id](fig,{key:id,side:"pc",size:1,crew:true});if(b&&T3AV.sc!==1){fig.scale.multiplyScalar(T3AV.sc);b.top*=T3AV.sc;}}catch(e){console.error(e);}finally{T3AV=null;}
+    let b=null;S.look=look; // a sculpt when its file is here; else built with the look on the bench, not the saved one
+    if(t3g_have.get(id)){try{b=t3g_fig(fig,{key:id});}catch(e){console.error(e);}}
+    else{try{T3AV=avOpts(id,avClean(id,look));b=T3MINI[id](fig,{key:id,side:"pc",size:1,crew:true});if(b&&T3AV.sc!==1){fig.scale.multiplyScalar(T3AV.sc);b.top*=T3AV.sc;}}catch(e){console.error(e);}finally{T3AV=null;}
+      if(MINI3D[id])t3g_load(id).then(G=>{if(G&&S.g&&S.id===id)S.build(id,S.look);});}
     scene.add(g);S.g=g;S.anim=b&&b.anim;S.id=id;const top=S.top=(b&&b.top)||1;
     const ft=Math.max(top,.8);cam.position.set(0,ft*.66+.12,ft*1.75+.55);cam.lookAt(0,ft*.47,0);};
   S.frame=now=>{if(!host.isConnected||!host.contains(r.domElement)||t3on()){S.stop();return;}
@@ -12715,14 +12771,14 @@ function avStage(host){
   return S;}
 
 /* ---- a portrait for the sheet: one still from the bench, kept per look ---- */
-function avPortrait(id){const l=avOf(id);if(!l||!T3GL||t3on())return null;const k=id+JSON.stringify(l);if(avPics.has(k))return avPics.get(k);
+function avPortrait(id){const l=avOf(id);if(!l||!T3GL||t3on())return null;const k=id+(t3g_have.has(id)?"#sculpt":"")+JSON.stringify(l);if(avPics.has(k))return avPics.get(k);
   let url=null;try{const host=document.createElement("div");host.style.cssText="position:fixed;left:-9999px;top:0;width:180px;height:220px";document.body.appendChild(host);
     if(avStageNow){avStageNow.stop();avStageNow=null;}const S=avStage(host);if(S){cancelAnimationFrame(S.raf);S.build(id,l);S.g.rotation.y=.4;{const c=S.cam,t=S.top;c.position.set(0,t*.8,t*1.25+.3);c.lookAt(0,t*.6,0);}if(S.anim)S.anim(.016,1,performance.now(),{down:false,gone:false,moving:false});
       S.r.render(S.scene,S.cam);url=S.r.domElement.toDataURL("image/png");S.stop();}
     host.remove();}catch(e){console.error(e);url=null;}
   avPics.set(k,url);return url;}
 
-AVGL={stage:avStage,portrait:avPortrait,fighting:()=>t3on()};
+AVGL={stage:avStage,portrait:avPortrait,fighting:()=>t3on(),sculpt:id=>!!MINI3D[id],sculpted:id=>t3g_have.has(id),ready:id=>t3g_load(id)};
 }
 
 /* =================== FIRST VISIT =================== */
