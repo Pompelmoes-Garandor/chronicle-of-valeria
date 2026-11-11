@@ -44,7 +44,7 @@ Top of the list is what to work on next.
 ## Later
 
 - [ ] **More in-engine cinematics** · New · either · Needs Sam for lines. The cinematic director's plan ranks the next ones: a dip to black on every story-to-board change, Elara's voice through Lúmeneth, the night ambush opening, a fight-intro for every battle, chapter cards, Overclock. The system (`t3cine`) is in; each one is a small PR.
-- [ ] **Play-test the interlude fights for balance** · Changed · either · The four fights are balanced on paper only. Watch Katy's candle (3 points), the sleeper's 20 HP in Stig's fight, and Turn Undead in the shared fight.
+- [ ] **Play-test the interlude fights for balance** · Changed · either · The four fights are balanced on paper only. Watch Katy's candle (3 points) and Turn Undead in the shared fight. Stig's undertow fight was measured with simulated players on 2026-11-11 and eased at Sam's call ("winnable, but he fights smarter than the test crew").
 - [ ] **An interlude before every session** · New · Sam · Needs Sam. The session 10 set is the first; write the next set from the session script (a memory, a dream, a talk with a patron), same engine.
 
 - [ ] **Map beside the recap on desktop** · Changed · either · Put the recap text next to the globe instead of over it, as Craft does with its map.
@@ -63,6 +63,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **The Eleven Paces: the undertow fight eased (future self 40 HP, grey hands +3 to hit), and the boy runs into a corner gone dark instead of fading against lit rock** · Changed · Sam · PR #TBD
 - [x] **The Eleven Paces, round 3: a living door of fire, the boy runs off across the light, paintings rise out of black, the grey reaching hand, a wider far-off window on phones, and the pinned strip on desktop covers the words under it (was a known bug)** · Changed · Sam · PR #104
 - [x] **The Eleven Paces, round 2: cutscenes play like film (no plinths or grid, no waiting for taps, new shots), the story's own sound cues play, paces count on the first page, title card fix** · Changed · Sam · PR #97
 - [x] **The Eleven Paces rewritten so it reads like Stig, not like AI: every passage, choice, cutscene caption and fight line** · Changed · Sam · PR #100
