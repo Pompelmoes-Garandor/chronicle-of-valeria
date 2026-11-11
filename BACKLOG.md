@@ -63,7 +63,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
-- [x] **The Eleven Paces, round 3: a living door of fire, the boy runs off across the light, paintings rise out of black, the grey reaching hand, a wider far-off window on phones, and the pinned strip on desktop covers the words under it (was a known bug)** · Changed · Sam · PR #PRNUM
+- [x] **The Eleven Paces, round 3: a living door of fire, the boy runs off across the light, paintings rise out of black, the grey reaching hand, a wider far-off window on phones, and the pinned strip on desktop covers the words under it (was a known bug)** · Changed · Sam · PR #104
 - [x] **The Eleven Paces, round 2: cutscenes play like film (no plinths or grid, no waiting for taps, new shots), the story's own sound cues play, paces count on the first page, title card fix** · Changed · Sam · PR #97
 - [x] **The Eleven Paces rewritten so it reads like Stig, not like AI: every passage, choice, cutscene caption and fight line** · Changed · Sam · PR #100
 - [x] **The past in the visions legible again (clear sepia, sharper on phones), and the pinned paces strip clean under the vision layer** · Fixed · Sam · PR #99
