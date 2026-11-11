@@ -409,7 +409,7 @@ table.ans td,table.ans th{border-bottom:1px solid #c9a35c22;padding:6px 4px;text
 .hv-deep.far::before{transform:scale(.2)}.hv-deep.star::before{transform:scale(.05);opacity:.8}
 .hv-deep::after{content:"";position:absolute;inset:0;opacity:.7;background-image:radial-gradient(circle,#cfeaf255 0 2px,transparent 3px),radial-gradient(circle,#cfeaf244 0 1.5px,transparent 2.5px),radial-gradient(circle,#cfeaf233 0 3px,transparent 4px);
   background-size:90px 140px,60px 110px,150px 210px;background-position:10px 0,40px 30px,80px 60px}
-.hv-white{background:#fff8ec;transition:opacity .8s ease}.hv-white.thin{opacity:.5!important;mix-blend-mode:screen;transition:opacity 2.5s ease}.hv-white.thin.gone{opacity:.18!important}.hv-white.thin.gone.off{opacity:0!important}
+.hv-white{background:#fff8ec;transition:opacity .8s ease}.hv-white.thin{opacity:.5!important;mix-blend-mode:screen;transition:opacity 2.5s ease}.hv-white.thin.gone{opacity:.18!important}.hv-white.thin.gone.off{opacity:0!important;transition:opacity 1.1s ease}
 .hv-well{--hv-wr:21vmin;--hv-ww:125vmax;background:radial-gradient(circle at 50% 50%,transparent 0 var(--hv-wr),#000 calc(var(--hv-wr) + 4vmin))}
 @media (max-aspect-ratio:4/5){.hv-well{--hv-wr:27vmin;--hv-ww:150vmin}} /* phones: a window you can see into, onto more of the painting */
 .hv-dry{background:radial-gradient(ellipse at 50% 70%,#2a1c10,#050403 70%)}
@@ -8053,7 +8053,8 @@ function t3hurt(u,type){if(!t3on())return;const m=V.minis.get(u);if(!m)return;co
 function t3float(u,t,cls){if(!t3on())return false;const m=V.minis.get(u);if(!m)return true;const X=V.t3x,now=performance.now(),p=m.g.position.clone();p.y+=m.top+.35;p.project(V.cam);const rc=V.host;
   const crit=!cls&&X.critU===u&&now-X.critT<2500;if(crit)X.critU=null;const ph=rc.clientWidth<560,dmg=!cls,ty=X.hurtU===u&&now-X.hurtT<700?X.hurtTy:null,num=+(String(t).match(/\d+/)||[0])[0];
   // big outlined numbers in the damage colour that pop on impact, spread a little sideways so two hits don't stack
-  const x=(p.x*.5+.5)*rc.clientWidth+(Math.random()-.5)*(ph?14:22),y=(-p.y*.5+.5)*rc.clientHeight-(ph?14:18),fs=dmg?(crit?(ph?28:32):Math.round((ph?19:21)+Math.min(5,num/4))):cls==="info"?0:ph?15:16;
+  const wq=dmg?null:(X.wq||(X.wq=new Map())),wo=wq&&wq.get(u),wn=wo&&now-wo.t<1500?wo.n+1:0;if(wq)wq.set(u,{t:now,n:wn}); // words stack upward
+  const x=(p.x*.5+.5)*rc.clientWidth+(Math.random()-.5)*(ph?14:22),y=(-p.y*.5+.5)*rc.clientHeight-(ph?14:18)-wn*(ph?20:24),fs=dmg?(crit?(ph?28:32):Math.round((ph?19:21)+Math.min(5,num/4))):cls==="info"?0:ph?15:16;
   const c=crit?"#ffd27a":t==="miss"?"#cdd4de":dmg&&ty&&DMG_COL[ty]&&!T3Y_PHYS.includes(ty)?t3y_lift(DMG_COL[ty]):"",sh="0 0 2px #000,0 0 3px #000,0 2px 4px #000"+(crit?",0 0 14px #ff7a2a":dmg?",0 0 10px #000a":"");
   const f=h("div",{class:"fl "+cls,style:`left:${x}px;top:${y}px;text-shadow:${sh}`+(fs?`;font-size:${fs}px`:"")+(c?`;color:${c}`:"")+(dmg?";font-weight:800;letter-spacing:.02em":"")+(t3x_ts!==1?`;animation-duration:${1.5*t3x_ts}s`:"")},t);V.tags.append(f);setTimeout(()=>f.remove(),1600*t3x_ts);
   if(!X.still&&f.animate){const T=s=>`translate(-50%,-50%) ${s}`;f.animate(dmg?[{transform:T(`scale(${crit?2.4:1.8})`)},{transform:T("scale(.9)"),offset:.09},{transform:T("scale(1)"),offset:.16},{transform:T("scale(1)")}]:
@@ -12400,7 +12401,7 @@ async function hvDoorCut(n,o={}){const d3=!!V,gid=k=>hvU(k),boy=()=>V&&V.hvBoy;
   if(n==="1")plan=d3?[
     {at:S=>{const b=boy(),sm=hvM("stig");if(sm){hvFaceTo("stig",hvC(6,1).x,hvC(6,1).z);sm.face=sm.faceT;if(b){const fx=Math.sin(sm.face),fz=Math.cos(sm.face);b.g.position.set(sm.pos.x+fz*.36,.03,sm.pos.z-fx*.36);b.face=sm.face;}}if(b)b.mode="stay";hvDream(S,.3,2000);},cam:{from:{pos:hvAt("stig",.5,.45,2.5),look:hvAt("stig",.42,-.1,-1.6)},to:{pos:hvAt("stig",.48,.38,2.15),look:hvAt("stig",.42,-.1,-1.6)},ms:3800,fov:34,tall:{fov:48}}}, // from behind the two of them, hand in hand, dark against the fire
     {at:S=>{walk("stig",6,3);setTimeout(()=>{for(const k of["katy","saphira","hans","thorn"])hvFaceTo(k,hvC(6,3).x,hvC(6,3).z);},900);},cam:{from:{at:hvC(6,4.8,.5),yaw:1.8,pitch:.2,dist:4.3},to:{at:hvC(6,4.2,.5),yaw:1.68,pitch:.16,dist:3.9},ms:3600,fov:38,tall:{fov:54,from:{at:hvC(6,4.6,.45),yaw:.18,pitch:.36,dist:5.4},to:{at:hvC(6,4.1,.45),yaw:.1,pitch:.32,dist:4.9}}}},
-    {at:S=>{walk("stig",6,2);hvSnd("white-out");setTimeout(()=>{if(S.over||!B)return;const u=gid("stig");if(u){u.gone=true;renderTokens();}S.flash("#ffffffdd");const w=hvVeil(S,"hv-white");hvExp(S,2.4,500);setTimeout(()=>{if(S.over)return;if(w)w.classList.add("thin","gone");hvExp(S,1,1200);},750);if(!hvHas("white-out"))hvSnd("silence");},1300);},
+    {at:S=>{walk("stig",6,2);hvSnd("white-out");setTimeout(()=>{if(S.over||!B)return;const u=gid("stig");if(u){u.gone=true;renderTokens();}S.flash("#ffffffdd");const w=hvVeil(S,"hv-white");hvExp(S,2.4,400);setTimeout(()=>{if(S.over)return;if(w)w.classList.add("thin","gone","off");hvExp(S,1,700);},550);if(!hvHas("white-out"))hvSnd("silence");},1300);},
       cam:{from:{at:hvC(6,1,1.1),yaw:.05,pitch:.14,dist:3.4},to:{at:hvC(6,1,1.1),yaw:0,pitch:.1,dist:2.2},ms:3600,fov:40,tall:{fov:56}}},
     {at:S=>{const v=S.el.querySelector(".hv-white");if(v)v.classList.add("thin","gone","off");const b=boy();if(b){b.lit=.3;b.rim=1;}hvVeil(S,"hv-inflame");embers(S);hvExp(S,.92,1600);hvDream(S,.75,2500);walk("katy",4,8);walk("saphira",8,8);walk("hans",6,9);walk("thorn",9,8);hvSnd("drip");},
       cam:{from:{pos:hvC(6.3,.9,.5),look:hvC(6,9,.4)},to:{pos:hvC(5.8,.92,.62),look:hvC(6.1,9,.3)},ms:7000,fov:[50,42],roll:.04,ease:"soft"}}, // behind the fire's face: the crew through the flames
@@ -12416,7 +12417,7 @@ async function hvDoorCut(n,o={}){const d3=!!V,gid=k=>hvU(k),boy=()=>V&&V.hvBoy;
     {at:S=>{B.sc.fl=1;S.tween(3200,k=>{if(B)B.sc.warm=k;},null);hvDream(S,.6,2500);},cam:{from:{at:hvAt("future",.42),yaw:F2+.45,pitch:.12,dist:2},to:{at:hvAt("future",.44),yaw:F2+.3,pitch:.1,dist:1.7},ms:3400,fov:30,tall:{fov:44}}},
     {at:S=>{S.shake(.02);},cam:{from:{at:hvAt("future",.48),yaw:F2+.08,pitch:.08,dist:1.6},to:{at:hvAt("future",.5),yaw:F2,pitch:.06,dist:1.35},ms:3600,fov:[30,26],tall:{fov:[44,38]}}},
     {at:S=>{const u=gid("future");if(u){u.gone=true;renderTokens();}hvSnd("silence");const X=V&&V.t3x,p=hvC(8,3,.03);
-        if(X&&p){for(let i=0;i<4;i++)t3x_ring(X,p,"#8fb4c4",.5+i*.35,2200,.05,.9-i*.15,i*380);for(let i=0;i<7;i++)setTimeout(()=>{if(!S.over)X.smoke.spawn(hvC(8+(Math.random()-.5)*.5,3+(Math.random()-.5)*.5,.1),"#9aa2a6",1,{sp:.08,up:.35,lf:2.2,gr:-.05,sz:.22,sz1:.7,dr:1.4,a:.35});},i*260);}},
+        if(X&&p){for(let i=0;i<6;i++)t3x_ring(X,p,"#8fb4c4",.45+i*.3,2600,.05,.9-i*.12,i*560);for(let i=0;i<10;i++)setTimeout(()=>{if(!S.over)X.smoke.spawn(hvC(8+(Math.random()-.5)*.5,3+(Math.random()-.5)*.5,.1),"#9aa2a6",1,{sp:.08,up:.35,lf:2.2,gr:-.05,sz:.22,sz1:.7,dr:1.4,a:.35});},i*330);}},
       cam:{from:{at:hvC(8,3,.12),yaw:-.35,pitch:.32,dist:1.9},to:{at:hvC(8,3,.14),yaw:-.25,pitch:.26,dist:1.6},ms:2600,fov:34,tall:{fov:48}}},
     // he lets go and runs: out from behind Stig (Stig's shoulder in the foreground), up the line and past the edge of the light,
     // into the corner the dark has filled. He goes into shadow as he nears it and the dark covers him; only then does he fade
@@ -12436,13 +12437,14 @@ async function hvDoorCut(n,o={}){const d3=!!V,gid=k=>hvU(k),boy=()=>V&&V.hvBoy;
     {cam:{from:{at:hvAt("stig",.6),yaw:.5,pitch:-.02,dist:2.3},to:{at:hvAt("stig",.64),yaw:.36,pitch:0,dist:1.95},ms:3400,fov:30,tall:{fov:44}}},
     {at:S=>{hvFaceTo("stig",hvC(6,8).x,hvC(6,8).z);},cam:{from:{at:hvAt("stig",.6),yaw:.35,pitch:.16,dist:2.6},to:{at:hvAt("stig",.62),yaw:.15,pitch:.12,dist:2.2},ms:3400,fov:36,tall:{fov:50}}},
     {at:S=>{const b=boy();if(b)b.mode="follow";walk("katy",5,5);setTimeout(()=>walk("saphira",7,5),700);setTimeout(()=>walk("hans",6,5),1300);setTimeout(()=>walk("thorn",8,5),1800);},
-      cam:{from:{at:hvC(6,4.7,.42),yaw:.95,pitch:.07,dist:7.2},to:{at:hvC(6,4.6,.42),yaw:.82,pitch:.05,dist:6.4},ms:5200,fov:22,tall:{fov:34}}}, // low, at their height, a long lens
+      cam:{from:{at:hvC(6,4.6,.42),yaw:1.22,pitch:.07,dist:4.3},to:{at:hvC(6,4.5,.42),yaw:1.1,pitch:.05,dist:3.9},ms:5200,fov:26,tall:{fov:38}}}, // low, at their height, a long lens, from the side (clear of the wall and of the crew walking in)
     {at:S=>{walk("stig",6,2);walk("katy",5,2);walk("saphira",7,2);walk("hans",4,2);walk("thorn",8,2);setTimeout(()=>{if(S.over||!B)return;for(const k of["stig","katy","saphira","hans","thorn"])hvFaceTo(k,hvC(6,0).x,hvC(6,0).z);
         S.tween(3000,k=>{if(B)B.sc.calm=k;},null);hvSnd(hvHas("fire-hush")?"fire-hush":"silence");setTimeout(()=>hvSnd("breath"),hvHas("fire-hush")?2400:900);},1800);},
       cam:{from:{at:hvC(6,1,1),yaw:.3,pitch:.2,dist:5.2},to:{at:hvC(6,1,.9),yaw:.2,pitch:.16,dist:4.2},ms:6000,fov:38,ease:"soft",tall:{fov:54}}},
     {at:S=>{hvVeil(S,"hv-sea");},cam:{from:{at:hvC(6,6),yaw:.2,pitch:1.5,dist:12},to:{at:hvC(6,6),yaw:.3,pitch:1.52,dist:16},ms:5000,ease:"soft"}},
     {at:S=>{walk("future",11,6);setTimeout(()=>{if(!S.over&&B)hvFaceTo("future",hvC(6,2).x,hvC(6,2).z);},1200);const v=S.el.querySelector(".hv-sea");if(v)v.classList.remove("on");
-        if(V){const L=new THREE.PointLight(0xffa463,0,3.4,2),p=hvC(10.4,5.3,.75);L.position.copy(p);V.root.add(L);S.tween(1400,k=>{L.intensity=9*k;},null);S.undo(()=>{if(V)V.root.remove(L);L.dispose();});}},cam:{from:{at:hvC(11,6,.4),yaw:F3-.45,pitch:.25,dist:3},to:{at:hvC(11,6,.4),yaw:F3-.3,pitch:.2,dist:2.5},ms:4200,fov:34,tall:{fov:48}}},
+        const L=V&&V.hvWarm;if(L){L.position.copy(hvC(10.4,5.3,.75));S.tween(1400,k=>{L.intensity=9*k;},null);S.undo(()=>{L.intensity=0;});}
+        if(B){S.tween(1800,k=>{if(B){B.sc.amber=.6*k;B.sc.warm=.3*k;}},null);S.undo(()=>{if(B){B.sc.amber=0;B.sc.warm=0;}});}},cam:{from:{at:hvC(11,6,.4),yaw:F3-.45,pitch:.25,dist:3},to:{at:hvC(11,6,.4),yaw:F3-.3,pitch:.2,dist:2.5},ms:4200,fov:34,tall:{fov:48}}},
     {at:S=>hvFaceTo("future",hvC(6,2).x,hvC(6,2).z),cam:{from:{pos:hvC(11.5,7.1,.62),look:hvC(6.6,2.6,.42)},to:{pos:hvC(11.35,6.95,.58),look:hvC(6.4,2.4,.42)},ms:3400,fov:[34,30],
       tall:{fov:42,from:{at:hvC(11,6,.5),yaw:F3-.3,pitch:.14,dist:2.1},to:{at:hvC(11,6,.52),yaw:F3-.22,pitch:.1,dist:1.8}}}},
     {at:S=>hvSnd("heartbeat-one"),hold:1900,black:true}]
@@ -12588,9 +12590,10 @@ function hvGhost(f,G){const mat=new THREE.MeshStandardMaterial({map:G.tex||null,
   const W={value:0};mat.onBeforeCompile=sh=>{sh.uniforms.uWarm=W;sh.fragmentShader="uniform float uWarm;\n"+sh.fragmentShader.replace("#include <map_fragment>","#include <map_fragment>\n{float gy=dot(diffuseColor.rgb,vec3(.3,.59,.11));diffuseColor.rgb=mix(diffuseColor.rgb,vec3(gy)*vec3(.8,.9,.98),.88*(1.-uWarm));}");};
   mat.customProgramCacheKey=()=>"hvGhost";
   const up=new THREE.Group(),m=new THREE.Mesh(G.geo,mat);m.matrixAutoUpdate=false;m.matrix.copy(G.fit);up.add(m);f.add(up);
-  const ph=Math.random()*6.28,b={up,top:G.top,hand:new THREE.Vector3(.2,G.top*.55,.12),sculpt:true};
+  const ph=Math.random()*6.28,b={up,top:G.top,hand:new THREE.Vector3(.2,G.top*.55,.12),sculpt:true};let A=0; // A: firelight on him (B.sc.amber), no extra lamp so no shader rebuild
   b.anim=(dt,tt)=>{const br=Math.sin(tt*1.1+ph)*.008;up.scale.set(1+br*.4,1+br,1+br*.6);up.rotation.x=0;
-    const w=B&&B.sc&&B.sc.warm||0;W.value+=(w-W.value)*Math.min(1,dt*2);mat.color.setRGB(.66+.34*W.value,.71+.29*W.value,.74+.26*W.value);mat.emissiveIntensity=.55*(1-W.value);};return b;}
+    const w=B&&B.sc&&B.sc.warm||0;W.value+=(w-W.value)*Math.min(1,dt*2);const a=B&&B.sc&&B.sc.amber||0,v=W.value;A+=(a-A)*Math.min(1,dt*1.6); // the fire's colour on him: a warm tint that keeps his shading, and a little glow
+    mat.color.setRGB((.66+.34*v)*(1+.32*A),(.71+.29*v)*(1+.04*A),(.74+.26*v)*(1-.4*A));mat.emissive.setRGB(.114+.3*A,.227-.03*A,.29-.22*A);mat.emissiveIntensity=.55*(1-v)+.14*A;};return b;}
 /* the boy: Stig at nine, from under the floorboards. Barefoot, too tall for his age, wet to the knees. Not a piece on the
    board: he walks a step behind Stig (mode "follow"), stays where he's told ("stay"), or runs off ("run", to a point). */
 function hvBoy(Vb){const g=new THREE.Group(),fig=new THREE.Group();g.add(fig);
@@ -12598,7 +12601,7 @@ function hvBoy(Vb){const g=new THREE.Group(),fig=new THREE.Group();g.add(fig);
   b.anim=t3c_anim(b,{breath:.02,look:.4});const fin=t3n_fin(fig,b,"#ffd9a8",{s:1});
   const mats=[];fig.traverse(o=>{if(o.isMesh&&o.material&&!Array.isArray(o.material)){o.material.transparent=true;mats.push(o.material);}});
   g.position.y=.03;Vb.root.add(g);
-  const M={g,mode:"follow",to:null,op:1,want:1,lit:1,li:1,face:Math.PI,v:new THREE.Vector3()},T=new THREE.Vector3();let lastSp=0;
+  const M={g,mode:"follow",to:null,op:1,want:1,lit:1,li:1,body:.32,face:Math.PI,v:new THREE.Vector3()},T=new THREE.Vector3();let lastSp=0;
   Vb.ticks.push((dt,tt,now)=>{const s=B&&B.units.find(u=>u.key==="stig"),m=s&&Vb.minis.get(s);
     if(M.mode==="follow"&&m&&!s.gone){const fx=Math.sin(m.face),fz=Math.cos(m.face);T.set(m.pos.x-fx*.55+fz*.32,.03,m.pos.z-fz*.55-fx*.32);}
     else if(M.mode==="run"&&M.to)T.copy(M.to).setY(.03);else T.copy(g.position);
@@ -12607,7 +12610,7 @@ function hvBoy(Vb){const g=new THREE.Group(),fig=new THREE.Group();g.add(fig);
     else if(M.look!=null)M.face=M.look;else if(m&&M.mode!=="run")M.face=m.face;
     let df=M.face-fig.rotation.y;df=Math.atan2(Math.sin(df),Math.cos(df));fig.rotation.y+=df*Math.min(1,dt*6);
     const moving=d>.08;if(moving&&Vb.sparks&&now-lastSp>140){lastSp=now;Vb.sparks.spawn(T3BOYP.set(g.position.x,.05,g.position.z),"#9fc8e0",2,{sp:.25,up:.6,lf:.5,gr:1.2,sz:.035});}
-    M.op+=(M.want-M.op)*Math.min(1,dt*1.5);M.li+=(M.lit-M.li)*Math.min(1,dt*2.2);for(const mt of mats){mt.opacity=M.op;mt.color.setScalar(M.li);}g.visible=M.op>.02;
+    M.op+=(M.want-M.op)*Math.min(1,dt*1.5);M.li+=(M.lit-M.li)*Math.min(1,dt*2.2);for(const mt of mats){mt.opacity=M.op;mt.color.setScalar(M.li*M.body);}g.visible=M.op>.02;
     fin.anim(dt,tt,now,{moving,down:false,gone:false,lit:M.rim!=null?M.rim:M.li});});
   Vb.hvBoy=M;return M;}
 const T3BOYP=new THREE.Vector3();
@@ -12625,6 +12628,8 @@ function t3dressDoor(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,K=t3i_kit(Vb,1111),{rr,pk,
   if(sand.length)Vb.root.add(t3mesh(t3merge(sand),t3vmat({roughness:1}),{recv:true}));
   // the fire itself: a roar that hardly moves, in sheets one behind another, and tongues along the foot of it
   const fire=hvFireCurtain(Vb,cx,cz,wd,hi);
+  // the firelight a cutscene can throw on someone (door 3: the future self by the wall); always in the scene, dark, so lighting him never rebuilds a shader
+  const wl=new THREE.PointLight(0xffa463,0,3.4,2);wl.position.set(cx,.8,cz+4);Vb.root.add(wl);Vb.hvWarm=wl;
   // behind the flames: hot dark red at the foot, going to black at the lintel, so a low (listening) fire leaves no flat red panel
   const bg=new THREE.PlaneGeometry(wd,3),bc=[];for(let i=0;i<bg.attributes.position.count;i++){const top=bg.attributes.position.getY(i)>0;bc.push(...(top?[.003,.001,0]:[.035,.006,.001]));}
   bg.setAttribute("color",new THREE.Float32BufferAttribute(bc,3));const back=new THREE.Mesh(bg,new THREE.MeshBasicMaterial({vertexColors:true}));back.position.set(cx,1.5,cz-.12);Vb.root.add(back);
