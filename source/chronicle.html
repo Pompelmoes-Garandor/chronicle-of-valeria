@@ -7729,7 +7729,7 @@ const MINI3D={stig:{src:"minis/stig.glb",h:.92,ry:0,rim:"#8fc8ff",tone:1.05,crew
   steward:{src:"minis/steward.glb",h:1.05,ry:0,rim:"#7fe0d8",tone:1.1},heart:{src:"minis/heart.glb",h:.9,ry:0,rim:"#ff5a4a",tone:1.05},
   shade:{src:"minis/shade.glb",h:.85,ry:0,rim:"#a9b4ff",tone:1.2},shadowself:{src:"minis/shadowself.glb",h:.85,ry:0,rim:"#8a6cf0",tone:1.2,rimK:.7},
   drowned:{src:"minis/drowned.glb",h:.85,ry:0,rim:"#bfe6ff",tone:1.15},sleeper:{src:"minis/sleeper.glb",h:.16,ry:0},
-  ashhand:{src:"minis/ashhand.glb",h:.56,ry:0,rim:"#c8b8a8",tone:1.1,sway:.2,ash:"#8a8680"}};
+  ashhand:{src:"minis/ashhand.glb",h:.56,ry:0,rim:"#c8b8a8",tone:.9,sway:.2,ash:"#8a8680"}};
 const t3g_have=new Map(),t3g_wait=new Map();
 function t3g_read(buf){const dv=new DataView(buf);if(buf.byteLength<20||dv.getUint32(0,true)!==0x46546C67)throw new Error("not a GLB");
   let off=12,J=null,bin=null;while(off+8<=buf.byteLength){const n=dv.getUint32(off,true),t=dv.getUint32(off+4,true);
