@@ -2990,7 +2990,7 @@ function squawkHtml(html){return bird?html.replace(/<p>/g,"<p>*ruffles feathers*
 let audio=null; function ac(){try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();audio.resume();return audio;}catch(e){return null;}}
 // one volume for every sound on the page (map, recap, dice, fights, interludes, eggs): stored on this device
 const VOL={v:Math.max(0,Math.min(1,parseFloat(store.get("chron-vol")??"0.8"))),g:null};if(!(VOL.v>=0))VOL.v=.8;
-function acOut(a){if(a!==audio)return a.destination;if(!VOL.g||VOL.g.context!==a){VOL.g=a.createGain();VOL.g.gain.value=VOL.v*VOL.v;VOL.g.connect(acOut(a));}return VOL.g;}
+function acOut(a){if(a!==audio)return a.destination;if(!VOL.g||VOL.g.context!==a){VOL.g=a.createGain();VOL.g.gain.value=VOL.v*VOL.v;VOL.g.connect(a.destination);}return VOL.g;} // the one door out to the speakers
 function setVol(v){VOL.v=Math.max(0,Math.min(1,v));store.set("chron-vol",String(VOL.v));if(VOL.g)VOL.g.gain.setTargetAtTime(VOL.v*VOL.v,VOL.g.context.currentTime,.05);}
 function chirp(){const a=ac();if(!a)return;const t=a.currentTime;
   for(const [d,f0,f1] of [[0,1800,3200],[.13,2000,3600],[.26,2600,1900]]){const o=a.createOscillator(),g=a.createGain();o.type="sine";
@@ -5823,7 +5823,9 @@ function rbSched(S,until){
     rbLute(S,ch[0]-12,t+hum(),.32);rbLute(S,ch[1],t+beat+hum(),.18);rbLute(S,ch[2],t+beat+.035+hum(),.15);rbLute(S,ch[3],t+beat*2+hum(),.16);
     if(pass%2===1)for(const n of SCSONG)if(n.b>=k*3&&n.b<k*3+3)rbLute(S,n.m+12,t+(n.b-k*3)*beat+hum()+.02,.26);
     S.next+=beat*3;S.bar++;}}
-setTimeout(()=>{if(devPlay())window.__fsnd=FS_DEV;},0);const FS_DEV={ // for tests: render sounds and music offline. score: [[sec,"sfxname",opts]] and [sec,"mood",{lv,tense,bad}]
+setTimeout(()=>{if(!devPlay())return;window.__fsnd=FS_DEV; // and a log of every vision cue that really fires, for the sound test
+  if(typeof HV_SND!=="undefined")for(const k of Object.keys(HV_SND)){const f=HV_SND[k];HV_SND[k]=(...a)=>{FS_DEV.fired.push(k);return f(...a);};}},0);
+const FS_DEV={fired:[],cue(k){if(typeof hvSnd==="function")hvSnd(k,{n:12});return !!(IFX.bus&&IFX.sc);}, // for tests: render sounds and music offline. score: [[sec,"sfxname",opts]] and [sec,"mood",{lv,tense,bad}]
   async render(score,secs,{wav=false}={}){const sr=44100,ctx=new OfflineAudioContext(2,Math.ceil(secs*sr),sr),b=fsBus(ctx,ctx.destination);b.mus.gain.value=.45;
     const ev=[...score].sort((x,y)=>x[0]-y[0]);let S=null,m={lv:.3,tense:false,bad:false};
     for(let t=0;t<secs;t+=.1){while(ev.length&&ev[0][0]<=t+.1){const [w,k,o]=ev.shift();if(k==="mood"){m=Object.assign({},m,o);if(!S)S=fsMusNew(b,w);}else if(k==="stop"){if(S){S.out.gain.setValueAtTime(1,w);S.out.gain.linearRampToValueAtTime(0,w+1.2);for(const d of S.dr)d.stop(w+1.3);S=null;}}
@@ -10771,10 +10773,12 @@ function iIR(a,sec,lp,pre){const sr=a.sampleRate,p=pre*sr|0,n=p+(sec*sr|0),b=a.c
   for(let c=0;c<2;c++){const d=b.getChannelData(c);let y=0;for(let i=p;i<n;i++){const t=(i-p)/sr;y+=(1-Math.exp(-6.283*lp*Math.pow(.3,t/sec)/sr))*(Math.random()*2-1-y);d[i]=y*Math.exp(-6.9*t/sec);}}
   return b;}
 /* the bus: built once per interlude, into pOut */
+const iosSoundHint=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1); // phones and tablets that mute the web easily
 function iMix(){const a=pAc();if(!a)return null;
   if(IFX.bus&&!IFX.bus.fading&&IFX.a===a&&IFX.ist===IST)return IFX.bus;
   if(IFX.bus)iTear(0);
   const b=iMixOn(a,pOut,IST.I.id);
+  if(iosSoundHint&&!store.get("chron-ios-hint")){store.set("chron-ios-hint","1");setTimeout(()=>toast(navigator.audioSession?"No sound? Turn your iPhone's volume up.":"No sound? Turn the volume up, and check the silent switch on the side of your iPhone."),1500);} // once per device
   if(SND.nodes){IFX.mapDuck=true;SND.nodes.out.gain.setTargetAtTime(0,SND.nodes.a.currentTime,.4);} // the map's own sound waits outside
   if(!IFX.iv)IFX.iv=setInterval(iWatch,100);
   return b;}
