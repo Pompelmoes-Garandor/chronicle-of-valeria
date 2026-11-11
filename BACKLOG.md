@@ -23,7 +23,6 @@ Things that are wrong on the live site today. Check this list before **Now**: a 
 - Anyone at the table can report a bug to Sam or Niels; whoever hears it adds it here. Fixing one is a **Fixed** line in the patch notes, and the bug moves to **Done**.
 
 - [ ] **The map may slow to a crawl in Safari after a few minutes** · annoying, unconfirmed · Map, Safari and iPhone (WebKit) · Found in the 2026-11-10 play-test on Sam's Mac: in Playwright's WebKit the globe falls from ~60 to ~2 fps after jumping between a dozen views (night, wind, sea), even with the lens and paint off, while each view alone holds 40-60 fps. Chromium stays at 40-77. Not yet seen in the real Safari app: open `?fps`, move around for two minutes and compare the numbers at the start and end.
-- [ ] **On desktop the pinned paces strip is narrower than the words** · cosmetic · *The Eleven Paces*, desktop width · Scroll down while reading: the picture pins as a strip under the title, but the text column is wider than the strip, so the lines scrolling under it stay readable on both sides of it. Seen with and without the vision layer (found 2026-11-11 while fixing the past look).
 - [ ] **Saphira's Passive Perception doesn't add up** · cosmetic · Characters, Saphira · Her paper says Passive Perception 15, but her Perception skill is +4, which gives 14. The sheet shows the paper's 15. Lore question for Sam: which number is right?
 
 ## Now
@@ -64,6 +63,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **The Eleven Paces, round 3: a living door of fire, the boy runs off across the light, paintings rise out of black, the grey reaching hand, a wider far-off window on phones, and the pinned strip on desktop covers the words under it (was a known bug)** · Changed · Sam · PR #104
 - [x] **The Eleven Paces, round 2: cutscenes play like film (no plinths or grid, no waiting for taps, new shots), the story's own sound cues play, paces count on the first page, title card fix** · Changed · Sam · PR #97
 - [x] **The Eleven Paces rewritten so it reads like Stig, not like AI: every passage, choice, cutscene caption and fight line** · Changed · Sam · PR #100
 - [x] **The past in the visions legible again (clear sepia, sharper on phones), and the pinned paces strip clean under the vision layer** · Fixed · Sam · PR #99
