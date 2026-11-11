@@ -105,7 +105,8 @@ Newest first, with the PR that shipped it.
 - [x] **Fights on phones: tap twice to move (first tap previews the path), End turn asks once when an action is left** · Changed · Sam · PR #70
 - [x] **Make your own mini: each player paints their avatar in Hans's workshop, used on the 3D table and the sheet** · New · Sam · PR #67
 - [x] **Sculpted minis from the paintings: Stig first (TRELLIS), on the table, the bench and the sheet** · New · Sam · PR #67
-- [x] **Katy's sculpted mini** · New · Sam · PR (this one)
+- [x] **Katy's sculpted mini** · New · Sam · PR #95
+- [x] **Sculpt every character model: crew, allies and the session 10 foes, made on Sam's Mac with TRELLIS.2** · New · Sam · PR (this one)
 - [x] **Spell slots and resources as tappable dots** (slots, pact slots, Bardic Inspiration, Channel Divinity, Eyes of the Grave, exhaustion, short rest) · New · Sam · PR #68
 - [x] **Rename the "Character sheets" panel title to "Characters"** · Changed · either · PR #66
 - [x] **Long action names are cut off in the phone quick bar** · Fixed · Sam · PR #66
