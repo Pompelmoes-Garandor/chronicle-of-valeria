@@ -11893,7 +11893,8 @@ function hvVk(name,o={}){const b=IFX.bus;if(!b||b.fading||!IFX.a)return false;if
   return vkPlayCue(b.vk,name,iNow()+.02,Object.assign({dread:(IST&&IST.dread)|0},o));}
 /* the opening cutscene plays before the first page, and a door ending can come after the fight's mix has let go:
    a vision sound brings the interlude's mix up itself (while this interlude plays with sound on) instead of being dropped */
-function hvMixUp(){if(!PLAY.on||!opt.sound||!IST)return false;let b=IFX.bus;if(!b||b.fading||IFX.ist!==IST){b=iMix();if(!b||b.fading)return false;}
+function hvMixUp(){if(!PLAY.on||!opt.sound||!IST)return false;let b=IFX.bus;if(!b||b.fading||IFX.ist!==IST){b=iMix();if(!b||b.fading)return false;
+    const C=(IFOLEY[IST.I.id]||{}).coda;if(C&&C.lay&&!Object.keys(IFX.lay).length)iLayAll(C.lay,2.5,iNow());} // and the cave under it, so a cutscene has no dead air between its sounds
   if(!IFX.sc)IFX.sc=iScope();return true;}
 /* while a vision sound plays, the music and the room under it step back 5 dB, so it's heard over them without being louder (seconds per cue) */
 const VK_LEN={drip:8,"surf-reverse":11,surf:12,boards:9,"chimes-slow":10,timbers:9,spade:8,"breath-reverse":7,breath:7,chalk:8,toast:3,dirge:12,"fire-still":9,rewind:3,count:7,"boy-run":3,"ash-land":3.5,"sigil-wake":4};
