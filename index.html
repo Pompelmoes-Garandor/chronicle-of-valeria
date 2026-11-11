@@ -12291,9 +12291,12 @@ function hvBare(S){if(!S.d3||!V||S.bare)return;S.bare=true;const Vb=V,U=Vb.t3u&&
   strip();if(g0!=null)U.uG.value=0;Vb.ticks.push(strip);
   S.undo(()=>{Vb.ticks=Vb.ticks.filter(f=>f!==strip);for(const m of Vb.minis.values()){if(m.base)m.base.visible=true;if(m.rim)m.rim.visible=true;m.bare=0;}if(g0!=null)U.uG.value=g0;});}
 /* a painted insert over the shot; without the file the 3D shot plays on as it is */
-function hvPic(S,name,{pos="50% 50%",zoom=1.08,tone=null}={}){const src="art/"+name+".webp",v=h("i",{class:"hv-veil hv-pic","aria-hidden":"true"});
+function hvPic(S,name,{pos="50% 50%",zoom=1.08,tone=null,tall=null}={}){const src="art/"+name+".webp",v=h("i",{class:"hv-veil hv-pic","aria-hidden":"true"});
+  if(tall&&innerWidth<innerHeight*.9){pos=tall.pos||pos;zoom=tall.zoom||zoom;} // a phone sees a narrow slice: keep it on the gesture
   v.style.backgroundImage=`url(${src})`;v.style.backgroundPosition=pos;v.style.setProperty("--hv-z",zoom);if(tone)for(const k in tone)v.style.setProperty("--hv-"+k,tone[k]);S.undo(()=>v.remove());
-  const img=new Image();img.onload=()=>{if(S.over)return;S.el.insertBefore(v,S.title);requestAnimationFrame(()=>requestAnimationFrame(()=>v.classList.add("on")));};img.src=src;return v;}
+  const img=new Image();img.onload=()=>{if(S.over)return;S.el.insertBefore(v,S.title);requestAnimationFrame(()=>requestAnimationFrame(()=>v.classList.add("on")));
+    setTimeout(()=>{for(const o of S.el.querySelectorAll(".hv-pic"))if(o!==v&&o.compareDocumentPosition(v)&Node.DOCUMENT_POSITION_FOLLOWING)o.remove();},1900);}; // the one under it goes once this is up
+  img.src=src;return v;}
 const hvDrift=k=>V?{cam:{from:{at:hvC(6,6,.4),yaw:.2,pitch:.6,dist:9},to:{at:hvC(6,6,.4),yaw:.35,pitch:.55,dist:8.4},ms:4000}}:{};
 
 /* 1. The flake: the cave held still, the ash, the sigil waking, three paces, and the floor goes; down into the title */
@@ -12341,7 +12344,7 @@ async function hvFace(o={}){const d3=!!(V&&B),st=hvU("stig"),fu=hvU("future");if
     {cam:{from:{at:Sx().add(new THREE.Vector3(.32,.3,.55)),yaw:1.2,pitch:.15,dist:1.4},to:{at:Sx().add(new THREE.Vector3(.32,.32,.55)),yaw:1.05,pitch:.12,dist:1.2},ms:3000,fov:30,tall:{fov:44}}},
     {at:S=>{B.sc.fl=4;},cam:{from:{pos:Sx().add(new THREE.Vector3(-.95,1.25,1.45)),look:hvAt("future",.7)},to:{pos:Sx().add(new THREE.Vector3(-.85,1.2,1.25)),look:hvAt("future",.72)},ms:3200,fov:32,tall:{fov:46}}},
     {at:S=>{B.sc.fl=5;S.shake(.035);hvDream(S,.7,800);},cam:{from:{pos:Sx().add(new THREE.Vector3(-.85,1.2,1.25)),look:hvAt("future",.72)},to:{pos:Sx().add(new THREE.Vector3(-.78,1.16,1.1)),look:hvAt("future",.72)},ms:3000,fov:[32,26],roll:.03,tall:{fov:[46,38]}}},
-    {at:S=>{const m=hvM("future"),s=hvM("stig");if(m&&s){const d=s.pos.clone().sub(m.pos).setY(0).normalize();m.lunge={dir:d,t:performance.now(),dur:1100,small:true};}S.flash("#bfe6ff55");hvSnd("heartbeat-one");B.sc.fl=1;hvPic(S,"stig-reach",{zoom:1.1,pos:"55% 40%"});},
+    {at:S=>{const m=hvM("future"),s=hvM("stig");if(m&&s){const d=s.pos.clone().sub(m.pos).setY(0).normalize();m.lunge={dir:d,t:performance.now(),dur:1100,small:true};}S.flash("#bfe6ff55");hvSnd("heartbeat-one");B.sc.fl=1;hvPic(S,"stig-reach",{zoom:1.1,pos:"55% 40%",tall:{pos:"64% 40%",zoom:1.04}});},
       cam:{from:{at:hvAt("future",.6,0,.5),yaw:1.57,pitch:.2,dist:3.2},to:{at:hvAt("future",.6,0,.5),yaw:1.45,pitch:.16,dist:2.7},ms:3200,fov:36,tall:{fov:52}}}]
   :[{at:()=>hvSnd("fire-still")},{},{at:()=>hvSnd("heartbeat-two")},{},{},{},{},{},{at:()=>hvSnd("heartbeat-one")}];
   plan.extra=hvDrift();
@@ -12379,7 +12382,7 @@ async function hvDoorCut(n,o={}){const d3=!!V,gid=k=>hvU(k),boy=()=>V&&V.hvBoy;
     {at:S=>{S.shake(.02);},cam:{from:{at:hvAt("future",.48),yaw:F2+.08,pitch:.08,dist:1.6},to:{at:hvAt("future",.5),yaw:F2,pitch:.06,dist:1.35},ms:3600,fov:[30,26],tall:{fov:[44,38]}}},
     {at:S=>{const u=gid("future");if(u){u.gone=true;renderTokens();}hvSnd("silence");},cam:{from:{at:hvC(8,3,.1),yaw:-.3,pitch:.5,dist:2.4},to:{at:hvC(8,3,.1),yaw:-.2,pitch:.6,dist:2.1},ms:3400,fov:34}},
     // he lets go and runs: out from behind Stig (Stig's shoulder in the foreground), up the line and past the edge of the light; the dark takes him
-    {at:S=>{const b=boy();if(b){b.look=null;b.mode="run";b.runSp=2.1;b.to=hvC(10.7,3.3);setTimeout(()=>{if(!S.over&&b)b.want=0;},2300);}
+    {at:S=>{const b=boy();if(b){b.look=null;b.mode="run";b.runSp=2.1;b.to=hvC(9.9,3.6);setTimeout(()=>{if(!S.over&&b)b.want=0;},1300);}
         hvSnd("heartbeat-one");setTimeout(()=>{if(!S.over)hvSnd("boy-run");},350);},
       cam:{from:{pos:hvC(5.55,6.25,.6),look:hvC(7.2,4.5,.42)},to:{pos:hvC(5.6,6.15,.58),look:hvC(7.5,4.3,.42)},ms:4600,fov:36,
         tall:{from:{pos:hvC(4.9,5.42,1.05),look:hvC(9.8,4.2,.3)},to:{pos:hvC(5.1,5.38,1),look:hvC(10.2,3.9,.32)},fov:52}}},
