@@ -9,8 +9,9 @@
 //     every vision cue it plays in __fsnd.fired. Only one path through the story is played, so it asks for at least one;
 //   - for interludes with an opening cutscene (--cine-ids), the cutscene plays with sound: at least one cue fires while
 //     a cutscene is on screen (it plays with &cine, which the auto player otherwise skips);
-//   - each cue in --cues, fired by hand once the interlude's mix is up, makes the output louder than the quietest it
-//     was in the 1.5 s before.
+//   - each cue in --cues, fired by hand once the interlude's mix is up, makes sound: a vision kit cue is tapped on its
+//     own wire (it must reach -60 dB there), so the room bed, the music and other cues can't make the check flap;
+//     any other cue must make the page's output 3 dB louder than the quietest it was in the 1.5 s before.
 //
 //   cd tests/visual && npm i playwright && npx playwright install chromium     (once; node_modules is ignored)
 //   node tests/visual/sound.js --site .                  a local build (the repo root after build-site.py)
@@ -99,6 +100,10 @@ const problems = [];
       left.shift(); await page.waitForTimeout(2600);
       const L = await lv(), pre = L.filter(x => x[0] >= now - 1500 && x[0] < now).map(x => x[2]), after = rms(L, now, now + 2600);
       byHand[k] = [pre.length ? dB(Math.min(...pre)) : -180, dB(after)];
+      if (up === 'kit') { // a vision kit cue: also its own output, where the room bed and the music can't mask it
+        const K = await page.evaluate(() => window.__fsnd.kit.slice()).catch(() => []); // only this cue, tapped on its own wire
+        byHand[k].push(K.length, dB(Math.max(0, ...K.filter(x => x[0] >= now && x[0] < now + 2600).map(x => x[1]))));
+      }
       await page.waitForTimeout(5000); // let it (and any silence it leaves) finish before the next
     }
     const L = await lv(), fired = await page.evaluate(() => window.__fsnd ? window.__fsnd.fired.slice() : null).catch(() => null);
@@ -108,14 +113,17 @@ const problems = [];
     console.log(`${id}: ${L.length} samples, ${loud.length} not silent, loudest ${dB(peak).toFixed(1)} dB, context ${[...new Set(L.map(x => x[1]))].join('/') || 'never made'}`);
     console.log(`  script cues fired: ${[...new Set(fromScript)].join(', ') || 'none'} (the script has ${want.length})`);
     if (CINE.includes(id)) console.log(`  in cutscenes: ${[...new Set(inCine)].join(', ') || 'nothing'}`);
-    for (const [k, [b, a]] of Object.entries(byHand)) console.log(`  by hand: ${k} ${b.toFixed(1)} -> ${a.toFixed(1)} dB`);
+    for (const [k, [b, a, kb, ka]] of Object.entries(byHand)) console.log(`  by hand: ${k} ${b.toFixed(1)} -> ${a.toFixed(1)} dB` + (ka != null ? ` (on its own: ${ka.toFixed(1)} dB)` : ''));
     if (!L.length) fail('the page never made an AudioContext');
     else if (dB(peak) < -80) fail(`the output stayed silent (loudest ${dB(peak).toFixed(1)} dB)`);
     if (!fired) fail('no __fsnd on the page (is ?playtest working?)');
     else if (want.length && !fromScript.length) fail(`none of the script's ${want.length} sound cues fired`);
     if (CINE.includes(id) && fired && !inCine.length) fail('the cutscenes played no sound');
     for (const k of left) fail(`cue ${k} could not be fired by hand (the interlude's mix never came up)`);
-    for (const [k, [b, a]] of Object.entries(byHand)) if (a < -80 || a < b + 3) fail(`cue ${k} made no sound (${b.toFixed(1)} -> ${a.toFixed(1)} dB)`);
+    for (const [k, [b, a, kb, ka]] of Object.entries(byHand)) {
+      if (a < -80) fail(`cue ${k}: the output was silent after it (${a.toFixed(1)} dB)`);
+      else if (ka != null ? ka < -60 : a < b + 3) fail(`cue ${k} made no sound (` + (ka != null ? `on its own ${ka.toFixed(1)} dB, ${kb} samples` : `${b.toFixed(1)} -> ${a.toFixed(1)} dB`) + ')');
+    }
     for (const e of errors.filter(e => !/net::|Failed to load resource/.test(e)).slice(0, 5)) fail(e);
     await ctx.close();
   }
