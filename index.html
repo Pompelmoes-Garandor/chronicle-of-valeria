@@ -12283,7 +12283,6 @@ function hvBare(S){if(!S.d3||!V||S.bare)return;S.bare=true;const Vb=V,U=Vb.t3u&&
 function hvPic(S,name,{pos="50% 50%",zoom=1.08}={}){const src="art/"+name+".webp",v=h("i",{class:"hv-veil hv-pic","aria-hidden":"true"});
   v.style.backgroundImage=`url(${src})`;v.style.backgroundPosition=pos;v.style.setProperty("--hv-z",zoom);S.undo(()=>v.remove());
   const img=new Image();img.onload=()=>{if(S.over)return;S.el.insertBefore(v,S.title);requestAnimationFrame(()=>requestAnimationFrame(()=>v.classList.add("on")));};img.src=src;return v;}
-const hvPicOff=S=>S.el.querySelectorAll(".hv-pic:not(.out)").forEach(v=>v.classList.add("out"));
 const hvDrift=k=>V?{cam:{from:{at:hvC(6,6,.4),yaw:.2,pitch:.6,dist:9},to:{at:hvC(6,6,.4),yaw:.35,pitch:.55,dist:8.4},ms:4000}}:{};
 
 /* 1. The flake: the cave held still, the ash, the sigil waking, three paces, and the floor goes; down into the title */
@@ -12294,16 +12293,16 @@ async function hvFlake(o={}){const d3=!!V;
     const tk=(dt,tt)=>{for(const [s,ph] of L)s.position.y-=dt*.006*(1+Math.sin(tt*.3+ph));};V.ticks.push(tk);
     S.undo(()=>{if(V){V.ticks=V.ticks.filter(f=>f!==tk);for(const [s] of L)V.root.remove(s);}});};
   const flake=S=>{if(!d3)return;const m=hvM("stig");if(!m)return;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t3dotTex(),color:0xc4beb4,transparent:true,opacity:.95,depthWrite:false,fog:false}));s.scale.set(.05,.05,1);V.root.add(s); // pale ash, so it shows against him
-    const to=m.pos.clone().add(new THREE.Vector3(.16,.58,.06)),fr=to.clone().add(new THREE.Vector3(.25,1.1,.15));S.tween(3400,k=>{s.position.lerpVectors(fr,to,t3cEase.out(k));s.position.x+=Math.sin(k*9)*.04*(1-k);},null);
+    const to=m.pos.clone().add(new THREE.Vector3(.21,.56,-.13)),fr=to.clone().add(new THREE.Vector3(.25,1.1,.15));S.tween(3400,k=>{s.position.lerpVectors(fr,to,t3cEase.out(k));s.position.x+=Math.sin(k*9)*.04*(1-k);},null);
     S.undo(()=>{if(V)V.root.remove(s);});S.flake=s;};
   const sigil=S=>{if(!d3)return;const m=hvM("stig");if(!m)return;const g=new THREE.Sprite(new THREE.SpriteMaterial({map:t3dotTex(),color:0x5fd8e8,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending,fog:false}));
-    g.position.copy(m.pos).add(new THREE.Vector3(.16,.56,.06));V.root.add(g);S.tween(2600,k=>{g.scale.setScalar(.04+.22*k);g.material.opacity=.8*Math.sin(Math.min(1,k*1.3)*Math.PI*.5);if(S.flake){S.flake.material.color.setRGB(.77-.72*k,.75-.7*k,.71-.66*k);S.flake.scale.setScalar(.05+.05*k);}},null); // the ash goes to ink and spreads
+    g.position.copy(m.pos).add(new THREE.Vector3(.2,.55,-.11));V.root.add(g);S.tween(2600,k=>{g.scale.setScalar(.04+.22*k);g.material.opacity=.8*Math.sin(Math.min(1,k*1.3)*Math.PI*.5);if(S.flake){S.flake.material.color.setRGB(.77-.72*k,.75-.7*k,.71-.66*k);S.flake.scale.setScalar(.05+.05*k);}},null); // the ash goes to ink and spreads
     S.flash("#5fd8e855");S.undo(()=>{if(V)V.root.remove(g);});};
   const pace=(n,snd)=>S=>{const u=hvU("stig");if(u){u.y=9-n;renderTokens();}if(IFXS&&IFX.sc&&IFX.bus&&!IFX.bus.fading)try{IFXS.step(IFX.sc,iNow()+.5,{v:.5,f:66,grit:1.3,near:.3,lp:2600});IFXS.drip(IFX.sc,iNow()+.6,{f:900,v:.3});}catch(e){}if(snd)hvSnd(snd);};
   const plan=d3?[
     {at:S=>{ash(S);hvSnd("drip");hvDream(S,.35,4000);},cam:{from:{at:hvC(6,5,.4),yaw:-.65,pitch:.8,dist:11.5},to:{at:hvC(6,5,.4),yaw:-.38,pitch:.56,dist:9.4},ms:5600,ease:"soft"}},
-    {at:flake,cam:{from:{at:hvAt("stig",.66,.12,.05),yaw:Math.PI-.8,pitch:.34,dist:1.25},to:{at:hvAt("stig",.6,.14,.06),yaw:Math.PI-.62,pitch:.22,dist:.95},ms:4200,fov:30,tall:{fov:44}}}, // the sleeve: the flake drifts down into frame
-    {at:sigil,cam:{from:{at:hvAt("stig",.58,.15,.06),yaw:Math.PI-.62,pitch:.2,dist:.9},to:{at:hvAt("stig",.57,.16,.06),yaw:Math.PI-.5,pitch:.12,dist:.68},ms:3600,fov:[28,24],tall:{fov:[42,36]}}},
+    {at:flake,cam:{from:{at:hvAt("stig",.64,.18,-.08),yaw:Math.PI-.8,pitch:.34,dist:1.25},to:{at:hvAt("stig",.58,.2,-.11),yaw:Math.PI-.62,pitch:.22,dist:.95},ms:4200,fov:30,tall:{fov:44}}}, // the sleeve: the flake drifts down into frame
+    {at:sigil,cam:{from:{at:hvAt("stig",.57,.2,-.11),yaw:Math.PI-.62,pitch:.2,dist:.9},to:{at:hvAt("stig",.56,.2,-.11),yaw:Math.PI-.5,pitch:.12,dist:.68},ms:3600,fov:[28,24],tall:{fov:[42,36]}}},
     {at:pace(1),cam:{from:{pos:hvAt("stig",1.15,.2,1.5),look:hvC(6,3,.5)},to:{pos:hvAt("stig",1.1,.15,.9),look:hvC(6,3,.45)},ms:2600,fov:40,tall:{fov:54}}},
     {at:pace(2,"heartbeat-two"),cam:{from:{at:hvAt("stig",.12,0,-1),yaw:1.45,pitch:.04,dist:1.6},to:{at:hvAt("stig",.12,0,-1.4),yaw:1.3,pitch:.04,dist:1.4},ms:2800,fov:34,tall:{fov:48}}},
     {at:S=>{pace(3)(S);setTimeout(()=>{if(S.over||!B)return;B.sc.tide=3;S.flash("#06121a99");S.shake(.07);hvSnd("surf");hvDream(S,.8,1200);},1000);},
@@ -12366,11 +12365,11 @@ async function hvDoorCut(n,o={}){const d3=!!V,gid=k=>hvU(k),boy=()=>V&&V.hvBoy;
   else if(n==="2")plan=d3?[
     {at:S=>{walk("stig",6,5);hvFaceTo("future",F2s.x,F2s.z);S.shake(.025);hvDream(S,.25,2000);},cam:{from:{at:hvAt("stig",.6),yaw:.65,pitch:.2,dist:2.8},to:{at:hvAt("stig",.6,0,.8),yaw:.5,pitch:.18,dist:2.5},ms:3600,fov:34,tall:{fov:48}}},
     {at:S=>{B.sc.fl=4;hvFaceTo("future",F2s.x,F2s.z);},cam:{from:{at:hvAt("future",.34),yaw:F2-.4,pitch:.2,dist:2.9},to:{at:hvAt("future",.36),yaw:F2-.25,pitch:.16,dist:2.5},ms:3600,fov:34,tall:{fov:48}}},
-    {at:S=>{B.sc.fl=1;S.tween(3200,k=>{if(B)B.sc.warm=k;},null);hvDream(S,.6,2500);hvPic(S,"stig-clearhand",{zoom:1.1});},cam:{from:{at:hvAt("future",.42),yaw:F2+.45,pitch:.12,dist:2},to:{at:hvAt("future",.44),yaw:F2+.3,pitch:.1,dist:1.7},ms:3400,fov:30,tall:{fov:44}}},
-    {at:S=>{hvPicOff(S);S.shake(.02);},cam:{from:{at:hvAt("future",.48),yaw:F2+.08,pitch:.08,dist:1.6},to:{at:hvAt("future",.5),yaw:F2,pitch:.06,dist:1.35},ms:3600,fov:[30,26],tall:{fov:[44,38]}}},
+    {at:S=>{B.sc.fl=1;S.tween(3200,k=>{if(B)B.sc.warm=k;},null);hvDream(S,.6,2500);},cam:{from:{at:hvAt("future",.42),yaw:F2+.45,pitch:.12,dist:2},to:{at:hvAt("future",.44),yaw:F2+.3,pitch:.1,dist:1.7},ms:3400,fov:30,tall:{fov:44}}},
+    {at:S=>{S.shake(.02);},cam:{from:{at:hvAt("future",.48),yaw:F2+.08,pitch:.08,dist:1.6},to:{at:hvAt("future",.5),yaw:F2,pitch:.06,dist:1.35},ms:3600,fov:[30,26],tall:{fov:[44,38]}}},
     {at:S=>{const u=gid("future");if(u){u.gone=true;renderTokens();}hvSnd("silence");},cam:{from:{at:hvC(8,3,.1),yaw:-.3,pitch:.5,dist:2.4},to:{at:hvC(8,3,.1),yaw:-.2,pitch:.6,dist:2.1},ms:3400,fov:34}},
     {at:S=>{const b=boy();if(b){b.mode="run";b.to=hvC(10.5,4.5);}hvSnd("heartbeat-one");setTimeout(()=>{if(!S.over)hvSnd("boy-run");},350);},cam:{from:{at:hvC(9.2,4.7,.35),yaw:-1.25,pitch:.3,dist:4.4},to:{at:hvC(10,4.6,.35),yaw:-1.2,pitch:.26,dist:4.2},ms:4200,fov:38,tall:{fov:54}}}, // from behind Stig: the boy runs away from him, into the dark
-    {at:S=>{const b=boy(),sm=hvM("stig");if(b){if(sm)b.look=Math.atan2(sm.pos.x-b.g.position.x,sm.pos.z-b.g.position.z);b.mode="stay";setTimeout(()=>{if(S.over||!b)return;b.look=null;b.mode="run";b.to=hvC(11.6,1.2);setTimeout(()=>{if(b)b.want=0;},1400);},2600);}},
+    {at:S=>{const b=boy(),sm=hvM("stig");if(b){b.g.position.copy(hvC(10.5,4.5)).setY(.03);if(sm)b.look=Math.atan2(sm.pos.x-b.g.position.x,sm.pos.z-b.g.position.z);b.mode="stay";setTimeout(()=>{if(S.over||!b)return;b.look=null;b.mode="run";b.to=hvC(11.6,1.2);setTimeout(()=>{if(b)b.want=0;},1400);},2600);}},
       cam:{from:{at:hvC(10.5,4.5,.32),yaw:B2+.45,pitch:.12,dist:1.7},to:{at:hvC(10.5,4.5,.32),yaw:B2+.35,pitch:.1,dist:1.45},ms:3600,fov:34,tall:{fov:48}}},
     {at:S=>{hvVeil(S,"hv-dry");hvPic(S,"stig-dry",{zoom:1.06});},hold:4200},
     {at:S=>hvSnd("heartbeat-one"),hold:3000,black:true}]
@@ -12379,12 +12378,12 @@ async function hvDoorCut(n,o={}){const d3=!!V,gid=k=>hvU(k),boy=()=>V&&V.hvBoy;
     {at:S=>{hvSnd("count");hvDream(S,.2,2000);},cam:{from:{at:hvAt("katy",.7),yaw:.5,pitch:.12,dist:2.2},to:{at:hvAt("hans",.75),yaw:-.3,pitch:.12,dist:2.4},ms:5400,ease:"soft",fov:34,tall:{fov:48}}},
     {cam:{from:{at:hvAt("stig",.6),yaw:.5,pitch:-.02,dist:2.3},to:{at:hvAt("stig",.64),yaw:.36,pitch:0,dist:1.95},ms:3400,fov:30,tall:{fov:44}}},
     {at:S=>{hvFaceTo("stig",hvC(6,8).x,hvC(6,8).z);},cam:{from:{at:hvAt("stig",.6),yaw:.35,pitch:.16,dist:2.6},to:{at:hvAt("stig",.62),yaw:.15,pitch:.12,dist:2.2},ms:3400,fov:36,tall:{fov:50}}},
-    {at:S=>{hvPic(S,"stig-hands",{zoom:1.14});walk("katy",5,5);setTimeout(()=>walk("saphira",7,5),700);setTimeout(()=>walk("hans",6,5),1300);setTimeout(()=>walk("thorn",8,5),1800);},cam:{from:{at:hvC(6,4.6,.5),yaw:.65,pitch:.48,dist:5},to:{at:hvC(6,4.6,.5),yaw:.5,pitch:.42,dist:4.4},ms:5200,fov:38,tall:{fov:54}}},
+    {at:S=>{walk("katy",5,5);setTimeout(()=>walk("saphira",7,5),700);setTimeout(()=>walk("hans",6,5),1300);setTimeout(()=>walk("thorn",8,5),1800);},cam:{from:{at:hvC(6,4.6,.5),yaw:.65,pitch:.48,dist:5},to:{at:hvC(6,4.6,.5),yaw:.5,pitch:.42,dist:4.4},ms:5200,fov:38,tall:{fov:54}}},
     {at:S=>{walk("stig",6,2);walk("katy",5,2);walk("saphira",7,2);walk("hans",4,2);walk("thorn",8,2);setTimeout(()=>{if(S.over||!B)return;for(const k of["stig","katy","saphira","hans","thorn"])hvFaceTo(k,hvC(6,0).x,hvC(6,0).z);
         S.tween(3000,k=>{if(B)B.sc.calm=k;},null);hvSnd(hvHas("fire-hush")?"fire-hush":"silence");setTimeout(()=>hvSnd("breath"),hvHas("fire-hush")?2400:900);},1800);},
       cam:{from:{at:hvC(6,1,1),yaw:.3,pitch:.2,dist:5.2},to:{at:hvC(6,1,.9),yaw:.2,pitch:.16,dist:4.2},ms:6000,fov:38,ease:"soft",tall:{fov:54}}},
     {at:S=>{hvVeil(S,"hv-sea");},cam:{from:{at:hvC(6,6),yaw:.2,pitch:1.5,dist:12},to:{at:hvC(6,6),yaw:.3,pitch:1.52,dist:16},ms:5000,ease:"soft"}},
-    {at:S=>{walk("future",11,6);setTimeout(()=>{if(!S.over&&B)hvFaceTo("future",hvC(6,2).x,hvC(6,2).z);},1200);const v=S.el.querySelector(".hv-sea");if(v)v.classList.remove("on");hvPicOff(S);},cam:{from:{at:hvC(11,6,.4),yaw:F3-.45,pitch:.25,dist:3},to:{at:hvC(11,6,.4),yaw:F3-.3,pitch:.2,dist:2.5},ms:4200,fov:34,tall:{fov:48}}},
+    {at:S=>{walk("future",11,6);setTimeout(()=>{if(!S.over&&B)hvFaceTo("future",hvC(6,2).x,hvC(6,2).z);},1200);const v=S.el.querySelector(".hv-sea");if(v)v.classList.remove("on");},cam:{from:{at:hvC(11,6,.4),yaw:F3-.45,pitch:.25,dist:3},to:{at:hvC(11,6,.4),yaw:F3-.3,pitch:.2,dist:2.5},ms:4200,fov:34,tall:{fov:48}}},
     {at:S=>hvFaceTo("future",hvC(6,2).x,hvC(6,2).z),cam:{from:{pos:hvC(11.5,7.1,.62),look:hvC(6.6,2.6,.42)},to:{pos:hvC(11.35,6.95,.58),look:hvC(6.4,2.4,.42)},ms:3400,fov:[34,30],
       tall:{fov:42,from:{at:hvC(11,6,.5),yaw:F3-.3,pitch:.14,dist:2.1},to:{at:hvC(11,6,.52),yaw:F3-.22,pitch:.1,dist:1.8}}}},
     {at:S=>hvSnd("heartbeat-one"),hold:3000,black:true}]
