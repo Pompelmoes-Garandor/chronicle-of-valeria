@@ -3001,7 +3001,10 @@ function squawkHtml(html){return bird?html.replace(/<p>/g,"<p>*ruffles feathers*
 let audio=null; function ac(){try{if(!audio)try{if(navigator.audioSession)navigator.audioSession.type="playback";}catch(e){} // iPhone: play like music, even with the side switch on silent
   audio=audio||new (window.AudioContext||window.webkitAudioContext)();audio.resume();return audio;}catch(e){return null;}}
 // iPhone only lets sound start inside a tap, and stalls it after a call or the lock screen: every tap wakes it again
-for(const ev of["touchend","click","keydown"])addEventListener(ev,()=>{if(audio&&audio.state!=="running"&&!document.hidden)audio.resume().catch(()=>{});},{capture:true,passive:true});
+// In play with sound on, the first tap also opens the sound (a silent blip unlocks it), so an interlude's opening isn't mute.
+function acTap(){if(document.hidden)return;if(audio&&audio.state!=="running")audio.resume().catch(()=>{});
+  try{if((!audio||audio.state!=="running")&&PLAY.on&&opt.sound){const a=ac();if(a){const s=a.createBufferSource();s.buffer=a.createBuffer(1,1,22050);s.connect(a.destination);s.start(0);}}}catch(e){}}
+for(const ev of["touchend","click","keydown"])addEventListener(ev,acTap,{capture:true,passive:true});
 // one volume for every sound on the page (map, recap, dice, fights, interludes, eggs): stored on this device
 const VOL={v:Math.max(0,Math.min(1,parseFloat(store.get("chron-vol")??"0.8"))),g:null};if(!(VOL.v>=0))VOL.v=.8;
 function acOut(a){if(a!==audio)return a.destination;if(!VOL.g||VOL.g.context!==a){VOL.g=a.createGain();VOL.g.gain.value=VOL.v*VOL.v;VOL.g.connect(a.destination);}return VOL.g;} // the one door out to the speakers
@@ -10306,7 +10309,7 @@ function t3cNext(S){if(S.over)return;clearTimeout(S.tmo);clearInterval(S.iv);
   else{cap.classList.remove("on");S.typed=true;}
   if(sh.black)el.classList.add("black");
   // a line that would play on past ~12 s without a tap waits for one (the player stays in charge)
-  S.mustTap=sh.wait==="tap"||!S.flow&&!!(sh.caption||sh.big)&&now-S.lastIn>12000&&!PLAY.auto||/[?&]cinehold/.test(location.search); // cinehold: a test holds every shot
+  S.mustTap=sh.wait==="tap"||S.flow&&S.i===0&&opt.sound&&!(audio&&audio.state==="running")&&!PLAY.auto||!S.flow&&!!(sh.caption||sh.big)&&now-S.lastIn>12000&&!PLAY.auto||/[?&]cinehold/.test(location.search); // cinehold: a test holds every shot
   if(sh.at)try{sh.at(S);}catch(e){console.error(e);}
   S.tmo=setTimeout(()=>{if(S.mustTap){el.classList.add("wait");S.waiting=true;}else t3cNext(S);},PLAY.auto&&!/[?&]cine(=|&|$)/.test(location.search)?60:hold);}
 
