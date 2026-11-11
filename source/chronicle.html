@@ -2964,7 +2964,10 @@ function squawk(text){ // Hans, but a talking bird
   return text.replace(/([.!?])(\s+|$)/g,(m,p,sp)=>(++i%2?`${p} Squawk!${sp||""}`:m)).replace(/^/,"*flaps* ");
 }
 function squawkHtml(html){return bird?html.replace(/<p>/g,"<p>*ruffles feathers* ").replace(/\.<\/p>/g,". SQUAWK!</p>"):html;}
-let audio=null; function ac(){try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();audio.resume();return audio;}catch(e){return null;}}
+let audio=null; function ac(){try{if(!audio)try{if(navigator.audioSession)navigator.audioSession.type="playback";}catch(e){} // iPhone: play like music, even with the side switch on silent
+  audio=audio||new (window.AudioContext||window.webkitAudioContext)();audio.resume();return audio;}catch(e){return null;}}
+// iPhone only lets sound start inside a tap, and stalls it after a call or the lock screen: every tap wakes it again
+for(const ev of["touchend","click","keydown"])addEventListener(ev,()=>{if(audio&&audio.state!=="running"&&!document.hidden)audio.resume().catch(()=>{});},{capture:true,passive:true});
 // one volume for every sound on the page (map, recap, dice, fights, interludes, eggs): stored on this device
 const VOL={v:Math.max(0,Math.min(1,parseFloat(store.get("chron-vol")??"0.8"))),g:null};if(!(VOL.v>=0))VOL.v=.8;
 function acOut(a){if(a!==audio)return a.destination;if(!VOL.g||VOL.g.context!==a){VOL.g=a.createGain();VOL.g.gain.value=VOL.v*VOL.v;VOL.g.connect(a.destination);}return VOL.g;} // the one door out to the speakers
@@ -12300,7 +12303,7 @@ async function hvDoorCut(n,o={}){const d3=!!V,gid=k=>hvU(k),boy=()=>V&&V.hvBoy;
   const B2=d3?Math.atan2(F2s.x-hvC(10.5,4.5).x,F2s.z-hvC(10.5,4.5).z):0; // door 2: where the boy stops, looking back at Stig
   const F3=d3?Math.atan2(hvC(6,2).x-hvC(11,6).x,hvC(6,2).z-hvC(11,6).z):0; // door 3: sat by the wall, he watches them at the door
   if(n==="1")plan=d3?[
-    {at:S=>{const b=boy();if(b)b.mode="stay";hvDream(S,.3,2000);},cam:{from:{at:hvAt("stig",.34,-.16,.28),yaw:-.8,pitch:.16,dist:2.3},to:{at:hvAt("stig",.36,-.16,.28),yaw:-.66,pitch:.12,dist:1.95},ms:3800,fov:34,tall:{fov:48}}}, // the boy in front, Stig beyond him, the fire beyond both
+    {at:S=>{const b=boy();if(b)b.mode="stay";hvDream(S,.3,2000);},cam:{from:{at:hvAt("stig",.34,-.16,.28),yaw:1.0,pitch:.16,dist:2.4},to:{at:hvAt("stig",.36,-.16,.28),yaw:1.14,pitch:.12,dist:2.05},ms:3800,fov:34,tall:{fov:48}}}, // side on to the two of them, hand in hand, the fire to one side
     {at:S=>{walk("stig",6,3);setTimeout(()=>{for(const k of["katy","saphira","hans","thorn"])hvFaceTo(k,hvC(6,3).x,hvC(6,3).z);},900);},cam:{from:{at:hvC(6,4.8,.5),yaw:1.8,pitch:.2,dist:4.3},to:{at:hvC(6,4.2,.5),yaw:1.68,pitch:.16,dist:3.9},ms:3600,fov:38,tall:{fov:54}}},
     {at:S=>{walk("stig",6,2);hvSnd("white-out");setTimeout(()=>{if(S.over||!B)return;const u=gid("stig");if(u){u.gone=true;renderTokens();}S.flash("#ffffffdd");hvVeil(S,"hv-white");hvExp(S,2.4,900);if(!hvHas("white-out"))hvSnd("silence");},1300);},
       cam:{from:{at:hvC(6,1,1.1),yaw:.05,pitch:.14,dist:3.4},to:{at:hvC(6,1,1.1),yaw:0,pitch:.1,dist:2.2},ms:3600,fov:40,tall:{fov:56}}},
