@@ -7734,7 +7734,7 @@ function t3n_fin(f,b,col,{s=1,k=1,mon=0}={}){const c0=new THREE.Color(col),U={va
   if(s!==1){f.scale.setScalar(s);b.top*=s;}
   f.traverse(o=>{const m=o.material;if(o.isMesh&&m&&m.isMeshStandardMaterial&&!m.transparent&&m.emissive.getHex()===0)t3n_rim(m,U);});
   b.anim=(dt,tt,now,st)=>{if(an)an(dt,tt,now,st);const r=V&&V.view&&V.home?V.view.dist/V.home.dist:1,q=Math.min(1,dt*3);dn+=((st.down?1:0)-dn)*q;
-    U.value.copy(c0).multiplyScalar(k*Math.min(1,Math.max(.2,.2+(r-.3)*1.15))*(1-dn*.75));
+    U.value.copy(c0).multiplyScalar(k*Math.min(1,Math.max(.2,.2+(r-.3)*1.15))*(1-dn*.75)*(st.lit??1));
     // a monster that drops: it sags at the waist and its head lolls (its own idle stops while down)
     if(mon&&st.down&&!st.gone){if(up)up.rotation.x+=(u0+.55-up.rotation.x)*q;if(hd)hd.rotation.x+=(h0+.5-hd.rotation.x)*q;}
     t3n_pose(f);};
@@ -12170,10 +12170,10 @@ IFIGHTS.together={key:"i-together",map:"ifire",dim:true,undead:true,sc:{flame:3,
    Stig at 0 HP isn't the end: held under, he comes up gasping (W3x). The face cutscene opens it (hvFace). */
 Object.assign(ICON,{future:ICON.drowned,ashhand:ICON.hand,boy:'<circle cx="12" cy="6.5" r="2.6"/><path d="M8.6 21v-6.2c0-2.6 1.5-4.4 3.4-4.4s3.4 1.8 3.4 4.4V21M12 14.5V21"/>'});
 Object.assign(MON,{
-  future:{name:"His future self",ini:"F",icon:"future",hex:"#a9c2cf",ac:13,hp:45,speed:6,init:0,size:1,undead:true,boss:true,
+  future:{name:"His future self",ini:"F",icon:"future",hex:"#a9c2cf",ac:13,hp:40,speed:6,init:0,size:1,undead:true,boss:true,
     sv:{str:3,dex:0,con:2,int:0,wis:4,cha:0},imm:["cold"],noCond:["frightened"],atk:[{n:"Hold",hit:5,dmg:"1d8+3",type:"cold",reach:1}],ai:"future"},
   ashhand:{name:"Ash Hand",ini:"A",icon:"ashhand",ac:12,hp:11,speed:4,init:1,size:1,undead:true,
-    sv:{str:0,dex:1,con:0,int:-4,wis:0,cha:-4},atk:[{n:"Clutch",hit:4,dmg:"1d6+2",type:"cold",reach:1}],ai:"ashhand"},
+    sv:{str:0,dex:1,con:0,int:-4,wis:0,cha:-4},atk:[{n:"Clutch",hit:3,dmg:"1d6+2",type:"cold",reach:1}],ai:"ashhand"},
   // only for the cutscenes' captions (never on a board)
   boy:{name:"The boy",ini:"b",icon:"boy",hex:"#e0b98e",ac:10,hp:1,speed:6,init:0,size:1,sv:{},atk:[]}});
 Object.assign(CAVE_COST,{"4":1,"5":1,"6":1,"7":1,"8":1,"9":1});
@@ -12297,6 +12297,15 @@ function hvPic(S,name,{pos="50% 50%",zoom=1.08,tone=null,tall=null}={}){const sr
   const img=new Image();img.onload=()=>{if(S.over)return;S.el.insertBefore(v,S.title);requestAnimationFrame(()=>requestAnimationFrame(()=>v.classList.add("on")));
     setTimeout(()=>{for(const o of S.el.querySelectorAll(".hv-pic"))if(o!==v&&o.compareDocumentPosition(v)&Node.DOCUMENT_POSITION_FOLLOWING)o.remove();},1900);}; // the one under it goes once this is up
   img.src=src;return v;}
+/* the dark taking someone: soft black cards (they cover, they don't light) stood one behind another in front of the rock,
+   from at back toward the camera. Whoever walks in goes behind them, so the lit stone never shows through a fading figure. */
+let hvDarkT=null;function hvDarkTex(){if(hvDarkT)return hvDarkT;const cv=document.createElement("canvas");cv.width=cv.height=64;const g=cv.getContext("2d"),gr=g.createRadialGradient(32,32,0,32,32,32);
+  gr.addColorStop(0,"#000");gr.addColorStop(.45,"#000");gr.addColorStop(1,"#0000");g.fillStyle=gr;g.fillRect(0,0,64,64);hvDarkT=new THREE.CanvasTexture(cv);return hvDarkT;}
+function hvDark(S,at,toward,{w=1.3,h=2.2,ms=1800,n=3,step=.22}={}){if(!V||!at||!toward)return;const Vb=V,L=[],dx=toward.x-at.x,dz=toward.z-at.z,dl=Math.hypot(dx,dz)||1;
+  for(let i=0;i<n;i++){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:hvDarkTex(),transparent:true,opacity:0,depthWrite:false}));
+    s.scale.set(w*(1-i*.12),h*(1-i*.08),1);s.position.set(at.x+dx/dl*step*i,h*.4,at.z+dz/dl*step*i);s.renderOrder=3;Vb.root.add(s);L.push(s);}
+  S.tween(ms,k=>{for(const s of L)s.material.opacity=.97*k*k*(3-2*k);},null);
+  S.undo(()=>{for(const s of L){Vb.root.remove(s);s.material.dispose();}});return L;}
 const hvDrift=k=>V?{cam:{from:{at:hvC(6,6,.4),yaw:.2,pitch:.6,dist:9},to:{at:hvC(6,6,.4),yaw:.35,pitch:.55,dist:8.4},ms:4000}}:{};
 
 /* 1. The flake: the cave held still, the ash, the sigil waking, three paces, and the floor goes; down into the title */
@@ -12356,7 +12365,7 @@ async function hvFace(o={}){const d3=!!(V&&B),st=hvU("stig"),fu=hvU("future");if
 /* 3. The door: the last choice played out, one of three ways (after W3/W3x, before the ending) */
 async function hvDoorCut(n,o={}){const d3=!!V,gid=k=>hvU(k),boy=()=>V&&V.hvBoy;
   const walk=(k,x,y)=>{const u=gid(k);if(u){u.x=x;u.y=y;renderTokens();}};
-  if(d3&&boy()){const b=boy(),sm=hvM("stig");if(sm){const fx=Math.sin(sm.face),fz=Math.cos(sm.face);b.g.position.set(sm.pos.x-fx*.55+fz*.32,.03,sm.pos.z-fz*.55-fx*.32);b.face=sm.face;}}
+  if(d3&&boy()){const b=boy(),sm=hvM("stig");if(sm){const fx=Math.sin(sm.face),fz=Math.cos(sm.face);b.g.position.set(sm.pos.x-fx*.55+fz*.32,.03,sm.pos.z-fz*.55-fx*.32);b.face=sm.face;}b.lit=b.li=1;}
   const embers=S=>{if(!V||!V.sparks)return;let t=0;const Vb=V,tk=(dt)=>{t+=dt;if(t<.12)return;t=0; // inside the fire: sparks rising past the lens
       for(let i=0;i<3;i++)Vb.sparks.spawn(hvC(6+(Math.random()-.5)*3.2,1.3+Math.random()*.9,.05+Math.random()*.5),Math.random()<.5?"#ffb060":"#ff7a2a",1,{sp:.15,up:.9,lf:1.4,gr:.3,sz:.07});};
     Vb.ticks.push(tk);S.undo(()=>{Vb.ticks=Vb.ticks.filter(f=>f!==tk);});};
@@ -12381,13 +12390,15 @@ async function hvDoorCut(n,o={}){const d3=!!V,gid=k=>hvU(k),boy=()=>V&&V.hvBoy;
     {at:S=>{B.sc.fl=1;S.tween(3200,k=>{if(B)B.sc.warm=k;},null);hvDream(S,.6,2500);},cam:{from:{at:hvAt("future",.42),yaw:F2+.45,pitch:.12,dist:2},to:{at:hvAt("future",.44),yaw:F2+.3,pitch:.1,dist:1.7},ms:3400,fov:30,tall:{fov:44}}},
     {at:S=>{S.shake(.02);},cam:{from:{at:hvAt("future",.48),yaw:F2+.08,pitch:.08,dist:1.6},to:{at:hvAt("future",.5),yaw:F2,pitch:.06,dist:1.35},ms:3600,fov:[30,26],tall:{fov:[44,38]}}},
     {at:S=>{const u=gid("future");if(u){u.gone=true;renderTokens();}hvSnd("silence");},cam:{from:{at:hvC(8,3,.1),yaw:-.3,pitch:.5,dist:2.4},to:{at:hvC(8,3,.1),yaw:-.2,pitch:.6,dist:2.1},ms:3400,fov:34}},
-    // he lets go and runs: out from behind Stig (Stig's shoulder in the foreground), up the line and past the edge of the light; the dark takes him
-    {at:S=>{const b=boy();if(b){b.look=null;b.mode="run";b.runSp=2.1;b.to=hvC(9.9,3.6);setTimeout(()=>{if(!S.over&&b)b.want=0;},1300);}
+    // he lets go and runs: out from behind Stig (Stig's shoulder in the foreground), up the line and past the edge of the light,
+    // into the corner the dark has filled. He goes into shadow as he nears it and the dark covers him; only then does he fade
+    {at:S=>{const b=boy();hvDark(S,hvC(10.05,3.15),hvC(5.6,6.2));if(b){b.look=null;b.mode="run";b.runSp=2.1;b.to=hvC(10.15,3.05);
+          setTimeout(()=>{if(!S.over&&b)b.lit=0;},900);setTimeout(()=>{if(!S.over&&b)b.want=0;},2600);}
         hvSnd("heartbeat-one");setTimeout(()=>{if(!S.over)hvSnd("boy-run");},350);},
       cam:{from:{pos:hvC(5.55,6.25,.6),look:hvC(7.2,4.5,.42)},to:{pos:hvC(5.6,6.15,.58),look:hvC(7.5,4.3,.42)},ms:4600,fov:36,
-        tall:{from:{pos:hvC(4.9,5.42,1.05),look:hvC(9.8,4.2,.3)},to:{pos:hvC(5.1,5.38,1),look:hvC(10.2,3.9,.32)},fov:52}}},
+        tall:{from:{pos:hvC(4.9,5.42,1.05),look:hvC(9.6,3.75,.3)},to:{pos:hvC(5.1,5.38,1),look:hvC(9.95,3.4,.32)},fov:52}}},
     // his line is a voice from the dark where he went: the painting of him running off (the camera eases toward the empty edge of the light underneath, if it can't load)
-    {at:S=>{const b=boy();if(b){b.want=0;b.mode="stay";}hvPic(S,"stig-boy",{zoom:1.06});},
+    {at:S=>{const b=boy();if(b){b.want=0;b.lit=0;b.mode="stay";}hvPic(S,"stig-boy",{zoom:1.06});},
       cam:{from:{pos:hvC(5.2,5.8,.85),look:hvC(10.2,3.9,.35)},to:{pos:hvC(5.85,5.75,.8),look:hvC(10.4,3.8,.35)},ms:4200,fov:32,ease:"soft",tall:{fov:46}}},
     {at:S=>{hvVeil(S,"hv-dry");hvPic(S,"stig-dry",{zoom:1.06});},hold:4200},
     {at:S=>hvSnd("heartbeat-one"),hold:3000,black:true}]
@@ -12557,7 +12568,7 @@ function hvBoy(Vb){const g=new THREE.Group(),fig=new THREE.Group();g.add(fig);
   b.anim=t3c_anim(b,{breath:.02,look:.4});const fin=t3n_fin(fig,b,"#ffd9a8",{s:1});
   const mats=[];fig.traverse(o=>{if(o.isMesh&&o.material&&!Array.isArray(o.material)){o.material.transparent=true;mats.push(o.material);}});
   g.position.y=.03;Vb.root.add(g);
-  const M={g,mode:"follow",to:null,op:1,want:1,face:Math.PI,v:new THREE.Vector3()},T=new THREE.Vector3();let lastSp=0;
+  const M={g,mode:"follow",to:null,op:1,want:1,lit:1,li:1,face:Math.PI,v:new THREE.Vector3()},T=new THREE.Vector3();let lastSp=0;
   Vb.ticks.push((dt,tt,now)=>{const s=B&&B.units.find(u=>u.key==="stig"),m=s&&Vb.minis.get(s);
     if(M.mode==="follow"&&m&&!s.gone){const fx=Math.sin(m.face),fz=Math.cos(m.face);T.set(m.pos.x-fx*.55+fz*.32,.03,m.pos.z-fz*.55-fx*.32);}
     else if(M.mode==="run"&&M.to)T.copy(M.to).setY(.03);else T.copy(g.position);
@@ -12566,8 +12577,8 @@ function hvBoy(Vb){const g=new THREE.Group(),fig=new THREE.Group();g.add(fig);
     else if(M.look!=null)M.face=M.look;else if(m&&M.mode!=="run")M.face=m.face;
     let df=M.face-fig.rotation.y;df=Math.atan2(Math.sin(df),Math.cos(df));fig.rotation.y+=df*Math.min(1,dt*6);
     const moving=d>.08;if(moving&&Vb.sparks&&now-lastSp>140){lastSp=now;Vb.sparks.spawn(T3BOYP.set(g.position.x,.05,g.position.z),"#9fc8e0",2,{sp:.25,up:.6,lf:.5,gr:1.2,sz:.035});}
-    M.op+=(M.want-M.op)*Math.min(1,dt*1.5);for(const mt of mats)mt.opacity=M.op;g.visible=M.op>.02;
-    fin.anim(dt,tt,now,{moving,down:false,gone:false});});
+    M.op+=(M.want-M.op)*Math.min(1,dt*1.5);M.li+=(M.lit-M.li)*Math.min(1,dt*2.2);for(const mt of mats){mt.opacity=M.op;mt.color.setScalar(M.li);}g.visible=M.op>.02;
+    fin.anim(dt,tt,now,{moving,down:false,gone:false,lit:M.li});});
   Vb.hvBoy=M;return M;}
 const T3BOYP=new THREE.Vector3();
 /* the door of fire, in the black mountain: a still roar (a breaking wave frozen at the top), steam where the water meets
