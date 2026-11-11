@@ -411,7 +411,7 @@ table.ans td,table.ans th{border-bottom:1px solid #c9a35c22;padding:6px 4px;text
   .pl-story.hv-again .pl-inter>*:nth-child(2){animation-delay:.15s}.pl-story.hv-again .pl-inter>*:nth-child(3){animation-delay:.3s}.pl-story.hv-again .pl-inter>*:nth-child(n+4){animation-delay:.45s}
   .pl-story.hv-d3 .art::before{animation:hvHue 16s linear infinite}
   .pl-story.hv-d5 .pl-inter p:nth-child(4n+2){animation:hvSmear 7s ease-in-out infinite}
-  .hv-say{animation:hvSay 1.8s ease-out var(--hv-d,1s) both}
+  .hv-say{animation:hvSay 1.2s ease-out var(--hv-d,1s) both}
   .hv-say[data-who="future"]{animation:hvSay 1.8s ease-out var(--hv-d,1s) both,hvTwo 3.2s ease-in-out calc(var(--hv-d,1s) + 1.8s) infinite}
   .hv-ash{animation:hvAsh 5s ease-in var(--hv-d,3s) forwards}
   .hv-hud[data-f="3"] .hv-him,.hv-hud[data-f="4"] .hv-him,.hv-hud[data-f="5"] .hv-him{animation:hvFlk 1.7s steps(1) infinite}
@@ -425,7 +425,7 @@ table.ans td,table.ans th{border-bottom:1px solid #c9a35c22;padding:6px 4px;text
 @keyframes hvBack{0%{opacity:0;transform:translateX(26px) scaleX(-1);filter:blur(3px)}50%{opacity:.55;transform:translateX(-6px) scaleX(-1);filter:blur(1px)}62%{transform:translateX(-3px) scaleX(1)}100%{opacity:1;transform:none;filter:none}}
 @keyframes hvHue{to{filter:hue-rotate(360deg)}}
 @keyframes hvSmear{0%,100%{text-shadow:3px 1px 0 #9fd0e82e,-2px 0 0 #ff8a6a24}50%{text-shadow:7px 2px 1px #9fd0e824,-5px -1px 1px #ff8a6a1c}}
-@keyframes hvSay{0%{opacity:.3;filter:blur(2px)}100%{opacity:1;filter:none}}
+@keyframes hvSay{0%{opacity:.55;filter:blur(1px)}100%{opacity:1;filter:none}}
 @keyframes hvTwo{0%,100%{text-shadow:2px 0 0 #9fd0e840,-1.5px 0 0 #ff6a6a26}50%{text-shadow:5px 1px 1px #9fd0e83a,-4px 0 1px #ff6a6a22}}
 @keyframes hvAsh{0%{color:inherit;filter:none;letter-spacing:normal;opacity:1}60%{color:#8a8680;filter:blur(.6px)}100%{color:#5a5650;filter:blur(1.6px);letter-spacing:.14em;opacity:.3}}
 @keyframes hvFlk{0%,58%,100%{filter:none}60%{filter:opacity(.08)}64%{filter:opacity(.7)}66%{filter:opacity(.15)}}
@@ -10532,8 +10532,9 @@ async function iVerse(){const v={};
   const by=tally(key);v[1]=v[1]||by.stig||"";v[2]=v[2]||by.saphira||"";v[3]=v[3]||by.katy||"";return v;}
 /* ---- running one interlude ---- */
 /* the table keeps at most 8 lines of Hans's log per interlude: a long path packs its earlier lines together, the ending's line stays whole */
-function iPackLore(L,max){while(L.length>max){let k=-1,best=1e9;for(let i=0;i<L.length-2;i++){const n=L[i].length+L[i+1].length;if(n<best){best=n;k=i;}}
-    if(k<0||best>990){L.splice(max-2,L.length-max+1,L.slice(max-2,-1).join(" ").slice(0,1000));break;}L.splice(k,2,L[k]+" "+L[k+1]);}return L;}
+function iPackLore(L,max){const tail=x=>x.replace(/^Hans noted:\s*/,""); // two of Hans's notes in one line: "Hans noted:" once
+  while(L.length>max){let k=-1,best=1e9;for(let i=0;i<L.length-2;i++){const n=L[i].length+L[i+1].length;if(n<best){best=n;k=i;}}
+    if(k<0||best>990){L.splice(max-2,L.length-max+1,L.slice(max-2,-1).map((x,i)=>i?tail(x):x).join(" ").slice(0,1000));break;}L.splice(k,2,L[k]+" "+tail(L[k+1]));}return L;}
 async function runInterlude(I){
   const T=INTERLUDE_TEXT[I.id];if(!T){await read("This interlude isn't written yet.");return;}
   const mine=IST={I,seen:[],path:[],verse:{},votes:{},dread:0,flicker:2,mid:{}},live=()=>{if(IST!==mine)throw ABORT;}; // left midway: this run stops quietly
@@ -11666,7 +11667,7 @@ function hvFlicker(n){if(!IST)return;const f=Math.max(0,Math.min(5,(IST.flicker?
   if(box&&!reduced){const e=h("i",{class:"hv-flick-fx "+(n>0?"up":"down"),"aria-hidden":"true"});box.append(e);setTimeout(()=>e.remove(),1600);}
   if(IFX.bus&&!IFX.bus.fading&&IFX.sc)try{HV_SND[n>0?"flick-up":"flick-down"](IFX.sc,iNow());}catch(e){}}
 /* what happens in the text, at a reader's pace: intrusions, voices, ash, sound cues */
-function hvReader(S){const rd=storyEl&&storyEl.querySelector(".pl-inter");if(!rd)return;let words=0;const rate=SAY.on?2.6:4.2,at=w=>Math.min(14,.9+w/rate);
+function hvReader(S){const rd=storyEl&&storyEl.querySelector(".pl-inter");if(!rd)return;let words=0;const rate=SAY.on?2.6:4.2,at=w=>Math.min(SAY.on?14:5,.6+w/rate);
   const fire=(d,fn)=>S.hvTm.push(setTimeout(()=>{if(IST!==S||!IFX.bus||IFX.bus.fading||!IFX.sc)return;try{fn(IFX.sc,iNow());}catch(e){console.error(e);}},d*1000));
   for(const el of rd.children){const d=at(words);
     if(el.classList.contains("ic-intr")){el.style.setProperty("--hv-d",d.toFixed(2)+"s");const k=el.dataset.v;fire(d+.15,(s,t)=>IFXS.whisper(s,t,{v:k==="whisper"?1:.6,cold:k==="future"}));}
@@ -12097,8 +12098,8 @@ async function hvFace(o={}){const d3=!!(V&&B),st=hvU("stig"),fu=hvU("future");if
       cam:{from:{at:F(),yaw:1.1,pitch:.1,dist:2.2},to:{at:F(),yaw:.95,pitch:.08,dist:1.9},ms:3600,fov:32,tall:{fov:46}}},
     {at:S=>{S.flash("#9fd0e844");B.sc.fl=3;},cam:{from:{at:hvAt("future",.7),yaw:.8,pitch:.1,dist:2.2},to:{at:hvAt("future",.72),yaw:.62,pitch:.07,dist:1.8},ms:3800,fov:28,tall:{fov:40}}},
     {cam:{from:{at:Sx().add(new THREE.Vector3(.32,.3,.55)),yaw:1.2,pitch:.15,dist:1.4},to:{at:Sx().add(new THREE.Vector3(.32,.32,.55)),yaw:1.05,pitch:.12,dist:1.2},ms:3000,fov:30,tall:{fov:44}}},
-    {at:S=>{B.sc.fl=4;},cam:{from:{pos:Sx().add(new THREE.Vector3(-.5,1.35,1.45)),look:hvAt("future",.7)},to:{pos:Sx().add(new THREE.Vector3(-.42,1.3,1.25)),look:hvAt("future",.72)},ms:3200,fov:32,tall:{fov:46}}},
-    {at:S=>{B.sc.fl=5;S.shake(.035);hvDream(S,.7,800);},cam:{from:{pos:Sx().add(new THREE.Vector3(-.42,1.3,1.25)),look:hvAt("future",.72)},to:{pos:Sx().add(new THREE.Vector3(-.36,1.26,1.1)),look:hvAt("future",.72)},ms:3000,fov:[32,26],roll:.03,tall:{fov:[46,38]}}},
+    {at:S=>{B.sc.fl=4;},cam:{from:{pos:Sx().add(new THREE.Vector3(-.95,1.25,1.45)),look:hvAt("future",.7)},to:{pos:Sx().add(new THREE.Vector3(-.85,1.2,1.25)),look:hvAt("future",.72)},ms:3200,fov:32,tall:{fov:46}}},
+    {at:S=>{B.sc.fl=5;S.shake(.035);hvDream(S,.7,800);},cam:{from:{pos:Sx().add(new THREE.Vector3(-.85,1.2,1.25)),look:hvAt("future",.72)},to:{pos:Sx().add(new THREE.Vector3(-.78,1.16,1.1)),look:hvAt("future",.72)},ms:3000,fov:[32,26],roll:.03,tall:{fov:[46,38]}}},
     {at:S=>{const m=hvM("future"),s=hvM("stig");if(m&&s){const d=s.pos.clone().sub(m.pos).setY(0).normalize();m.lunge={dir:d,t:performance.now(),dur:1100,small:true};}S.flash("#bfe6ff55");hvSnd("heartbeat-one");B.sc.fl=1;},
       cam:{from:{at:hvAt("future",.6,0,.5),yaw:1.57,pitch:.2,dist:3.2},to:{at:hvAt("future",.6,0,.5),yaw:1.45,pitch:.16,dist:2.7},ms:3200,fov:36,tall:{fov:52}}}]
   :[{at:()=>hvSnd("fire-still")},{},{at:()=>hvSnd("heartbeat-two")},{},{},{},{},{},{at:()=>hvSnd("heartbeat-one")}];
@@ -12112,6 +12113,7 @@ async function hvFace(o={}){const d3=!!(V&&B),st=hvU("stig"),fu=hvU("future");if
 async function hvDoorCut(n,o={}){const d3=!!V,gid=k=>hvU(k),boy=()=>V&&V.hvBoy;
   const walk=(k,x,y)=>{const u=gid(k);if(u){u.x=x;u.y=y;renderTokens();}};
   let plan;const F2c=d3?hvC(8,3):null,F2s=d3?hvC(6,5):null,F2=d3?Math.atan2(F2s.x-F2c.x,F2s.z-F2c.z):0; // door 2: the way the future self looks, at Stig's step back
+  const B2=d3?Math.atan2(F2s.x-hvC(10.5,4.5).x,F2s.z-hvC(10.5,4.5).z):0; // door 2: where the boy stops, looking back at Stig
   const F3=d3?Math.atan2(hvC(6,2).x-hvC(11,6).x,hvC(6,2).z-hvC(11,6).z):0; // door 3: sat by the wall, he watches them at the door
   if(n==="1")plan=d3?[
     {at:S=>{const b=boy();if(b)b.mode="stay";hvDream(S,.3,2000);},cam:{from:{at:hvAt("stig",.45,.2,.3),yaw:1.35,pitch:.14,dist:2.4},to:{at:hvAt("stig",.45,.2,.3),yaw:1.2,pitch:.12,dist:2},ms:3800,fov:34,tall:{fov:48}}},
@@ -12127,13 +12129,13 @@ async function hvDoorCut(n,o={}){const d3=!!V,gid=k=>hvU(k),boy=()=>V&&V.hvBoy;
   :[{},{},{at:S=>{hvVeil(S,"hv-white");hvSnd("silence");}},{at:()=>hvSnd("drip")},{},{at:S=>hvVeil(S,"hv-well")},{},{at:()=>hvSnd("heartbeat-one"),hold:3000,black:true}];
   else if(n==="2")plan=d3?[
     {at:S=>{walk("stig",6,5);hvFaceTo("future",F2s.x,F2s.z);S.shake(.025);hvDream(S,.25,2000);},cam:{from:{at:hvAt("stig",.6),yaw:.65,pitch:.2,dist:2.8},to:{at:hvAt("stig",.6,0,.8),yaw:.5,pitch:.18,dist:2.5},ms:3600,fov:34,tall:{fov:48}}},
-    {at:S=>{B.sc.fl=5;hvFaceTo("future",F2s.x,F2s.z);},cam:{from:{at:hvAt("future",.34),yaw:F2-.4,pitch:.2,dist:2.9},to:{at:hvAt("future",.36),yaw:F2-.25,pitch:.16,dist:2.5},ms:3600,fov:34,tall:{fov:48}}},
-    {at:S=>{S.tween(3200,k=>{if(B)B.sc.fade=1-.7*k;},null);hvDream(S,.6,2500);},cam:{from:{at:hvAt("future",.42),yaw:F2+.45,pitch:.12,dist:2},to:{at:hvAt("future",.44),yaw:F2+.3,pitch:.1,dist:1.7},ms:3400,fov:30,tall:{fov:44}}},
+    {at:S=>{B.sc.fl=4;hvFaceTo("future",F2s.x,F2s.z);},cam:{from:{at:hvAt("future",.34),yaw:F2-.4,pitch:.2,dist:2.9},to:{at:hvAt("future",.36),yaw:F2-.25,pitch:.16,dist:2.5},ms:3600,fov:34,tall:{fov:48}}},
+    {at:S=>{B.sc.fl=1;S.tween(3200,k=>{if(B)B.sc.warm=k;},null);hvDream(S,.6,2500);},cam:{from:{at:hvAt("future",.42),yaw:F2+.45,pitch:.12,dist:2},to:{at:hvAt("future",.44),yaw:F2+.3,pitch:.1,dist:1.7},ms:3400,fov:30,tall:{fov:44}}},
     {at:S=>{S.shake(.02);},cam:{from:{at:hvAt("future",.48),yaw:F2+.08,pitch:.08,dist:1.6},to:{at:hvAt("future",.5),yaw:F2,pitch:.06,dist:1.35},ms:3600,fov:[30,26],tall:{fov:[44,38]}}},
     {at:S=>{const u=gid("future");if(u){u.gone=true;renderTokens();}hvSnd("silence");},cam:{from:{at:hvC(8,3,.1),yaw:-.3,pitch:.5,dist:2.4},to:{at:hvC(8,3,.1),yaw:-.2,pitch:.6,dist:2.1},ms:3400,fov:34}},
-    {at:S=>{const b=boy();if(b){b.mode="run";b.to=hvC(3,9.4);}hvSnd("heartbeat-one");},cam:{from:{at:hvC(5.4,6,.3),yaw:Math.PI+.35,pitch:.3,dist:3},to:{at:hvC(3.6,8.6,.28),yaw:Math.PI+.25,pitch:.24,dist:3.6},ms:4200,fov:38,tall:{fov:54}}},
-    {at:S=>{const b=boy(),sm=hvM("stig");if(b){if(sm)b.look=Math.atan2(sm.pos.x-b.g.position.x,sm.pos.z-b.g.position.z);b.mode="stay";setTimeout(()=>{if(S.over||!b)return;b.look=null;b.mode="run";b.to=hvC(2,12.5);setTimeout(()=>{if(b)b.want=0;},1400);},2600);}},
-      cam:{from:{at:hvC(3,9.4,.32),yaw:Math.PI+.45,pitch:.12,dist:1.7},to:{at:hvC(3,9.4,.32),yaw:Math.PI+.35,pitch:.1,dist:1.45},ms:3600,fov:34,tall:{fov:48}}},
+    {at:S=>{const b=boy();if(b){b.mode="run";b.to=hvC(10.5,4.5);}hvSnd("heartbeat-one");},cam:{from:{at:hvC(8,4.8,.3),yaw:-.95,pitch:.28,dist:3.2},to:{at:hvC(9.6,4.6,.3),yaw:-.9,pitch:.24,dist:3.5},ms:4200,fov:38,tall:{fov:54}}},
+    {at:S=>{const b=boy(),sm=hvM("stig");if(b){if(sm)b.look=Math.atan2(sm.pos.x-b.g.position.x,sm.pos.z-b.g.position.z);b.mode="stay";setTimeout(()=>{if(S.over||!b)return;b.look=null;b.mode="run";b.to=hvC(11.6,1.2);setTimeout(()=>{if(b)b.want=0;},1400);},2600);}},
+      cam:{from:{at:hvC(10.5,4.5,.32),yaw:B2+.45,pitch:.12,dist:1.7},to:{at:hvC(10.5,4.5,.32),yaw:B2+.35,pitch:.1,dist:1.45},ms:3600,fov:34,tall:{fov:48}}},
     {at:S=>{hvVeil(S,"hv-dry");},hold:4200},
     {at:S=>hvSnd("heartbeat-one"),hold:3000,black:true}]
   :[{},{},{},{},{at:()=>hvSnd("silence")},{at:()=>hvSnd("heartbeat-one")},{},{at:S=>hvVeil(S,"hv-dry"),hold:3600},{hold:3000,black:true}];
@@ -12147,7 +12149,7 @@ async function hvDoorCut(n,o={}){const d3=!!V,gid=k=>hvU(k),boy=()=>V&&V.hvBoy;
       cam:{from:{at:hvC(6,1,1),yaw:.3,pitch:.2,dist:5.2},to:{at:hvC(6,1,.9),yaw:.2,pitch:.16,dist:4.2},ms:6000,fov:38,ease:"soft",tall:{fov:54}}},
     {at:S=>{hvVeil(S,"hv-sea");},cam:{from:{at:hvC(6,6),yaw:.2,pitch:1.5,dist:12},to:{at:hvC(6,6),yaw:.3,pitch:1.52,dist:16},ms:5000,ease:"soft"}},
     {at:S=>{walk("future",11,6);setTimeout(()=>{if(!S.over&&B)hvFaceTo("future",hvC(6,2).x,hvC(6,2).z);},1200);const v=S.el.querySelector(".hv-sea");if(v)v.classList.remove("on");},cam:{from:{at:hvC(11,6,.4),yaw:F3-.45,pitch:.25,dist:3},to:{at:hvC(11,6,.4),yaw:F3-.3,pitch:.2,dist:2.5},ms:4200,fov:34,tall:{fov:48}}},
-    {at:S=>hvFaceTo("future",hvC(6,2).x,hvC(6,2).z),cam:{from:{at:hvC(11,6,.55),yaw:F3+.2,pitch:.1,dist:1.6},to:{at:hvC(11,6,.58),yaw:F3+.1,pitch:.08,dist:1.35},ms:3000,fov:30,tall:{fov:42}}},
+    {at:S=>hvFaceTo("future",hvC(6,2).x,hvC(6,2).z),cam:{from:{at:hvC(11,6,.5),yaw:F3-.3,pitch:.14,dist:2.1},to:{at:hvC(11,6,.52),yaw:F3-.22,pitch:.1,dist:1.8},ms:3000,fov:30,tall:{fov:42}}},
     {at:S=>hvSnd("heartbeat-one"),hold:3000,black:true}]
   :[{at:()=>hvSnd("count")},{},{},{},{at:()=>{hvSnd("silence");setTimeout(()=>hvSnd("breath"),900);}},{at:S=>hvVeil(S,"hv-sea")},{},{},{at:()=>hvSnd("heartbeat-one"),hold:3000,black:true}];
   plan.extra=hvDrift();
@@ -12288,11 +12290,12 @@ Object.assign(T3MINI,{
     return t3n_fin(f,{up,top:.6,hand:v(0,.5,.18),anim},"#c8b8a8",{mon:1});}});
 /* his future self, when Stig's sculpt is here: the same figure, grey to the bone, blue in the hollows, half there */
 function hvGhost(f,G){const mat=new THREE.MeshStandardMaterial({map:G.tex||null,vertexColors:true,roughness:.92,metalness:0,color:0xa9b4bc,emissive:0x1d3a4a,emissiveIntensity:.55,transparent:true,opacity:.9});
-  mat.onBeforeCompile=sh=>{sh.fragmentShader=sh.fragmentShader.replace("#include <map_fragment>","#include <map_fragment>\n{float gy=dot(diffuseColor.rgb,vec3(.3,.59,.11));diffuseColor.rgb=mix(diffuseColor.rgb,vec3(gy)*vec3(.8,.9,.98),.88);}");};
+  const W={value:0};mat.onBeforeCompile=sh=>{sh.uniforms.uWarm=W;sh.fragmentShader="uniform float uWarm;\n"+sh.fragmentShader.replace("#include <map_fragment>","#include <map_fragment>\n{float gy=dot(diffuseColor.rgb,vec3(.3,.59,.11));diffuseColor.rgb=mix(diffuseColor.rgb,vec3(gy)*vec3(.8,.9,.98),.88*(1.-uWarm));}");};
   mat.customProgramCacheKey=()=>"hvGhost";
   const up=new THREE.Group(),m=new THREE.Mesh(G.geo,mat);m.matrixAutoUpdate=false;m.matrix.copy(G.fit);up.add(m);f.add(up);
   const ph=Math.random()*6.28,b={up,top:G.top,hand:new THREE.Vector3(.2,G.top*.55,.12),sculpt:true};
-  b.anim=(dt,tt)=>{const br=Math.sin(tt*1.1+ph)*.008;up.scale.set(1+br*.4,1+br,1+br*.6);};return b;}
+  b.anim=(dt,tt)=>{const br=Math.sin(tt*1.1+ph)*.008;up.scale.set(1+br*.4,1+br,1+br*.6);up.rotation.x=0;
+    const w=B&&B.sc&&B.sc.warm||0;W.value+=(w-W.value)*Math.min(1,dt*2);mat.color.setRGB(.66+.34*W.value,.71+.29*W.value,.74+.26*W.value);mat.emissiveIntensity=.55*(1-W.value);};return b;}
 /* the boy: Stig at nine, from under the floorboards. Barefoot, too tall for his age, wet to the knees. Not a piece on the
    board: he walks a step behind Stig (mode "follow"), stays where he's told ("stay"), or runs off ("run", to a point). */
 function hvBoy(Vb){const g=new THREE.Group(),fig=new THREE.Group();g.add(fig);
