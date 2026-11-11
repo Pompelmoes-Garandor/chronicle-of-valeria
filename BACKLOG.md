@@ -63,6 +63,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **The Eleven Paces, round 7: the future self sits by the wall, gentler firelight, clean last look, huddle over their heads, brighter boy edge** · Changed · Sam · PR #?
 - [x] **The Eleven Paces, round 6: shadow boy, short white-out, door 3 huddle shot, firelight on the future self, fight words stack** · Changed · Sam · PR #111
 - [x] **The Eleven Paces, round 5: cheaper fire, the ash-to-ink opening, tighter doors** · Changed · Sam · PR #109
 - [x] **Sessions 1 to 3 in the Chronicle, from Katy's journal; Jax and Kane on the map** · Lore · Sam · PR #101

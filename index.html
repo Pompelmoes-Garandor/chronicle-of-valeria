@@ -12467,20 +12467,21 @@ async function hvDoorCut(n,o={}){const d3=!!V,gid=k=>hvU(k),boy=()=>V&&V.hvBoy;
     {at:S=>hvSnd("heartbeat-one"),hold:1900,black:true}]
   :[{},{},{},{},{at:()=>hvSnd("silence")},{at:()=>hvSnd("heartbeat-one")},{},{at:S=>hvVeil(S,"hv-dry"),hold:3600},{hold:3000,black:true}];
   else plan=d3?[
-    {at:S=>{hvSnd("count");hvDream(S,.2,2000);const b=boy(),sm=hvM("stig");if(b&&sm){b.mode="stay";b.g.position.set(sm.pos.x-Math.sin(.45)*.42,.03,sm.pos.z-Math.cos(.45)*.42);}},cam:{from:{at:hvAt("katy",.7),yaw:.5,pitch:.12,dist:2.2},to:{at:hvAt("hans",.75),yaw:-.3,pitch:.12,dist:2.4},ms:5400,ease:"soft",fov:34,tall:{fov:48}}},
+    {at:S=>{hvSnd("count");hvDream(S,.2,2000);const b=boy(),sm=hvM("stig");if(b&&sm){b.mode="stay";b.g.position.set(sm.pos.x-Math.sin(.45)*.42,.03,sm.pos.z-Math.cos(.45)*.42);}},cam:{from:{at:hvAt("katy",.7),yaw:.5,pitch:.12,dist:2.2},to:{at:hvAt("hans",.75),yaw:-.3,pitch:.12,dist:2.4},ms:5400,ease:"soft",fov:34,tall:{fov:60}}},
     {cam:{from:{at:hvAt("stig",.6),yaw:.5,pitch:-.02,dist:2.3},to:{at:hvAt("stig",.64),yaw:.36,pitch:0,dist:1.95},ms:3400,fov:30,tall:{fov:44}}},
     {at:S=>{hvFaceTo("stig",hvC(6,8).x,hvC(6,8).z);},cam:{from:{at:hvAt("stig",.6),yaw:.35,pitch:.16,dist:2.6},to:{at:hvAt("stig",.62),yaw:.15,pitch:.12,dist:2.2},ms:3400,fov:36,tall:{fov:50}}},
     {at:S=>{const b=boy();if(b)b.mode="follow";walk("katy",5,5);setTimeout(()=>walk("saphira",7,5),700);setTimeout(()=>walk("hans",6,5),1300);setTimeout(()=>walk("thorn",8,5),1800);},
-      cam:{from:{at:hvC(6,4.6,.42),yaw:1.22,pitch:.07,dist:4.3},to:{at:hvC(6,4.5,.42),yaw:1.1,pitch:.05,dist:3.9},ms:5200,fov:26,tall:{fov:38}}}, // low, at their height, a long lens, from the side (clear of the wall and of the crew walking in)
+      cam:{from:{at:hvC(6.3,4.6,.45),yaw:1.3,pitch:.24,dist:4.2},to:{at:hvC(6.3,4.5,.45),yaw:1.18,pitch:.2,dist:3.8},ms:5200,fov:28,tall:{fov:40}}}, // low, at their height, a long lens, from the side (clear of the wall and of the crew walking in)
     {at:S=>{walk("stig",6,2);walk("katy",5,2);walk("saphira",7,2);walk("hans",4,2);walk("thorn",8,2);setTimeout(()=>{if(S.over||!B)return;for(const k of["stig","katy","saphira","hans","thorn"])hvFaceTo(k,hvC(6,0).x,hvC(6,0).z);
         S.tween(3000,k=>{if(B)B.sc.calm=k;},null);hvSnd(hvHas("fire-hush")?"fire-hush":"silence");setTimeout(()=>hvSnd("breath"),hvHas("fire-hush")?2400:900);},1800);},
       cam:{from:{at:hvC(6,1,1),yaw:.3,pitch:.2,dist:5.2},to:{at:hvC(6,1,.9),yaw:.2,pitch:.16,dist:4.2},ms:6000,fov:38,ease:"soft",tall:{fov:54}}},
     {at:S=>{hvVeil(S,"hv-sea");},cam:{from:{at:hvC(6,6),yaw:.2,pitch:1.5,dist:12},to:{at:hvC(6,6),yaw:.3,pitch:1.52,dist:16},ms:5000,ease:"soft"}},
-    {at:S=>{walk("future",11,6);setTimeout(()=>{if(!S.over&&B)hvFaceTo("future",hvC(6,2).x,hvC(6,2).z);},1200);const v=S.el.querySelector(".hv-sea");if(v)v.classList.remove("on");
-        const L=V&&V.hvWarm;if(L){L.position.copy(hvC(10.4,5.3,.75));S.tween(1400,k=>{L.intensity=9*k;},null);S.undo(()=>{L.intensity=0;});}
-        if(B){S.tween(1800,k=>{if(B){B.sc.amber=.6*k;B.sc.warm=.3*k;}},null);S.undo(()=>{if(B){B.sc.amber=0;B.sc.warm=0;}});}},cam:{from:{at:hvC(11,6,.4),yaw:F3-.45,pitch:.25,dist:3},to:{at:hvC(11,6,.4),yaw:F3-.3,pitch:.2,dist:2.5},ms:4200,fov:34,tall:{fov:48}}},
-    {at:S=>hvFaceTo("future",hvC(6,2).x,hvC(6,2).z),cam:{from:{pos:hvC(11.5,7.1,.62),look:hvC(6.6,2.6,.42)},to:{pos:hvC(11.35,6.95,.58),look:hvC(6.4,2.4,.42)},ms:3400,fov:[34,30],
-      tall:{fov:42,from:{at:hvC(11,6,.5),yaw:F3-.3,pitch:.14,dist:2.1},to:{at:hvC(11,6,.52),yaw:F3-.22,pitch:.1,dist:1.8}}}},
+    {at:S=>{hvPut(gid("future"),11,6);hvFaceTo("future",hvC(6,2).x,hvC(6,2).z);{const m=hvM("future");if(m)m.face=m.faceT;} // a cut: he is already by the wall, and sits
+        setTimeout(()=>{if(!S.over&&B)S.tween(1500,k=>{if(B)B.sc.sit=k*k*(3-2*k);},null);},250);S.undo(()=>{if(B)B.sc.sit=0;});const v=S.el.querySelector(".hv-sea");if(v)v.classList.remove("on");
+        const L=V&&V.hvWarm;if(L){L.position.copy(hvC(10.4,5.3,.75));S.tween(1400,k=>{L.intensity=6*k;},null);S.undo(()=>{L.intensity=0;});}
+        if(B){S.tween(1800,k=>{if(B){B.sc.amber=.5*k;B.sc.warm=.15*k;B.sc.dim=.4*k;}},null);S.undo(()=>{if(B){B.sc.amber=0;B.sc.warm=0;B.sc.dim=0;}});}},cam:{from:{at:hvC(11,6,.38),yaw:F3-.5,pitch:.2,dist:2.6},to:{at:hvC(11,6,.3),yaw:F3-.32,pitch:.12,dist:1.9},ms:4200,fov:32,tall:{fov:46}}},
+    {at:S=>{hvFaceTo("future",hvC(6,2).x,hvC(6,2).z);if(B&&V&&V.cam.aspect>=.9){B.sc.dim=1;S.undo(()=>{if(B)B.sc.dim=0;});}},cam:{from:{pos:hvC(11.45,7.2,.78),look:hvC(6.6,2.6,.42)},to:{pos:hvC(11.3,7.05,.72),look:hvC(6.4,2.4,.42)},ms:3400,fov:[34,30],
+      tall:{fov:42,from:{at:hvC(11,6,.32),yaw:F3-.3,pitch:.12,dist:2},to:{at:hvC(11,6,.32),yaw:F3-.22,pitch:.08,dist:1.7}}}},
     {at:S=>hvSnd("heartbeat-one"),hold:1900,black:true}]
   :[{at:()=>hvSnd("count")},{},{},{},{at:()=>{hvSnd("silence");setTimeout(()=>hvSnd("breath"),900);}},{at:S=>hvVeil(S,"hv-sea")},{},{},{at:()=>hvSnd("heartbeat-one"),hold:3000,black:true}];
   plan.extra=hvDrift();
@@ -12596,13 +12597,13 @@ Object.assign(T3MINI,{
         U.add("leather",new THREE.TorusGeometry(.142*bk,.014,5,22),"#26231f",0,.02,0,{rx:Math.PI/2,sy:.86});}});
     b.anim=t3c_anim(b,{breath:.02,look:.12,hunch:.14});}
     const mats=[];f.traverse(o=>{if(o.isMesh&&o.material&&!Array.isArray(o.material)){o.material.transparent=true;mats.push(o.material);}});
-    fin=G?t3n_fin(f,b,"#9fd0e8",{k:.8,mon:1}):t3n_fin(f,b,"#9fd0e8",{s:1.12,mon:1});const an=fin.anim,up=fin.up,x0=up.position.x,y0=f.position.y;let last=-1,gl=0,kn=0;
+    fin=G?t3n_fin(f,b,"#9fd0e8",{k:.8,mon:1}):t3n_fin(f,b,"#9fd0e8",{s:1.12,mon:1});const an=fin.anim,up=fin.up,x0=up.position.x,y0=f.position.y;let last=-1,gl=0,kn=0,sn=0;
     fin.anim=(dt,tt,now,st)=>{an(dt,tt,now,st);const S=B&&B.sc||{},k=Math.max(0,Math.min(5,uwFlick()))/5;
-      kn+=((S.kneel?1:0)-kn)*Math.min(1,dt*2);f.scale.y=f.scale.x*(1-.24*kn);up.rotation.x+=.35*kn;
+      kn+=((S.kneel?1:0)-kn)*Math.min(1,dt*2);sn+=((S.sit||0)-sn)*Math.min(1,dt*5);f.scale.y=f.scale.x*(1-.24*kn);up.rotation.x+=.35*kn-.2*sn;
       // the bad lantern: now and then he stutters, sideways and nearly out; more often the fainter he is
       if(gl>0)gl-=dt;else if(!reduced&&Math.random()<dt*k*k*3.4)gl=.05+Math.random()*.12*(1+k);
       const op=Math.max(.06,(1-k*.55)*(gl>0?.2+.3*Math.random():1)*(S.fade??1));for(const m of mats)m.opacity*=op;
-      up.position.x=x0+(gl>0?(Math.random()-.5)*.09*k:0);f.position.y=y0;
+      up.position.x=x0+(gl>0?(Math.random()-.5)*.09*k:0);f.position.y=y0-sn*.28*(b.top||.9);
       // water runs off him and never runs out
       const q=Math.floor(tt*(4+k*3));if(q!==last&&V&&V.sparks&&!st.gone&&op>.2){last=q;up.updateWorldMatrix(true,false);
         const p=up.localToWorld(t3m_tmp.set((Math.random()-.5)*.32,.1+Math.random()*.25,(Math.random()-.5)*.2));V.root.worldToLocal(p);V.sparks.spawn(p,"#9fc8e0",1,{sp:.03,up:-.5,lf:.7,sz:.04});}};
@@ -12624,15 +12625,15 @@ function hvGhost(f,G){const mat=new THREE.MeshStandardMaterial({map:G.tex||null,
   const W={value:0};mat.onBeforeCompile=sh=>{sh.uniforms.uWarm=W;sh.fragmentShader="uniform float uWarm;\n"+sh.fragmentShader.replace("#include <map_fragment>","#include <map_fragment>\n{float gy=dot(diffuseColor.rgb,vec3(.3,.59,.11));diffuseColor.rgb=mix(diffuseColor.rgb,vec3(gy)*vec3(.8,.9,.98),.88*(1.-uWarm));}");};
   mat.customProgramCacheKey=()=>"hvGhost";
   const up=new THREE.Group(),m=new THREE.Mesh(G.geo,mat);m.matrixAutoUpdate=false;m.matrix.copy(G.fit);up.add(m);f.add(up);
-  const ph=Math.random()*6.28,b={up,top:G.top,hand:new THREE.Vector3(.2,G.top*.55,.12),sculpt:true};let A=0; // A: firelight on him (B.sc.amber), no extra lamp so no shader rebuild
+  const ph=Math.random()*6.28,b={up,top:G.top,hand:new THREE.Vector3(.2,G.top*.55,.12),sculpt:true};let A=0,D=0; // A: firelight on him (B.sc.amber), no extra lamp so no shader rebuild
   b.anim=(dt,tt)=>{const br=Math.sin(tt*1.1+ph)*.008;up.scale.set(1+br*.4,1+br,1+br*.6);up.rotation.x=0;
-    const w=B&&B.sc&&B.sc.warm||0;W.value+=(w-W.value)*Math.min(1,dt*2);const a=B&&B.sc&&B.sc.amber||0,v=W.value;A+=(a-A)*Math.min(1,dt*1.6); // the fire's colour on him: a warm tint that keeps his shading, and a little glow
-    mat.color.setRGB((.66+.34*v)*(1+.32*A),(.71+.29*v)*(1+.04*A),(.74+.26*v)*(1-.4*A));mat.emissive.setRGB(.114+.3*A,.227-.03*A,.29-.22*A);mat.emissiveIntensity=.55*(1-v)+.14*A;};return b;}
+    const w=B&&B.sc&&B.sc.warm||0;W.value+=(w-W.value)*Math.min(1,dt*2);const a=B&&B.sc&&B.sc.amber||0,v=W.value,dm=B&&B.sc&&B.sc.dim||0;A+=(a-A)*Math.min(1,dt*4);D+=(dm-D)*Math.min(1,dt*6); // the fire's colour on him: a warm tint that keeps his shading, and a little glow
+    const lo=1-.8*D;mat.color.setRGB((.66+.34*v)*(1+.32*A)*lo,(.71+.29*v)*(1+.04*A)*lo,(.74+.26*v)*(1-.4*A)*lo);mat.emissive.setRGB(.114+.3*A,.227-.03*A,.29-.22*A);mat.emissiveIntensity=(.55*(1-v)+.14*A)*lo;};return b;}
 /* the boy: Stig at nine, from under the floorboards. Barefoot, too tall for his age, wet to the knees. Not a piece on the
    board: he walks a step behind Stig (mode "follow"), stays where he's told ("stay"), or runs off ("run", to a point). */
 function hvBoy(Vb){const g=new THREE.Group(),fig=new THREE.Group();g.add(fig);
   const b=t3body(fig,{h:.56,bulk:.8,cloth:"#211a14",skin:"#2c221a",hair:"#0e0a07",hairStyle:"short",pants:"#18120d",boots:"#1c150f",belt:"#120d09",capelet:false,hands:[[-.13,-.07,.05],[.13,-.07,.05]]}); // a silhouette: the warm edge (fin) draws him
-  b.anim=t3c_anim(b,{breath:.02,look:.4});const fin=t3n_fin(fig,b,"#ffd9a8",{s:1});
+  b.anim=t3c_anim(b,{breath:.02,look:.4});const fin=t3n_fin(fig,b,"#ffd9a8",{s:1,k:2.4});
   const mats=[];fig.traverse(o=>{if(o.isMesh&&o.material&&!Array.isArray(o.material)){o.material.transparent=true;mats.push(o.material);}});
   g.position.y=.03;Vb.root.add(g);
   const M={g,mode:"follow",to:null,op:1,want:1,lit:1,li:1,body:.32,face:Math.PI,v:new THREE.Vector3()},T=new THREE.Vector3();let lastSp=0;
