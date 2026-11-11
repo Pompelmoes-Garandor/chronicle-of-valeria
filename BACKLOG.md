@@ -29,6 +29,7 @@ Things that are wrong on the live site today. Check this list before **Now**: a 
 
 Top of the list is what to work on next.
 
+- [ ] **Sam plays The Eleven Paces and says when Stig sees it** · Lore · Sam · Needs Sam. Stig's haunted interlude is built but only Sam (signed in as DM) and `?interlude=s11-stig` open it; `S11_ON` in `chronicle.html` turns it on for Stig's player. The open lore calls are the `[SAM?]` notes in `source/interludes/s11-stig.md` and the DM notes in the project files (never in the repo). Pick which paintings stay.
 - [ ] **Sam plays Protocol Zero and says when players see it** · Lore · Sam · Needs Sam. The Steward's bonus level is built but only Sam (signed in as DM), `?interlude` and `?steward` open it; `SW_ON` in `chronicle.html` turns it on for everyone. The ten open questions in the script doc (the ship's name *the Echo*, the invented bridge and engine room, Teenoog's mount, two lines to spoiler-check) are still Sam's: https://claude.ai/artifact/6AQmuc6JWHMxYcD2FuRZmf
 - [ ] **Sam reads the architecture doc for live online storage** · Changed · Sam · Ask this first when Sam starts his next session. Niels wrote a plan to move the site to Netlify, with shared lore in Netlify Blobs, table-only sign-in (email or Google), and players proposing changes that Sam approves as DM: https://claude.ai/artifact/GAzMi1qU52yxoCkHtLsWyW (Niels shares it with Sam; it only opens for people it's shared with). Ask Sam (1) whether he wants to read it now and (2) whether to make it available in GitHub, as an `ARCHITECTURE.md` in the repo root or as an issue. The doc's open questions need his answer before any building starts. Fleshes out **Live online storage** under Later.
 - [ ] **Sam checks the place classifications** · Lore · Sam · Valarius and Orda as town or city, Valethorn as castle, the ravine as natural wonder, the Dead Valley and Summerwood as realms, the waystone as ancient tech. Questions are in PR #4.
@@ -62,6 +63,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Stig's haunted interlude *The Eleven Paces*: visions of past and future, dread and flicker, the undertow fight, five cutscenes, seven paintings, its own sound** · New · Sam · PR #91
 - [x] **Folk music under the recap, one sound switch, a volume slider** · New · Sam · PR #90
 - [x] **The crash cinematic has sound (swarm fire, rockets, the fall, impact, black-box beeps)** · New · Sam · PR #88
 - [x] **Painted foe portraits in the interlude fights (ribbon, panel, targets, flat tokens, first-sight card), Round the Fire repainted** · New · Sam · PR #84

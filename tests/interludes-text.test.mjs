@@ -40,6 +40,11 @@ for (const I of INTERLUDES) {
       for (const o of p.opts) {
         assert.ok(o.t && o.t.length <= 120, `${pid}: a choice's label is at most 120 characters (it goes into the path): ${o.t}`);
         if (o.go === "@end") continue;
+        if (o.go.startsWith("@end:")) { assert.ok(T.ends[o.go.slice(5)], `${pid} picks ending ${o.go.slice(5)}, which doesn't exist`); continue; }
+        if (o.fail) assert.ok(T.passages[o.fail], `${pid}: a failed check goes to ${o.fail}, which isn't a passage`);
+        if (o.alt) assert.ok(T.passages[o.alt.go], `${pid}: the other way (at dread ${o.alt.min}) goes to ${o.alt.go}, which isn't a passage`);
+        const fight = o.go.startsWith("@") && I.fights && I.fights[o.go.slice(1)];
+        if (fight) { for (const w of ["win", "lose"]) assert.ok(T.passages[fight[w]], `${pid}: the fight ${o.go} goes on to ${fight[w]} (${w}), which isn't a passage`); continue; }
         if (o.go.startsWith("@")) {
           const j = I.jump && I.jump[o.go.slice(1)];
           assert.equal(typeof j, "function", `${pid} jumps to ${o.go}, which the engine doesn't resolve`);
@@ -56,6 +61,7 @@ for (const I of INTERLUDES) {
     }
     if (I.votes) for (const pid of Object.keys(I.votes)) assert.ok(T.passages[pid]?.opts.length > 1, `the vote at ${pid} needs a passage with choices`);
     if (I.verse) assert.ok(T.passages[I.verse], `the verse passage ${I.verse} exists`);
+    for (const [pid, p] of Object.entries(T.passages)) if (p.then) assert.ok(T.passages[p.then], `the hub ${pid} goes on to ${p.then}, which isn't a passage`);
   });
 
   if (I.prologue) {
@@ -87,14 +93,20 @@ for (const I of INTERLUDES) {
       assert.ok(T.passages[pid], `endBy names ${pid}, which isn't a passage`);
       assert.ok(T.ends[ek], `endBy sends ${pid} to ending ${ek}, which doesn't exist`);
     }
-    for (const k of Object.keys(T.ends)) assert.ok(Object.values(I.endBy).includes(k), `ending ${k} can't be reached (no passage in endBy leads to it)`);
+    const picked = new Set(Object.values(I.endBy));
+    for (const p of Object.values(T.passages)) for (const o of p.opts) if (o.go.startsWith("@end:")) picked.add(o.go.slice(5));
+    for (const k of Object.keys(T.ends)) assert.ok(picked.has(k), `ending ${k} can't be reached (no passage in endBy or choice leads to it)`);
     // every way to the end passes a passage that picks the ending: walk from the start without entering one
-    const next = (pid) => T.passages[pid].opts.flatMap((o) => o.go === "@end" ? ["@end"]
-      : o.go.startsWith("@") ? [...new Set([[], ...Object.keys(T.passages).map((p) => [p])].map((s) => I.jump[o.go.slice(1)](s)))] : [o.go]);
+    // a choice can pick its ending itself (@end:N), a fight goes on to its win or lose passage, a failed check to its own
+    const picks = (pid) => !!I.endBy[pid] || T.passages[pid].opts.some((o) => o.go.startsWith("@end:"));
+    // a hub (then: X) goes on to X once every room off it has been seen
+    const next = (pid) => [...(T.passages[pid].then ? [T.passages[pid].then] : []), ...T.passages[pid].opts.flatMap((o) => [...(o.fail ? [o.fail] : []), ...(o.alt ? [o.alt.go] : []), ...(o.go === "@end" || o.go.startsWith("@end:") ? ["@end"]
+      : I.fights && I.fights[o.go.slice(1)] ? [I.fights[o.go.slice(1)].win, I.fights[o.go.slice(1)].lose]
+      : o.go.startsWith("@") ? [...new Set([[], ...Object.keys(T.passages).map((p) => [p])].map((s) => I.jump[o.go.slice(1)](s)))] : [o.go])])];
     const seen = new Set(), todo = [T.first];
     while (todo.length) { const pid = todo.pop(); if (seen.has(pid)) continue; seen.add(pid);
       assert.notEqual(pid, "@end", "a way through reaches the end without passing a passage that picks the ending");
-      if (!I.endBy[pid]) todo.push(...next(pid)); }
+      if (!picks(pid)) todo.push(...next(pid)); }
     const all = new Set(), stack = [T.first];
     while (stack.length) { const pid = stack.pop(); if (all.has(pid) || pid === "@end") continue; all.add(pid); stack.push(...next(pid)); }
     for (const pid of Object.keys(T.passages)) assert.ok(all.has(pid), `passage ${pid} can't be reached from the start`);
