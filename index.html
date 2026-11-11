@@ -441,8 +441,8 @@ table.ans td,table.ans th{border-bottom:1px solid #c9a35c22;padding:6px 4px;text
 .hv-deep.far::before{transform:scale(.2)}.hv-deep.star::before{transform:scale(.05);opacity:.8}
 .hv-deep::after{content:"";position:absolute;inset:0;opacity:.7;background-image:radial-gradient(circle,#cfeaf255 0 2px,transparent 3px),radial-gradient(circle,#cfeaf244 0 1.5px,transparent 2.5px),radial-gradient(circle,#cfeaf233 0 3px,transparent 4px);
   background-size:90px 140px,60px 110px,150px 210px;background-position:10px 0,40px 30px,80px 60px}
-.hv-white{background:#fff8ec;transition:opacity .8s ease}.hv-white.thin{opacity:.5!important;mix-blend-mode:screen;transition:opacity 2.5s ease}.hv-white.thin.gone{opacity:.18!important}
-.hv-well{--hv-wr:15vmin;--hv-ww:100vmax;background:radial-gradient(circle at 50% 50%,transparent 0 var(--hv-wr),#000 calc(var(--hv-wr) + 4vmin))}
+.hv-white{background:#fff8ec;transition:opacity .8s ease}.hv-white.thin{opacity:.5!important;mix-blend-mode:screen;transition:opacity 2.5s ease}.hv-white.thin.gone{opacity:.18!important}.hv-white.thin.gone.off{opacity:0!important}
+.hv-well{--hv-wr:21vmin;--hv-ww:125vmax;background:radial-gradient(circle at 50% 50%,transparent 0 var(--hv-wr),#000 calc(var(--hv-wr) + 4vmin))}
 @media (max-aspect-ratio:4/5){.hv-well{--hv-wr:27vmin;--hv-ww:150vmin}} /* phones: a window you can see into, onto more of the painting */
 .hv-dry{background:radial-gradient(ellipse at 50% 70%,#2a1c10,#050403 70%)}
 @property --hv-gr{syntax:"<percentage>";inherits:false;initial-value:85%}
@@ -12318,6 +12318,17 @@ function hvPic(S,name,{pos="50% 50%",zoom=1.08,tone=null,tall=null}={}){const sr
    the stone, from at back toward the camera. Whoever walks in goes behind them, so the lit stone never shows through a fading figure.
    The back card is the widest: its edge carries a faint lip of firelit rock on the side the light comes from (lip: -1 left, 1 right),
    and ash drifts across the mouth, lit, so it reads as an opening with depth rather than a smudge. */
+/* a curl of ash (grey, ragged, a paler curled edge) and an ink blot with veins: the blot (veins 0) is drawn dark, the veins (1) as
+   thin light along the same lines, so the sigil's light leaks out through the ink's own tendrils */
+let hvAshT=null;function hvAshTex(){if(hvAshT)return hvAshT;const cv=document.createElement("canvas");cv.width=cv.height=64;const g=cv.getContext("2d"),R=seeded(5151);
+  g.beginPath();for(let i=0;i<11;i++){const a=i/11*Math.PI*2,r=13+R()*15;g[i?"lineTo":"moveTo"](32+Math.cos(a)*r,32+Math.sin(a)*r*.78);}g.closePath();
+  const gr=g.createRadialGradient(29,30,2,32,32,29);gr.addColorStop(0,"#8f8982");gr.addColorStop(.7,"#6e6962");gr.addColorStop(1,"#403c37");g.fillStyle=gr;g.fill();
+  g.strokeStyle="#a69f96";g.lineWidth=1.3;g.stroke();return (hvAshT=new THREE.CanvasTexture(cv));}
+const hvInkT={};function hvInkTex(veins){if(hvInkT[veins])return hvInkT[veins];const cv=document.createElement("canvas");cv.width=cv.height=128;const g=cv.getContext("2d"),R=seeded(77);g.translate(64,64);
+  if(!veins){const gr=g.createRadialGradient(0,0,0,0,0,34);gr.addColorStop(0,"rgba(5,7,12,1)");gr.addColorStop(.55,"rgba(7,10,18,.92)");gr.addColorStop(1,"rgba(7,10,18,0)");g.fillStyle=gr;g.beginPath();g.arc(0,0,34,0,7);g.fill();}
+  g.lineCap="round";for(let i=0;i<10;i++){let a=i/10*Math.PI*2+R()*.5,x=0,y=0;for(let k=0;k<8;k++){a+=(R()-.5)*.9;const nx=x+Math.cos(a)*(5+R()*3),ny=y+Math.sin(a)*(5+R()*3);
+      g.beginPath();g.moveTo(x,y);g.lineTo(nx,ny);g.lineWidth=(veins?1.8:5.5)*(1-k/9);g.strokeStyle=veins?`rgba(150,236,255,${(.95-k*.07).toFixed(2)})`:"rgba(5,7,12,.9)";g.stroke();x=nx;y=ny;}}
+  return (hvInkT[veins]=new THREE.CanvasTexture(cv));}
 const hvDarkT={};function hvDarkTex(lip){const key=String(lip);if(hvDarkT[key])return hvDarkT[key];const cv=document.createElement("canvas");cv.width=128;cv.height=256;
   const g=cv.getContext("2d"),R=seeded(911),P=[];
   // the mouth: a cleft, wide at the floor, leaning a little and narrowing to a ragged point (no round top: that reads as a head)
@@ -12351,17 +12362,29 @@ async function hvFlake(o={}){const d3=!!V;
       const z=.03+Math.random()*.04;s.scale.set(z,z,1);s.position.set((Math.random()-.5)*10,.2+Math.random()*2.4,(Math.random()-.5)*9);V.root.add(s);L.push([s,Math.random()*6]);}
     const tk=(dt,tt)=>{for(const [s,ph] of L)s.position.y-=dt*.006*(1+Math.sin(tt*.3+ph));};V.ticks.push(tk);
     S.undo(()=>{if(V){V.ticks=V.ticks.filter(f=>f!==tk);for(const [s] of L)V.root.remove(s);}});};
-  const flake=S=>{if(!d3)return;const m=hvM("stig");if(!m)return;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t3dotTex(),color:0xc4beb4,transparent:true,opacity:.95,depthWrite:false,fog:false}));s.scale.set(.05,.05,1);V.root.add(s); // pale ash, so it shows against him
-    const to=m.pos.clone().add(new THREE.Vector3(.21,.56,-.13)),fr=to.clone().add(new THREE.Vector3(.25,1.1,.15));S.tween(3400,k=>{s.position.lerpVectors(fr,to,t3cEase.out(k));s.position.x+=Math.sin(k*9)*.04*(1-k);},null);
+  // where the bit of ash lands: high on his sleeve, on the side away from what his hand holds, where the sigil is under the cloth.
+  // Everything here is placed from his own size and the way he faces, so a new statue of him keeps it on the sleeve.
+  const SD=1,sm=d3&&hvM("stig"),th=sm?sm.face:0,tp=sm&&sm.top||.93,
+    Ls=new THREE.Vector3(Math.cos(th)*SD,0,-Math.sin(th)*SD),Fw=new THREE.Vector3(Math.sin(th),0,Math.cos(th)),
+    P=sm?sm.pos.clone().addScaledVector(Ls,.22*tp).addScaledVector(Fw,.03*tp).setY((sm.pos.y||0)+.64*tp):null,Y=th+SD*.8,Up=(h)=>P&&P.clone().setY(P.y+h);
+  // the flake: grey and matte, a ragged curl of ash (no glow, so it never reads as a spark), seen falling the whole way into frame
+  const flake=S=>{if(!d3||!P)return;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:hvAshTex(),color:0xb0b0b0,transparent:true,depthWrite:false,depthTest:false,fog:false}));
+    s.scale.set(.036,.036,1);s.renderOrder=4;V.root.add(s);const fr=P.clone().addScaledVector(Ls,.05).addScaledVector(Fw,.05).setY(P.y+.34);
+    S.tween(3000,k=>{const e=k*k*(3-2*k);s.position.lerpVectors(fr,P,e).addScaledVector(Fw,Math.sin(k*7)*.022*(1-k));s.material.rotation=k*2.4+Math.sin(k*5)*.4;},()=>{if(!S.over)hvSnd("ash-land");});
     S.undo(()=>{if(V)V.root.remove(s);});S.flake=s;};
-  const sigil=S=>{if(!d3)return;const m=hvM("stig");if(!m)return;const g=new THREE.Sprite(new THREE.SpriteMaterial({map:t3dotTex(),color:0x5fd8e8,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending,fog:false}));
-    g.position.copy(m.pos).add(new THREE.Vector3(.2,.55,-.11));V.root.add(g);S.tween(2600,k=>{g.scale.setScalar(.04+.22*k);g.material.opacity=.8*Math.sin(Math.min(1,k*1.3)*Math.PI*.5);if(S.flake){S.flake.material.color.setRGB(.77-.72*k,.75-.7*k,.71-.66*k);S.flake.scale.setScalar(.05+.05*k);}},null); // the ash goes to ink and spreads
-    S.flash("#5fd8e855");S.undo(()=>{if(V)V.root.remove(g);});};
+  // it goes dark and spreads like ink, and the sigil's light comes up through the ink's own veins
+  const sigil=S=>{if(!d3||!P)return;hvSnd("sigil-wake");const at=P.clone().add(new THREE.Vector3(Math.sin(Y),0,Math.cos(Y)).multiplyScalar(.02)),mk=(map,o)=>{const q=new THREE.Sprite(new THREE.SpriteMaterial(Object.assign({map,transparent:true,depthWrite:false,depthTest:false,fog:false,opacity:0},o)));q.position.copy(at);V.root.add(q);return q;};
+    const glow=mk(t3dotTex(),{color:0x5fd8e8,blending:THREE.AdditiveBlending}),ink=mk(hvInkTex(0),{}),vein=mk(hvInkTex(1),{color:0x6cc8d8,blending:THREE.AdditiveBlending});
+    glow.renderOrder=4;ink.renderOrder=5;vein.renderOrder=6;const r0=Math.random()*6;ink.material.rotation=vein.material.rotation=r0;
+    S.tween(2600,k=>{const e=1-(1-k)*(1-k);ink.scale.setScalar(.03+.15*e);vein.scale.setScalar(.03+.15*e);glow.scale.setScalar(.05+.2*e);ink.material.opacity=Math.min(.95,k*4);
+      vein.material.opacity=.55*Math.max(0,Math.sin(Math.min(1,(k-.35)/.65)*Math.PI*.5))*(.85+.15*Math.sin(k*19));glow.material.opacity=.32*Math.sin(Math.min(1,k*1.3)*Math.PI*.5);
+      ink.material.rotation=vein.material.rotation=r0+k*.25;if(S.flake){S.flake.material.color.setScalar(.69*(1-k));S.flake.material.opacity=Math.max(0,1-k*2.5);}},null);
+    S.flash("#5fd8e844");S.undo(()=>{if(V)for(const q of[glow,ink,vein])V.root.remove(q);});};
   const pace=(n,snd)=>S=>{const u=hvU("stig");if(u){u.y=9-n;renderTokens();}if(IFXS&&IFX.sc&&IFX.bus&&!IFX.bus.fading)try{IFXS.step(IFX.sc,iNow()+.5,{v:.5,f:66,grit:1.3,near:.3,lp:2600});IFXS.drip(IFX.sc,iNow()+.6,{f:900,v:.3});}catch(e){}if(snd)hvSnd(snd);};
   const plan=d3?[
     {at:S=>{ash(S);hvSnd("drip");hvDream(S,.35,4000);},cam:{from:{at:hvC(6,5,.4),yaw:-.65,pitch:.8,dist:11.5},to:{at:hvC(6,5,.4),yaw:-.38,pitch:.56,dist:9.4},ms:5600,ease:"soft"}},
-    {at:flake,cam:{from:{at:hvAt("stig",.64,.18,-.08),yaw:Math.PI-.8,pitch:.34,dist:1.25},to:{at:hvAt("stig",.58,.2,-.11),yaw:Math.PI-.62,pitch:.22,dist:.95},ms:4200,fov:30,tall:{fov:44}}}, // the sleeve: the flake drifts down into frame
-    {at:sigil,cam:{from:{at:hvAt("stig",.57,.2,-.11),yaw:Math.PI-.62,pitch:.2,dist:.9},to:{at:hvAt("stig",.56,.2,-.11),yaw:Math.PI-.5,pitch:.12,dist:.68},ms:3600,fov:[28,24],tall:{fov:[42,36]}}},
+    {at:flake,cam:{from:{at:Up(.13),yaw:Y+.08,pitch:.3,dist:1.02},to:{at:Up(.03),yaw:Y-.05,pitch:.2,dist:.8},ms:4200,fov:30,tall:{fov:44}}}, // the sleeve: the flake drifts down into frame and settles
+    {at:sigil,cam:{from:{at:Up(.02),yaw:Y-.05,pitch:.17,dist:.62},to:{at:Up(.01),yaw:Y-.16,pitch:.1,dist:.47},ms:3600,fov:[28,24],tall:{fov:[42,36]}}},
     {at:pace(1),cam:{from:{pos:hvAt("stig",1.15,.2,1.5),look:hvC(6,3,.5)},to:{pos:hvAt("stig",1.1,.15,.9),look:hvC(6,3,.45)},ms:2600,fov:40,tall:{fov:54}}},
     {at:pace(2,"heartbeat-two"),cam:{from:{at:hvAt("stig",.12,0,-1),yaw:1.45,pitch:.04,dist:1.6},to:{at:hvAt("stig",.12,0,-1.4),yaw:1.3,pitch:.04,dist:1.4},ms:2800,fov:34,tall:{fov:48}}},
     {at:S=>{pace(3)(S);setTimeout(()=>{if(S.over||!B)return;B.sc.tide=3;S.flash("#06121a99");S.shake(.07);hvSnd("surf");hvDream(S,.8,1200);},1000);},
@@ -12369,7 +12392,7 @@ async function hvFlake(o={}){const d3=!!V;
     {at:S=>{hvVeil(S,"hv-deep");hvSnd("breath-reverse");hvExp(S,.55,4000);},cam:{from:{pos:hvC(6,6,.5),look:hvC(6,1,1.6)},to:{pos:hvC(6,7,.15),look:hvC(6,1,2.6)},ms:5200,fov:[50,30],ease:"soft"}},
     {at:S=>{const v=S.el.querySelector(".hv-deep");if(v)v.classList.add("far");},cam:{from:{pos:hvC(6,7,.15),look:hvC(6,1,2.6)},to:{pos:hvC(6,7.5,.05),look:hvC(6,1,3)},ms:3600,fov:[30,22]}},
     {at:S=>{const v=S.el.querySelector(".hv-deep");if(v)v.classList.add("star");},hold:4400,black:true}]
-  :[{at:S=>hvSnd("drip")},{},{},{},{at:()=>hvSnd("heartbeat-two")},{at:()=>hvSnd("surf")},{at:S=>{hvVeil(S,"hv-deep");hvSnd("breath-reverse");}},{at:S=>{const v=S.el.querySelector(".hv-deep");if(v)v.classList.add("far");}},{hold:4000,black:true,at:S=>{const v=S.el.querySelector(".hv-deep");if(v)v.classList.add("star");}}];
+  :[{at:S=>hvSnd("drip")},{at:()=>setTimeout(()=>hvSnd("ash-land"),3000)},{at:()=>hvSnd("sigil-wake")},{},{at:()=>hvSnd("heartbeat-two")},{at:()=>hvSnd("surf")},{at:S=>{hvVeil(S,"hv-deep");hvSnd("breath-reverse");}},{at:S=>{const v=S.el.querySelector(".hv-deep");if(v)v.classList.add("far");}},{hold:4000,black:true,at:S=>{const v=S.el.querySelector(".hv-deep");if(v)v.classList.add("star");}}];
   plan.extra=hvDrift();
   return t3cine(hvShots("flake",plan),{id:HV_CUT.flake,end:o.end||"black"});}
 
@@ -12401,31 +12424,33 @@ async function hvFace(o={}){const d3=!!(V&&B),st=hvU("stig"),fu=hvU("future");if
 /* 3. The door: the last choice played out, one of three ways (after W3/W3x, before the ending) */
 async function hvDoorCut(n,o={}){const d3=!!V,gid=k=>hvU(k),boy=()=>V&&V.hvBoy;
   const walk=(k,x,y)=>{const u=gid(k);if(u){u.x=x;u.y=y;renderTokens();}};
-  if(d3&&boy()){const b=boy(),sm=hvM("stig");if(sm){const fx=Math.sin(sm.face),fz=Math.cos(sm.face);b.g.position.set(sm.pos.x-fx*.55+fz*.32,.03,sm.pos.z-fz*.55-fx*.32);b.face=sm.face;}b.lit=b.li=1;}
+  if(d3&&boy()){const b=boy(),sm=hvM("stig");if(sm){const fx=Math.sin(sm.face),fz=Math.cos(sm.face);b.g.position.set(sm.pos.x-fx*.55+fz*.32,.03,sm.pos.z-fz*.55-fx*.32);b.face=sm.face;}b.lit=b.li=1;b.rim=null;}
   const embers=S=>{if(!V||!V.sparks)return;let t=0;const Vb=V,tk=(dt)=>{t+=dt;if(t<.12)return;t=0; // inside the fire: sparks rising past the lens
       for(let i=0;i<3;i++)Vb.sparks.spawn(hvC(6+(Math.random()-.5)*3.2,1.3+Math.random()*.9,.05+Math.random()*.5),Math.random()<.5?"#ffb060":"#ff7a2a",1,{sp:.15,up:.9,lf:1.4,gr:.3,sz:.07});};
     Vb.ticks.push(tk);S.undo(()=>{Vb.ticks=Vb.ticks.filter(f=>f!==tk);});};
   let plan;const F2c=d3?hvC(8,3):null,F2s=d3?hvC(6,5):null,F2=d3?Math.atan2(F2s.x-F2c.x,F2s.z-F2c.z):0; // door 2: the way the future self looks, at Stig's step back
   const F3=d3?Math.atan2(hvC(6,2).x-hvC(11,6).x,hvC(6,2).z-hvC(11,6).z):0; // door 3: sat by the wall, he watches them at the door
   if(n==="1")plan=d3?[
-    {at:S=>{const b=boy();if(b)b.mode="stay";hvDream(S,.3,2000);},cam:{from:{at:hvAt("stig",.34,-.16,.28),yaw:1.0,pitch:.16,dist:2.4},to:{at:hvAt("stig",.36,-.16,.28),yaw:1.14,pitch:.12,dist:2.05},ms:3800,fov:34,tall:{fov:48}}}, // side on to the two of them, hand in hand, the fire to one side
+    {at:S=>{const b=boy(),sm=hvM("stig");if(sm){hvFaceTo("stig",hvC(6,1).x,hvC(6,1).z);sm.face=sm.faceT;if(b){const fx=Math.sin(sm.face),fz=Math.cos(sm.face);b.g.position.set(sm.pos.x+fz*.36,.03,sm.pos.z-fx*.36);b.face=sm.face;}}if(b)b.mode="stay";hvDream(S,.3,2000);},cam:{from:{pos:hvAt("stig",.5,.45,2.5),look:hvAt("stig",.42,-.1,-1.6)},to:{pos:hvAt("stig",.48,.38,2.15),look:hvAt("stig",.42,-.1,-1.6)},ms:3800,fov:34,tall:{fov:48}}}, // from behind the two of them, hand in hand, dark against the fire
     {at:S=>{walk("stig",6,3);setTimeout(()=>{for(const k of["katy","saphira","hans","thorn"])hvFaceTo(k,hvC(6,3).x,hvC(6,3).z);},900);},cam:{from:{at:hvC(6,4.8,.5),yaw:1.8,pitch:.2,dist:4.3},to:{at:hvC(6,4.2,.5),yaw:1.68,pitch:.16,dist:3.9},ms:3600,fov:38,tall:{fov:54,from:{at:hvC(6,4.6,.45),yaw:.18,pitch:.36,dist:5.4},to:{at:hvC(6,4.1,.45),yaw:.1,pitch:.32,dist:4.9}}}},
-    {at:S=>{walk("stig",6,2);hvSnd("white-out");setTimeout(()=>{if(S.over||!B)return;const u=gid("stig");if(u){u.gone=true;renderTokens();}S.flash("#ffffffdd");hvVeil(S,"hv-white");hvExp(S,2.4,900);if(!hvHas("white-out"))hvSnd("silence");},1300);},
+    {at:S=>{walk("stig",6,2);hvSnd("white-out");setTimeout(()=>{if(S.over||!B)return;const u=gid("stig");if(u){u.gone=true;renderTokens();}S.flash("#ffffffdd");const w=hvVeil(S,"hv-white");hvExp(S,2.4,500);setTimeout(()=>{if(S.over)return;if(w)w.classList.add("thin","gone");hvExp(S,1,1200);},750);if(!hvHas("white-out"))hvSnd("silence");},1300);},
       cam:{from:{at:hvC(6,1,1.1),yaw:.05,pitch:.14,dist:3.4},to:{at:hvC(6,1,1.1),yaw:0,pitch:.1,dist:2.2},ms:3600,fov:40,tall:{fov:56}}},
-    {at:S=>{const v=S.el.querySelector(".hv-white");if(v)v.classList.add("thin");hvVeil(S,"hv-inflame");embers(S);hvExp(S,1.25,2600);hvDream(S,.9,2500);walk("katy",4,8);walk("saphira",8,8);walk("hans",6,9);walk("thorn",9,8);hvSnd("drip");},
+    {at:S=>{const v=S.el.querySelector(".hv-white");if(v)v.classList.add("thin","gone","off");const b=boy();if(b){b.lit=.3;b.rim=1;}hvVeil(S,"hv-inflame");embers(S);hvExp(S,.92,1600);hvDream(S,.75,2500);walk("katy",4,8);walk("saphira",8,8);walk("hans",6,9);walk("thorn",9,8);hvSnd("drip");},
       cam:{from:{pos:hvC(6.3,.9,.5),look:hvC(6,9,.4)},to:{pos:hvC(5.8,.92,.62),look:hvC(6.1,9,.3)},ms:7000,fov:[50,42],roll:.04,ease:"soft"}}, // behind the fire's face: the crew through the flames
     {at:S=>{const v=S.el.querySelector(".hv-white");if(v)v.classList.add("gone");hvPic(S,"stig-keeper",{zoom:1.1});hvVeil(S,"hv-ashen");if(V&&V.sparks)for(let i=0;i<24;i++)V.sparks.spawn(hvC(6,1.4,.3+Math.random()).add(new THREE.Vector3((Math.random()-.5)*2,0,0)),"#8a8680",1,{sp:.1,up:-.1,lf:2,sz:.05});},
       cam:{from:{pos:hvC(5.8,.92,.62),look:hvC(6.1,9,.3)},to:{pos:hvC(5.9,.95,.7),look:hvC(6,8,.35)},ms:5200,fov:[42,30],roll:.04,ease:"soft"}},
-    {at:S=>{hvVeil(S,"hv-well");},cam:{from:{at:hvC(6,6),yaw:.8,pitch:1.55,dist:20},to:{at:hvC(6,6),yaw:.9,pitch:1.56,dist:34},ms:6000,ease:"in"}},
+    {at:S=>{hvVeil(S,"hv-well");},cam:{from:{at:hvC(6,6),yaw:.8,pitch:1.55,dist:20},to:{at:hvC(6,6),yaw:.9,pitch:1.56,dist:30},ms:4200,ease:"in"}},
     {at:S=>hvSnd("heartbeat-two")},
-    {at:S=>hvSnd("heartbeat-one"),hold:3400,black:true}]
-  :[{},{},{at:S=>{hvVeil(S,"hv-white");hvSnd("silence");}},{at:()=>hvSnd("drip")},{},{at:S=>hvVeil(S,"hv-well")},{},{at:()=>hvSnd("heartbeat-one"),hold:3000,black:true}];
+    {at:S=>hvSnd("heartbeat-one"),hold:1900,black:true}]
+  :[{},{},{at:S=>{hvVeil(S,"hv-white");hvSnd("silence");}},{at:()=>hvSnd("drip")},{},{at:S=>hvVeil(S,"hv-well")},{},{at:()=>hvSnd("heartbeat-one"),hold:1900,black:true}];
   else if(n==="2")plan=d3?[
     {at:S=>{walk("stig",6,5);hvFaceTo("future",F2s.x,F2s.z);S.shake(.025);hvDream(S,.25,2000);},cam:{from:{at:hvAt("stig",.6),yaw:.65,pitch:.2,dist:2.8},to:{at:hvAt("stig",.6,0,.8),yaw:.5,pitch:.18,dist:2.5},ms:3600,fov:34,tall:{fov:48}}},
     {at:S=>{B.sc.fl=4;hvFaceTo("future",F2s.x,F2s.z);},cam:{from:{at:hvAt("future",.34),yaw:F2-.4,pitch:.2,dist:2.9},to:{at:hvAt("future",.36),yaw:F2-.25,pitch:.16,dist:2.5},ms:3600,fov:34,tall:{fov:48}}},
     {at:S=>{B.sc.fl=1;S.tween(3200,k=>{if(B)B.sc.warm=k;},null);hvDream(S,.6,2500);},cam:{from:{at:hvAt("future",.42),yaw:F2+.45,pitch:.12,dist:2},to:{at:hvAt("future",.44),yaw:F2+.3,pitch:.1,dist:1.7},ms:3400,fov:30,tall:{fov:44}}},
     {at:S=>{S.shake(.02);},cam:{from:{at:hvAt("future",.48),yaw:F2+.08,pitch:.08,dist:1.6},to:{at:hvAt("future",.5),yaw:F2,pitch:.06,dist:1.35},ms:3600,fov:[30,26],tall:{fov:[44,38]}}},
-    {at:S=>{const u=gid("future");if(u){u.gone=true;renderTokens();}hvSnd("silence");},cam:{from:{at:hvC(8,3,.1),yaw:-.3,pitch:.5,dist:2.4},to:{at:hvC(8,3,.1),yaw:-.2,pitch:.6,dist:2.1},ms:3400,fov:34}},
+    {at:S=>{const u=gid("future");if(u){u.gone=true;renderTokens();}hvSnd("silence");const X=V&&V.t3x,p=hvC(8,3,.03);
+        if(X&&p){for(let i=0;i<4;i++)t3x_ring(X,p,"#8fb4c4",.5+i*.35,2200,.05,.9-i*.15,i*380);for(let i=0;i<7;i++)setTimeout(()=>{if(!S.over)X.smoke.spawn(hvC(8+(Math.random()-.5)*.5,3+(Math.random()-.5)*.5,.1),"#9aa2a6",1,{sp:.08,up:.35,lf:2.2,gr:-.05,sz:.22,sz1:.7,dr:1.4,a:.35});},i*260);}},
+      cam:{from:{at:hvC(8,3,.12),yaw:-.35,pitch:.32,dist:1.9},to:{at:hvC(8,3,.14),yaw:-.25,pitch:.26,dist:1.6},ms:2600,fov:34,tall:{fov:48}}},
     // he lets go and runs: out from behind Stig (Stig's shoulder in the foreground), up the line and past the edge of the light,
     // into the corner the dark has filled. He goes into shadow as he nears it and the dark covers him; only then does he fade
     {at:S=>{const b=boy();hvDark(S,hvC(10.05,3.15),hvC(5.6,6.2));if(b){b.look=null;b.mode="run";b.runSp=2.1;b.to=hvC(10.15,3.05);
@@ -12437,21 +12462,23 @@ async function hvDoorCut(n,o={}){const d3=!!V,gid=k=>hvU(k),boy=()=>V&&V.hvBoy;
     {at:S=>{const b=boy();if(b){b.want=0;b.lit=0;b.mode="stay";}hvPic(S,"stig-boy",{zoom:1.06});},
       cam:{from:{pos:hvC(5.2,5.8,.85),look:hvC(10.2,3.9,.35)},to:{pos:hvC(5.85,5.75,.8),look:hvC(10.4,3.8,.35)},ms:4200,fov:32,ease:"soft",tall:{fov:46}}},
     {at:S=>{hvVeil(S,"hv-dry");hvPic(S,"stig-dry",{zoom:1.06});},hold:4200},
-    {at:S=>hvSnd("heartbeat-one"),hold:3000,black:true}]
+    {at:S=>hvSnd("heartbeat-one"),hold:1900,black:true}]
   :[{},{},{},{},{at:()=>hvSnd("silence")},{at:()=>hvSnd("heartbeat-one")},{},{at:S=>hvVeil(S,"hv-dry"),hold:3600},{hold:3000,black:true}];
   else plan=d3?[
-    {at:S=>{hvSnd("count");hvDream(S,.2,2000);},cam:{from:{at:hvAt("katy",.7),yaw:.5,pitch:.12,dist:2.2},to:{at:hvAt("hans",.75),yaw:-.3,pitch:.12,dist:2.4},ms:5400,ease:"soft",fov:34,tall:{fov:48}}},
+    {at:S=>{hvSnd("count");hvDream(S,.2,2000);const b=boy(),sm=hvM("stig");if(b&&sm){b.mode="stay";b.g.position.set(sm.pos.x-Math.sin(.45)*.42,.03,sm.pos.z-Math.cos(.45)*.42);}},cam:{from:{at:hvAt("katy",.7),yaw:.5,pitch:.12,dist:2.2},to:{at:hvAt("hans",.75),yaw:-.3,pitch:.12,dist:2.4},ms:5400,ease:"soft",fov:34,tall:{fov:48}}},
     {cam:{from:{at:hvAt("stig",.6),yaw:.5,pitch:-.02,dist:2.3},to:{at:hvAt("stig",.64),yaw:.36,pitch:0,dist:1.95},ms:3400,fov:30,tall:{fov:44}}},
     {at:S=>{hvFaceTo("stig",hvC(6,8).x,hvC(6,8).z);},cam:{from:{at:hvAt("stig",.6),yaw:.35,pitch:.16,dist:2.6},to:{at:hvAt("stig",.62),yaw:.15,pitch:.12,dist:2.2},ms:3400,fov:36,tall:{fov:50}}},
-    {at:S=>{walk("katy",5,5);setTimeout(()=>walk("saphira",7,5),700);setTimeout(()=>walk("hans",6,5),1300);setTimeout(()=>walk("thorn",8,5),1800);},cam:{from:{at:hvC(6,4.6,.5),yaw:.65,pitch:.48,dist:5},to:{at:hvC(6,4.6,.5),yaw:.5,pitch:.42,dist:4.4},ms:5200,fov:38,tall:{fov:54}}},
+    {at:S=>{const b=boy();if(b)b.mode="follow";walk("katy",5,5);setTimeout(()=>walk("saphira",7,5),700);setTimeout(()=>walk("hans",6,5),1300);setTimeout(()=>walk("thorn",8,5),1800);},
+      cam:{from:{at:hvC(6,4.7,.42),yaw:.95,pitch:.07,dist:7.2},to:{at:hvC(6,4.6,.42),yaw:.82,pitch:.05,dist:6.4},ms:5200,fov:22,tall:{fov:34}}}, // low, at their height, a long lens
     {at:S=>{walk("stig",6,2);walk("katy",5,2);walk("saphira",7,2);walk("hans",4,2);walk("thorn",8,2);setTimeout(()=>{if(S.over||!B)return;for(const k of["stig","katy","saphira","hans","thorn"])hvFaceTo(k,hvC(6,0).x,hvC(6,0).z);
         S.tween(3000,k=>{if(B)B.sc.calm=k;},null);hvSnd(hvHas("fire-hush")?"fire-hush":"silence");setTimeout(()=>hvSnd("breath"),hvHas("fire-hush")?2400:900);},1800);},
       cam:{from:{at:hvC(6,1,1),yaw:.3,pitch:.2,dist:5.2},to:{at:hvC(6,1,.9),yaw:.2,pitch:.16,dist:4.2},ms:6000,fov:38,ease:"soft",tall:{fov:54}}},
     {at:S=>{hvVeil(S,"hv-sea");},cam:{from:{at:hvC(6,6),yaw:.2,pitch:1.5,dist:12},to:{at:hvC(6,6),yaw:.3,pitch:1.52,dist:16},ms:5000,ease:"soft"}},
-    {at:S=>{walk("future",11,6);setTimeout(()=>{if(!S.over&&B)hvFaceTo("future",hvC(6,2).x,hvC(6,2).z);},1200);const v=S.el.querySelector(".hv-sea");if(v)v.classList.remove("on");},cam:{from:{at:hvC(11,6,.4),yaw:F3-.45,pitch:.25,dist:3},to:{at:hvC(11,6,.4),yaw:F3-.3,pitch:.2,dist:2.5},ms:4200,fov:34,tall:{fov:48}}},
+    {at:S=>{walk("future",11,6);setTimeout(()=>{if(!S.over&&B)hvFaceTo("future",hvC(6,2).x,hvC(6,2).z);},1200);const v=S.el.querySelector(".hv-sea");if(v)v.classList.remove("on");
+        if(V){const L=new THREE.PointLight(0xffa463,0,3.4,2),p=hvC(10.4,5.3,.75);L.position.copy(p);V.root.add(L);S.tween(1400,k=>{L.intensity=9*k;},null);S.undo(()=>{if(V)V.root.remove(L);L.dispose();});}},cam:{from:{at:hvC(11,6,.4),yaw:F3-.45,pitch:.25,dist:3},to:{at:hvC(11,6,.4),yaw:F3-.3,pitch:.2,dist:2.5},ms:4200,fov:34,tall:{fov:48}}},
     {at:S=>hvFaceTo("future",hvC(6,2).x,hvC(6,2).z),cam:{from:{pos:hvC(11.5,7.1,.62),look:hvC(6.6,2.6,.42)},to:{pos:hvC(11.35,6.95,.58),look:hvC(6.4,2.4,.42)},ms:3400,fov:[34,30],
       tall:{fov:42,from:{at:hvC(11,6,.5),yaw:F3-.3,pitch:.14,dist:2.1},to:{at:hvC(11,6,.52),yaw:F3-.22,pitch:.1,dist:1.8}}}},
-    {at:S=>hvSnd("heartbeat-one"),hold:3000,black:true}]
+    {at:S=>hvSnd("heartbeat-one"),hold:1900,black:true}]
   :[{at:()=>hvSnd("count")},{},{},{},{at:()=>{hvSnd("silence");setTimeout(()=>hvSnd("breath"),900);}},{at:S=>hvVeil(S,"hv-sea")},{},{},{at:()=>hvSnd("heartbeat-one"),hold:3000,black:true}];
   plan.extra=hvDrift();
   return t3cine(hvShots("door"+n,plan),{id:HV_CUT["door"+n],end:o.end||"black"});}
@@ -12614,7 +12641,7 @@ function hvBoy(Vb){const g=new THREE.Group(),fig=new THREE.Group();g.add(fig);
     let df=M.face-fig.rotation.y;df=Math.atan2(Math.sin(df),Math.cos(df));fig.rotation.y+=df*Math.min(1,dt*6);
     const moving=d>.08;if(moving&&Vb.sparks&&now-lastSp>140){lastSp=now;Vb.sparks.spawn(T3BOYP.set(g.position.x,.05,g.position.z),"#9fc8e0",2,{sp:.25,up:.6,lf:.5,gr:1.2,sz:.035});}
     M.op+=(M.want-M.op)*Math.min(1,dt*1.5);M.li+=(M.lit-M.li)*Math.min(1,dt*2.2);for(const mt of mats){mt.opacity=M.op;mt.color.setScalar(M.li);}g.visible=M.op>.02;
-    fin.anim(dt,tt,now,{moving,down:false,gone:false,lit:M.li});});
+    fin.anim(dt,tt,now,{moving,down:false,gone:false,lit:M.rim!=null?M.rim:M.li});});
   Vb.hvBoy=M;return M;}
 const T3BOYP=new THREE.Vector3();
 /* the door of fire, in the black mountain: a still roar (a breaking wave frozen at the top), steam where the water meets
@@ -12660,19 +12687,26 @@ function t3dressDoor(Vb){const mp=Vb.mp,W=mp.W,H=mp.H,K=t3i_kit(Vb,1111),{rr,pk,
     if(Vb.sparks&&!reduced&&Math.random()<dt*(hi?3:1.5)*(1-calm))Vb.sparks.spawn(sp.set(cx+rr(-wd/2,wd/2),.2,cz+.4),"#ffb060",1,{sp:.1,up:.8,lf:1.6,gr:.2,sz:.05});});}
 /* the fire's own body: tongues frozen mid-break that climb so slowly you can't be sure they move, white at the root, orange,
    then dark at the crest, soft at the sides and the top. Three sheets one behind another (two on phones) give it depth when the camera moves. */
-const HV_FIRE_FS="uniform float uT;uniform float uK;uniform float uS;uniform float uL;uniform vec3 uC;varying vec2 vU;"+
-  "float h1(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}"+
-  "float n1(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h1(i),h1(i+vec2(1.,0.)),f.x),mix(h1(i+vec2(0.,1.)),h1(i+vec2(1.,1.)),f.x),f.y);}"+
+// the noise comes from a small tiled texture (one fetch, smoothed) instead of four sin hashes: the fire covers the whole screen
+// in some shots, and on a big desktop screen the hashes cost too much (round 5: door 1 fell to 8 fps on Sam's Mac)
+const HV_FIRE_FS="uniform float uT;uniform float uK;uniform float uS;uniform float uL;uniform vec3 uC;uniform sampler2D uN;varying vec2 vU;"+
+  "float n1(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return texture2D(uN,(i+f+.5)/128.).r;}"+
   "float fb(vec2 p){float v=0.,a=.5;for(int i=0;i<OCT;i++){v+=a*n1(p);p=p*2.03+vec2(1.7,9.2);a*=.5;}return v;}"+
-  "void main(){vec2 q=vec2(vU.x*7.+uS,vU.y*1.8-uT*.07);float w=fb(q*vec2(.6,1.)+vec2(uS,uT*.02));float n=fb(q+vec2(w*1.1-.5,0.));"+
-  "float I=(n-.3)*3.2-vU.y*1.3+.1+.4*(1.-smoothstep(0.,.2,vU.y));I*=1.-smoothstep(.72,1.,vU.y);I*=smoothstep(0.,.07,vU.x)*smoothstep(1.,.93,vU.x);I=clamp(I,0.,1.);"+
+  "void main(){if(vU.y>.97)discard;vec2 q=vec2(vU.x*7.+uS,vU.y*1.8-uT*.07),r=q*vec2(.6,1.)+vec2(uS,uT*.02);float w=.62*n1(r)+.31*n1(r*2.03+vec2(1.7,9.2));float n=fb(q+vec2(w*1.1-.5,0.));"+
+  "float I=(n-.36)*3.2-vU.y*1.3+.1+.4*(1.-smoothstep(0.,.2,vU.y));I*=1.-smoothstep(.72,1.,vU.y);I*=smoothstep(0.,.07,vU.x)*smoothstep(1.,.93,vU.x);I=clamp(I,0.,1.);"+
   "vec3 c=mix(vec3(.5,.06,0.),vec3(1.,.36,.05),smoothstep(0.,.35,I));c=mix(c,vec3(1.,.66,.25),smoothstep(.35,.7,I));c=mix(c,vec3(1.,.92,.75),smoothstep(.75,1.,I));"+
   "gl_FragColor=vec4(c*c*pow(I,1.5)*uC*uK*uL,1.);}"; // c*c: the colours are picked by eye, the scene is linear before the post pass
-function hvFireCurtain(Vb,cx,cz,wd,hi){const U={uT:{value:0},uK:{value:.95},uC:{value:new THREE.Color(1,1,1)}},g=new THREE.Group(),
+let hvNoiseT=null;function hvNoiseTex(){if(hvNoiseT)return hvNoiseT;const d=new Uint8Array(128*128*4);let x=7;for(let i=0;i<d.length;i++){x=x*16807%2147483647;d[i]=x&255;}
+  const t=new THREE.DataTexture(d,128,128,THREE.RGBAFormat);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.magFilter=t.minFilter=THREE.LinearFilter;t.generateMipmaps=false;t.needsUpdate=true;return (hvNoiseT=t);}
+function hvFireCurtain(Vb,cx,cz,wd,hi){const U={uT:{value:0},uK:{value:.95},uC:{value:new THREE.Color(1,1,1)},uN:{value:hvNoiseTex()}},g=new THREE.Group(),
     L=hi?[[.1,1,0],[-.04,.7,3.7],[.26,.5,8.1]]:[[.1,1,0],[.26,.6,8.1]];
   for(const [dz,k,sd] of L){const m=new THREE.ShaderMaterial({uniforms:Object.assign({uS:{value:sd},uL:{value:k}},U),defines:{OCT:hi?4:3},vertexShader:t3l_vs,fragmentShader:HV_FIRE_FS,
       transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide});
-    const p=new THREE.Mesh(new THREE.PlaneGeometry(wd,3),m);p.position.set(cx,1.5,cz+dz);p.renderOrder=2;g.add(p);}
+    const p=new THREE.Mesh(new THREE.PlaneGeometry(wd,3),m);p.position.set(cx,1.5,cz+dz);p.renderOrder=2;p.userData.k=k;g.add(p);}
+  // close up the fire fills the screen three times over: the faintest sheet goes and the other two carry its light
+  const C=new THREE.Vector3(cx,1.5,cz);let near=null;
+  Vb.ticks.push(()=>{const n=g.children.length>2&&Vb.cam.position.distanceTo(C)<3.6;if(n===near)return;near=n;if(g.children[2])g.children[2].visible=!n;
+    for(let i=0;i<2;i++){const c=g.children[i];c.material.uniforms.uL.value=c.userData.k*(n?1.22:1);}});
   g.userData.U=U;Vb.root.add(g);return g;}
 
 /* ---- OWNER: interlude fights. Set dressing for the four boards (t3cave builds the rock and calls T3DRESS[kind]) ---- */
