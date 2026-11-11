@@ -63,6 +63,8 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Fever-dream look for the visions (VISION FX): the painting warped, past and future tints, ash, black water, embers, the door of fire, dread and flicker; reusable for later visions** · New · Sam · PR #92
+- [x] **Stig's visions get their own sound kit: 19 cues that warp with the dread, reusable for later visions** · Changed · Sam · PR #93
 - [x] **Stig's haunted interlude *The Eleven Paces*: visions of past and future, dread and flicker, the undertow fight, five cutscenes, seven paintings, its own sound** · New · Sam · PR #91
 - [x] **Folk music under the recap, one sound switch, a volume slider** · New · Sam · PR #90
 - [x] **The crash cinematic has sound (swarm fire, rockets, the fall, impact, black-box beeps)** · New · Sam · PR #88

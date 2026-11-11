@@ -339,6 +339,12 @@ table.ans td,table.ans th{border-bottom:1px solid #c9a35c22;padding:6px 4px;text
 .pl-story.ic-m-memory .art::after{opacity:1;background:radial-gradient(ellipse at 50% 50%,transparent 55%,#3a240f66 100%)}
 .pl-story.ic-m-fire .art::after{opacity:1;background:radial-gradient(ellipse at 50% 92%,#ff9a4a40,transparent 62%);mix-blend-mode:screen}
 .pl-story.ic-m-thin .art::after{opacity:1;background:radial-gradient(ellipse at 50% 50%,transparent 50%,#000a 100%)}
+/* the vision layer (VISION FX): over the play screen, under its words and buttons */
+#play>canvas.vfx{position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:2}
+#play.vfx-on>.pl-top,#play.vfx-on .pl-side,#play.vfx-on .pl-story>:not(.art){z-index:3}
+#play.vfx-on .pl-story .art{z-index:3;box-shadow:none;background:transparent} /* the picture box, see-through, keeps its own overlays (paces, whispers, washes) over the warped picture */
+#play.vfx-on .pl-story.hv .art{z-index:4} /* pinned as a strip (OWNER ui), it stays over the words scrolling under it; its paces bar is opaque enough to hide them */
+#play.vfx-on .pl-story.hv .hv-bar{bottom:0;height:38px;padding-bottom:7px;box-sizing:border-box;background:linear-gradient(#07121800,#071218f0 22%,#071218f8)}
 .ic-flash{position:absolute;inset:0;pointer-events:none;opacity:0}
 .ic-flash.ic-warm{background:radial-gradient(ellipse at 50% 55%,#ffd8a066,#ffb26a22 45%,transparent 75%)}
 .ic-flash.ic-fire{background:radial-gradient(ellipse at 50% 90%,#ffb05a88,#e8743b33 40%,transparent 70%)}
@@ -5831,6 +5837,10 @@ setTimeout(()=>{if(devPlay())window.__fsnd=FS_DEV;},0);const FS_DEV={ // for tes
     return res;},
   async renderRecap(secs=100){const sr=44100,ctx=new OfflineAudioContext(2,secs*sr,sr),b=fsBus(ctx,ctx.destination),G=ctx.createGain();G.gain.value=.5;G.connect(b.sfx);
     G.gain.value=.65;const R=ctx.createGain();R.gain.value=.45;G.connect(R).connect(b.rv);rbSched({b,a:ctx,G,bar:0,next:.3},secs-5);return FS_DEV.wav(await ctx.startRendering());},
+  async renderHv(list,secs){const sr=44100,ctx=new OfflineAudioContext(2,secs*sr,sr),keep=Object.assign({},IFX); // vision cues through a real interlude mix
+    try{Object.assign(IFX,{nb:null,vc:{},live:new Set(),off:true,bus:null,lay:{},sc:null,ui:null});iMixOn(ctx,ctx.destination,"s11-stig");IFX.off=true;IFX.sc=iScope();
+      for(const [w,k] of list)ctx.suspend(w).then(()=>{try{HV_SND[k](IFX.sc,ctx.currentTime+.01,{n:12});}catch(e){console.error(e);}finally{ctx.resume();}},()=>{});
+      return FS_DEV.wav(await ctx.startRendering());}finally{Object.assign(IFX,keep);}},
   async renderCrash(){const sr=44100,secs=27,ctx=new OfflineAudioContext(2,secs*sr,sr),T=[[0,"zap"],[.4,"rocket"],[1.1,"boom"],[1.3,"zap"],[1.9,"zap"],[2.2,"rocket"],[2.9,"boom"],[3.4,"zap"],[4,"rocket"],[4.7,"boom"],
       [5.2,"zap"],[6,"rocket"],[6.7,"boom"],[7.5,"struck"],[10,"fall",{ms:10500}],[20.5,"impact"]];FS.off=fsBus(ctx,ctx.destination);
     try{for(const [w,k,o] of T)ctx.suspend(w+.05).then(()=>{try{crashSnd(k,o);}finally{ctx.resume();}},()=>{});const buf=await ctx.startRendering();return FS_DEV.wav(buf);}finally{FS.off=null;}},
@@ -10463,7 +10473,7 @@ const online=iOnline;
 const sentDone=()=>(window.__myInterludes||{}).done||{};
 /* leaving an interlude midway (Back to the map, a chapter, Leave): the session 10 party comes back, saving works again */
 let IFK=null; // the fight in progress: {keep} holds the session 10 state while the interlude has its own
-function iLeave(){if(IFK){ST=IFK.keep;IFK=null;}PLAY.inter=false;IST=null;if(typeof swHudOff==="function")swHudOff();}
+function iLeave(){if(IFK){ST=IFK.keep;IFK=null;}PLAY.inter=false;IST=null;if(typeof swHudOff==="function")swHudOff();try{VFX.off(500);}catch(e){}}
 const devPlay=()=>/[?&](interlude|playtest)(=|&|$)/.test(location.search);
 /* without the table site (GitHub Pages, or Netlify signed out) the interludes still play: the player says on this
    device who they are (chron-inter-me), plays their own and the shared one, and the result stays on the device.
@@ -11574,7 +11584,8 @@ function hvTaken(S){const c=HV_PACES[S.I.id];if(!c)return 0;if(c.set[S.at]!=null
 function hvDread(n){if(!IST)return;const d=Math.max(0,Math.min(5,(IST.dread||0)+n));if(d===IST.dread)return;IST.dread=d;
   const box=artCv&&artCv.parentNode,hud=box&&box.querySelector(".hv-hud");if(hud)hvUpdate(IST,hud);
   if(n>0&&box&&!reduced){const f=h("i",{class:"hv-chill","aria-hidden":"true"});box.append(f);setTimeout(()=>f.remove(),1800);}
-  if(n>0&&IFX.bus&&!IFX.bus.fading&&IFX.sc)try{IFXS.whisper(IFX.sc,iNow(),{v:.8});}catch(e){}}
+  if(n>0&&IFX.bus&&!IFX.bus.fading&&IFX.sc)try{IFXS.whisper(IFX.sc,iNow(),{v:.8});}catch(e){}
+  hvVfx(IST);if(n>0)VFX.pulse("shock");}
 const HV_FOOT='<svg viewBox="0 0 10 16" aria-hidden="true"><path d="M5 1c2.2 0 3.4 2.4 3.2 5.4C8 9 7 10.4 7 12.4 7 14.3 6 15 5 15s-2-.7-2-2.6C3 10.4 2 9 1.8 6.4 1.6 3.4 2.8 1 5 1z"/></svg>';
 const HV_MAN='<svg viewBox="0 0 60 160" aria-hidden="true"><defs><linearGradient id="hvArm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b1013"/><stop offset=".45" stop-color="#0b1013"/><stop offset=".62" stop-color="#5d6a6e"/><stop offset="1" stop-color="#8d989a"/></linearGradient></defs>'+
   '<path fill="#0b1013" d="M30 6c6 0 9.5 4.5 9.5 10.5S36 28 30 28s-9.5-5.5-9.5-11.5S24 6 30 6zM17 34c4-3 9-4 13-4s9 1 13 4c4 3 5.5 9 6 16l1.5 30H10.5L12 50c.5-7 1-13 5-16zM12 80h36l-2 80H14z"/>'+
@@ -11623,7 +11634,8 @@ function hvCine(S,p){const box=artCv&&artCv.parentNode;if(!box||!storyEl)return;
   storyEl.classList.toggle("hv-d3",d>=3);storyEl.classList.toggle("hv-d5",d>=5);
   if(moved){S.hvAt=S.at;S.hvTm.forEach(clearTimeout);S.hvTm=[];if(S.hvV&&S.hvV!==v)hvWash(box,v==="now"?S.hvV:v);if(again)hvWash(box,"again");S.hvV=v;}
   hvUpdate(S,hud);
-  if(moved&&p&&P&&p.html===P.html){hvReader(S);hvCrumble();hvScatter(S,box);if(again)hvRewind(S,hud);}}
+  if(moved&&p&&P&&p.html===P.html){hvReader(S);hvCrumble();hvScatter(S,box);if(again)hvRewind(S,hud);}
+  hvVfx(S,p);} // the vision layer (VISION FX)
 /* a check with real dice: "(Wisdom save DC 15: go to A / B)". Roll here, or type the number on your own d20 */
 function iDie(){return new Promise(res=>{clearStory();
   const inp=h("input",{type:"number",min:"1",max:"20",inputmode:"numeric",class:"pl-input","aria-labelledby":"pl-idie",autocomplete:"off"});
@@ -11699,7 +11711,8 @@ function hvRemember(I,ek){if(PLAY.auto&&!devPlay())return;const all=hvMemory(),m
 function hvFlicker(n){if(!IST)return;const f=Math.max(0,Math.min(5,(IST.flicker??2)+n));if(f===IST.flicker)return;IST.flicker=f;
   const box=artCv&&artCv.parentNode,hud=box&&box.querySelector(".hv-hud");if(hud)hvUpdate(IST,hud);
   if(box&&!reduced){const e=h("i",{class:"hv-flick-fx "+(n>0?"up":"down"),"aria-hidden":"true"});box.append(e);setTimeout(()=>e.remove(),1600);}
-  if(IFX.bus&&!IFX.bus.fading&&IFX.sc)try{HV_SND[n>0?"flick-up":"flick-down"](IFX.sc,iNow());}catch(e){}}
+  if(IFX.bus&&!IFX.bus.fading&&IFX.sc)try{HV_SND[n>0?"flick-up":"flick-down"](IFX.sc,iNow());}catch(e){}
+  hvVfx(IST);if(n>0&&IST.vfxV==="future")VFX.pulse("face");}
 /* what happens in the text, at a reader's pace: intrusions, voices, ash, sound cues */
 function hvReader(S){const rd=storyEl&&storyEl.querySelector(".pl-inter");if(!rd)return;let words=0;const rate=SAY.on?2.6:4.2,at=w=>Math.min(SAY.on?14:5,.6+w/rate);
   const fire=(d,fn)=>S.hvTm.push(setTimeout(()=>{if(IST!==S||!IFX.bus||IFX.bus.fading||!IFX.sc)return;try{fn(IFX.sc,iNow());}catch(e){console.error(e);}},d*1000));
@@ -11715,37 +11728,156 @@ function hvRewind(S,hud){if(reduced)return;const lab=hud.querySelector(".hv-lab"
   hud.classList.add("hv-rew");const step=()=>{if(IST!==S||!hud.isConnected)return;if(k>(HV_PACES[S.I.id]||{base:2}).base){k--;prs.forEach((e,i)=>e.classList.toggle("on",i<k));lab.textContent=`${11-k} paces left`;S.hvTm.push(setTimeout(step,420));}
     else S.hvTm.push(setTimeout(()=>{hud.classList.remove("hv-rew");hvUpdate(S,hud);},1600));};
   S.hvTm.push(setTimeout(step,900));}
+/* ---- the vision sound kit: the sounds of Stig's visions (and every vision after). All made here, no files.
+   vkCue(name,{dread}) plays one cue from the script's list; vkStop(f) fades whatever the kit is playing. Everything goes through
+   one bus with a long, dark cave of a reverb, so a drip in the past and a roar in the future sit in the same drowned space.
+   Some sounds are baked sample by sample once (surf, breath, chimes, the creak of wood) so they can really be played backwards:
+   the ebb is the sea pulling out, the breath goes back into the chest. Nothing has vibrato and no voice sits on a beat. */
+const VK={bus:null,live:new Set(),bakes:new WeakMap()};
+const vkHz=m=>440*Math.pow(2,(m-69)/12),vkR=(a,b)=>a+Math.random()*(b-a);
+function vkIR(a,secs,dark){const n=Math.floor(a.sampleRate*secs),ir=a.createBuffer(2,n,a.sampleRate);
+  for(let c=0;c<2;c++){const d=ir.getChannelData(c);let lp=0;for(let i=0;i<n;i++){const k=i/n,w=Math.random()*2-1;lp+= (w-lp)*(dark?.18+.5*(1-k)*(1-k):.6);d[i]=lp*Math.pow(1-k,2.2)*(i<a.sampleRate*.012?i/(a.sampleRate*.012):1);}}
+  return ir;}
+function vkMakeBus(a,to){const lim=a.createDynamicsCompressor();lim.threshold.value=-14;lim.knee.value=10;lim.ratio.value=5;lim.attack.value=.004;lim.release.value=.3;
+  const out=a.createGain();out.gain.value=1;lim.connect(out).connect(to);
+  const dry=a.createGain();dry.connect(lim);const cave=a.createConvolver();cave.buffer=vkIR(a,5.5,true);const cg=a.createGain();cg.gain.value=.55;cave.connect(cg).connect(lim);
+  const room=a.createConvolver();room.buffer=vkIR(a,1.2,false);const rg=a.createGain();rg.gain.value=.4;room.connect(rg).connect(lim);
+  const nb=a.createBuffer(2,a.sampleRate*3,a.sampleRate);for(let c=0;c<2;c++){const d=nb.getChannelData(c);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;}
+  return {a,out,lim,dry,cave,room,nb};}
+function vkEnv(g,t,att,v,dec,hold=0){g.gain.setValueAtTime(1e-4,t);g.gain.exponentialRampToValueAtTime(Math.max(2e-4,v),t+att);if(hold)g.gain.setValueAtTime(Math.max(2e-4,v),t+att+hold);g.gain.exponentialRampToValueAtTime(1e-4,t+att+hold+dec);}
+function vkOut(b,n,o){if(o.pan&&b.a.createStereoPanner){const p=b.a.createStereoPanner();p.pan.value=Math.max(-1,Math.min(1,o.pan));n=n.connect(p);}
+  n.connect(o.to||b.dry);if(o.cave){const s=b.a.createGain();s.gain.value=o.cave;n.connect(s).connect(b.cave);}if(o.room){const s=b.a.createGain();s.gain.value=o.room;n.connect(s).connect(b.room);}return n;}
+function vkTrack(b,src,end){VK.live.add(src);src.onended=()=>VK.live.delete(src);}
+function vkN(b,t,{type="lowpass",f=800,f1=0,q=.7,v=.3,att=.003,dec=.2,hold=0,pan=0,cave=0,room=0,to}={}){const a=b.a,s=a.createBufferSource();s.buffer=b.nb;s.loop=true;
+  const x=a.createBiquadFilter();x.type=type;x.frequency.setValueAtTime(f,t);if(f1)x.frequency.exponentialRampToValueAtTime(f1,t+att+hold+dec);x.Q.value=q;
+  const g=a.createGain();vkEnv(g,t,att,v,dec,hold);vkOut(b,s.connect(x).connect(g),{pan,cave,room,to});s.start(t,Math.random()*2);s.stop(t+att+hold+dec+.05);vkTrack(b,s);}
+function vkT(b,t,{f=220,f1=0,type="sine",v=.2,att=.004,dec=.4,hold=0,pan=0,lp=0,q=.7,det=0,cave=0,room=0,to}={}){const a=b.a,o=a.createOscillator();o.type=type;o.frequency.setValueAtTime(f,t);if(det)o.detune.value=det;
+  if(f1)o.frequency.exponentialRampToValueAtTime(f1,t+att+hold+dec*.9);let n=o;if(lp){const x=a.createBiquadFilter();x.type="lowpass";x.frequency.value=lp;x.Q.value=q;n=o.connect(x);}
+  const g=a.createGain();vkEnv(g,t,att,v,dec,hold);vkOut(b,n.connect(g),{pan,cave,room,to});o.start(t);o.stop(t+att+hold+dec+.05);vkTrack(b,o);}
+/* a baked buffer, played: rate bends the pitch (and the length) like a tape, rev plays it backwards */
+function vkPlay(b,t,buf,{v=.5,rate=1,rate1=0,dur=0,pan=0,cave=0,room=0,lp=0,hp=0,att=.02,rel=.3,to}={}){if(!buf)return;const a=b.a,s=a.createBufferSource();s.buffer=buf;
+  s.playbackRate.setValueAtTime(rate,t);const len=dur||buf.duration/Math.max(.05,(rate+(rate1||rate))/2);if(rate1)s.playbackRate.linearRampToValueAtTime(rate1,t+len);
+  let n=s;if(lp){const x=a.createBiquadFilter();x.type="lowpass";x.frequency.value=lp;n=n.connect(x);}if(hp){const x=a.createBiquadFilter();x.type="highpass";x.frequency.value=hp;n=n.connect(x);}
+  const g=a.createGain();g.gain.setValueAtTime(1e-4,t);g.gain.exponentialRampToValueAtTime(Math.max(2e-4,v),t+att);g.gain.setValueAtTime(Math.max(2e-4,v),t+Math.max(att,len-rel));g.gain.exponentialRampToValueAtTime(1e-4,t+len);
+  vkOut(b,n.connect(g),{pan,cave,room,to});s.start(t);s.stop(t+len+.05);vkTrack(b,s);}
+/* bakes, once per audio context */
+function vkBake(a,k,secs,fill,stereo=true){let M=VK.bakes.get(a);if(!M)VK.bakes.set(a,M=new Map());if(M.has(k))return M.get(k);
+  const sr=Math.min(a.sampleRate,32000),n=Math.floor(secs*sr);let b=null;try{b=a.createBuffer(stereo?2:1,n,sr);}catch(e){M.set(k,null);return null;}
+  for(let c=0;c<(stereo?2:1);c++)fill(b.getChannelData(c),sr,c);M.set(k,b);return b;}
+function vkRev(a,k,src){return vkBake(a,k+"~rev",src.duration,(d,sr,c)=>{const s=src.getChannelData(Math.min(c,src.numberOfChannels-1));for(let i=0;i<d.length;i++)d[i]=s[s.length-1-i];},src.numberOfChannels>1);}
+// one wave: the swell gathers, breaks, and hisses out up the shingle. Brown body, a breaking crest, a long foam tail
+function vkSurf(a){return vkBake(a,"surf",7.5,(d,sr,c)=>{let br=0,lp=0,lp2=0;const n=d.length;for(let i=0;i<n;i++){const t=i/sr,w=Math.random()*2-1;br=(br+.02*w)/1.02;
+  const sw=t<2.6?Math.pow(t/2.6,2.2):Math.exp(-(t-2.6)*.62),crest=t>2.4&&t<3.4?Math.sin(Math.PI*(t-2.4)):0,cut=.03+.35*sw+.4*crest;
+  lp+=(w-lp)*cut;lp2+=(lp-lp2)*cut;d[i]=(br*4.5*sw+lp2*(.55*sw+.6*crest)+w*.05*Math.max(0,sw-.3)*(t>2.6?1:0))*(c?.96:1)*(1-Math.pow(Math.max(0,t-7)/.5,2));}});}
+// one long, tired breath: in through the nose, out through the mouth, like surf on a small beach
+function vkBreath(a){return vkBake(a,"breath",6.4,(d,sr,c)=>{let l1=0,l2=0,h=0;for(let i=0;i<d.length;i++){const t=i/sr,w=Math.random()*2-1;
+  const inh=t<2.4?Math.sin(Math.PI*t/2.4)*.8:0,exh=t>2.7?Math.pow(Math.sin(Math.PI*Math.min(1,(t-2.7)/3.6)),1.3):0,e=inh+exh;
+  l1+=(w-l1)*(inh?.22:.12);l2+=(l1-l2)*.3;h=w-l1;d[i]=(l2*1.6*e+h*.05*inh)*(c?1:.97);}},true);}
+// the creak of old wood: stick-slip pulses through the plank's own ringing
+function vkCreak(a,k,secs,rate0,rate1,f){return vkBake(a,"creak"+k,secs,(d,sr,c)=>{let ph=0,y1=0,y2=0;const w=2*Math.PI*f/sr,r=.995,c1=2*r*Math.cos(w),c2=-r*r;
+  for(let i=0;i<d.length;i++){const t=i/d.length,rate=rate0+(rate1-rate0)*t+(Math.random()-.5)*rate0*.6;ph+=rate/sr;let x=0;if(ph>=1){ph-=1;x=(Math.random()*.6+.7)*(Math.random()<.92?1:0);}
+    const y=x+c1*y1+c2*y2;y2=y1;y1=y;d[i]=y*.06*Math.sin(Math.PI*t);}},false);}
+const VKX={
+  // single slow drips in a big space
+  drip(b,t,o){for(let i=0,d=0;i<5+o.dread;i++,d+=vkR(1.3,3.2)){const f=vkR(900,1500),p=vkR(-.6,.6);vkT(b,t+d,{f,f1:f*2.1,v:.11,att:.002,dec:.07,pan:p,cave:.9});vkT(b,t+d+.012,{f:f*.5,v:.05,dec:.05,pan:p,cave:.6});}
+    vkN(b,t,{f:220,v:.03,att:2,hold:6,dec:4,cave:.4});},
+  // the sea pulling out (the ebb): surf backwards, twice, the second deeper
+  "surf-reverse"(b,t,o){const s=vkSurf(b.a),r=s&&vkRev(b.a,"surf",s);vkPlay(b,t,r,{v:.5,cave:.35,pan:-.2});vkPlay(b,t+5.5,r,{v:.42,rate:.82,lp:1800,cave:.5,pan:.25});
+    vkN(b,t+5,{f:90,v:.1,att:3,dec:4});},
+  // the flood: surf coming in
+  surf(b,t,o){const s=vkSurf(b.a);vkPlay(b,t,s,{v:.5,cave:.3,pan:.2});vkPlay(b,t+4.6,s,{v:.45,rate:.9,cave:.4,pan:-.25});vkPlay(b,t+8.9,s,{v:.35,rate:.78,lp:1400,cave:.5});},
+  // an old house creaking; heavy wet feet on the planks overhead, heard from underneath
+  boards(b,t,o){const a=b.a;vkPlay(b,t+.2,vkCreak(a,"house",2.4,28,9,620),{v:.6,room:.5,pan:-.3});vkPlay(b,t+4.6,vkCreak(a,"house2",1.8,40,14,480),{v:.5,room:.5,pan:.35,rate:.9});
+    for(let i=0;i<5;i++){const s=t+1.2+i*vkR(1.05,1.3),p=-.5+i*.25;vkT(b,s,{f:85,f1:48,v:.32,dec:.25,pan:p,lp:300,room:.4});vkN(b,s,{f:380,v:.14,dec:.18,pan:p,room:.3});
+      vkN(b,s+.05,{type:"bandpass",f:900,q:3,v:.04,att:.01,dec:.12,pan:p});vkPlay(b,s+.1,vkCreak(a,"step",.5,60,20,700),{v:.35,pan:p,lp:900});}
+    for(let i=0;i<3;i++)vkT(b,t+2+i*1.7,{f:vkR(1100,1500),f1:2600,v:.03,att:.002,dec:.06,cave:.8});},
+  // hundreds of wind chimes, slowed right down and pitched low: inharmonic bells, smeared in the cave
+  "chimes-slow"(b,t,o){const roots=[146.8,164.8,196,220,246.9,293.7,329.6];for(let i=0;i<26;i++){const f=roots[i%roots.length]*vkR(.97,1.03)*(Math.random()<.3?.5:1),s=t+vkR(0,9),p=vkR(-.8,.8),v=vkR(.012,.03);
+      [[1,1],[2.76,.5],[5.4,.22],[8.93,.08]].forEach(([k,g])=>vkT(b,s,{f:f*k,v:v*g,att:vkR(.05,.4),dec:vkR(4,9)/Math.sqrt(k),pan:p,cave:.9,det:vkR(-7,7)}));}
+    vkN(b,t,{type:"bandpass",f:300,f1:500,q:.6,v:.06,att:3,hold:4,dec:5,cave:.4});},
+  // ship timbers groaning, a line creaking taut, water against the hull
+  timbers(b,t,o){const a=b.a;vkPlay(b,t,vkCreak(a,"hull",3.2,22,6,190),{v:.8,cave:.3,pan:-.2,rate:.8});vkPlay(b,t+3.4,vkCreak(a,"line",1.6,70,160,1400),{v:.35,pan:.4,room:.4});
+    vkPlay(b,t+5.4,vkCreak(a,"hull2",2.8,18,30,240),{v:.7,cave:.3,pan:.1,rate:.7});for(let i=0;i<4;i++)vkN(b,t+.5+i*2.1,{f:600,f1:200,v:.12,att:.15,dec:.6,pan:vkR(-.5,.5),cave:.3});},
+  // rain on rock, and a long drop below
+  rain(b,t,o){vkN(b,t,{type:"highpass",f:2500,v:.07,att:1.5,hold:8,dec:3,room:.3});vkN(b,t,{type:"bandpass",f:900,q:.5,v:.06,att:1.5,hold:8,dec:3});
+    for(let i=0;i<70;i++){const s=t+vkR(0,11),p=vkR(-.9,.9);vkN(b,s,{type:"bandpass",f:vkR(2500,6000),q:2,v:vkR(.02,.07),att:.001,dec:.015,pan:p});}
+    for(let i=0;i<8;i++){const s=t+vkR(.5,11);vkT(b,s,{f:vkR(500,800),f1:1400,v:.04,att:.002,dec:.05,pan:vkR(-.6,.6),room:.4});}
+    vkN(b,t,{f:120,v:.12,att:3,hold:6,dec:4,cave:.6});vkT(b,t,{f:41,v:.06,att:4,hold:5,dec:4});},
+  // a spade into wet earth, three times; the hole fills with water
+  spade(b,t,o){for(let i=0;i<3;i++){const s=t+i*2.6;vkN(b,s,{type:"bandpass",f:1300,q:1.2,v:.28,att:.004,dec:.12,room:.4});vkN(b,s,{f:400,v:.25,dec:.18});vkT(b,s,{f:140,f1:90,v:.2,dec:.12});
+      vkN(b,s+.35,{type:"bandpass",f:700,f1:300,q:2,v:.09,att:.06,dec:.3,room:.3});vkN(b,s+.8,{type:"highpass",f:1500,v:.05,att:.05,dec:.4});
+      for(let j=0;j<6;j++){const f=vkR(250,500)*(1+i*.2);vkT(b,s+.9+vkR(0,1.4),{f,f1:f*1.8,v:.06,att:.004,dec:.06,room:.4});}}
+    vkN(b,t+7.6,{type:"bandpass",f:400,q:1,v:.08,att:.5,dec:2.4,room:.5});},
+  // one long tired breath, backwards: it goes back into the chest
+  "breath-reverse"(b,t,o){const s=vkBreath(b.a),r=s&&vkRev(b.a,"breath",s);vkPlay(b,t,r,{v:.55,rate:.8,cave:.45,lp:2600});},
+  // the same breath forward, easing out (End 3)
+  breath(b,t,o){vkPlay(b,t,vkBreath(b.a),{v:.55,rate:.85,cave:.35,lp:2600});},
+  // two hearts out of step: his, and a slower, wetter one a little behind (his future self's)
+  "heartbeat-two"(b,t,o){const beat=(s,p,v,wet)=>{vkT(b,s,{f:58,f1:38,v,dec:.22,pan:p,lp:wet?160:0,cave:wet?.5:.1});vkT(b,s+.2,{f:52,f1:35,v:v*.7,dec:.2,pan:p,lp:wet?160:0,cave:wet?.5:.1});};
+    for(let i=0;i<10;i++)beat(t+i*1.02,-.35,.5,false);for(let i=0;i<9;i++)beat(t+.37+i*1.13,.4,.38,true);},
+  // the two fall into step
+  "heartbeat-one"(b,t,o){const beat=(s,p,v,wet)=>{vkT(b,s,{f:58,f1:38,v,dec:.22,pan:p,lp:wet?160:0,cave:wet?.5:.1});vkT(b,s+.2,{f:52,f1:35,v:v*.7,dec:.2,pan:p,lp:wet?160:0,cave:wet?.5:.1});};
+    let s2=t+.45;for(let i=0;i<10;i++){const s=t+i*1.02;beat(s,-.3+i*.03,.5,false);const k=Math.min(1,i/5);beat(s+(s2-s)*(1-k),.4*(1-k),.38+.1*k,k<1);s2+=1.02+.11*(1-k);}},
+  // chalk scratching tally marks, faster and faster, then stop
+  chalk(b,t,o){let s=t,g=.8;while(s<t+8){const len=Math.min(.18,g*.45);vkN(b,s,{type:"bandpass",f:vkR(2600,3800),q:3,v:.12,att:.005,hold:len,dec:.03,room:.4,pan:vkR(-.2,.2)});
+      vkN(b,s,{type:"highpass",f:5000,v:.05,att:.002,hold:len*.6,dec:.02});vkT(b,s+len,{f:1200,f1:900,v:.03,dec:.03});s+=g;g=Math.max(.07,g*.86);}},
+  // cups clinking in a room, then nothing at all
+  toast(b,t,o){const mur=b.a.createGain();mur.gain.value=1;mur.connect(b.dry);vkN(b,t,{type:"bandpass",f:500,q:1.5,v:.1,att:.6,hold:2.4,dec:.04,room:.6,to:mur});
+    vkN(b,t,{type:"bandpass",f:1100,q:2,v:.05,att:.6,hold:2.4,dec:.04,room:.6,to:mur});
+    for(let i=0;i<7;i++){const s=t+.9+vkR(0,1.5),f=vkR(1900,2500),p=vkR(-.7,.7);[[1,1],[1.62,.6],[2.71,.35],[4.1,.15]].forEach(([k,g])=>vkT(b,s,{f:f*k,v:.035*g,dec:vkR(.25,.6)/Math.sqrt(k),pan:p,room:.5,to:mur}));}
+    vkDip(b,t+3.05,2);}, // and the room with it: true silence
+  // Hans's techno slowed down into a funeral: the kick stretched and sunk, the hats gone to long hiss, a minor chord sinking
+  dirge(b,t,o){for(let i=0;i<7;i++){const s=t+i*1.7*(1+i*.05),k=1-i*.06;vkT(b,s,{f:110*k,f1:30,v:.42,att:.01,dec:1.3,cave:.35});vkN(b,s+.85,{type:"highpass",f:3500*k,v:.05,att:.3,dec:.8,cave:.4});}
+    for(const m of [38,45,50,53])vkT(b,t,{f:vkHz(m),f1:vkHz(m)*.84,type:"sawtooth",v:.022,att:1.5,hold:6,dec:5,lp:700,cave:.6});
+    [62,69,65,64].forEach((m,i)=>vkT(b,t+2+i*2.4,{f:vkHz(m-12),f1:vkHz(m-12)*.97,type:"square",v:.025,att:.05,dec:2,lp:900,cave:.7}));},
+  // a roar that doesn't move: a breaking wave frozen at the top
+  "fire-still"(b,t,o){vkN(b,t,{f:650,v:.32,att:1.4,hold:7,dec:2.5,cave:.3});vkN(b,t,{type:"bandpass",f:1900,q:4,v:.1,att:1.4,hold:7,dec:2.5,cave:.4});
+    vkN(b,t,{type:"bandpass",f:3800,q:6,v:.05,att:1.6,hold:7,dec:3,cave:.5});vkN(b,t,{type:"bandpass",f:240,q:5,v:.14,att:1.2,hold:7,dec:2.5});vkT(b,t,{f:36,v:.12,att:2,hold:6,dec:3});},
+  // the loop: a memory spun backwards, faster and higher, and a thunk as it catches
+  rewind(b,t,o){const a=b.a,s=vkSurf(a),r=s&&vkRev(a,"surf",s),c=vkCreak(a,"house",2.4,28,9,620);vkPlay(b,t,r,{v:.35,rate:1,rate1:4.5,dur:2.2,hp:300});vkPlay(b,t,c,{v:.4,rate:1.5,rate1:6,dur:2.2});
+    vkT(b,t,{f:180,f1:1400,type:"sawtooth",v:.03,att:.3,dec:1.9,lp:2500});vkN(b,t,{type:"bandpass",f:400,f1:5000,q:2,v:.08,att:1.6,dec:.6});
+    vkT(b,t+2.25,{f:120,f1:45,v:.4,dec:.25,room:.4});vkN(b,t+2.25,{f:800,v:.2,dec:.08});},
+  // Stig's own voice counting under his breath, layered, out of time: murmured syllables, no words, no tune
+  count(b,t,o){const a=b.a;for(let L=0;L<3;L++){const f0=[96,88,104][L],gap=[.62,.71,.55][L],p=[-.4,.35,0][L];for(let i=0;i<11;i++){const s=t+L*.23+i*gap*vkR(.9,1.12),len=vkR(.16,.26);
+      const o1=a.createOscillator();o1.type="sawtooth";o1.frequency.setValueAtTime(f0*vkR(.97,1.03),s);o1.frequency.linearRampToValueAtTime(f0*.9,s+len);
+      const g=a.createGain();vkEnv(g,s,.03,.05,len);const F=[[vkR(450,750),6],[vkR(1000,1500),8]].map(([f,q])=>{const x=a.createBiquadFilter();x.type="bandpass";x.frequency.value=f;x.Q.value=q;return x;});
+      const lp=a.createBiquadFilter();lp.type="lowpass";lp.frequency.value=1600;o1.connect(F[0]).connect(lp);o1.connect(F[1]).connect(lp);vkOut(b,lp.connect(g),{pan:p,room:.5,cave:.3});o1.start(s);o1.stop(s+len+.1);vkTrack(b,o1);
+      vkN(b,s,{type:"bandpass",f:4500,q:2,v:.012,att:.01,dec:.06,pan:p});}}},
+  // everything cuts out for one beat
+  silence(b,t,o){vkDip(b,t,.9);}};
+function vkDip(b,t,len){const g=b.out.gain;g.cancelScheduledValues(t);g.setValueAtTime(g.value||1,t);g.linearRampToValueAtTime(0,t+.02);g.setValueAtTime(0,t+len);g.linearRampToValueAtTime(1,t+len+.25);}
+/* each cue's level, so they sit together (dB, measured), and what dread adds underneath */
+const VK_TRIM={drip:11.5,"surf-reverse":-5.3,surf:-5.7,boards:1.9,"chimes-slow":5,timbers:-2.6,rain:-4.3,spade:4,"breath-reverse":-6,breath:-6,
+  "heartbeat-two":2.8,"heartbeat-one":1,chalk:2,toast:5.6,dirge:-2,"fire-still":-3,rewind:-2.5,count:22,silence:0};
+function vkSub(b,db){const a=b.a,k=Math.pow(10,db/20),mk=to=>{const g=a.createGain();g.gain.value=k;g.connect(to);return g;};return {a,nb:b.nb,out:b.out,dry:mk(b.dry),cave:mk(b.cave),room:mk(b.room)};}
+function vkDread(b,t,d){if(d<3)return;vkT(b,t,{f:31,v:.05*(d-2),att:3,hold:4,dec:4});vkN(b,t+1,{type:"bandpass",f:vkR(500,900),q:6,v:.012*(d-2),att:2,hold:2,dec:3,cave:.9,pan:vkR(-.8,.8)});
+  if(d>=5){const s=vkBreath(b.a),r=s&&vkRev(b.a,"breath",s);vkPlay(b,t+2,r,{v:.12,rate:.6,lp:900,cave:.9,pan:vkR(-.7,.7)});}}
+/* play a cue on bus b at time t (both made by the caller); returns false for an unknown name */
+function vkPlayCue(b,name,t,o={}){const f=VKX[name];if(!f)return false;const s=vkSub(b,VK_TRIM[name]||0);f(s,t,Object.assign({dread:0},o));vkDread(s,t,o.dread|0);return true;}
+/* the kit inside an interlude: one kit bus per interlude mix, into its fx bus (so it ducks under Hans and fades with the rest) */
+function hvVk(name,o={}){const b=IFX.bus;if(!b||b.fading||!IFX.a)return false;if(!b.vk||b.vk.a!==IFX.a){b.vk=vkMakeBus(IFX.a,b.fx);b.vk.out.gain.value=.5;}
+  return vkPlayCue(b.vk,name,iNow()+.02,Object.assign({dread:(IST&&IST.dread)|0},o));}
 /* sound cues from the script, all made here; layers (rain, fire, two hearts, dirge) carry until the next passage's mix */
 const hvL=(k,v,f=2)=>iLay(k,v,f,iNow());
 const HV_SND={
-  drip:(s,t)=>{for(let i=0;i<4;i++)IFXS.drip(s,t+i*1.7+Math.random()*.6,{f:900+Math.random()*500,pan:Math.random()*1.2-.6,v:.6,cave:1});},
-  surf:(s,t)=>IFXS.wave(s,t,{v:.9}),
-  "surf-reverse":(s,t)=>{const d=3.4,out=iOut(s,{bus:"world",cave:.5,v:.5}),x=iF("lowpass",300,0);x.frequency.setValueAtTime(300,t);x.frequency.exponentialRampToValueAtTime(2400,t+d);
-    iN(s,t,d+.05,"pink").connect(x).connect(iE(t,[[0,0],[d*.85,.2],[d,.6],[d+.04,0]])).connect(out);iB(s,t+.4,iPeb(IFX.a,3)).connect(iE(t+.4,[[0,0],[2.9,.5],[3,0]])).connect(iF("highpass",1500,.5)).connect(out);},
-  boards:(s,t)=>{HV_SND.creak1(s,t);for(let i=0;i<4;i++)IFXS.step(s,t+.8+i*1.15,{v:.45,f:58,grit:1.6,near:.2,lp:1400,pan:-.3+i*.2});IFXS.drip(s,t+3.4,{f:800,v:.5});},
-  creak1:(s,t)=>{const b=iCrk(IFX.a,.7,110,50,.4);iB(s,t,b).connect(iF("bandpass",520,.8)).connect(iOut(s,{bus:"world",v:.3,cave:.4,pan:-.2}));},
-  "chimes-slow":(s,t)=>{const out=iOut(s,{bus:"fx",v:.5,cave:.9,lp:3000});for(let i=0;i<34;i++){const T=t+Math.random()*7,f=180+Math.random()*420,o=1;
-      [[1,.05],[2.76,.025],[5.4,.012]].forEach(([k,v])=>iO(s,T,6,f*k).connect(iP(T,v*(.5+Math.random()*.5),5.5,.4)).connect(iOut(s,{bus:"fx",v:.6,pan:Math.random()*1.6-.8,cave:1,lp:3000})));}},
-  timbers:(s,t)=>{for(let i=0;i<3;i++){const b=iCrk(IFX.a,1.4+Math.random(),70+Math.random()*30,35,.25);iB(s,t+i*1.6,b).connect(iF("lowpass",500,0)).connect(iOut(s,{bus:"world",v:.4,cave:.5,pan:Math.random()-.5}));}
-    const b2=iCrk(IFX.a,1.1,320,520,.15);iB(s,t+2.2,b2).connect(iF("bandpass",900,2)).connect(iOut(s,{bus:"world",v:.18,pan:.4}));},
+  drip:()=>hvVk("drip"),
+  surf:()=>hvVk("surf"),
+  "surf-reverse":()=>hvVk("surf-reverse"),
+  boards:()=>hvVk("boards"),
+  "chimes-slow":()=>hvVk("chimes-slow"),
+  timbers:()=>hvVk("timbers"),
   rain:()=>hvL("rain",.9,1.5),
-  spade:(s,t)=>{const out=iOut(s,{bus:"fx",v:.6,cave:.4});for(let i=0;i<3;i++){const T=t+i*1.6;iHit(s,T,out,"bandpass",420,1.2,.7,.18,"brown");iHit(s,T+.02,out,"highpass",2400,0,.15,.05);
-      for(let j=0;j<5;j++){const B=T+.4+j*.12+Math.random()*.1,f=300+Math.random()*300,o=iO(s,B,.08,f);o.frequency.exponentialRampToValueAtTime(f*2.4,B+.06);o.connect(iP(B,.06,.06,.002)).connect(out);}}},
-  "breath-reverse":(s,t)=>{const d=5,x=iF("bandpass",900,.7);x.frequency.setValueAtTime(500,t);x.frequency.exponentialRampToValueAtTime(1800,t+d);
-    iRust(s,t,d+.05,900,.8,6,.25,"pink").connect(x).connect(iE(t,[[0,0],[d*.9,.3],[d,.5],[d+.05,0]])).connect(iOut(s,{bus:"fx",v:.7,near:.5,cave:.5}));},
-  breath:(s,t)=>IFXS.exhale(s,t,{dur:5,v:.8}),
+  spade:()=>hvVk("spade"),
+  "breath-reverse":()=>hvVk("breath-reverse"),
+  breath:()=>hvVk("breath"),
   "heartbeat-two":()=>{hvL("two",.9,1);const L=IFX.lay.two;if(L)L.sync=0;},
   "heartbeat-one":()=>{hvL("two",.9,1);const L=IFX.lay.two;if(L){L.sync=1;L.until=iNow()+14;}},
-  chalk:(s,t)=>{const out=iOut(s,{bus:"fx",v:.45,near:.4,pan:.2});let T=t,g=.42;for(let i=0;i<26;i++){const L=.05+Math.random()*.08;iN(s,T,L,"white").connect(iF("bandpass",3200+Math.random()*1800,6)).connect(iE(T,[[0,0],[.01,.6],[L,0]])).connect(out);T+=g;g=Math.max(.06,g*.9);}},
-  toast:(s,t)=>{const out=iOut(s,{bus:"fx",v:.5,cave:.4});for(let i=0;i<6;i++){const T=t+.3+i*.14+Math.random()*.08,f=1800+Math.random()*900;iRing(s,T,out,[f,f*2.4,f*3.9],[.6,.3,.15],[.05,.02,.01]);}
-    hvL("murmur",.5,.6);setTimeout(()=>{hvL("murmur",0,.1);if(IFX.bus&&IFX.sc)HV_SND.silence(IFX.sc,iNow(),{ms:2600});},2200);},
-  dirge:()=>hvL("dirge",.9,3),
-  "fire-still":()=>hvL("roar",.9,3),
-  rewind:(s,t)=>{const d=2.2,out=iOut(s,{bus:"fx",v:.6}),o=iO(s,t,d,880,"triangle");o.frequency.setValueAtTime(880,t);o.frequency.exponentialRampToValueAtTime(110,t+d);
-    const lf=iO(s,t,d,7),lg=IFX.a.createGain();lg.gain.value=60;lf.connect(lg).connect(o.frequency);o.connect(iE(t,[[0,0],[.2,.06],[d,0]])).connect(out);
-    const x=iF("bandpass",4000,1);x.frequency.setValueAtTime(4000,t);x.frequency.exponentialRampToValueAtTime(200,t+d);iN(s,t,d,"white").connect(x).connect(iE(t,[[0,0],[d*.8,.5],[d,0]])).connect(out);
-    IACT.sweep({hi:600,s:.6},t);IACT.sweep({hi:18000,s:1.2},t+d);},
-  count:(s,t)=>{for(let i=0;i<5;i++){const b=iVoxC("stig");iB(s,t+i*.7+Math.random()*.5,b).connect(iOut(s,{bus:"fx",v:.12,near:.6,pan:Math.random()*1.4-.7,lp:2200}));}},
+  chalk:()=>hvVk("chalk"),
+  toast:()=>{hvVk("toast");setTimeout(()=>{if(IFX.bus&&IFX.sc)HV_SND.silence(IFX.sc,iNow(),{ms:2400});},3050);}, // then nothing at all, the whole mix
+  dirge:()=>{hvL("dirge",.9,3);hvVk("dirge");}, // the slowing-down on top of the drone it leaves behind
+  "fire-still":()=>{hvL("roar",.9,3);hvVk("fire-still");},
+  rewind:(s,t)=>{hvVk("rewind");IACT.sweep({hi:600,s:.6},t);IACT.sweep({hi:18000,s:1.2},t+2.2);},
+  count:()=>hvVk("count"),
   silence:(s,t,o)=>{const b=IFX.bus;if(!b)return;const g=b.duck.gain,ms=(o&&o.ms)||900;g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);g.linearRampToValueAtTime(0,t+.05);g.setValueAtTime(0,t+ms/1000);g.linearRampToValueAtTime(1,t+ms/1000+.6);},
   "voice-boy":(s,t,o)=>{const n=Math.min(4,1+((o&&o.n)||8)/10|0);for(let i=0;i<n;i++){const b=iVoxC("katy");const src=iB(s,t+i*.55,b);try{src.playbackRate.value=1.28;}catch(e){}src.connect(iOut(s,{bus:"fx",v:.08,near:.5,pan:-.35,lp:3000}));}},
   "voice-future":(s,t,o)=>{const n=Math.min(4,1+((o&&o.n)||8)/10|0);for(let i=0;i<n;i++)for(const [dl,pan] of [[0,.3],[.13,.42]]){const b=iVoxC("stig"),src=iB(s,t+i*.6+dl,b);try{src.playbackRate.value=.78;}catch(e){}
@@ -13836,6 +13968,253 @@ function avPortrait(id){const l=avOf(id);if(!l||!T3GL||t3on())return null;const 
   avPics.set(k,url);return url;}
 
 AVGL={stage:avStage,portrait:avPortrait,fighting:()=>t3on(),sculpt:id=>!!MINI3D[id],sculpted:id=>t3g_have.has(id),ready:id=>t3g_load(id)};
+
+/* =================== VISION FX: the fever-dream layer for visions (Stig's Eleven Paces first, any vision later) ===================
+   One WebGL canvas over the play screen that never takes a tap. It draws the story picture again through a warp (ink, an
+   oil-slick shift of colour, a split of the colours, black water, heat shimmer, a ghost of the picture beside itself) and
+   lays a veil round it (ink closing in from the edges, ash snow or embers, light off water, fire from below, broken frames).
+   Text, buttons and the title card stay crisp above it. VFX.off() and the page is exactly as before.
+     VFX.set(look,{s,ms,mix}) look: past · future · water · ash · fire · flicker · deep · fever · off; s = strength 0..1, ms = ease;
+                          mix: single knobs over the look for this set ({door:.6}); left out, the last ones stay
+     VFX.mix({door:1,...})  more knobs on top of the look now (names as in VFX_LOOK); VFX.mix(null) drops them
+     VFX.meter(dread,flick) 0..1 each: the haunting's own meters close the ink in and make the picture stutter
+     VFX.pulse(kind)        rewind · shock · bloom · drown · flash · door · face: a one-off beat of a second or two
+     VFX.play(steps)        a cutscene: [[ms,"set","water",{s:.8}],[ms,"pulse","drown"],[ms,"mix",{door:1}],...]; a promise
+   Cost: one fragment shader at half the screen's pixels on phones (down to a third if frames get slow); a still picture is
+   uploaded once, a moving one at most 30 times a second; nothing at all while off, hidden or out of play. While the 3D table
+   owns the screen the layer lets its WebGL go (iPhone keeps few), and takes it up again on the next story screen.
+   Reduced motion: no warp, flicker or pulses, the veil stands still. ?vfx=<look> tries a look on any story screen (testing). */
+const VFX_LOOK={ // every knob 0..1; tint is the colour the picture leans toward
+  off:   {warp:0,chroma:0,hue:0,water:0,ash:0,fire:0,flick:0,ink:0,vign:0,caus:0,grain:0,echo:0,door:0,tintK:0,bleed:0,tint:[1,1,1]},
+  past:  {warp:.3,chroma:.25,hue:.15,water:0,ash:.3,fire:0,flick:0,ink:.45,vign:.6,caus:0,grain:.4,echo:.35,door:0,tintK:.45,bleed:.35,tint:[1,.8,.55]},
+  future:{warp:.45,chroma:.75,hue:.4,water:.15,ash:.2,fire:0,flick:.5,ink:.5,vign:.65,caus:.2,grain:.45,echo:.7,door:0,tintK:.45,bleed:.4,tint:[.6,.88,1]},
+  water: {warp:.4,chroma:.35,hue:.25,water:1,ash:.1,fire:0,flick:0,ink:.65,vign:.75,caus:.85,grain:.3,echo:.2,door:0,tintK:.5,bleed:.4,tint:[.45,.78,.82]},
+  ash:   {warp:.3,chroma:.2,hue:.08,water:0,ash:1,fire:.12,flick:0,ink:.55,vign:.7,caus:0,grain:.55,echo:.15,door:0,tintK:.6,bleed:.3,tint:[.8,.77,.74]},
+  fire:  {warp:.55,chroma:.45,hue:.3,water:0,ash:.6,fire:1,flick:.1,ink:.4,vign:.55,caus:0,grain:.35,echo:.2,door:.0,tintK:.4,bleed:.5,tint:[1,.6,.32]},
+  flicker:{warp:.3,chroma:1,hue:.35,water:0,ash:.2,fire:0,flick:1,ink:.45,vign:.6,caus:0,grain:.6,echo:.9,door:0,tintK:.3,bleed:.35,tint:[.78,.95,1]},
+  deep:  {warp:.85,chroma:.7,hue:.8,water:.55,ash:.35,fire:.1,flick:.25,ink:1,vign:.9,caus:.55,grain:.4,echo:.5,door:0,tintK:.45,bleed:.75,tint:[.5,.6,.78]},
+  fever: {warp:1,chroma:1,hue:1,water:.3,ash:.45,fire:.35,flick:.35,ink:.8,vign:.75,caus:.6,grain:.45,echo:.6,door:0,tintK:0,bleed:1,tint:[1,1,1]}};
+const VFX_KEYS=["warp","chroma","hue","water","ash","fire","flick","ink","vign","caus","grain","echo","door","tintK","bleed"];
+const VFX=(()=>{
+  const PULSES=["rewind","shock","bloom","drown","flash","door","face"],PMS=[1400,700,1700,1900,380,2400,1600],TOP=()=>SMALL?.5:.75;
+  const S={on:false,cv:null,gl:null,u:{},tex:null,raf:0,t0:performance.now(),tFrozen:0,cur:{},goal:{},from:{},e0:0,ems:1,tint:[1,1,1],tintFrom:[1,1,1],tintGoal:[1,1,1],
+    dread:0,flickM:0,pT:PULSES.map(()=>-1e9),scale:.5,slow:0,fast:0,lastUp:0,upKey:"",hid:new Set(),broken:false,parked:0,pin:0,look:"off",s:1,extra:{},mixCv:null,seq:0};
+  for(const k of VFX_KEYS){S.cur[k]=0;S.goal[k]=0;S.from[k]=0;}
+  const VS="attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}";
+  const FS=`precision highp float;
+uniform vec2 uRes;uniform float uT;uniform sampler2D uArt;uniform vec4 uRect,uClip,uCalm;uniform float uHas,uOut,uFlip;
+uniform float uWarp,uChroma,uHue,uWater,uAsh,uFire,uFlick,uInk,uVign,uCaus,uGrain,uEcho,uDoor,uTintK,uBleed,uDread;
+uniform vec3 uTint;uniform vec4 uP;uniform vec2 uP2;uniform float uFace;
+float h1(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
+float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h1(i),h1(i+vec2(1,0)),f.x),mix(h1(i+vec2(0,1)),h1(i+vec2(1,1)),f.x),f.y);}
+float fbm(vec2 p){float a=.5,s=0.;for(int i=0;i<4;i++){s+=a*vn(p);p=p*2.03+vec2(1.7,9.2);a*=.5;}return s;}
+vec3 hue(vec3 c,float a){const vec3 k=vec3(.57735);float ca=cos(a);return c*ca+cross(k,c)*sin(a)+k*dot(k,c)*(1.-ca);}
+float lum(vec3 c){return dot(c,vec3(.299,.587,.114));}
+vec3 art(vec2 a){return texture2D(uArt,a).rgb;}
+float inRect(vec2 p,vec4 r,float soft){vec2 d=max(r.xy-p,p-r.xy-r.zw);return 1.-smoothstep(0.,soft,max(d.x,d.y));}
+void main(){
+  vec2 fc=gl_FragCoord.xy,uv=fc/uRes;float asp=uRes.x/uRes.y,t=uT,px=uRes.y;
+  vec2 q=vec2(uv.x*asp,uv.y);
+  float rw=uP.x,sh=uP.y,bl=uP.z,dr=uP.w,fl=uP2.x,dp=uP2.y;
+  // the ink field: two folded layers of noise that everything else bends along
+  float n1=fbm(q*2.2+vec2(t*.03,-t*.05));float n2=fbm(q*3.1+vec2(n1*2.2,t*.04)-vec2(0.,t*.02));
+  vec2 w=(vec2(n1,n2)-.47)*2.;
+  // where the words are: the bright things (glow, embers, light off water) keep low behind them
+  float calm=inRect(fc,uCalm,.2*px)*.7;
+  // broken frames: whole bands slip sideways, at most about one a second (kept well under three flashes a second)
+  float fk=uFlick*(.4+.6*uDread);float tick=floor(t*12.);float glitch=step(1.-.09*fk,h1(vec2(tick,3.1)));
+  float row=floor(uv.y*16.+tick);float band=step(.55,h1(vec2(row,tick)))*glitch;
+  // rewind: thin streaks roll up the frame, smoothly (nothing strobes)
+  float streak=rw*step(.86,h1(vec2(floor(uv.y*70.-t*25.),7.)));
+  vec4 col=vec4(0.);vec3 add=vec3(0.);
+  vec2 a=(fc-uRect.xy)/uRect.zw;if(uFlip>.5)a.x=1.-a.x;vec2 c=a-.5;
+  if(uHas>.5){
+    vec2 aw=a+w*(.012+.065*uWarp)*(uWarp+.25*sh+.3*dp);
+    // black water: rings and a slow undertow in the lower part
+    float wl=smoothstep(.6,.0,a.y)*uWater;aw.x+=sin(a.y*42.-t*1.6+n1*6.)*.007*wl;aw.y+=sin(a.x*26.+t*1.1)*.004*wl;
+    // heat shimmer over fire
+    aw.x+=sin(a.y*60.-t*7.)*.004*(uFire+bl)*smoothstep(.1,.9,1.-a.y);
+    // rewind: pulled into the middle, turned, rolled
+    float ang=rw*1.5*(1.-length(c));aw=.5+mat2(cos(ang),-sin(ang),sin(ang),cos(ang))*(aw-.5)*(1.-.22*rw);aw.y+=streak*.03;
+    aw.x+=band*(h1(vec2(tick,row))-.5)*.09*fk;
+    float ch=(.002+.012*uChroma)*(1.+3.*glitch*fk+2.5*sh+2.*rw);vec2 cd=normalize(c+1e-4)*ch;
+    vec3 tc=vec3(texture2D(uArt,aw+cd).r,texture2D(uArt,aw).g,texture2D(uArt,aw-cd).b);
+    // the ghost: the same picture a little beside itself, in another colour (the self from another time)
+    if(uEcho>.001){vec2 eo=vec2(sin(t*.7)*.022+.012,cos(t*.5)*.01)*(uEcho+.6*glitch*fk)*(1.+2.5*uFace)+w*.012;
+      vec3 ec=hue(art(aw+eo),2.1+sin(t*.3));float ek=max(uEcho*(.32+.3*sin(t*1.3+n1*4.)*sin(t*.37)),.75*uFace)*(1.-.5*rw);
+      tc=mix(tc,max(tc,ec*1.05),ek);}
+    // oil slick: the dark and middle tones drift through colours along the ink field
+    float L=lum(tc);tc=mix(tc,hue(tc,(n2*6.283+t*.25)*1.2),uHue*.85*smoothstep(.95,.12,L));
+    tc=mix(tc,mix(tc,vec3(lum(tc)),.6)*uTint/max(lum(uTint),.05),uTintK); // toward the look's colour (sepia for the past, cold for the future), as bright as before
+    tc=mix(tc,vec3(lum(tc))*vec3(.9,.95,1.1),.65*rw);
+    // the picture's edge burns out into the ink instead of a clean frame; uBleed is how far
+    vec2 e=abs(c)*2.;float edge=max(e.x,e.y)+(n1-.5)*.35*uBleed;
+    float m=1.-smoothstep(1.-.1-.12*uBleed,1.+.04*uBleed,edge);
+    m*=step(uClip.x,fc.x)*step(fc.x,uClip.x+uClip.z)*step(uClip.y,fc.y)*step(fc.y,uClip.y+uClip.w);
+    col=vec4(tc*m,m);
+    // spill: the painting's own light smokes out past its edge into the dark, along the ink
+    vec2 o=max(abs(c)-.44,0.)*uRect.zw/px;float dOut=length(o);
+    if(dOut>0.&&uBleed>.001){vec2 s1=clamp(a+w*.1,0.,1.),s2=clamp(a+w*.22+vec2(.04,0.),0.,1.),s3=clamp(a-w*.16,0.,1.);
+      vec3 sp=(art(s1)+art(s2)+art(s3))/3.;sp=mix(sp,hue(sp,n2*6.283),uHue*.5)*mix(vec3(1.),uTint,uTintK);
+      add+=sp*exp(-dOut*(9.-4.*uBleed))*(.3+.7*smoothstep(.3,.75,n2))*uBleed*.9*(1.-calm*.6)*(1.-m);}}
+  // veil: ink at the edges, closing in with dread; quieter where there is no story picture (a fight)
+  float r=length((uv-.5)*vec2(asp,1.)*vec2(.85,1.));
+  float vig=smoothstep(.25+.35*(1.-uVign)-.14*uDread,1.1,r+(n1-.5)*.45*uInk);
+  vig=clamp((vig*(.55+.45*uVign)+.35*sh*r)*uOut,0.,.96)*(1.-.6*col.a*(1.-.5*uDread)); // the picture itself stays lit until the dread is high
+  // haze: a slow coloured fog in the dark round the picture, cut through by ink smoke
+  if(uInk>.001){float fog=smoothstep(.35,.85,fbm(q*1.6+w*.8+vec2(t*.02,0.)));
+    vec3 hz=mix(mix(vec3(.35,.4,.5),uTint,.7),hue(vec3(.7,.28,.6),n2*6.283+t*.12),uHue*.8);
+    add+=hz*fog*(.08+.07*uHue)*uInk*(1.-col.a)*(1.-calm)*uOut;
+    float ten=smoothstep(.6,.7,fbm(q*5.+w*1.5+vec2(0.,t*.12)))*uInk*smoothstep(.12,.7,r)*uOut;
+    vig=max(vig,ten*.85);}
+  // drown: black water rises over the screen and falls away again
+  if(dr>.001){float lvl=dr*1.15-.08+.03*sin(uv.x*9.+t*3.)+.02*n1;float under=smoothstep(lvl+.01,lvl-.03,uv.y);
+    vec3 deep=vec3(.02,.07,.08)+vec3(.1,.35,.33)*pow(abs(sin(fbm(q*7.+t*.2)*10.)),6.)*.5;
+    col.rgb=mix(col.rgb,deep,under*.92);col.a=mix(col.a,1.,under*.92);
+    add+=vec3(.5,.9,.85)*smoothstep(.012,0.,abs(uv.y-lvl))*.5*dr;}
+  // caustics: thin light off water, in drifting patches, mostly low down
+  if(uCaus>.001){vec2 cq=q*7.+w*.7;float l1=1.-abs(sin(fbm(cq+vec2(t*.2,t*.1))*16.)),l2=1.-abs(sin(fbm(cq*1.3-vec2(t*.15,-t*.12)+3.)*16.));
+    float cs=pow(l1,12.)+pow(l2,12.)+pow(l1*l2,5.)*1.5;
+    add+=vec3(.3,.8,.75)*cs*uCaus*(.2+.8*smoothstep(.0,.6,1.-uv.y))*(.1+.25*col.a)*(1.-calm*.8);}
+  // fire: flames licking up from the bottom edge, and a low warm glow (bloom: a burst of it)
+  float fF=uFire+bl*1.4;if(fF>.001){float lick=fbm(vec2(uv.x*7.*asp,uv.y*3.-t*1.7))*fbm(vec2(uv.x*3.,t*.6));
+    float fy=uv.y-(.05+.22*lick)*fF;float flame=smoothstep(.06,-.02,fy);
+    add+=(vec3(1.,.38,.08)*flame+vec3(1.,.78,.4)*smoothstep(.0,-.05,fy)*.7)*fF*.55*(1.-calm*.8)+vec3(1.,.45,.15)*smoothstep(.45,0.,uv.y)*fF*.07;}
+  // the door of fire: a tall arch burning open in the middle of the picture
+  float dK=max(uDoor,dp);if(dK>.001){vec2 dc=uHas>.5?(uRect.xy+uRect.zw*vec2(.5,.38))/uRes:vec2(.5,.42);vec2 d=(uv-dc)*vec2(asp,1.);
+    float sc=uHas>.5?uRect.w/px:.6;float hw=(.15*dK+.03)*sc,ht=(.4*dK+.06)*sc;
+    float arch=d.y<ht-hw?abs(d.x)/hw:length(vec2(d.x,d.y-ht+hw))/hw;if(d.y<-ht*.75)arch=9.;
+    float lick=fbm(vec2(d.x*14./sc,d.y*6./sc-t*2.4))*.55,tongue=fbm(vec2(d.x*9./sc,d.y*4./sc-t*3.1));
+    float rim=smoothstep(.2+lick*.45,0.,abs(arch-1.+lick*.3)),out1=max(arch-1.,0.),glow=step(1.,arch)*exp(-out1*4.5)*.3;
+    float flames=smoothstep(.55,.85,tongue)*exp(-out1*3.)*step(1.,arch)*smoothstep(-ht*.6,ht,d.y);
+    float inner=smoothstep(1.,.2,arch)*step(-ht*.75,d.y);float fl2=.85+.15*sin(t*7.+n1*11.);
+    add+=(vec3(1.,.5,.15)*rim*1.05+vec3(1.,.4,.1)*(glow+flames*.8)+vec3(1.,.7,.4)*inner*(.12+.06*sin(t*5.+n1*9.)))*dK*fl2;}
+  // ash falls, embers rise with the fire: three layers of flakes, the near ones bigger and softer
+  if(uAsh>.001){bool emb=uFire>.5;for(int i=0;i<3;i++){float fi=float(i),sz=emb?14.+fi*9.:8.+fi*7.,sp=(emb?.09:.035)+fi*.012;
+    vec2 g=q*sz+vec2(sin(t*.25+fi*2.+q.y*3.)*.8+w.x*1.2,(emb?-1.:1.)*t*sp*sz+fi*7.3);
+    vec2 id=floor(g),f=fract(g)-.5;float k=h1(id+fi*11.),k2=h1(id+fi*5.+3.);if(k<(emb?.6:.55))continue;
+    f-=vec2(k2-.5,fract(k*7.)-.5)*.5;float an=t*(k2-.5)*3.+k*6.28;f=mat2(cos(an),-sin(an),sin(an),cos(an))*f;
+    float big=fi==0.?1.:.6;
+    if(emb){float s=(.025+.035*k2)*big;float core=smoothstep(s,s*.2,length(f*vec2(1.,.45)));float halo=smoothstep(s*4.,0.,length(f))*.25;
+      add+=vec3(1.,.55+.3*k2,.18)*(core+halo)*uAsh*(.55+.45*sin(t*7.+k*40.))*(1.-calm*.6);}
+    else{float s=(.06+.1*k2)*big;float dd=length(f*vec2(1.,1.9+k*1.5))+(vn(f*9.+k*20.)-.5)*.05;
+      float flake=smoothstep(s,s*(fi==0.?.2:.55),dd)*(.45+.55*abs(sin(t*2.+k*30.)));
+      float fa=flake*uAsh*(.75-fi*.18)*(1.-calm*.5);col.rgb=mix(col.rgb,vec3(.74,.71,.67),fa);col.a=mix(col.a,1.,fa);}}}
+  // film grain, the broken-frame bands, the white flash
+  add+=(h1(fc+fract(t)*91.)-.5)*.16*uGrain;
+  add+=(vec3(.6,.9,1.)*band*fk*.1+vec3(.85,.9,1.)*streak*.07)*(1.-calm);
+  add+=vec3(1.,.97,.9)*fl*.75;
+  col.rgb*=1.-vig;col.a=col.a+vig*(1.-col.a);
+  col.rgb=clamp(col.rgb+add,0.,1.);
+  col.a=max(col.a,max(col.r,max(col.g,col.b))); // stays premultiplied, so every browser lays it over the page the same way
+  gl_FragColor=col;}`;
+  function init(){if(S.gl||S.broken)return !!S.gl;
+    try{const cv=h("canvas",{class:"vfx","aria-hidden":"true"});
+      const gl=cv.getContext("webgl",{premultipliedAlpha:true,alpha:true,antialias:false,depth:false,stencil:false,preserveDrawingBuffer:false});
+      if(!gl)throw new Error("no webgl");
+      const sh=(ty,src)=>{const s=gl.createShader(ty);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(s));return s;};
+      const p=gl.createProgram();gl.attachShader(p,sh(gl.VERTEX_SHADER,VS));gl.attachShader(p,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(p);
+      if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(p));
+      gl.useProgram(p);gl.bindBuffer(gl.ARRAY_BUFFER,gl.createBuffer());gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+      const loc=gl.getAttribLocation(p,"p");gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+      for(const n of["uRes","uT","uArt","uRect","uClip","uCalm","uHas","uFlip","uOut","uWarp","uChroma","uHue","uWater","uAsh","uFire","uFlick","uInk","uVign","uCaus","uGrain","uEcho","uDoor","uTintK","uBleed","uDread","uTint","uP","uP2","uFace"])S.u[n]=gl.getUniformLocation(p,n);
+      const tx=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,tx);
+      for(const [k,v] of [[gl.TEXTURE_MIN_FILTER,gl.LINEAR],[gl.TEXTURE_MAG_FILTER,gl.LINEAR],[gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE],[gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE]])gl.texParameteri(gl.TEXTURE_2D,k,v);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,new Uint8Array(4));
+      cv.addEventListener("webglcontextlost",e=>{e.preventDefault();if(S.cv!==cv)return;S.broken=true;stop();S.gl=null;});
+      S.cv=cv;S.gl=gl;S.tex=tx;S.scale=TOP();return true;}
+    catch(e){console.warn("vision fx off:",e&&e.message||e);S.broken=true;return false;}}
+  const ease=x=>x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2,clamp01=v=>Math.max(0,Math.min(1,+v||0));
+  const still=k=>reduced&&(k==="warp"||k==="flick"||k==="chroma"||k==="echo");
+  function set(look,{s=1,ms=900,mix:mx}={}){const L=VFX_LOOK[look]||VFX_LOOK.off;S.look=VFX_LOOK[look]?look:"off";S.s=clamp01(s);if(mx!==undefined)S.extra=Object.assign({},mx);
+    for(const k of VFX_KEYS){S.from[k]=S.cur[k];const base=k in S.extra?S.extra[k]:L[k];S.goal[k]=S.look==="off"||still(k)?0:base*(k==="tintK"?1:S.s);}
+    S.tintFrom=S.tint.slice();S.tintGoal=L.tint.slice();S.e0=performance.now();S.ems=reduced?Math.min(ms,300):Math.max(1,ms);
+    if(S.look!=="off")start();return VFX;}
+  function mix(o,ms=600){if(o===null)S.extra={};else Object.assign(S.extra,o);if(S.look!=="off")set(S.look,{s:S.s,ms});return VFX;}
+  function meter(d,f){S.dread=clamp01(d);if(f!=null)S.flickM=clamp01(f);return VFX;}
+  function pulse(kind){const i=PULSES.indexOf(kind);if(i<0||reduced||!S.on)return VFX;S.pT[i]=performance.now();
+    if(kind==="shock"&&typeof iShake==="function")try{iShake(1);}catch(e){}return VFX;}
+  function play(steps){const my=++S.seq,t0=performance.now();return (async()=>{for(const [at,fn,a,b] of steps){const w=at-(performance.now()-t0);
+      if(w>0)await new Promise(r=>setTimeout(r,w));if(my!==S.seq)return false;
+      if(fn==="set")set(a,b);else if(fn==="mix")mix(a,b);else if(fn==="pulse")pulse(a);else if(fn==="meter")meter(a,b);else if(fn==="off")off(a);}return true;})();}
+  const playRoot=()=>document.getElementById("play");
+  function start(){if(S.on||S.parked||!init())return;const pr=playRoot();if(!pr||pr.hidden)return;S.on=true;pr.append(S.cv);pr.classList.add("vfx-on");S.lastF=performance.now();S.raf=requestAnimationFrame(frame);}
+  // story screens only: while the 3D table (a fight, a cutscene on the board) or anything without a story picture has the
+  // screen, the layer gives its context back and looks again every half second
+  const busy3d=()=>typeof t3on==="function"&&t3on()||!!document.querySelector("#play .pl-stage.t3c-on")||!(typeof artCv!=="undefined"&&artCv&&artCv.isConnected);
+  function park(){stop();const gl=S.gl,cv=S.cv;S.gl=null;S.cv=null;S.u={};try{gl&&gl.getExtension("WEBGL_lose_context")?.loseContext();}catch(e){}
+    if(cv)cv.width=cv.height=1;clearInterval(S.parked);S.parked=setInterval(()=>{if(busy3d())return;clearInterval(S.parked);S.parked=0;if(S.look!=="off")start();},500);}
+  function unhide(){for(const el of S.hid)el.style.visibility="";S.hid.clear();}
+  function stop(){S.on=false;cancelAnimationFrame(S.raf);unhide();if(S.cv)S.cv.remove();playRoot()?.classList.remove("vfx-on");}
+  // the picture to warp: the story canvas, with the old one laid over it while a cross-fade runs
+  function source(){const src=typeof artCv!=="undefined"&&artCv&&artCv.isConnected?artCv:null;if(!src)return null;
+    const box=src.parentNode,old=box&&box.querySelector(".ic-old");if(!old)return {el:src,box,key:(src.__ia||0)+":"+(src.__iak||""),live:!!src.__iak,hide:[src]};
+    const m=S.mixCv||(S.mixCv=document.createElement("canvas"));if(m.width!==src.width||m.height!==src.height){m.width=src.width;m.height=src.height;}
+    const g=m.getContext("2d");g.globalAlpha=1;g.drawImage(src,0,0);g.globalAlpha=+getComputedStyle(old).opacity||0;g.drawImage(old,0,0);g.globalAlpha=1;
+    return {el:m,box,key:"x",live:true,hide:[src,old]};}
+  function frame(now){if(!S.on)return;S.raf=requestAnimationFrame(frame);
+    const pr=playRoot();if(!pr||pr.hidden){kill();return;} // play closed: the layer goes with it
+    if(busy3d()){park();return;}
+    if(document.hidden)return;const gl=S.gl,cv=S.cv,dt=now-S.lastF;S.lastF=now;if(!gl)return;
+    const k=ease(Math.min(1,(now-S.e0)/S.ems));let alive=0;
+    for(const n of VFX_KEYS){S.cur[n]=S.from[n]+(S.goal[n]-S.from[n])*k;alive+=S.cur[n];}
+    for(let i=0;i<3;i++)S.tint[i]=S.tintFrom[i]+(S.tintGoal[i]-S.tintFrom[i])*k;
+    const pv=S.pT.map((t0,i)=>{const x=(now-t0)/PMS[i];return x<0||x>1?0:i===4?1-x:Math.sin(Math.PI*Math.min(1,x*1.25))*(1-x*.3);});
+    if(S.look==="off"&&k>=1&&alive<1e-3&&pv.every(v=>!v)){stop();return;}
+    // size: a fraction of the screen's pixels, lowered while frames are slow and raised again when they are quick
+    if(dt>0&&dt<250&&!S.pin){if(dt>24){S.slow++;S.fast=0;}else if(dt<18){S.fast++;S.slow=Math.max(0,S.slow-1);}
+      if(S.slow>30&&S.scale>.34){S.scale=Math.max(.34,S.scale*.8);S.slow=0;}else if(S.fast>300&&S.scale<TOP()){S.scale=Math.min(TOP(),S.scale*1.15);S.fast=0;}}
+    const R=cv.getBoundingClientRect();if(R.width<2)return;const dpr=Math.min(2,devicePixelRatio||1),W=Math.max(2,Math.round(R.width*dpr*S.scale)),H=Math.max(2,Math.round(R.height*dpr*S.scale));
+    if(cv.width!==W||cv.height!==H){cv.width=W;cv.height=H;}gl.viewport(0,0,W,H);
+    const sx=W/R.width,sy=H/R.height,U=S.u,box2=(r)=>[(r.left-R.left)*sx,(R.bottom-r.bottom)*sy,r.width*sx,r.height*sy];
+    // the story picture: drawn again through the warp, the original hidden underneath while the layer shows it
+    const src=source();let has=0;
+    if(src){const r=src.hide[0].getBoundingClientRect(),st=src.box.closest(".pl-stage")||src.box,bR=src.box.getBoundingClientRect(),sR=st.getBoundingClientRect();
+      if(r.width>4&&r.bottom>0&&r.top<innerHeight){has=1;gl.uniform4f(U.uRect,...box2(r));
+        const cs=getComputedStyle(src.hide[0]),mm=/^matrix(?:3d)?\(\s*(-?[\d.e-]+)/.exec(cs.transform||""),sc=parseFloat(cs.scale);
+        gl.uniform1f(U.uFlip,!!(mm&&+mm[1]<0)!==(sc<0)?1:0); // a mirrored picture (the loop) stays mirrored
+        const cl={left:Math.max(bR.left,sR.left),top:Math.max(bR.top,sR.top),right:Math.min(bR.right,sR.right),bottom:Math.min(bR.bottom,sR.bottom)};
+        gl.uniform4f(U.uClip,(cl.left-R.left)*sx,(R.bottom-cl.bottom)*sy,Math.max(0,cl.right-cl.left)*sx,Math.max(0,cl.bottom-cl.top)*sy);
+        if(src.key!==S.upKey||(src.live&&now-S.lastUp>33)||now-S.lastUp>800){S.lastUp=now;S.upKey=src.key;
+          try{gl.bindTexture(gl.TEXTURE_2D,S.tex);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,src.el);}catch(e){has=0;S.upKey="";}}}
+      for(const el of S.hid)if(!src.hide.includes(el)){el.style.visibility="";S.hid.delete(el);}
+      for(const el of src.hide){if(has){el.style.visibility="hidden";S.hid.add(el);}else if(S.hid.has(el)){el.style.visibility="";S.hid.delete(el);}}}
+    else unhide();
+    // the words on the story screen: one box round all of them that is on screen, so the bright things keep low there
+    let calm=[-1e4,-1e4,0,0];const se=typeof storyEl!=="undefined"&&storyEl&&storyEl.isConnected?storyEl:null;
+    if(se){let l=1e9,t=1e9,r=-1e9,b=-1e9;for(const el of se.children){if(el.classList.contains("art"))continue;const q=el.getBoundingClientRect();if(q.height<1||q.bottom<0||q.top>innerHeight)continue;
+      l=Math.min(l,q.left);t=Math.min(t,q.top);r=Math.max(r,q.right);b=Math.max(b,q.bottom);}
+      if(r>l)calm=[(l-R.left-12)*sx,(R.bottom-b-12)*sy,(r-l+24)*sx,(b-t+24)*sy];}
+    gl.uniform4f(U.uCalm,...calm);
+    const c=S.cur;if(!reduced)S.tFrozen=((now-S.t0)/1000)%600;
+    gl.uniform2f(U.uRes,W,H);gl.uniform1f(U.uT,S.tFrozen);gl.uniform1f(U.uHas,has);gl.uniform1f(U.uOut,has?1:.55);gl.uniform1i(U.uArt,0);
+    const fa=pv[6];for(const n of VFX_KEYS)if(n!=="flick")gl.uniform1f(U["u"+n[0].toUpperCase()+n.slice(1)],n==="echo"?Math.min(1,c.echo+fa):n==="chroma"?Math.min(1,c.chroma+fa*.7):c[n]);
+    gl.uniform1f(U.uFlick,reduced?0:Math.min(1,c.flick+S.flickM*.8+fa*.9));gl.uniform1f(U.uDread,S.dread);gl.uniform3f(U.uTint,...S.tint);
+    gl.uniform4f(U.uP,pv[0],pv[1],pv[2],pv[3]);gl.uniform2f(U.uP2,pv[4],pv[5]);gl.uniform1f(U.uFace,fa);
+    gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);gl.drawArrays(gl.TRIANGLES,0,3);}
+  function off(ms=700){S.seq++;S.extra={};return set("off",{ms});}
+  function kill(){S.seq++;S.extra={};for(const k of VFX_KEYS){S.cur[k]=S.goal[k]=S.from[k]=0;}S.look="off";S.dread=S.flickM=0;S.pT=PULSES.map(()=>-1e9);clearInterval(S.parked);S.parked=0;stop();return VFX;}
+  function pin(v){S.pin=+v||0;if(S.pin)S.scale=S.pin;return VFX;} // tests: hold the resolution (0 lets it adapt again)
+  return {set,mix,meter,pulse,play,off,kill,pin,looks:Object.keys(VFX_LOOK),get state(){return {on:S.on,parked:!!S.parked,look:S.look,s:S.s,scale:S.scale,broken:S.broken,dread:S.dread,flick:S.flickM,cur:{...S.cur}};}};})();
+/* ---- the visions use it: The Eleven Paces (hvCine calls hvVfx on every passage, hvDread and hvFlicker on every change) ----
+   Each passage gets a look by its time (past · future · now in the cave); a few have their own: [look, strength, pulse, knobs].
+   The dread closes the ink in; the flicker makes the picture stutter while the future self is there. Another vision only
+   needs a line in HV_VFX (or nothing: past, future and now have looks of their own). */
+const HV_VFX={"s11-stig":{H1:["ash",.4],H2:["ash",.45],H3:["ash",.45],E0:["water",.55],S1:["water",.8],S2:["deep",.55],L1:["past",.75],
+  F0:["water",1,"drown"],W1:["fire",.7,"bloom",{door:.35}],W2:["flicker",.85,"face",{door:.45}],W2x:["flicker",1,"face",{door:.55}],W3:["deep",.7,null,{door:.25}],W3x:["deep",.55]}};
+function hvVfx(S,p){try{if(!S||!S.I||!S.I.haunt)return;const T=INTERLUDE_TEXT[S.I.id],P=T&&T.passages[S.at],d=S.dread||0,v=P&&P.v||"now",
+    face=((HV_PACES[S.I.id]||{}).face||[]).includes(S.at);
+  VFX.meter(d/5,v==="future"||face?(S.flicker??2)/5:0);
+  if(!p||!P)return; // a meter moved: the look stays
+  const end=p.html!==P.html&&/pl-echo/.test(p.html);if(p.html!==P.html&&!end)return; // a check's roll: the look stays
+  const key=end?"@end":S.at;if(S.vfxAt===key)return;const fromV=S.vfxV;S.vfxAt=key;S.vfxV=v;
+  const m=end?["ash",.22]:(HV_VFX[S.I.id]||{})[S.at]||[v==="past"?"past":v==="future"?"future":"ash",v==="now"?.3:.7];
+  const [look,s0,pl,mx]=m;VFX.set(look,{s:Math.min(1,s0+(end?0:.05*d)),ms:end?3200:fromV&&fromV!==v?2000:1200,mix:mx||{}});
+  if(!end&&P.again)VFX.pulse("rewind");if(pl)setTimeout(()=>{if(IST===S&&S.vfxAt===key)VFX.pulse(pl);},700);}
+  catch(e){console.error(e);}}
+// testing: ?vfx=<look> holds that look on every story screen; window.VFX under ?vfx or ?playtest, to fire pulses by hand
+if(/[?&](vfx|playtest)(=|&|$)/.test(location.search))window.VFX=VFX;
+{const m=/[?&]vfx=([a-z]+)/.exec(location.search);if(m&&VFX_LOOK[m[1]])setInterval(()=>{if(artCv&&artCv.isConnected&&VFX.state.look!==m[1])VFX.set(m[1],{ms:400});},600);}
 }
 
 /* =================== FIRST VISIT =================== */
