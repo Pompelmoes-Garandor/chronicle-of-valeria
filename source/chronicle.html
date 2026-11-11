@@ -5669,11 +5669,11 @@ let pulseIv=0;function pulse(on){clearInterval(pulseIv);if(on)pulseIv=setInterva
 const FS={b:null,mus:null,crit:0};
 const FSHZ=m=>440*Math.pow(2,(m-69)/12);
 function fsBus(a,to){const lim=a.createDynamicsCompressor();lim.threshold.value=-12;lim.knee.value=8;lim.ratio.value=6;lim.attack.value=.003;lim.release.value=.25;lim.connect(to);
-  const sfx=a.createGain();sfx.connect(lim);const mus=a.createGain(),mhp=a.createBiquadFilter();mhp.type="highpass";mhp.frequency.value=45;mus.gain.value=1e-4;mus.connect(mhp).connect(lim); // no rumble under the drums
+  const sfx=a.createGain();sfx.connect(lim);const mus=a.createGain(),mhp=a.createBiquadFilter();mhp.type="highpass";mhp.frequency.value=45;mus.gain.value=1e-4;const mduck=a.createGain();mus.connect(mduck).connect(mhp).connect(lim); // no rumble under the drums; mduck: steps back under a vision sound
   const n=Math.floor(a.sampleRate*1.8),ir=a.createBuffer(2,n,a.sampleRate);for(let c=0;c<2;c++){const d=ir.getChannelData(c);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,3.2);}
   const rv=a.createConvolver();rv.buffer=ir;const rg=a.createGain();rg.gain.value=.3;rv.connect(rg).connect(lim);
   const nb=a.createBuffer(1,a.sampleRate*2,a.sampleRate),nd=nb.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
-  return {a,lim,sfx,mus,rv,nb};}
+  return {a,lim,sfx,mus,mduck,rv,nb};}
 function fsGet(){const a=pAc();if(!a||document.hidden)return null;if(!FS.b||FS.b.a!==a)FS.b=fsBus(a,pOut);return FS.b;}
 function fsEnv(g,t,att,v,dec){g.gain.setValueAtTime(1e-4,t);g.gain.exponentialRampToValueAtTime(Math.max(2e-4,v),t+att);g.gain.exponentialRampToValueAtTime(1e-4,t+att+dec);}
 function fsOut(b,n,pan,rev,to){if(pan&&b.a.createStereoPanner){const p=b.a.createStereoPanner();p.pan.value=Math.max(-1,Math.min(1,pan));n=n.connect(p);}
@@ -5812,8 +5812,8 @@ function rbSched(S,until){
     if(pass%2===1)for(const n of SCSONG)if(n.b>=k*3&&n.b<k*3+3)rbLute(S,n.m+12,t+(n.b-k*3)*beat+hum()+.02,.26);
     S.next+=beat*3;S.bar++;}}
 setTimeout(()=>{if(!devPlay())return;window.__fsnd=FS_DEV; // and a log of every vision cue that really fires, for the sound test
-  if(typeof HV_SND!=="undefined")for(const k of Object.keys(HV_SND)){const f=HV_SND[k];HV_SND[k]=(...a)=>{FS_DEV.fired.push(k);return f(...a);};}},0);
-const FS_DEV={fired:[],cue(k){if(typeof hvSnd==="function")hvSnd(k,{n:12});return !!(IFX.bus&&IFX.sc);}, // for tests: render sounds and music offline. score: [[sec,"sfxname",opts]] and [sec,"mood",{lv,tense,bad}]
+  if(typeof HV_SND!=="undefined")for(const k of Object.keys(HV_SND)){const f=HV_SND[k];HV_SND[k]=(...a)=>{FS_DEV.fired.push(k);FS_DEV.firedAt.push([performance.now(),k]);return f(...a);};}},0);
+const FS_DEV={fired:[],firedAt:[],cue(k){if(typeof hvSnd==="function")hvSnd(k,{n:12});return !!(IFX.bus&&IFX.sc);}, // for tests: render sounds and music offline. score: [[sec,"sfxname",opts]] and [sec,"mood",{lv,tense,bad}]
   async render(score,secs,{wav=false}={}){const sr=44100,ctx=new OfflineAudioContext(2,Math.ceil(secs*sr),sr),b=fsBus(ctx,ctx.destination);b.mus.gain.value=.45;
     const ev=[...score].sort((x,y)=>x[0]-y[0]);let S=null,m={lv:.3,tense:false,bad:false};
     for(let t=0;t<secs;t+=.1){while(ev.length&&ev[0][0]<=t+.1){const [w,k,o]=ev.shift();if(k==="mood"){m=Object.assign({},m,o);if(!S)S=fsMusNew(b,w);}else if(k==="stop"){if(S){S.out.gain.setValueAtTime(1,w);S.out.gain.linearRampToValueAtTime(0,w+1.2);for(const d of S.dr)d.stop(w+1.3);S=null;}}
@@ -11862,8 +11862,8 @@ const VKX={
   silence(b,t,o){vkDip(b,t,.9);}};
 function vkDip(b,t,len){const g=b.out.gain;g.cancelScheduledValues(t);g.setValueAtTime(g.value||1,t);g.linearRampToValueAtTime(0,t+.02);g.setValueAtTime(0,t+len);g.linearRampToValueAtTime(1,t+len+.25);}
 /* each cue's level, so they sit together (dB, measured), and what dread adds underneath */
-const VK_TRIM={drip:11.5,"surf-reverse":-5.3,surf:-5.7,boards:1.9,"chimes-slow":5,timbers:-2.6,rain:-4.3,spade:4,"breath-reverse":-6,breath:-6,
-  "heartbeat-two":2.8,"heartbeat-one":1,chalk:2,toast:5.6,dirge:-2,"fire-still":-3,rewind:-2.5,count:22,silence:0,"boy-run":10,"fire-hush":2,"white-out":-3};
+const VK_TRIM={drip:11.5,"surf-reverse":-5.3,surf:-5.7,boards:3.9,"chimes-slow":8,timbers:-2.6,rain:-4.3,spade:6,"breath-reverse":-6,breath:-6, // levelled in place over the music, 2026-11-11
+  "heartbeat-two":2.8,"heartbeat-one":1,chalk:9,toast:7.6,dirge:-2,"fire-still":-3,rewind:-0.5,count:26,silence:0,"boy-run":10,"fire-hush":2,"white-out":-3};
 function vkSub(b,db){const a=b.a,k=Math.pow(10,db/20),mk=to=>{const g=a.createGain();g.gain.value=k;g.connect(to);return g;};return {a,nb:b.nb,out:b.out,dry:mk(b.dry),cave:mk(b.cave),room:mk(b.room)};}
 function vkDread(b,t,d){if(d<3)return;vkT(b,t,{f:31,v:.05*(d-2),att:3,hold:4,dec:4});vkN(b,t+1,{type:"bandpass",f:vkR(500,900),q:6,v:.012*(d-2),att:2,hold:2,dec:3,cave:.9,pan:vkR(-.8,.8)});
   if(d>=5){const s=vkBreath(b.a),r=s&&vkRev(b.a,"breath",s);vkPlay(b,t+2,r,{v:.12,rate:.6,lp:900,cave:.9,pan:vkR(-.7,.7)});}}
@@ -11871,7 +11871,11 @@ function vkDread(b,t,d){if(d<3)return;vkT(b,t,{f:31,v:.05*(d-2),att:3,hold:4,dec
 function vkPlayCue(b,name,t,o={}){const f=VKX[name];if(!f)return false;const s=vkSub(b,VK_TRIM[name]||0);f(s,t,Object.assign({dread:0},o));if(name!=="white-out")vkDread(s,t,o.dread|0);return true;}
 /* the kit inside an interlude: one kit bus per interlude mix, into its fx bus (so it ducks under Hans and fades with the rest) */
 function hvVk(name,o={}){const b=IFX.bus;if(!b||b.fading||!IFX.a)return false;if(!b.vk||b.vk.a!==IFX.a){b.vk=vkMakeBus(IFX.a,b.fx);b.vk.out.gain.value=.5;}
+  if(VK_LEN[name])hvDuck(b,VK_LEN[name]);
   return vkPlayCue(b.vk,name,iNow()+.02,Object.assign({dread:(IST&&IST.dread)|0},o));}
+/* while a vision sound plays, the music and the room under it step back 5 dB, so it's heard over them without being louder (seconds per cue) */
+const VK_LEN={drip:8,"surf-reverse":11,surf:12,boards:9,"chimes-slow":10,timbers:9,spade:8,"breath-reverse":7,breath:7,chalk:8,toast:3,dirge:12,"fire-still":9,rewind:3,count:7,"boy-run":3};
+function hvDuck(b,len){const t=iNow();for(const n of [b.music,b.world,FS.b&&FS.b.a===IFX.a&&FS.b.mduck].filter(Boolean)){const g=n.gain;g.cancelScheduledValues(t);g.setTargetAtTime(.56,t,.15);g.setTargetAtTime(1,t+len,.6);}} // the fight music steps back too
 /* sound cues from the script, all made here; layers (rain, fire, two hearts, dirge) carry until the next passage's mix */
 const hvL=(k,v,f=2)=>iLay(k,v,f,iNow());
 const HV_SND={
