@@ -72,6 +72,7 @@ Newest first, with the PR that shipped it.
 - [x] **The past in the visions legible again (clear sepia, sharper on phones), and the pinned paces strip clean under the vision layer** · Fixed · Sam · PR #99
 - [x] **Haunted interface for the visions: paces pinned while reading and counted in the picture, weighty choices, rewinding and crumbling text, film captions in cutscenes; reusable for later visions** · Changed · Sam · PR #94
 - [x] **Fever-dream look for the visions (VISION FX): the painting warped, past and future tints, ash, black water, embers, the door of fire, dread and flicker; reusable for later visions** · New · Sam · PR #92
+- [x] **Opening cutscene of The Eleven Paces was silent (sounds waited for the first page); new ash-land and sigil-wake cues; sound test checks cutscenes** · Fixed · Sam · PR #108
 - [x] **Vision sounds levelled in place over the music: the music steps back 5 dB under each, buried cues raised** · Changed · Sam · PR #103
 - [x] **No sound anywhere since the volume slider (#90): the volume knob was wired into itself; plus a test that listens to the real output** · Fixed · Sam · PR #102
 - [x] **Three ending sounds for the door of fire: boy-run, fire-hush, white-out** · Changed · Sam · PR #96

@@ -5850,8 +5850,8 @@ function rbSched(S,until){
     if(pass%2===1)for(const n of SCSONG)if(n.b>=k*3&&n.b<k*3+3)rbLute(S,n.m+12,t+(n.b-k*3)*beat+hum()+.02,.26);
     S.next+=beat*3;S.bar++;}}
 setTimeout(()=>{if(!devPlay())return;window.__fsnd=FS_DEV; // and a log of every vision cue that really fires, for the sound test
-  if(typeof HV_SND!=="undefined")for(const k of Object.keys(HV_SND)){const f=HV_SND[k];HV_SND[k]=(...a)=>{FS_DEV.fired.push(k);FS_DEV.firedAt.push([performance.now(),k]);return f(...a);};}},0);
-const FS_DEV={fired:[],firedAt:[],cue(k){if(typeof hvSnd==="function")hvSnd(k,{n:12});return !!(IFX.bus&&IFX.sc);}, // for tests: render sounds and music offline. score: [[sec,"sfxname",opts]] and [sec,"mood",{lv,tense,bad}]
+  if(typeof HV_SND!=="undefined")for(const k of Object.keys(HV_SND)){const f=HV_SND[k];HV_SND[k]=(...a)=>{FS_DEV.fired.push(k);FS_DEV.firedAt.push([performance.now(),k,T3C?String(T3C.id||"cine"):""]);return f(...a);};}},0);
+const FS_DEV={fired:[],firedAt:[],cue(k){if(T3C||typeof hvSnd!=="function")return false;hvSnd(k,{n:12});return !!(IFX.bus&&IFX.sc&&!IFX.bus.fading);}, // not during a cutscene // for tests: render sounds and music offline. score: [[sec,"sfxname",opts]] and [sec,"mood",{lv,tense,bad}]
   async render(score,secs,{wav=false}={}){const sr=44100,ctx=new OfflineAudioContext(2,Math.ceil(secs*sr),sr),b=fsBus(ctx,ctx.destination);b.mus.gain.value=.45;
     const ev=[...score].sort((x,y)=>x[0]-y[0]);let S=null,m={lv:.3,tense:false,bad:false};
     for(let t=0;t<secs;t+=.1){while(ev.length&&ev[0][0]<=t+.1){const [w,k,o]=ev.shift();if(k==="mood"){m=Object.assign({},m,o);if(!S)S=fsMusNew(b,w);}else if(k==="stop"){if(S){S.out.gain.setValueAtTime(1,w);S.out.gain.linearRampToValueAtTime(0,w+1.2);for(const d of S.dr)d.stop(w+1.3);S=null;}}
@@ -11901,12 +11901,21 @@ const VKX={
   // a rising, airless swell, nothing echoing, that cuts dead (door 1); the wrapper below silences the whole mix at the cut
   "white-out"(b,t,o){const L=1.3,c=.012;vkN(b,t,{type:"highpass",f:300,f1:9000,v:.32,att:L,dec:c});vkN(b,t,{type:"bandpass",f:700,f1:5200,q:3,v:.12,att:L,dec:c});
     for(const m of [57,61,64,68])vkT(b,t,{f:vkHz(m-12),f1:vkHz(m+12),v:.035,att:L,dec:c,det:vkR(-4,4)});vkT(b,t,{f:42,f1:84,v:.2,att:L,dec:c});},
+  // one flake of ash touches his sleeve (fired at the touch): the smallest dry contact on cloth, close, a cold glint, and the cave goes still
+  "ash-land"(b,t,o){vkN(b,t,{type:"bandpass",f:2600,q:3,v:.16,att:.002,dec:.03,pan:.3}); // the touch
+    vkN(b,t+.012,{type:"highpass",f:6000,v:.06,att:.001,dec:.05,pan:.3,room:.2});vkN(b,t+.03,{type:"bandpass",f:900,q:1.5,v:.05,att:.01,dec:.25,pan:.3}); // ash crumbling into the weave
+    vkT(b,t+.05,{f:vkHz(86),f1:vkHz(84),v:.014,att:.3,dec:2.4,pan:.3,cave:.9});vkT(b,t+.05,{f:vkHz(74),v:.01,att:.4,dec:2.2,pan:-.2,cave:.9}); // a thin cold glint, far up in the dark
+    vkN(b,t+.1,{f:300,v:.05,att:.5,dec:2.2,cave:.6});}, // and the cave goes still around it
+  // the ash goes dark and spreads, and the sigil under the skin wakes: a low swell, cold water-glass tones rising in the lullaby's key
+  "sigil-wake"(b,t,o){vkT(b,t,{f:36,f1:44,v:.18,att:1.6,hold:.6,dec:1.8});vkN(b,t,{type:"bandpass",f:300,f1:1400,q:2,v:.07,att:1.8,hold:.4,dec:1.6,cave:.7});
+    [62,69,65,74].forEach((m,i)=>{const s=t+.35+i*.42,f=vkHz(m);[[1,1],[2.76,.35],[5.4,.12]].forEach(([k,g])=>vkT(b,s,{f:f*k,f1:f*k*1.003,v:.03*g,att:.25,dec:2.6/Math.sqrt(k),pan:-.3+i*.2,cave:.9}));});
+    vkN(b,t+2.2,{type:"highpass",f:4000,v:.025,att:.6,dec:1.6,cave:.6});}, // a hiss like water drawn into dry stone
   // everything cuts out for one beat
   silence(b,t,o){vkDip(b,t,.9);}};
 function vkDip(b,t,len){const g=b.out.gain;g.cancelScheduledValues(t);g.setValueAtTime(g.value||1,t);g.linearRampToValueAtTime(0,t+.02);g.setValueAtTime(0,t+len);g.linearRampToValueAtTime(1,t+len+.25);}
 /* each cue's level, so they sit together (dB, measured), and what dread adds underneath */
 const VK_TRIM={drip:11.5,"surf-reverse":-5.3,surf:-5.7,boards:3.9,"chimes-slow":8,timbers:-2.6,rain:-4.3,spade:6,"breath-reverse":-6,breath:-6, // levelled in place over the music, 2026-11-11
-  "heartbeat-two":2.8,"heartbeat-one":1,chalk:9,toast:7.6,dirge:-2,"fire-still":-3,rewind:-0.5,count:26,silence:0,"boy-run":10,"fire-hush":2,"white-out":-3};
+  "heartbeat-two":2.8,"heartbeat-one":1,chalk:9,toast:7.6,dirge:-2,"fire-still":-3,rewind:-0.5,count:26,silence:0,"boy-run":10,"fire-hush":2,"white-out":-3,"ash-land":14,"sigil-wake":0};
 function vkSub(b,db){const a=b.a,k=Math.pow(10,db/20),mk=to=>{const g=a.createGain();g.gain.value=k;g.connect(to);return g;};return {a,nb:b.nb,out:b.out,dry:mk(b.dry),cave:mk(b.cave),room:mk(b.room)};}
 function vkDread(b,t,d){if(d<3)return;vkT(b,t,{f:31,v:.05*(d-2),att:3,hold:4,dec:4});vkN(b,t+1,{type:"bandpass",f:vkR(500,900),q:6,v:.012*(d-2),att:2,hold:2,dec:3,cave:.9,pan:vkR(-.8,.8)});
   if(d>=5){const s=vkBreath(b.a),r=s&&vkRev(b.a,"breath",s);vkPlay(b,t+2,r,{v:.12,rate:.6,lp:900,cave:.9,pan:vkR(-.7,.7)});}}
@@ -11916,8 +11925,12 @@ function vkPlayCue(b,name,t,o={}){const f=VKX[name];if(!f)return false;const s=v
 function hvVk(name,o={}){const b=IFX.bus;if(!b||b.fading||!IFX.a)return false;if(!b.vk||b.vk.a!==IFX.a){b.vk=vkMakeBus(IFX.a,b.fx);b.vk.out.gain.value=.5;}
   if(VK_LEN[name])hvDuck(b,VK_LEN[name]);
   return vkPlayCue(b.vk,name,iNow()+.02,Object.assign({dread:(IST&&IST.dread)|0},o));}
+/* the opening cutscene plays before the first page, and a door ending can come after the fight's mix has let go:
+   a vision sound brings the interlude's mix up itself (while this interlude plays with sound on) instead of being dropped */
+function hvMixUp(){if(!PLAY.on||!opt.sound||!IST)return false;let b=IFX.bus;if(!b||b.fading||IFX.ist!==IST){b=iMix();if(!b||b.fading)return false;}
+  if(!IFX.sc)IFX.sc=iScope();return true;}
 /* while a vision sound plays, the music and the room under it step back 5 dB, so it's heard over them without being louder (seconds per cue) */
-const VK_LEN={drip:8,"surf-reverse":11,surf:12,boards:9,"chimes-slow":10,timbers:9,spade:8,"breath-reverse":7,breath:7,chalk:8,toast:3,dirge:12,"fire-still":9,rewind:3,count:7,"boy-run":3};
+const VK_LEN={drip:8,"surf-reverse":11,surf:12,boards:9,"chimes-slow":10,timbers:9,spade:8,"breath-reverse":7,breath:7,chalk:8,toast:3,dirge:12,"fire-still":9,rewind:3,count:7,"boy-run":3,"ash-land":3.5,"sigil-wake":4};
 function hvDuck(b,len){const t=iNow();for(const n of [b.music,b.world,FS.b&&FS.b.a===IFX.a&&FS.b.mduck].filter(Boolean)){const g=n.gain;g.cancelScheduledValues(t);g.setTargetAtTime(.56,t,.15);g.setTargetAtTime(1,t+len,.6);}} // the fight music steps back too
 /* sound cues from the script, all made here; layers (rain, fire, two hearts, dirge) carry until the next passage's mix */
 const hvL=(k,v,f=2)=>iLay(k,v,f,iNow());
@@ -11941,6 +11954,8 @@ const HV_SND={
   rewind:(s,t)=>{hvVk("rewind");IACT.sweep({hi:600,s:.6},t);IACT.sweep({hi:18000,s:1.2},t+2.2);},
   count:()=>hvVk("count"),
   "boy-run":()=>hvVk("boy-run"),
+  "ash-land":()=>hvVk("ash-land"),
+  "sigil-wake":()=>hvVk("sigil-wake"),
   "fire-hush":()=>{hvVk("fire-hush");if(IFX.lay&&IFX.lay.roar)hvL("roar",.1,3);}, // the roar layer sinks with it
   "white-out":()=>{hvVk("white-out");setTimeout(()=>{if(IFX.bus&&IFX.sc)HV_SND.silence(IFX.sc,iNow(),{ms:2600});},1300);}, // dead silence at the cut, the whole mix
   silence:(s,t,o)=>{const b=IFX.bus;if(!b)return;const g=b.duck.gain,ms=(o&&o.ms)||900;g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);g.linearRampToValueAtTime(0,t+.05);g.setValueAtTime(0,t+ms/1000);g.linearRampToValueAtTime(1,t+ms/1000+.6);},
@@ -12247,7 +12262,7 @@ Object.assign(IAI,{
 const HV_CUT={flake:"s11-flake",face:"s11-face",door1:"s11-door1",door2:"s11-door2",door3:"s11-door3"};
 function hvCuts(key){const T=INTERLUDE_TEXT["s11-stig"];return (T&&T.cuts&&T.cuts[key])||[];}
 const hvHas=k=>typeof HV_SND!=="undefined"&&!!HV_SND[k];
-function hvSnd(k,o={}){if(typeof HV_SND==="undefined"||!HV_SND[k]||!IFX.bus||IFX.bus.fading||!IFX.sc)return;try{HV_SND[k](IFX.sc,iNow(),o);}catch(e){console.error(e);}}
+function hvSnd(k,o={}){if(typeof HV_SND==="undefined"||!HV_SND[k]||!hvMixUp())return;try{HV_SND[k](IFX.sc,iNow(),o);}catch(e){console.error(e);}}
 // the sets: the cave where the paces are walked, and the door of fire with everyone there (the fight's board, the tide all in)
 const HV_STAGE={
   cave:{map:"iprayer",dim:true,sc:{tide:0},setup(){B.units.push(mkCrew("stig",6,9),mkAlly("sleeper",6,3),mkCrew("katy",3,5),mkCrew("saphira",10,4),mkCrew("hans",9,8));}},
