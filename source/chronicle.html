@@ -7683,7 +7683,7 @@ function t3n_fin(f,b,col,{s=1,k=1,mon=0}={}){const c0=new THREE.Color(col),U={va
    sink = the share of the model's height that is its own sculpted base, which goes down into the plinth,
    tone = how bright the picture is painted on (.85 if left out), rimK = strength of the edge light (.45 if left out).
    One line per sculpted mini, for example  stig:{src:"minis/stig.glb",h:.84,ry:0,rim:"#8fc8ff"}  ---- */
-const MINI3D={stig:{src:"minis/stig.glb",h:.88,ry:-.52,rim:"#8fc8ff",sink:.11}};
+const MINI3D={stig:{src:"minis/stig.glb",h:.88,ry:-.52,rim:"#8fc8ff",sink:.11},katy:{src:"minis/katy.glb",h:.8,ry:0,rim:"#e7a3b8"}};
 const t3g_have=new Map(),t3g_wait=new Map();
 function t3g_read(buf){const dv=new DataView(buf);if(buf.byteLength<20||dv.getUint32(0,true)!==0x46546C67)throw new Error("not a GLB");
   let off=12,J=null,bin=null;while(off+8<=buf.byteLength){const n=dv.getUint32(off,true),t=dv.getUint32(off+4,true);
