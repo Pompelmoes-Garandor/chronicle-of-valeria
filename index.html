@@ -344,7 +344,7 @@ table.ans td,table.ans th{border-bottom:1px solid #c9a35c22;padding:6px 4px;text
 #play.vfx-on>.pl-top,#play.vfx-on .pl-side,#play.vfx-on .pl-story>:not(.art){z-index:3}
 #play.vfx-on .pl-story .art{z-index:3;box-shadow:none;background:transparent} /* the picture box, see-through, keeps its own overlays (paces, whispers, washes) over the warped picture */
 #play.vfx-on .pl-story.hv .art{z-index:4} /* pinned as a strip (OWNER ui), it stays over the words scrolling under it */
-#play.vfx-on.vfx-pin .pl-story.hv .art{box-shadow:0 0 0 1px var(--hairline),0 14px 18px -6px #0b0d12} /* pinned, the page's own picture is back (the layer hands it over), so the words can't show through */
+#play.vfx-on.vfx-pin .pl-story.hv .art{box-shadow:0 0 0 1px var(--hairline),0 14px 18px -6px #0b0d12,var(--hv-band,0 0 #0000)} /* pinned, the page's own picture is back (the layer hands it over), so the words can't show through */
 #play.vfx-on:not(.vfx-pin) .pl-story.hv-past .art::after{opacity:.5} /* the layer has its own sepia and ink: the page's veil over it only adds a touch */
 .ic-flash{position:absolute;inset:0;pointer-events:none;opacity:0}
 .ic-flash.ic-warm{background:radial-gradient(ellipse at 50% 55%,#ffd8a066,#ffb26a22 45%,transparent 75%)}
@@ -500,7 +500,8 @@ table.ans td,table.ans th{border-bottom:1px solid #c9a35c22;padding:6px 4px;text
    The paces stay in view: the picture scrolls up until only its tide strip is left, pinned under the title (--hv-ah is the picture's height, set by hvUpdate).
    A pace taken is counted in the picture (.hv-count). A real choice gets a tide line; the one picked fills, the rest sink (.hv-picked, set by iPassage).
    A passage told again rewinds in, right to left. Ash-eaten words crumble letter by letter (hvCrumble). Cutscenes (.t3c.hv) caption like a film, inside a deeper letterbox. */
-.pl-story.hv .art{position:sticky;top:calc(38px - var(--hv-ah,300px));z-index:3;box-shadow:0 0 0 1px var(--hairline),0 14px 18px -6px #0b0d12}
+.pl-story.hv .art{position:sticky;top:calc(38px - var(--hv-ah,300px));z-index:3;box-shadow:0 0 0 1px var(--hairline),0 14px 18px -6px #0b0d12,var(--hv-band,0 0 #0000)}
+.pl-story.hv.hv-pin{--hv-band:-60px 0 0 #0b0d12,60px 0 0 #0b0d12} /* pinned on a wide screen the words (620px) are wider than the strip (520px): two copies of the strip in the page colour cover them */
 .pl-story.hv .hv-bar{bottom:7px;gap:10px}
 .pl-story.hv .hv-paces{gap:4px}.pl-story.hv .hv-paces i{width:9px;height:15px}
 .pl-story.hv .hv-lab{font-size:10.5px;letter-spacing:.1em;color:#dcecf3;text-shadow:0 1px 4px #000}
@@ -11636,6 +11637,9 @@ function hvUpdate(S,hud){const c=HV_PACES[S.I.id]||{face:[]},taken=hvTaken(S),le
     if(IFX.bus&&!IFX.bus.fading&&IFX.sc)try{IFXS.step(IFX.sc,iNow()+.25*(i-S.hvSteps),{v:.4,f:66,grit:1.3,near:.3,lp:2600});IFXS.drip(IFX.sc,iNow()+.25*(i-S.hvSteps)+.08,{f:900,v:.35});}catch(e){}}
     e.classList.toggle("on",on);});
   const box=hud.parentNode;if(box&&box.offsetHeight)storyEl.style.setProperty("--hv-ah",box.offsetHeight+"px");
+  if(box&&!storyEl.hvPin){const se=storyEl,pin=()=>{const a=se.querySelector(".art");if(!a)return;const t=a.getBoundingClientRect().top-se.getBoundingClientRect().top;
+      se.classList.toggle("hv-pin",se.scrollTop>0&&t<=parseFloat(getComputedStyle(a).top)+parseFloat(getComputedStyle(se).paddingTop)+1);}; // stuck as the strip: its sides cover the wider words under it
+    se.hvPin=pin;se.addEventListener("scroll",pin,{passive:true});}
   if(box&&S.hvSteps!=null&&taken>S.hvSteps&&taken<=11&&!reduced){box.querySelectorAll(".hv-count").forEach(n=>n.remove());
     const n=h("span",{class:"hv-count","aria-hidden":"true"},HV_COUNT[taken-1]+".");box.append(n);setTimeout(()=>n.remove(),2600);}
   S.hvSteps=taken;
