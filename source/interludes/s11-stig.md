@@ -68,41 +68,45 @@
 
 ## H1. The flake
 
-It's eleven paces from your stone to where the old man lies. You count them, because counting is what you do on watch.
+Eleven paces from your stone to the old man. You counted them on the way over.
 
 One.
 
-The towel is still in your hand, wrung out. You brought it without thinking.
+You've still got the towel in your fist. You don't remember picking it up.
 
-A flake of ash comes down out of the dark and lands on your sleeve. You leave it there. You've had worse on you.
+A bit of ash comes down and lands on your sleeve. You leave it. It's been coming down all day.
 
 Two.
 
-It's wet. Ash isn't wet. You look down, and the flake has gone dark and spread, like a drop of ink on a page, and through the cloth something under your skin answers it. The sigil. The Water sigil, inked into you in a vault deep under a monastery, the thing you carry that nobody asked you to carry.
+The ash is wet.
 
-It has never hurt before. It doesn't hurt now. It *pulls*. Not one way. Both ways at once, like standing in the surf where the wave going out meets the wave coming in.
+Your arm knows that's wrong before you do. Under the cloth the sigil goes cold, then tight. The Water sigil. They inked it into you down in the vault under the monastery, and nobody asked.
+
+It pulls. Out and in at once, like standing in the shallows where one wave is going back and the next is already coming.
 
 {sound: heartbeat-two}
 
-You hear your heart. Then you hear it again, a half-beat late, from somewhere outside you.
+Your heart thumps. Then it thumps again, half a beat late, somewhere outside your chest.
 
-You set your foot down for the third pace, and the floor isn't there.
+Your foot comes down for the third pace and there's no floor under it.
 
 → Continue (go to H2)
 
 ## H2. Salt
 
-Water. Cold, to the shin, and getting colder. Salt on your lips.
+Water to the shin. Cold. Salt on your lips, and you're nowhere near the sea.
 
 {sound: drip}
 
-The cave is still here, sort of. The lamp burns on its flat stone, very far off, as if you're looking at it from the bottom of a well. The dead Heart ticks. Katy's voice is low and slow and doesn't finish its word. It's been not finishing it for a long time. Everyone is where they were. Nobody has moved. Nobody can see you.
+The cave is still there, sort of. The lamp's on its flat stone, small and far off, like looking up out of a well. The dead Heart ticks. Katy is halfway through a word and stays halfway through it. Nobody moves. Nobody looks at you.
 
-At the far end, where the old man lies, someone is standing in the water. Tall. Still. Only a shape against the lamplight, the way a man looks at the end of a pier at dusk. Water is running off him in sheets and never running out.
+Down at the far end, where the old man lies, somebody is standing in the water. Tall. Back to the lamp, so all you get is the outline. Water is coming off him, more than any man could hold, and it doesn't stop coming.
 
 He's standing between you and the old man.
 
-You can't be frightened. That's always been true; it's written on you somewhere, along with everything else. But this isn't fear. Fear runs. This stays. There's an older word for it, the one sailors use for a ship nobody will sail on twice. Haunted.
+You can't be frightened. Not since they marked you. So this isn't fear. It's what the old hands meant when they wouldn't sleep aboard a ship that came back empty.
+
+Haunted.
 
 ~Count again.~
 
@@ -112,29 +116,29 @@ You can't be frightened. That's always been true; it's written on you somewhere,
 
 "You're the big one."
 
-There's a boy sitting on a rock beside you with his feet in the water. Nine, maybe ten. Barefoot. Too tall for his age, all knees and wrists, in a shirt that was somebody else's first. He looks at you without much interest, the way children look at weather.
+There's a boy on a rock next to you with his feet in the water. Nine, ten. Barefoot. All elbows and knees, in a shirt somebody else wore out first. He looks at you like you're weather.
 
-@boy: "It's going out. You'd better hold on to me or you'll get lost. Everybody gets lost the first time."
+@boy: "It's going out. Hold on to me or you'll get lost. Everyone does, first time."
 
-You don't know him. You'd swear you don't know him. But your hand knows the size of his before you take it.
+You've never seen him before. Your hand knows how big his is before you take it, though.
 
-The tide starts to pull. Backwards. Down.
+The water starts pulling. Backwards, and down.
 
 {sound: surf-reverse}
 
-@boy: "Don't let go. And don't look at *him*. He always wants you to look."
+@boy: "Don't let go. And don't look at him. He likes it when you look."
 
-→ Hold the boy's hand. Let the ebb take you both. (go to E0)
+→ Take the boy's hand and let the tide take you both. (go to E0)
 
 ## E0. The ebb
 
-The water is going out, and as it goes it uncovers things. Not shells. Not weed. Days. The ones you buried and thought were too deep to come up again.
+The water goes out, and it leaves things behind on the sand. Not shells. Days. The ones you put down deep so they'd stay there.
 
-Three of them lie bare on the wet sand in front of you. The boy is nine again; he always is, back here. He squats down to look at them, the way he'd look at crabs.
+Three of them, still wet. The boy is nine again; he always is, back here. He squats down and pokes at them like they're crabs.
 
-@boy: "That one's mine. That one's yours. That one's *both*."
+@boy: "That one's mine. That one's yours. That one's both of ours."
 
-The shape at the far end of the water hasn't moved. You're almost sure he hasn't moved.
+The one at the far end of the water hasn't moved. You'd swear to it.
 
 *Hub: then go to S1*
 
@@ -146,64 +150,62 @@ The shape at the far end of the water hasn't moved. You're almost sure he hasn't
 
 {sound: boards}
 
-A narrow room with a low ceiling. Cheap scent, old wine, and under them the sea, always the sea, coming up through the planks from the bad end of the city. Someone singing badly two rooms over. Doors. Laughing. A house that never sleeps.
+Rosa's. You'd know it blind. Cheap rosewater over spilled wine, and under both of them the harbour, because the bad end of the city always stank of the harbour. Two doors down somebody is murdering a sea shanty. The ceiling is so low you have to stoop.
 
-Madame Rosa's. You'd forgotten it smelled like that. You'd made yourself forget.
-
-The boy lets go of your hand. He walks to the middle of the floor, lifts a loose board as if he's done it a thousand times, and slides underneath it, flat as a letter going under a door. The board settles back.
+The boy lets go of your hand. He kneels, gets his fingernails under a loose board, and lifts it like he's done it a thousand times. He slides under and pulls it shut over himself.
 
 @boy: "This is where I go."
 
-His voice comes from under your feet.
+His voice comes up from under your feet.
 
-You stand there, too big for the room, your head nearly touching the beams. Water is running off you. You look down. Your boots are bare feet now, grey and wet, and there are wet footprints across the floor behind you, big ones, and they lead straight to where you're standing. Right over the crack where the lamplight falls.
+You look down. You're barefoot too, now. Your feet are grey and wet, and there's a trail of big wet prints across the floor behind you. They stop where you're standing. Right on top of his board.
 
-Downstairs, Rosa's voice, bright and hard, says there's no boy here, love, there's never been any boy here, have a drink.
+Downstairs Rosa is telling somebody there's no boy here, love, never has been, have a drink.
 
-And you understand, slowly, the way you understand a cold coming on. You remember this night from underneath. Something stood over you. Something wet and big and patient that never said a word.
-
-It was you. It was always going to be you.
+You remember this from underneath. Lying in the dust with your nose to the crack, and something heavy and wet standing over you for hours. Not moving. Not saying anything.
 
 {sound: heartbeat-two}
 
-Through the crack, very close, an eye is looking up at you. Blue. Your eyes are blue.
+An eye at the crack. Blue.
 
-→ Kneel down. Tell him it's all right. (go to P1b) -flicker
-→ Step back, out of the light, so he never sees your face. (go to P1c) +dread
+→ Kneel down and tell him it's all right. (go to P1b) -flicker
+→ Back off, out of the light, so he never sees your face. (go to P1c) +dread
 
 ## P1b. Kneeling {past}
 
-You kneel. The boards creak under your knees. You put your mouth near the crack and say it, low, the way you'd say it to any frightened child on any bad night:
+You get down on your knees. The board creaks. You put your mouth close to the crack and keep your voice low.
 
-"It's all right. Nobody's coming for you. I'll sit up."
+"It's all right. Nobody's coming. I'll sit up."
 
-Under the floor, the boy breathes out. A long breath, longer than a child should have in him. You know that breath. You've let it out after every bad day of your life, and now you know where you learned it.
+Under the floor he lets out a breath. A long one. Too long for a boy that size. You've let that same breath out at the end of every bad day you've had, and you never knew where you picked it up. Now you do.
 
-You stay kneeling there till the singing stops two rooms away. You keep watch. It's what you do.
+You stay there on your knees until the shanty two doors down gives up.
 
-When you get up, there's someone standing in the doorway behind you, grey to the elbows, dripping. He isn't looking at you. He's looking at the floor where the boy is, and his face is in shadow, and his voice comes out wet and doubled, two takes of the same words laid over each other:
+When you get to your feet, there's a man in the doorway. Grey to the elbows. Dripping on Rosa's floor. He isn't looking at you, he's looking at the board where the boy is, and his voice comes out wet and doubled, like two men saying it a half-beat apart:
 
 @future: "Stop what you're doing."
 
-You don't know what he means. You were only being kind.
+You were only being kind.
 
-The doorway is empty.
+The doorway's empty.
 
 → Back (go to E0)
 
 ## P1c. Out of the light {past}
 
-You step back, out of the stripe of lamplight, and you hold still. You were always good at that. It's the first thing you ever learned to do well: be nothing, under the floor or over it.
+You step back out of the stripe of light and hold still. You were always good at that. Making yourself into nothing, under a floor or on top of it.
 
-The eye at the crack searches for you. It doesn't find you. After a long time it closes.
+The eye at the crack hunts for you. Doesn't find you. After a long while it closes.
 
-So that's why. Your whole childhood, something stood over you and never let you see its face, and you never knew if it meant you harm or meant to keep you. Now you know: it didn't know either.
+All those nights you lay there wondering what it wanted.
 
-Behind you, a voice, wet and doubled:
+Turns out it didn't know either.
+
+Behind you, wet and doubled:
 
 @future: "Stop what you're doing."
 
-You turn. The doorway is empty. There are wet prints on the threshold, coming in. None going out.
+You turn round. Nobody. There are wet prints on the threshold, coming in. None going out.
 
 ~Nobody's coming for the big one.~
 
@@ -213,21 +215,21 @@ You turn. The doorway is empty. There are wet prints on the threshold, coming in
 
 {sound: chimes-slow}
 
-Wind chimes. Hundreds of them, glass and shell and bent copper, hung along the cloister of the Monastery of the Great Winds, all talking at once, slowed down, deep as a ship's hull. You used to think the priests could understand them. Maybe they could.
+Wind chimes. Hundreds of them along the cloister of the Monastery of the Great Winds: glass, shell, bent copper, all going at once. Slowed down, they sound like a ship's hull groaning. When you were small you thought the priests could understand them. Maybe they could.
 
-The boy is at the bench. Older now, twelve, too tall for it, a reed pen in his fist. A priest with ink on every finger is guiding his hand: the dip, the slow downstroke. The first letter of his name. Of your name. It comes out crooked, and a blot runs off the end of it like a tear.
+The boy is at the long bench. Twelve now, already too tall for it, a reed pen in his fist. A priest with ink up to her wrists has her hand over his. Dip. Downstroke. The first letter of his name. Yours. It comes out crooked, and the ink runs off the end in a fat drop.
 
-The priest doesn't scold. She says, *Again,* and he does it again, and again, until his wrist aches and the letter stands up straight on the page like it belongs there.
+She doesn't tell him off. She says, *Again.* He does it again. And again, till his wrist hurts and the letter stands up straight.
 
-You still hold a pen the way she held his hand.
+You still hold a pen like she taught him.
 
-You look over the boy's shoulder at the page. Row after row of that one letter, getting straighter. And at the bottom of the page, where he hasn't written yet, the letters are already there, and already going grey: ^^A A A A A^^
+You lean over his shoulder. Rows of that one letter, getting better as they go down the page. At the bottom, where he hasn't got to yet, the letters are already there, and already going grey: ^^A A A A A^^
 
-@boy: "Why does it keep going away?"
+@boy: "Why does it keep going?"
 
-You don't have an answer. You never had one for him.
+You don't know. You didn't know then either.
 
-Down the hill, past the window, the masts in the harbour sway like reeds.
+Out of the window, down the hill, the masts in the harbour sway.
 
 → Continue (go to P2b)
 
@@ -235,32 +237,32 @@ Down the hill, past the window, the masts in the harbour sway like reeds.
 
 {sound: timbers}
 
-Then you're on the quay, and the boy is fourteen and nearly a man's size, and the wind smells of tar.
+Then it's the quay, and the boy is fourteen and nearly a man's size, and the wind stinks of tar.
 
-Thorias is there. Of course he is. Small and quick and grinning, half the boy's height, as halflings are, a sea-bag over his shoulder like he's already gone. Behind him a ship is taking on cargo, and a mate is shouting names off a list, and one of them is *Hennos's crew, aboard, aboard!* [SAM?: Captain Hennos is still unexplained; only his crew is named, no face, no ship's name]
+Thorias is there. Course he is. Quick, grinning, half the boy's height, as halflings are, sea-bag on his shoulder like he's already gone. A ship's taking on cargo behind him and a mate is yelling names off a list. *Hennos's crew! Aboard, aboard!* [SAM?: Captain Hennos is still unexplained; only his crew is named, no face, no ship's name]
 
 "Come with me," Thorias says to the boy. "You're the size of two men. They'll pay you for two."
 
-You've thought about this quay for years and you've never been able to remember what you said to him. Now you're standing right behind yourself, close enough to see the back of your own neck, and you still can't hear it. The boy's mouth moves. The chimes from the hill drown it out.
+You've gone over this quay a hundred times and you've never been able to remember what you said to him. Now you're standing right behind yourself, close enough to see the sunburn on the back of your own neck, and you still can't hear it. The boy's mouth moves. The chimes up the hill drown it out.
 
-Thorias looks at the ship and looks at the boy. Then, for a second, he looks past the boy. At you.
+Thorias looks at the ship. Looks at the boy. Then, just for a second, he looks past him. At you.
 
-→ Reach past the boy and grab Thorias's collar. Hold him back. (go to P2c) +dread
-→ Put your hand on the boy's shoulder. Let Thorias go. (go to P2d) +flicker
+→ Reach past the boy and grab Thorias by the collar. (go to P2c) +dread
+→ Put a hand on the boy's shoulder and let Thorias go. (go to P2d) +flicker
 
 ## P2c. Holding on {past}
 
-You reach past your own shoulder and take Thorias by the collar, the way you'd grab a child about to step off a pier in the dark. Your hand is big enough to close round the whole thing.
+You reach past your own shoulder and grab Thorias by the collar. Your fist closes round the whole thing.
 
-He doesn't fight. He looks at your hand, and then up at you, and he's still smiling, but it's gone sad at the edges.
+He doesn't fight. He looks at your hand, then up at you. Still smiling. Gone a bit sad round the edges.
 
 "You can't hold everybody, Stig."
 
-Then your hand is empty and he's on the gangplank and he's gone. It always goes the same way. It's a memory. You can grab it as hard as you like.
+Then your hand's empty, and he's up the gangplank, and he's gone. It's a memory. You can grab it as hard as you like. It goes the same way every time.
 
-Later, at the flooded docks, by a stone gargoyle with the water up to its chin, and later still at the edge of a ravine, you couldn't hold him either.
+You couldn't hold him at the flooded docks either, by the stone gargoyle with water up to its chin. Or at the ravine.
 
-On the deck of the ship, as it pulls away, a tall figure stands at the rail, grey to the elbows, dripping. He raises one hand to you. Not a wave. The flat hand you'd hold up to stop a cart.
+The ship pulls out. At the rail stands a tall man, grey to the elbows, dripping on the deck. He lifts one hand at you. Not a wave. Flat, palm out. The way you'd stop a cart.
 
 ~You can carry it. You always could.~
 
@@ -268,15 +270,15 @@ On the deck of the ship, as it pulls away, a tall figure stands at the rail, gre
 
 ## P2d. Letting go {past}
 
-You put your hand on the boy's shoulder. He's shaking. You hadn't known you were shaking, that day.
+You put your hand on the boy's shoulder. He's shaking. You didn't know you'd been shaking that day.
 
-Thorias laughs and waves and runs up the gangplank like it's the best day of his life. Maybe it was. The boy waves back. You feel his shoulder go still under your hand.
+Thorias laughs and waves and runs up the gangplank like it's the best day of his life. Maybe it was. The boy waves back. Under your hand his shoulder goes still.
 
-You stand on the quay together until the ship is a scrap of sail. Then the boy turns and walks back up the hill to his letters, because somebody has to, and you go with him.
+The two of you stand on the quay till the ship's a scrap of sail. Then the boy turns and goes back up the hill to his letters, and you go with him.
 
-It's a good memory. It's the last good one of Thorias. You keep it the way you'd keep a smooth stone in your pocket.
+It's the last good one you've got of him.
 
-At the very end of the quay, the water is lapping over the boards, and someone is standing in it, watching the same ship go. As you turn away he flickers, once, like a reflection in a puddle when the wind crosses it. Then he's back.
+At the far end of the quay, where the water's slopping over the boards, somebody is standing and watching the same ship go. When you turn away, he shivers out of true, like a reflection when wind crosses a puddle. Then he's back.
 
 → Back (go to E0)
 
@@ -284,33 +286,33 @@ At the very end of the quay, the water is lapping over the boards, and someone i
 
 {sound: rain}
 
-Rain. A ravine in the rain, and the long fall of it below you: wet black rock, and white water at the bottom.
+Rain. A ravine in the rain. Wet black rock all the way down, and white water at the bottom.
 
-You know where you are. You've told it round fires like a story, and it's a good story: the cleric got pushed and the cleric survived. The cleric is strong.
+You know this one. You've told it round the fire a few times. The cleric got pushed, the cleric lived, the cleric is hard to kill. People laugh at that bit.
 
-It isn't a story from here. From here it's a hand in the middle of your back, small and hard, and Thorias's voice in your ear, breaking: *They took my wife and children.*
+Nobody's laughing here. Here it's a hand in the small of your back, small and hard, and Thorias's voice in your ear, cracking: *They took my wife and children.*
 
-The boy is on the other side of the ravine, too far away to help, watching. He has his hands over his mouth.
+The boy is on the far side of the ravine, too far to do anything. He's got both hands over his mouth.
 
-Your heel is over the edge. The rock is slick. Far below, in the white water, something tall stands quite still and looks up.
+Your heel is over the edge. The rock's slick. Way down in the white water, somebody tall is standing still, looking up.
 
-→ Hold on to the moment (Wisdom save DC 15: go to P3b / P3bx)
+→ Hold the moment (Wisdom save DC 15: go to P3b / P3bx)
 
 ## P3b. His face {past}
 
-You hold. Not the rock: the moment. You hold it still the way you'd hold a struggling man for the surgeon, and you turn your head, and you *look*.
+You hold it. The rain hangs where it is. You turn your head and you look.
 
-You never saw his face. The first time, you were falling. This time you see it.
+You never saw his face. Last time you were already falling. This time you see it.
 
-He's crying. He's pushing you off a cliff and he's crying, and his mouth is still moving, saying it over and over: *my wife, my children, they took them, they took them.* He's not looking at you at all. He's looking at his own hands, as if they belong to someone else.
+He's crying. He's shoving you off a cliff with tears running down into his collar, and his mouth's still going, *my wife, my children, they took them, they took them.* He isn't even looking at you. He's looking at his own hands, like they belong to someone else.
 
-And past his shoulder, out over the drop, you see the other one. You. Grey to the elbows, standing on the air over the drop as if it were a floor, water pouring off him into the ravine. He isn't looking at Thorias. He's looking at you, and his mouth is moving too.
+Past his shoulder, out over the drop, there's the other one. You. Grey to the elbows, standing on thin air like it's a deck, water pouring off him down into the ravine. He's not watching Thorias. He's watching you, and he's saying something too.
 
 @future: "Stop. Stop. Stop what you're—"
 
-Then the push lands, and you go, and you let yourself go.
+The push lands. You go. You let yourself go.
 
-Falling, you think the thing you've never let yourself think. *Did anyone go looking for them?* [SAM?: a question Stig asks himself, nothing more. What happened to Thorias's family is Sam's; this can be cut]
+On the way down you think the thing you've never let yourself think. *Did anyone ever go looking for them?* [SAM?: a question Stig asks himself, nothing more. What happened to Thorias's family is Sam's; this can be cut]
 
 ~Who's missing?~
 
@@ -318,21 +320,21 @@ Falling, you think the thing you've never let yourself think. *Did anyone go loo
 
 ## P3bx. Under {past}
 
-The rock goes out from under your heel and you fall.
+Your heel slips and you're falling.
 
-You don't hit the rocks. You hit water, deep and black and far too cold, and it closes over your head. You kick for the light. Something takes hold of your ankle.
+You don't hit rock. You hit water, deep and black and much too cold, and it shuts over your head. You kick for the light. Something takes hold of your ankle.
 
-A hand. As big as yours. Not pulling you down, exactly. Just holding on. Holding on the way you hold on to everything, with no thought at all of ever letting go.
+A hand. Big as yours. Not dragging you down. Just holding on, with no idea in it of ever letting go. You know that grip.
 
 {sound: heartbeat-two}
 
-Under the water, a voice, right against your ear, bubbling:
+A voice right up against your ear, bubbling:
 
-@future: "I could keep you here. I could keep you safe down here. You'd never have to get to the door."
+@future: "I could keep you down here. You'd be safe. You'd never have to get to the door."
 
-You stay down there a long time. Long enough to think about how easy it would be. Long enough to be ashamed of thinking it.
+You stay down a long time. Long enough to think how easy it'd be. Long enough to be ashamed of thinking it.
 
-Then the hand opens, all at once, as if it had only wanted you to know it could. You come up into the rain, gasping. On the far side of the ravine, the boy is crying.
+Then the hand opens, all at once, like it only wanted you to know it could. You come up into the rain, coughing. Across the ravine the boy is crying.
 
 → Continue (go to P3c)
 
@@ -340,25 +342,25 @@ Then the hand opens, all at once, as if it had only wanted you to know it could.
 
 {sound: spade}
 
-The rain stops. The ravine folds away like a map.
+The rain stops. The ravine folds up like a chart.
 
-Cold ground. A spade in your hands, its blade worn bright. You're in the north, and you're digging, and you know whose grave this is: the old elf woman with her ears cut off. Doloris. You laid her in it yourself and said the words over her. Whatever anyone says she'd done, nobody deserves that.
+Cold ground. A spade in your hands, the edge worn bright. You're up north, digging, and you know whose grave it is. The old elf woman with her ears cut off. Doloris. You put her in it yourself and said the words. Whatever she was supposed to have done, nobody deserves that.
 
-You dig, and the hole fills with water from the bottom as fast as you dig it.
+The hole fills with water from the bottom as fast as you dig it out.
 
-You keep digging. Of course you do.
+You keep digging.
 
 @boy: "Who's that one for?"
 
-"An old woman. Somebody had to."
+"Old woman. Somebody had to."
 
 @boy: "And that one?"
 
-He's pointing past you. There's another grave beside this one, one you don't remember digging. And another past that. A whole row of them, running off into the trees, every one open a little at the bottom where the water comes in. You've dug too many. They're all still here.
+He's pointing past you. There's another grave next to hers, one you don't remember. Another past that. A whole row, running off into the trees, every one with water seeping in at the bottom. You've dug too many. They're all still here.
 
-At the end of the row, someone else is digging. Grey to the elbows, keeping time with you, stroke for stroke. He's digging the last one. It's bigger than the others.
+At the end of the row somebody else is digging. Grey to the elbows. Stroke for stroke with you. He's on the last one, and it's bigger than the rest.
 
-On the wooden marker at its head, someone has started to carve a name. The first letter is crooked, with a blot running off it like a tear. ^^The rest has been eaten.^^
+There's a wooden marker at the head of it. Somebody's started carving a name. The first letter's crooked, with a blot running off the end. ^^The rest has been eaten away.^^
 
 → Back (go to E0)
 
@@ -366,33 +368,31 @@ On the wooden marker at its head, someone has started to carve a name. The first
 
 {sound: breath-reverse}
 
-The ebb goes out further than any tide you've ever seen. Further than the ravine, further than the city, further than your own name.
+The ebb keeps going. Further out than any tide you've seen. In a real harbour the boats would be lying on their sides in the mud by now.
 
-The boy holds your hand very tight.
+The boy is gripping your hand hard enough to hurt.
 
-It leaves you standing on the floor of a hall. Not a cave: a hall, cut square and smooth by hands, with pillars carved like waves frozen at the top of their curl. Old. Older than anything you've ever stood in. Valerian, you think, though nobody told you. You know it the way you know salt.
+When it stops, you're standing in a hall. Not a cave, a hall: square, smooth, cut by people who knew what they were doing. The pillars are carved like waves caught right at the top before they break. Valerian. Nobody tells you. You just know.
 
-You've stood here before. The crew stood here, in what's left of it. A voice spoke in this place, deep under the monastery, and said that the vaults delay the end, but do not prevent it.
+You've been here. The crew came down here, into what's left of it, under the monastery, and a voice in the dark said the vaults delay the end but don't stop it.
 
-It isn't left of anything yet. It's whole. There's water in it, a great still sheet, and under the water, at the bottom, black sand. It isn't lying still. It moves the way a sleeper moves, turning over, pushing at the water from underneath.
+Except nothing's left-over yet. It's whole. It's full of water, one big still sheet of it, and at the bottom there's black sand. The sand isn't lying flat. It shifts like somebody turning over in their sleep, shoving up at the water from underneath.
 
-A woman in a long robe stands knee-deep in the middle of it with both hands flat on the surface, pressing down. Just pressing, like you'd hold the lid on a pot that wants to boil over. On the back of one hand, dark as if it were inked this morning, is your sigil. The same lines. The same water. [SAM?: see DM notes]
+A woman in a long robe is standing knee-deep in the middle of it with both hands flat on the surface, pushing down. Just pushing, like you'd lean on a pot lid to stop it boiling over. On the back of one hand, dark and fresh, is your sigil. Same lines. Same water. [SAM?: see DM notes]
 
-Her arms shake. Her hands are going clear, like glass, like ice in spring, so that you can see the black sand through them. She has been doing this a very long time. She's nearly done. Not finished. *Done.* Worn through.
+Her arms are shaking. Her hands have gone clear as glass from the fingertips back; you can see the sand through them. She's been at this a long, long time. She's nearly worn through.
 
-She's breathing with the water. In as it pushes up, out as she presses it down, slow and long, the way the sea breathes on a beach. It's the breath you let out after every bad day of your life. You'd know it anywhere. Hers is wearing thin.
+She's breathing with the water. In when it heaves up. Out when she pushes it down. Slow and long. You know that breath. Hers is getting thin.
 
-She looks up. Not at the hall. At you. At your arm. At the sigil there.
+She looks up. Not round the hall. At you. At your arm.
 
-She doesn't speak. Maybe she can't any more. But her face, when she sees the mark on you, does what a sailor's face does at the end of a long watch when they hear the next man's boots on the ladder.
-
-Relief.
+She doesn't speak. Maybe she can't any more. But her face, when she sees the mark on you, goes the way a sailor's face goes at four in the morning when he hears the next man's boots on the ladder.
 
 @boy: "She's tired."
 
 "I know."
 
-Behind her, at the edge of the hall, a tall shape stands in the water. Grey to the elbows. He isn't looking at you. He's watching her hands, the way you'd watch someone do a job you know you'll have to learn, and he's holding his own hands out in front of him, flat, pressing on nothing, copying her.
+Over at the edge of the hall the tall one is standing in the water, grey to the elbows. He's not looking at you. He's watching her hands like an apprentice. He's holding his own hands out flat in front of him and pushing down on nothing. Copying her.
 
 → Continue (go to S2)
 
@@ -400,17 +400,17 @@ Behind her, at the edge of the hall, a tall shape stands in the water. Grey to t
 
 {sound: silence}
 
-For a moment nothing moves. Not the water, not the sand, not the woman, not you. Slack water, the sailors call it: the still minute at the bottom of the tide, when it's done going out and hasn't started coming in. You used to love it. It always felt like the sea taking a breath.
+Nothing moves for a moment. Not the water, not the sand, not her, not you. Slack water, the old hands call it. The dead minute at the bottom of the tide, after it's gone out and before it comes back. You always liked it.
 
 Then it turns.
 
 {sound: surf}
 
-You feel it in the sigil before you feel it in your legs: the pull goes the other way. The water starts coming back. Not the past now. The other thing. The days that haven't come yet, rolling in out of the dark, one wave at a time.
+You feel it in the sigil first, then in your shins. The pull's gone the other way. The water's coming back in, and it isn't the past any more. It's what hasn't happened yet, rolling in out of the dark a wave at a time.
 
-After every ebb comes a flood. You've said it your whole life. You've never once thought about what the flood brings in.
+After every ebb comes a flood. You've said it at a lot of gravesides. You meant it kindly.
 
-The boy pulls at your hand.
+The boy tugs your hand.
 
 @boy: "We've done this before."
 
@@ -424,71 +424,71 @@ The boy pulls at your hand.
 
 {sound: rewind}
 
-It's eleven paces from your stone to where the old man lies. You count them, because counting is what you do on watch.
+Eleven paces from your stone to the old man. You counted them on the way over.
 
 Eleven. Ten. Nine.
 
-That's wrong. You count again.
+Wrong way. Again.
 
-One. Two. A flake of ash comes *up* off your sleeve and floats away into the dark, dry, as if it never landed.
+One. Two. The bit of ash lifts *off* your sleeve and floats up into the dark, dry, like it never landed.
 
-The lamp is on the wrong side of the cave. Katy's voice finishes her word, and then says it again, backwards. Saphira is sitting with her back to the wall, the way she always picks, but the wall is on her other side. Hans hums, low, a beat he's always humming, slowed right down until it's not a beat at all.
+The lamp's on the wrong side of the cave. Katy finishes her word, then says it again backwards. Saphira has her back to the wall like always, only it's the other wall. Hans is humming that beat of his, slowed down so far it isn't a beat any more.
 
 {sound: dirge}
 
-You look down. You're sitting on your stone. You haven't stood up yet. You haven't walked a pace. The old man is waiting for your answer.
+You look down. You're sitting on your stone. You haven't got up yet. The old man is still waiting for an answer.
 
-Then you're standing. Three paces gone.
+Then you're standing, three paces in.
 
 Then you're sitting.
 
 @boy: "Told you. It goes round. You'll get used to it."
 
-He considers.
+He thinks about it.
 
-@boy: "You won't get used to it."
+@boy: "You won't, actually."
 
 ~Eleven. Ten. Nine.~
 
-There are wet footprints by your stone. Big ones. They come from the old man's side of the cave, all eleven paces, and they stop exactly where your feet are. Somebody has walked this already. Somebody walked it back.
+There are wet footprints by your stone. Big ones. They come from the old man's end of the cave, all eleven paces, and stop exactly where your boots are. Somebody's already walked it. Walked it backwards.
 
-The water is coming in. Fast now.
+The water's coming in fast now.
 
-→ Let the flood come. (go to F0)
+→ Let the flood come in. (go to F0)
 
 ## F0. The flood
 
-The water is coming in, and it brings things with it. Not wreckage, not yet. Days that might be. Ones you've hoped for, and ones you've lain awake over, and the water doesn't seem to know the difference.
+It comes in carrying things. Days again, only these haven't happened yet. Some you've hoped for, some you've lain awake over. The water can't tell them apart.
 
-None of this has happened. Maybe none of it will. That doesn't make it any less cold.
+None of it's happened. Maybe none of it will. It's still cold.
 
-The boy is still with you. He's still holding your hand. He hasn't grown at all; it's you who's getting older. Your knuckles. Your knees.
+The boy's still with you, still holding on. He isn't getting any older. You are. You can feel it in your knuckles, in your knees.
 
 *Hub: then go to W1*
 
 → A schoolroom, with slates. (go to Q1a)
-→ A window blinking on a harbour. (go to Q2a)
+→ A window blinking over a harbour. (go to Q2a)
 → A long table, and an empty chair. (go to Q3a)
 
 ## Q1a. Slates {future}
 
-A room with a low roof and a big window. Benches. Children on them, a dozen, more, every size, the way children come when nobody's choosing them. Slates on their knees. Chalk dust in the light.
+Low roof, big window, benches. Children on the benches, a dozen and more, all sizes, the way you get them when nobody's picking. Slates on their knees. Chalk dust hanging in the light.
 
-Your school. You'd know it anywhere, though you've never seen it. Somewhere on Fraas-Den, by the light through the window, with the sea out there grey-green and close. You always pictured it near the sea.
+Your school. You've never seen it and you'd know it anywhere. Fraas-Den, from the light; the sea's right out there, grey-green and close. You always pictured it by the sea.
 
-You're at the front, chalk in your hand, greyer. On the board behind you, in your own careful hand, is the line you've set them to copy:
+You're up the front with a stick of chalk, and you're greyer. On the board behind you, in your best hand, is the line you've given them to copy:
 
 *After every ebb comes a flood.*
 
-One boy is too tall for his bench. Of course there is. His letters come out crooked.
+One lad's too tall for his bench. There's always one. His letters come out crooked.
 
-"Again," you tell him, gently. And he does it again.
+"Again," you tell him. He does it again.
 
-It takes you a moment to see it's the boy who came with you. He's sitting between two children as if he's always been there, and nobody notices him but you.
+It takes you a second to see it's the boy you came in with. He's sitting between two kids like he's always been there, and nobody notices him but you.
 
-This is the thing. This is the whole of what you've wanted. You stand in it and let it be warm, because it is warm, and it smells of chalk and bread and wet wool.
+This is it, then. The thing you've wanted. You let yourself stand in it for a minute, because it's warm, and it smells of chalk and bread and wet wool.
 
-Then you notice the floor is wet.
+Then you notice the floor's wet.
 
 → Continue (go to Q1b)
 
@@ -496,13 +496,13 @@ Then you notice the floor is wet.
 
 {sound: chalk}
 
-Water, a finger deep, spreading from the back of the room. The children don't notice. They lift their feet a little and keep writing.
+A finger's depth of water, spreading from the back of the room. The children don't notice. They lift their feet a bit and carry on writing.
 
-You look at the slates. They're blank. Every one. The children are writing, chalk scratching, heads bent, and nothing stays. It runs off like rain off a window. On the board behind you, the line you wrote is going too: After every ebb comes a ^^flood^^.
+You look at the slates. Blank. Every one. They're writing, chalk scratching, heads down, and none of it stays. It runs off like rain off a window. On the board behind you your line is going too: After every ebb comes a ^^flood^^.
 
-At the back of the room, at the last desk, much too big for it, knees up past the top, sits the one from the water. Grey to the elbows. Head bowed over a slate of his own. His is the only writing that stays. Tally marks. A row of small upright marks, the way you'd count heads, or graves, or days, and one more off on its own at the end, a little apart.
+In the back corner, at the last desk, knees jammed up past the top of it, sits the one from the water. Grey to the elbows. Bent over a slate of his own. His is the only writing that stays. Tally marks. A row of them, and one more off at the end on its own.
 
-He lifts his head. You still can't see his face. But you hear him, wet and doubled, two voices a half-beat apart:
+He lifts his head. Still can't see his face. You hear him, though, wet and doubled:
 
 @future: "Stop what you're doing."
 
@@ -510,40 +510,40 @@ He lifts his head. You still can't see his face. But you hear him, wet and doubl
 
 @future: "Teaching them that."
 
-He points at the board, at the line, at the word being eaten.
+He points at the board. At the word going grey.
 
 @future: "It isn't true. Not for the one who stays."
 
-The water is at the children's ankles.
+The water's at the children's ankles.
 
 → Get them out. All of them. Now. (go to Q1c) +flicker
-→ Keep teaching. Write the line again. Don't let them see you're afraid. (go to Q1d) +dread -flicker
+→ Keep teaching. Write it up again so they don't see you're scared. (go to Q1d) +dread -flicker
 
 ## Q1c. Out {future}
 
-You don't think. You're across the room with your arms out like a man herding geese, saying *out, out, out, all of you, leave the slates,* and they go, giggling and splashing, out of the door into the light, and you count them as they pass. You always count them.
+You don't think about it. You're across the room with your arms out like you're herding geese, *out, out, all of you, leave the slates*, and they go, giggling, splashing, out the door into the light. You count them as they pass. You always count them.
 
 Twelve. Thirteen. All out.
 
-The boy who came with you is still sitting on the bench. He hasn't moved.
+The boy you came in with hasn't moved off his bench.
 
 @boy: "You didn't count me."
 
-You turn back to the room. It's empty now except for the water, the boy, and the desk at the back with its slate. The one who sat there is gone. He's flickering somewhere at the edge of your eye like a face in water when a stone goes in, there and not there.
+You turn round. The room's empty except for the water, the boy, and the back desk with its slate. The one who sat there is gone. Or nearly. He's at the corner of your eye, there and not there.
 
-You count the marks on his slate. You can't help it.
+You count the marks on his slate. You can't help yourself.
 
-Thirteen. And one more, off on its own at the end of the row, a little apart, as if whoever made it wasn't sure it belonged.
+Thirteen. And one more off at the end, a little apart, like whoever made it wasn't sure it belonged.
 
 → Back (go to F0)
 
 ## Q1d. Again {future}
 
-You turn back to the board and write the line again, slow and careful. *After every ebb comes a flood.* You make your voice warm. You say *again* to the tall boy and he does it again, and the water is at their knees, and you say *again*.
+You turn to the board and write it again, slow and careful. *After every ebb comes a flood.* You keep your voice easy. You tell the tall lad *again* and he does it again, and the water's at their knees, and you say *again*.
 
-They trust you. That's the worst of it. They look at you and see a big man who isn't worried, so they aren't worried either, and the chalk scratches, and nothing stays.
+They trust you. They see a big man who isn't worried, so they don't worry, and the chalk scratches, and nothing stays on the slates.
 
-At the back desk, he's nodding along with you, slowly, every time you say *again*. He's very solid now. You can hear the water running off him onto the floor, steady as a pump. He nods the way a man nods when he has heard himself say a thing so often he no longer hears it.
+At the back desk he's nodding along every time you say it. He's very solid now. You can hear the water coming off him onto the floorboards, steady as a bilge pump.
 
 ~Wring it out. Again.~
 
@@ -553,15 +553,15 @@ At the back desk, he's nodding along with you, slowly, every time you say *again
 
 {sound: surf}
 
-Night, and a small harbour. A quay with a few fishing boats knocking together. Houses with their backs to the wind. A town too small to bother anybody. Grisshaven, says something in you that knows this coast, on Myratma's shore.
+Night, and a little harbour. A few fishing boats knocking together. Houses with their backs to the wind. Too small a town for anyone to bother with. Grisshaven, says the part of you that knows this coast. Myratma's shore.
 
-There's a tavern at the end of the quay with a lamp in its window, and the lamp is blinking out to sea. Long. Short. Short. Long. Over and over. The sign over the door says it's called the Lighthouse, and for the first time you wonder whether that was ever only a joke.
+At the end of the quay there's a tavern with a lamp in the window, and the lamp is blinking out to sea. Long. Short. Short. Long. Over and over. The sign over the door says THE LIGHTHOUSE, and for the first time it crosses your mind that maybe it was never a joke.
 
-You're standing on the quay. Your hands are old. The boy is sitting on a bollard beside you, swinging his feet, unchanged.
+You're standing on the quay. Your hands have got old. The boy's sat on a bollard next to you, swinging his feet. He hasn't changed.
 
-@boy: "It's calling somebody."
+@boy: "It's calling someone."
 
-Out in the dark a ship is answering the lamp. You can't see her, only hear her: timbers creaking, sail slapping, a voice on deck calling soundings. Sailors' voices. You'd know them in your sleep.
+Out in the dark a ship is answering the lamp. You can't see her yet. You can hear her: timbers working, a sail slapping, somebody on deck calling the depth. Sailors' voices. You'd know them in your sleep.
 
 → Continue (go to Q2b)
 
@@ -569,15 +569,15 @@ Out in the dark a ship is answering the lamp. You can't see her, only hear her: 
 
 {sound: timbers}
 
-The ship comes alongside. You still can't see her properly; she's all shadow and lantern-glow, and the lanterns are the wrong colour, the grey-green of deep water.
+She comes alongside. You still can't make her out properly; she's all shadow and lantern-light, and the lanterns are the wrong colour, the grey-green of deep water.
 
-A line comes snaking out of the dark and lands at your feet. Somebody wants you to make it fast.
+A line comes snaking out of the dark and drops at your feet. Somebody wants you to make her fast.
 
-A voice from the deck calls your name. Not *Stig*. Your real name. *Astychon.* Nobody here calls you that. Nobody has in years. [SAM?: who calls is deliberately unknown, see DM notes]
+Somebody on deck calls your name. Not *Stig*. Your real one. *Astychon.* Nobody round here calls you that. Nobody has in years. [SAM?: who calls is deliberately unknown, see DM notes]
 
-At the rail, very tall and very still, stands the one from the water, holding the other end of the line. And then, from right beside him, in the same voice, a second figure the same as the first, holding the same line, so that for a moment there are two of him, a half-beat apart, like a picture taken twice.
+At the rail, tall and dead still, is the one from the water, holding the other end of the line. And right beside him, the same man again, holding the same line. Two of him, half a beat apart.
 
-One says:
+One of them says:
 
 @future: "Make it fast."
 
@@ -590,35 +590,35 @@ They say it at the same time. You can't tell which mouth is which.
 @boy: "He doesn't know either."
 
 → Pick up the line and make it fast. (go to Q2c) +dread -flicker
-→ Leave it lying. Answer to Stig, or to nothing. (go to Q2d) +flicker
+→ Leave it lying there. You answer to Stig, or to nothing. (go to Q2d) +flicker
 
 ## Q2c. Made fast {future}
 
-You pick it up. Your hands do it before you've decided; a line comes to you, you make it fast. Round the bollard, cross, cross, hitch. You could do it blind.
+You pick it up. Your hands do it before you've decided. A line comes to you, you make it fast. Round the bollard, cross, cross, hitch. You could do it asleep.
 
-The line goes tight. The ship settles against the quay with a long, satisfied groan, like an animal lying down.
+The line goes tight. The ship settles against the quay with a long groan, like a dog lying down.
 
-Then it keeps pulling. Not hard. Steadily. The ship is going back out, and it's taking the quay with it, and the town, and you, because you've made it fast and you don't untie things you've made fast. You have never in your life untied a thing you made fast.
+Then it keeps pulling. Not hard. Steady. The ship's going back out, and it's taking the quay with it, and the town, and you, because you made it fast, and you've never once in your life cast off a line you made fast.
 
-At the rail there's only one of him now. Solid. Sure. He lifts his hand: *come aboard*. Plenty of room.
+At the rail there's only one of him now. Solid. He lifts his hand: come aboard. Plenty of room.
 
-You stand there with your feet braced, holding, while the boards creak under you and the boy tugs at your sleeve.
+You stand there with your feet braced, holding on, while the boards creak under you and the boy pulls at your sleeve.
 
 → Back (go to F0)
 
 ## Q2d. Unanswered {future}
 
-You leave it lying. The line lies on the wet stones like a sleeping snake.
+You leave it. The line lies on the wet stones like a sleeping snake.
 
-The voice calls your name again. *Astychon.* Both voices. Patient. As if they know you'll come down to the quay again someday, and again after that.
+They call your name again. *Astychon.* Both voices. Patient. Like they know you'll come down to this quay again someday, and again after that.
 
-You say nothing. Your name is Stig. That's what the people who know you call you, and you'd rather be known than named.
+You don't answer. Your name's Stig. It's done you this long.
 
-At the rail the two of him flicker against each other like a lantern seen through rain, and for a moment neither of them is quite there.
+At the rail the two of him blur into each other like lanterns seen through rain, and for a second neither of them's really there.
 
-The ship lies off the quay a long time. Then the window blinks *long, short, short, long*, and the ship backs into the dark the way it came, and the line goes slithering after it into the water.
+The ship lies off the quay a long time. Then the window blinks *long, short, short, long*, and she backs off into the dark the way she came, and the line slithers after her into the water.
 
-You don't know if you were brave or only stubborn. With you it's hard to tell.
+You don't know if that was brave or just stubborn. With you it's usually hard to say.
 
 → Back (go to F0)
 
@@ -626,41 +626,41 @@ You don't know if you were brave or only stubborn. With you it's hard to tell.
 
 {sound: toast}
 
-A long table in a warm room. Candles. Bread torn rather than cut. The kind of night you'd have liked.
+A long table in a warm room. Candles. Bread torn, not cut. Your kind of night.
 
-Your crew are round it. Older, all of them. Katy, with grey threaded into her hair, the ukulele propped against her chair. Saphira, back to the wall, where she can see everyone; she always picks that spot. Hans at the end of the table, too big for his chair, his chest plate warm. Thorn by the door, bow within reach, the way he always sits. More faces past the candlelight, laughing at something.
+The crew are round it, older, all of them. Katy with grey coming in at her temples and the ukulele propped against her chair. Saphira with her back to the wall where she can see the door. Hans at the end, too big for his chair, chest plate warm. Thorn by the door with his bow in reach. More faces past the candlelight, laughing at something.
 
-Nobody looks at you. Nobody can see you.
+None of them look at you. None of them can.
 
-There's one empty chair. A tea towel lies folded on the seat, blue-striped, the one you've wrung out a hundred times. Somebody has folded it carefully, the way you fold it.
+There's one empty chair. On the seat lies a tea towel, folded. Blue stripes. The one you've wrung out a hundred times. Somebody's folded it the way you fold it.
 
-Katy stands up. She raises her cup to the empty chair. Everybody raises theirs. Nobody says a name. They don't need to.
+Katy stands up and lifts her cup to the empty chair. Everyone lifts theirs. Nobody says a name. Nobody needs to.
 
-Hans says, in his flat, careful voice:
+Hans speaks up, flat and careful as ever:
 
-"He would have disliked this. He would have offered to wash the cups."
+"He would have hated this. He would have offered to wash the cups."
 
-Everybody laughs, and then nobody does.
+They all laugh. Then they stop.
 
 {sound: dirge}
 
-Katy starts to sing something, and stops after one line, and sits down.
+Katy starts singing something. Gets one line in. Sits back down.
 
 @boy: "Whose chair is that?"
 
-Standing behind the empty chair, one grey hand on its back, is the one from the water. Watching them. He's not dripping here. He's dry, for once, and very still, the way a man stands at a window looking in at a house he's not allowed back into.
+Behind the empty chair, one grey hand on the back of it, stands the one from the water. Watching them. He's dry here, for once. He stands like a man outside a window, looking in at a house he's not allowed back into.
 
 → Continue (go to Q3b)
 
 ## Q3b. Whose chair {future}
 
-You know whose chair it is. You've known since you saw the towel.
+You know whose chair it is. You knew when you saw the towel.
 
-They're all right. That's the thing that cracks something in you. They're older and they're all right. They've a warm room and bread and each other. Whatever was paid for this, it bought *this*.
+They're older, and they're all right. A warm room, bread, each other. Whatever got paid for this, it bought this.
 
-You could live with that. You could die with that.
+You'd take that deal. You've taken worse.
 
-The one behind the chair turns his head toward you, very slowly, the way an old man turns when his neck is bad.
+Behind the chair, he turns his head toward you. Slowly. Like an old man with a stiff neck.
 
 @future: "Stop what you're doing."
 
@@ -668,38 +668,38 @@ The one behind the chair turns his head toward you, very slowly, the way an old 
 
 @future: "You're agreeing."
 
-→ Sit down in the empty chair. Just for a moment. (go to Q3c) +dread -flicker
+→ Sit down in the empty chair. Just for a minute. (go to Q3c) +dread -flicker
 → Fold the towel again, properly, and leave it where it is. (go to Q3d) +flicker
 
 ## Q3c. The chair {future}
 
-You sit. Nobody sees you do it. The chair is the right height. Of course it is.
+You sit. Nobody sees. The chair's just the right height.
 
-From here you can see all their faces. Katy wiping her eyes with the back of her wrist. Saphira watching the door. Hans, not looking at the chair, very carefully not looking at it, the way he doesn't look at things he has decided to remember.
+From here you can see every face. Katy wiping her eyes on her wrist. Saphira watching the door. Hans not looking at the chair. Very carefully not looking at it.
 
-The one behind you puts his grey hand on your shoulder. It's heavy and wet and cold to the bone, and it's the most familiar thing you've ever felt.
+The one behind you puts his grey hand on your shoulder. Heavy, wet, cold right through. You know that weight. You've put that hand on a lot of shoulders.
 
-@future: "There. That's how it feels. Every night."
+@future: "There. That's what it's like. Every night."
 
-You can't feel the candles from here. You can see them, but you can't feel them.
+You can see the candles. You can't feel them.
 
 → Back (go to F0)
 
 ## Q3d. The towel {future}
 
-You pick up the towel. You shake it out, fold it in half, then in thirds, the way you always do, and you lay it back on the seat, square to the edge.
+You pick up the towel. Shake it out. In half, then in three, like always, and you lay it back on the seat square with the edge.
 
-Hans looks at the chair. His head tilts, a very small amount.
+Hans looks at the chair. His head tips a fraction.
 
 "The towel has moved," he says.
 
-"No it hasn't," says Saphira.
+"No, it hasn't," says Saphira.
 
 "It has been refolded," says Hans. "Correctly."
 
-Nobody says anything after that. Katy reaches out and touches the towel with one finger, and then takes her hand back.
+Nobody says anything after that. Katy reaches out and touches the towel with one finger, then pulls her hand back.
 
-Behind the chair, the one from the water flickers hard, like a face seen through a breaking wave, and for a moment you can see the far wall through his chest.
+Behind the chair the one from the water shudders, like something seen through a breaking wave, and for a second you can see the far wall through his chest.
 
 → Back (go to F0)
 
@@ -707,25 +707,25 @@ Behind the chair, the one from the water flickers hard, like a face seen through
 
 {sound: fire-still}
 
-The flood is in. Everything is water: the cave, the lamp, the old man lying at the end of it, all wavering under a grey-green surface, as if you're looking up at them from the bottom of the sea.
+The flood's all the way in. The cave, the lamp, the old man at the far end: all of it wobbling under a grey-green skin of water, like you're lying on the bottom looking up.
 
 One pace left.
 
-And then the water isn't water. It's heat. The cave folds open like a book and you're standing inside a mountain, black stone, dark as the inside of a fist. In the heart of it is a door of fire. Not a door that's burning. A door that *is* fire, upright in a frame of black stone, roaring without moving, like a wave that stopped at the top of its curl and can't come down. [SAM?: the door of fire, see DM notes]
+Then the water isn't water any more. It's heat. The cave falls away and you're inside a mountain, black rock, dark as the inside of a fist. In the middle of it there's a door made of fire. It isn't burning. It *is* the fire, standing up in a black stone frame, roaring without moving, like a wave that's stopped at the top and can't come down. [SAM?: the door of fire, see DM notes]
 
-Your crew is here. Katy with ash in her hair. Saphira with her back to the wall. Hans behind you, his chest plate warm, humming very low. Thorn at the edge of the light, bow in hand. And more faces than the light reaches.
+The crew are here. Katy with ash in her hair. Saphira with her back to the rock. Hans behind you, chest plate warm, humming low. Thorn at the edge of the light with his bow. And more faces than the light reaches.
 
-You know, the way you know things in a dream, how the door works. It opens one way only: if somebody goes in and stays on the other side. Then it closes behind them, and everyone else can go on.
+Nobody's told you how the door works. You know anyway, like you know things in dreams. It opens one way. Somebody goes in and stays on the other side. Then it shuts behind them and everyone else gets to walk on.
 
-The boy has hold of your hand. He's holding it very hard.
+The boy has hold of your hand. Hard.
 
-Nobody is talking. Everybody is thinking it. You can see them all thinking it.
+Nobody says anything. Thorn looks at his bowstring.
 
-You're big. You can carry a lot.
+You're big. You can carry a lot. You've always said so.
 
-And between you and the door, waist-deep in black water that shouldn't be here, his back to you, head bowed, stands the one who's been at the edge of everything. Water runs off him and turns to steam where it meets the heat. Under the water, he's holding something with both hands. Holding it down, or holding it up. You can't tell which.
+And between you and the door, waist-deep in black water that's got no business being here, back to you, head down, is the one who's been at the edge of everything tonight. The water coming off him hisses into steam in the heat. Under the surface he's got something in both hands. Holding it down or holding it up, you can't tell.
 
-You know his shoulders. You know the way he stands, feet wide, braced, like a man on a deck in weather.
+Those shoulders. That stance: feet wide, braced, like a man on deck in a blow.
 
 ~Who's missing?~
 
@@ -735,167 +735,165 @@ You know his shoulders. You know the way he stands, feet wide, braced, like a ma
 
 {sound: heartbeat-two}
 
-You put your hand on his shoulder, and he turns.
+You put your hand on his shoulder and he turns round.
 
 It's you.
 
-Of course it's you. Older. Or only tireder. Grey not just in the hair but in the skin, grey from the fingertips to the elbows, the same grey as the old man's arm. Water runs out of his sleeves and his collar and the corners of his eyes and never runs out. The eyes are blue and red-rimmed and they haven't closed in a very long time, because somebody had to keep the watch.
+Older. Or just more tired. Grey in the skin as well as the hair, grey from the fingertips to the elbows, the same grey as the old man's arm. Water's running out of his sleeves and his collar and the corners of his eyes, and it doesn't stop. Blue eyes. Red round the rims. They haven't shut in a long time.
 
-He looks at the boy, and his face does something you've never seen your own face do.
+He looks at the boy first. His face does something you've never seen your own face do.
 
 @future: "Stop what you're doing."
 
-"*What* am I doing?"
+"What am I doing?"
 
-@future: "Walking to the door. You've been walking to it your whole life. Every grave. Every child. Every time you said *put it on me*. Every pace."
+@future: "What you always do. Somebody's got to carry it, so you grab it before anyone else can get a hand on it. Every grave. Every kid. Every time you said *put it on me*."
 
-"Then what's on the other side?"
+"What's through there?"
 
-@future: "Nothing. Everything. A post."
+@future: "A post. You stand it."
 
-He holds up his own hands. They're going clear at the fingertips, like the woman's in the old hall, and through them you can see the fire, faintly, like looking at a forge through ice.
+He holds his hands up. The fingertips have gone clear, like the woman's in the old hall, like pond ice. You can see the fire through them.
 
-@future: "You don't die. That's what nobody tells you. You *stay*. You keep the watch from inside it, and you don't sleep, and you don't stop. There's no ebb in there. It's always slack water."
+@future: "You don't die. I thought you would. You just stand there holding it down, and you don't sleep, and nobody comes to take over. No ebb in there. It's always slack water."
 
 "Then why come back?"
 
-He opens his mouth. Closes it. When he speaks again it's two voices, a half-beat apart, and they don't say the same thing.
+He opens his mouth. Shuts it. When it comes, it's two voices again, and this time they don't agree.
 
 @future: "To stop you."
 
 @future: "To see who'd come."
 
-@future: "Every time, I hope it'll be somebody else at the door. It's always you."
+@future: "Every time, I hope it'll be someone else at the door. It's always you."
 
 @boy: "He's lying."
 
-A pause.
+@boy: "No he isn't. Neither of him is."
 
-@boy: "No he isn't. Both of them aren't."
+@future: "And I'm only one tide. In there you can see all of them. I can only ever come back down this one."
 
-@future: "And I'm only one tide. In there you can see them all. I can only ever come back down this one."
+The door roars without moving. The crew stand there waiting for someone to step up. Behind the door there's nobody. You can feel it from here, like a grave dug and left open.
 
-The door roars without moving. Behind you the crew stand very still, waiting for someone to step forward. And behind the door there is nobody at all. You can feel it the way you feel an empty bunk on a night watch: a post that somebody walked away from, and nobody has stood since.
-
-@future: "If you go through, somebody's on watch. If you don't, nobody is, and then it all comes up, the sand, the ash, all of it, the way it's been coming up since the last one walked off."
+@future: "If you go in, somebody's on watch. If you don't, nobody is, and it all comes up. The sand, the ash, all of it. It's been coming up since the last one walked off."
 
 He's shaking.
 
 @future: "I can't tell you which. I've had longer than anyone to think about it, and I still can't tell you."
 
-He reaches for you. Not to hurt you. To hold you back. The way you'd have reached for Thorias.
+He reaches for you. Not to hurt you. To hold you back, like you'd have held Thorias.
 
-→ Break free. (go to @undertow)
+→ Break his grip. (go to @undertow)
 
 ## W2x. The face, and all of them
 
 {sound: heartbeat-two}
 
-You put your hand on his shoulder, and he turns.
+You put your hand on his shoulder and he turns round.
 
-It's you. Grey from the fingertips to the elbows, the same grey as the old man's arm, water pouring from his sleeves and turning to steam. The eyes are blue and red-rimmed and they haven't closed in years.
+It's you. Grey from the fingertips to the elbows, like the old man's arm. Water pouring off his sleeves, hissing into steam. Blue eyes, red-rimmed. They haven't shut in years.
 
 @future: "Stop what you're doing."
 
-And you understand all at once.
+And you get it, all at once.
 
-?seen P1c: You stepped back out of the light, so the boy would never see your face.
+?seen P1c: You backed out of the light so the boy would never see your face.
 
-?seen P2c: You grabbed for Thorias's collar.
+?seen P2c: You grabbed Thorias by the collar.
 
 ?seen P3bx: You let the water hold you, and thought how easy it would be.
 
-?seen Q1d: You wrote the line again so the children wouldn't be afraid.
+?seen Q1d: You wrote the line up again so the kids wouldn't be scared.
 
 ?seen Q2c: You made the line fast.
 
 ?seen Q3c: You sat down in the chair.
 
-Every time the water came tonight, you held on, and every time you held on he got more solid. He isn't waiting for you any more. You've been walking toward him your whole life, and he's been walking back toward you, and you've nearly met.
+Every time the water came tonight, you held on, and he got a bit heavier. There's hardly a pace left between you.
 
-@future: "Stop. Please. Or don't. I don't know. I've had longer than anyone to think about it, and I still don't know."
+@future: "Stop. Please. Or don't. I don't know. I've had longer than anyone to think about it and I still don't know."
 
-The water goes black. Small grey hands come up out of it all round you, crumbling, reaching, the way you've reached for everyone.
+The water goes black. Small grey hands come up out of it all round you, crumbling, grabbing.
 
-He reaches too. To hold you back. The way you'd have reached for Thorias.
+He reaches too. To hold you back, like you'd have held Thorias.
 
-→ Break free. (go to @undertow)
+→ Break his grip. (go to @undertow)
 
 ## W3. Slack
 
-He goes down on his knees in the black water, slowly, the way a big man kneels when his knees are bad. You know exactly how that feels.
+He goes down on his knees in the black water. Slowly, like a big man with bad knees. You know how that feels.
 
-He isn't gone. Things like this don't go. He kneels there, flickering, or solid, his grey arms across his thighs, looking up at you. Water runs out of him into the water.
+He isn't gone. Things like him don't go. He kneels there with his grey arms across his thighs, looking up at you, and the water runs out of him into the water.
 
-@future: "You always could break a grip. I never could make myself let go."
+@future: "You always could break a grip. Never could let go of one, mind."
 
 {sound: silence}
 
-The door roars without moving. The crew wait. The boy is still holding your hand. Behind the fire, the empty post waits too.
+The door roars without moving. The crew wait. The boy still has your hand. Behind the fire, the empty post waits too.
 
-Nobody can choose this for you. Not the one who's been there, not the one who hid under the floor. It's yours.
+Nobody's going to choose for you. You'd have hated it if they did.
 
 {sound: heartbeat-two}
 
 → Step forward. If somebody has to stay, let it be you. (go to End 1)
-→ Stop. Take one step back. Do what he came all this way to ask. (go to End 2)
-→ Count heads. Count all of them, this time. (go to End 3)
+→ Step back. Do what he came all this way to ask. (go to End 2)
+→ Count heads. All of them, this time. (go to End 3)
 
 ## W3x. Held
 
-He holds you under. Black water, cold, all the way to the bottom, his grey hands on your shoulders, gently, the way you'd hold a man down for the surgeon.
+He holds you under. Black water, cold all the way down, his grey hands on your shoulders, gentle, like you'd hold a man still for the surgeon.
 
-@future: "I held you. You see? I could always hold you. I just never could hold me."
+@future: "See? I could've kept you."
 
-You could stay. It would be very easy to stay.
+You could stay. It'd be dead easy to stay.
 
-Then you come up gasping, on your hands and knees in a hand's depth of water. He's kneeling across from you, flickering, or solid, his grey arms across his thighs, watching you breathe. He let you go. He always lets you go, in the end.
+Then you're up and gasping, on your hands and knees in a hand's depth of water. He's kneeling across from you with his grey arms on his thighs, watching you get your breath back. He let you go. He always does, in the end.
 
-The door roars without moving. The crew wait. The boy has hold of your sleeve with both fists.
+The door roars without moving. The crew wait. The boy's got your sleeve in both fists.
 
 {sound: heartbeat-two}
 
 → Step forward. If somebody has to stay, let it be you. (go to End 1)
-→ Stop. Take one step back. Do what he came all this way to ask. (go to End 2)
-→ Count heads. Count all of them, this time. (go to End 3)
+→ Step back. Do what he came all this way to ask. (go to End 2)
+→ Count heads. All of them, this time. (go to End 3)
 
 ---
 
 ## End 1. The Keeper
 
-You let go of the boy's hand. It's the hardest thing you've done. He doesn't cry. He just looks at you, the way he looked at the weather.
+You let go of the boy's hand. Hardest thing you've done all night. He doesn't cry. He just looks at you like you're weather.
 
 You step forward.
 
-Nobody stops you. That's what turns your stomach, after. Not that they wouldn't have tried. That you're so quick about it, they never get the chance.
+Nobody stops you. You were too quick for them. You made sure of that.
 
-The fire closes over you, and it isn't hot. It's *bright*. Not light to see by: light to see *with*. All at once you can see everything the fire can see, and the fire can see a great deal.
+The fire closes over you, and it isn't hot. It's bright, and all at once you can see a very long way.
 
-The crew on the far side of the door, already turning to go, Katy's hand over her mouth. The Hills, bare and wet where the ice used to be. The black sand stirring under every vault, turning over in its sleep. The woman in the old hall, far down in the dark under the monastery, pressing, worn nearly through; she lifts her head as if she felt you come on watch, and nods to you across the whole of the world, one keeper to another.
+The crew on the other side of the door, already turning to go, Katy with her hand over her mouth. The Hills, bare and wet where the ice used to be. Black sand shifting in its sleep under every vault there is. And the woman in the old hall, way down under the monastery, still pushing, nearly worn through. She lifts her head like she felt you come on watch, and nods to you across the whole world.
 
-Your body stands in the flame like a stone in a stream. The rest of you spreads out into the fire, thin and wide. And under you, the sand pushes up against it, and the fire is you now, and you push back. It's not so bad. You're big. You can carry a lot.
+Your body stands in the flame like a rock in a stream. The rest of you spreads out thin and wide through the fire. The sand pushes up against it. The fire's you now, so you push back. It's not that bad. You're big. You can carry a lot.
 
 {sound: drip}
 
-You watch. You don't sleep. You don't look away. You don't get to stop.
+You watch. You don't sleep. Nobody comes to take over.
 
-After a while (you don't know how long; there's no ebb in here to tell the time by) your hands begin to go grey, from the fingertips up, and once, just once, you have to stop and think to remember your own name. You look out through the fire. Far off, very small, as if seen from the bottom of a well, there's a cave with a lamp on a flat stone. And a big man walking across it, counting his paces, with a flake of ash on his sleeve.
+After a while (there's no ebb in here to tell the time by) your fingertips start going grey. Once, just once, you have to stop and think what your name is. You look out through the fire. Far off and tiny, like looking up out of a well, there's a cave with a lamp on a flat stone, and a big man walking across it, counting his paces, with a bit of ash on his sleeve.
 
-You know what you'll say to him. You'll say *stop*. You don't know yet if you'll mean it.
+You know what you'll say to him. *Stop.* You don't know yet if you'll mean it.
 
-?flicker<=1: He was right there all night, and you made him solid, one choice at a time. Now you know why he looked relieved.
+?flicker<=1: It doesn't take you long to get used to it. You had all night to practise.
 
-?flicker>=3: Even so, some part of him, the part that kept flickering, is still out there on the other side of the fire, shouting *stop* at a man who can't hear him yet.
+?flicker>=3: Even so, there's a part of him that kept flickering, and it's still out there on the other side of the fire, yelling *stop* at a man who can't hear him yet.
 
-?seen P1b: Somewhere a boy is lying under a floor, and you said you'd sit up. You will. From here you can see every floor there is.
+?seen P1b: Somewhere a boy is lying under a floor, and you told him you'd sit up. You will. From in here you can see every floor there is.
 
 {sound: heartbeat-one}
 
 Three.
 
-Your foot comes down on stone. The cave comes back, ash and lamp and the dead Heart ticking. The other eight are only paces, and you walk them. Your hands are cold to the elbow, and they'll stay cold a while. You put one on the old man's shoulder anyway, and you keep it there.
+Your foot comes down on stone. The cave's back: ash, lamp, the dead Heart ticking. The other eight are just paces, and you walk them. Your hands are cold to the elbow and they'll stay cold a while. You put one on the old man's shoulder anyway and leave it there.
 
-The sigil under your sleeve is quiet now. Not finished. The tide doesn't finish. It only turns.
+The sigil's gone quiet under your sleeve. Quiet, not done. The tide turns. It doesn't finish.
 
 > **Echo: Hold the Line.** Before you roll a Constitution check, or a Strength (Athletics) check to swim, climb or keep your grip, you can spend this Echo to have advantage on it.
 
@@ -905,41 +903,41 @@ The sigil under your sleeve is quiet now. Not finished. The tide doesn't finish.
 
 You take one step back.
 
-It's the smallest thing you've ever done. Your whole body argues with it. Every grave, every child, every *put it on me*, all of it pulling you forward like a current, and you stand in it with your feet wide, braced, and step back anyway.
+It's about the smallest thing you've ever done, and every bit of you argues with it. Every grave, every kid, every *put it on me*, all of it hauling you forward like a rip current. You plant your feet and step back anyway.
 
-The future you looks up from his knees.
+He looks up at you from his knees.
 
-He flickers. Hard. Like a lantern swung in a gale.
+He flickers. Hard. Like a lantern swinging in a gale.
 
-?flicker>=3: He goes easily, almost gratefully, as if he's been waiting all night to be allowed.
+?flicker>=3: He goes easily. Almost glad, like he's been waiting all night for someone to let him.
 
-?flicker<=1: He doesn't go easily. He's been solid a long time; you made sure of it. He holds on to being here the way you hold on to everything.
+?flicker<=1: He doesn't go easily. He's been solid a long time; you saw to that. He hangs on.
 
-His hand, held up between you, goes thin, and you can see the door's fire through his fingers, and then through his wrist, and then the grey goes out of it and it's just a hand, tanned and scarred, like yours.
+His hand, held up between you, goes thin. You can see the fire through his fingers, then through his wrist, and then the grey drains out of it and it's just a hand. Brown, scarred. Yours.
 
 @future: "Thank you."
 
 @future: "What have you done?"
 
-Both at once. A half-beat apart. And then he's gone, and there's just the water where he was, settling.
+Both at once, half a beat apart. Then he's gone, and there's just water where he was, settling.
 
-The door roars without moving. Nobody steps through it. Far under the monastery, in the old hall, the woman's breath goes thinner. It doesn't stop.
+The door roars without moving. Nobody goes through it. Way down under the monastery, in the old hall, the woman's breathing gets thinner. It doesn't stop.
 
-The boy lets go of your hand. He doesn't look frightened. He looks the way you looked at twelve with a pen in your fist.
+The boy lets go of your hand. He doesn't look scared. He looks like you did at twelve with a pen in your fist.
 
-@boy: "There's another way, then. There has to be. I'll go and look."
+@boy: "So there's another way. There has to be. I'll go and look."
 
-He runs off into the dark of the mountain, barefoot, splashing, and you let him, because that's what you do with children who want to find something out.
+He runs off into the dark of the mountain, barefoot, splashing. You let him go.
 
-?seen Q2d: Somewhere a ship backs out of a small harbour, and nobody on it calls your name again.
+?seen Q2d: Somewhere a ship backs out of a little harbour, and nobody on board calls your name again.
 
 {sound: heartbeat-one}
 
 Three.
 
-Your foot comes down on stone. The cave comes back, ash and lamp and the dead Heart ticking. By your stone there were wet footprints, eleven paces of them, coming the other way. You look back. They're gone. The floor is dry. You don't know what that means yet. You walk the other eight paces and crouch beside the old man, and your hands are warm.
+Your foot comes down on stone. The cave's back: ash, lamp, the dead Heart ticking. There were wet footprints by your stone, eleven paces of them, coming the other way. You look back. Gone. The floor's dry. You don't know what that means yet. You walk the other eight paces and crouch down by the old man, and your hands are warm.
 
-The sigil under your sleeve is quiet now. Not finished. The tide doesn't finish. It only turns.
+The sigil's gone quiet under your sleeve. Quiet, not done. The tide turns. It doesn't finish.
 
 > **Echo: Another Way.** Before you roll an Intelligence (Arcana or Investigation) check to find a way out, a way through or a way round, you can spend this Echo to have advantage on it.
 
@@ -947,45 +945,45 @@ The sigil under your sleeve is quiet now. Not finished. The tide doesn't finish.
 
 ## End 3. And Me
 
-You count heads. On a ship, the watch counts heads. You never lost the habit.
+You count heads. You've done it at the end of every watch you ever stood.
 
 {sound: count}
 
-Katy. Saphira. Hans. Thorn. The faces past the light, one by one. The boy. The man on his knees in the water.
+Katy. Saphira. Hans. Thorn. The faces past the light, one at a time. The boy. The man on his knees in the water.
 
-You come up one short.
+One short.
 
-You count again. One short. And this time, instead of looking along the line, you look down. At your own hands. At your own boots in the black water.
+You count again. Still one short. So this time, instead of looking along the line, you look down. At your own hands. Your own boots in the black water.
 
-You put your hand flat on your own chest, the way the woman in the old hall pressed down on the sand, and you say it out loud for the first time in your life.
+You put your hand flat on your chest, like the woman pushing on the water, and you say it out loud for the first time in your life.
 
 "And me."
 
-?seen Q1c: Fourteen marks for thirteen children. One a little apart.
+?seen Q1c: Fourteen marks for thirteen kids. One off on its own.
 
-?seen P1b: The boy looks up at you the way he looked up through the crack in the floor.
+?seen P1b: The boy looks up at you, same as he did through the crack in the floor.
 
-The future you looks up at you from the water as if you've said a word in a language he forgot.
+On his knees in the water, he goes very still.
 
-Then you do what you've never done. You turn round to the crew, and you don't step forward. You hold out your hand.
+Then you do something you've never done. You turn round to the crew, and you don't step forward. You hold your hand out.
 
-Katy takes it first. Then Saphira, after a moment, as if it costs her something. Then Hans, his big hand warm round all of yours. Then Thorn, without a word. Then the faces past the light. The boy puts his small hand on top of the pile.
+Katy takes it first. Then Saphira, after a second, like it costs her. Then Hans, his big hand warm round all of yours. Then Thorn, without a word. Then the faces past the light. The boy slaps his little hand on top of the pile.
 
-Together, all of you, you put your hands flat on the door.
+All of you together put your hands flat on the door.
 
 It doesn't open. Nobody asked it to. But it stops roaring. For the first time, it listens.
 
-?seen Q3d: Hans looks at your hand on the door, and then at the towel over your shoulder. "Correctly," he says, to nobody.
+?seen Q3d: Hans looks at your hand on the door, then at the towel over your shoulder. "Correctly," he says, to nobody.
 
 {sound: breath}
 
-And behind it, for one breath, the empty post doesn't feel so empty. Nobody has gone in. Maybe nobody has to. Maybe it can be stood from this side, together, the way a crew stands a watch: one sleeps, one wakes, the tide goes out, the tide comes in. You don't know if that's true. It's the first time anyone has tried it. Far down in the old hall, you could swear, a woman with clear hands lets out a long breath and doesn't hurry the next one in.
+And behind it, for one breath, the empty post doesn't feel so empty. Nobody's gone in. Maybe it can be stood from this side, in turns, like any other watch. Nobody's ever tried. Way down in the old hall, you could swear, the woman with the clear hands lets out a long breath and doesn't rush the next one.
 
-The future you is sitting by the wall now, out of the water, a little apart, the way the last tally mark sat on the slate. Neither solid nor faint. Just tired. Just there.
+He's sitting by the rock wall now, out of the water, a little apart, rubbing his bad knee.
 
 @future: "So that's how."
 
-He says it to himself, the way you'd say it when a knot you've fought for an hour comes loose.
+He scratches his jaw.
 
 @future: "Huh."
 
@@ -993,9 +991,9 @@ He says it to himself, the way you'd say it when a knot you've fought for an hou
 
 Three.
 
-Your foot comes down on stone. The cave comes back, ash and lamp and the dead Heart ticking. You walk the other eight paces. Before you crouch beside the old man you look back once at your stone, the way you'd look at a bunk you'll be sleeping in again. Somebody keeps the watch. Tonight, for once, somebody's keeping you.
+Your foot comes down on stone. The cave's back: ash, lamp, the dead Heart ticking. You walk the other eight paces. Before you crouch down by the old man you look back once at your stone, then along the faces. Five. Six, with you.
 
-The sigil under your sleeve is quiet now. Not finished. The tide doesn't finish. It only turns.
+The sigil's gone quiet under your sleeve. Quiet, not done. The tide turns. It doesn't finish.
 
 > **Echo: Count Yourself In.** Before you roll a Wisdom (Perception) check while you are keeping watch or looking out for your companions, you can spend this Echo to have advantage on it.
 
@@ -1041,59 +1039,59 @@ The sigil under your sleeve is quiet now. Not finished. The tide doesn't finish.
 
 ## Cutscene: flake
 
-- The cave, held still. Ash hangs in the lamplight like snow that forgot to fall.
-- One flake comes down and settles on your sleeve.
-- It darkens and spreads like ink on a page. Under the cloth, the sigil wakes.
+- The cave, gone still. Ash hangs in the lamplight and doesn't come down.
+- A bit of ash lands on your sleeve.
+- It goes dark and spreads, like ink. Under the cloth, the sigil wakes up.
 - Stig: Two.
-- Two heartbeats, out of step.
-- Your foot comes down for the third pace, and the floor isn't there.
+- Two heartbeats. Not in step.
+- Your foot comes down for the third pace. There's no floor.
 - Down. The lamp shrinks to a coin, then a star.
 - @future: Count again.
 - The Eleven Paces
 
 ## Cutscene: face
 
-- A door of fire, roaring without moving. Steam where the water meets the heat.
-- A broad grey back, head bowed, waist-deep. Water running off him, never running out.
+- A door of fire, roaring and not moving. Steam where the water hits the heat.
+- A broad grey back, head down, waist-deep. Water pouring off him and never running out.
 - You put your hand on his shoulder.
-- He turns. Slowly, the way a man with a bad neck turns.
-- It's you. Grey to the elbow. Blue eyes, red at the rims.
-- The boy's hand tightens on yours.
+- He turns round. Slow, like a man with a stiff neck.
+- It's you. Grey to the elbow. Blue eyes, red round the rims.
+- The boy grips your hand harder.
 - @future: Stop what you're doing.
 - @future: Stop. / Don't.
-- He reaches out. Not to strike. To hold.
+- He reaches for you. Not to hit. To hold.
 
 ## Cutscene: door 1
 
 - You let go of the boy's hand. He doesn't cry.
-- One step. The crew turn, too late.
-- The fire closes over you, and goes white.
-- From inside, you can see everything: the crew, the Hills, the sand turning in its sleep.
-- Your fingertips begin to go grey.
+- One step. The crew turn round, too late.
+- The fire shuts over you and goes white.
+- From in here you can see all of them, already turning to go.
+- Your fingertips start going grey.
 - Far off: a cave, a lamp, a big man with ash on his sleeve.
 - @future: Stop.
 - Stig: Three.
 
 ## Cutscene: door 2
 
-- One step back. Your whole body argues with it.
+- One step back. Everything in you argues.
 - On his knees, he flickers like a lantern in a gale.
-- His hand goes clear. The grey drains out of it. It's just a hand.
+- His hand goes clear. The grey drains out. It's just a hand.
 - @future: Thank you. / What have you done?
 - He's gone. The water settles where he was.
-- The boy lets go of your hand and runs off into the dark.
+- The boy lets go and runs off into the dark.
 - @boy: There's another way. I'll go and look.
 - The cave again. The floor by your stone is dry.
 - Stig: Three.
 
 ## Cutscene: door 3
 
-- You count heads. Face by face.
+- You count heads, face by face.
 - Stig: ...and me.
-- You turn from the door and hold out your hand.
-- Katy's hand. Saphira's. Hans's, warm round all of them. Thorn's. The boy's on top.
-- Together, flat on the fire. It stops roaring. It listens.
-- Far below, a woman with clear hands lets out a long breath.
+- You turn your back on the door and hold your hand out.
+- Katy's hand. Saphira's. Hans's, warm round the lot. Thorn's. The boy's on top.
+- All of you, flat on the fire. It stops roaring. It listens.
+- Far below, the woman with clear hands lets out a long breath.
 - He sits down by the wall, a little apart.
 - @future: So that's how. Huh.
 - Stig: Three.
