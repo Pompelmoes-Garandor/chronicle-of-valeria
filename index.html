@@ -450,6 +450,10 @@ table.ans td,table.ans th{border-bottom:1px solid #c9a35c22;padding:6px 4px;text
   -webkit-mask:radial-gradient(ellipse at 50% 50%,#0000 var(--hv-gr),#000 calc(var(--hv-gr) + 30%));mask:radial-gradient(ellipse at 50% 50%,#0000 var(--hv-gr),#000 calc(var(--hv-gr) + 30%));
   transition:opacity 1s ease,--hv-gr 5.5s cubic-bezier(.5,0,.7,1)}
 .t3c .hv-ashen.on{--hv-gr:0%}
+/* door 1, inside the fire: the flames round the edge of what he sees */
+.t3c .hv-inflame{background:radial-gradient(ellipse 75% 70% at 50% 52%,#0000 40%,#ff7a2a3a 62%,#ffb460b0 88%,#ffd7a0e0 100%);mix-blend-mode:screen;animation:hvInflame 1.7s ease-in-out infinite alternate}
+@keyframes hvInflame{from{filter:brightness(.85)}to{filter:brightness(1.15)}}
+@media (prefers-reduced-motion:reduce){.t3c .hv-inflame{animation:none}}
 .hv-sea{background:radial-gradient(ellipse at 50% 85%,#bfe6ff22,transparent 40%),linear-gradient(180deg,#04121acc,#000a10f2)}
 .t3c-cap.hv-fut .txt{color:#d6ecf6;text-shadow:2px 0 #9fd0e855,-2px 0 #ff6a6a30}.t3c-cap.hv-boyv .txt{color:#f6dcb4}
 @media (prefers-reduced-motion:no-preference){
@@ -10435,6 +10439,7 @@ async function t3cineReplay(id){const C=T3CINE[id];if(!C||T3C||!PLAY.on)return;
   if(!t3want()){chip("Cinematics play on the 3D table (Menu: Flat 2D board is on).");return;}
   const keep={kids:[...stage.childNodes],map:mapEl,tk:tkLayer,gen:PLAY.gen},def=C.def();
   B={def,mp:mapOf(def.map),units:[],order:[],round:0,sc:Object.assign({},def.sc||{}),over:null,cur:null,reach:null,tgt:null,area:null,dim:!!def.dim,t3cScratch:true};
+  tkLayer=h("div",{class:"pl-tks"}); // a scratch layer: a fight's setup draws its tokens before the table is up (watched again from the story, there is no board yet)
   let ok=false;try{def.setup();ok=t3start();if(ok){renderTokens();await C.run({end:"black"});}}catch(e){if(e!==ABORT)console.error(e);}
   if(PLAY.gen!==keep.gen)return;
   t3dispose();B=null;mapEl=keep.map;tkLayer=keep.tk;stage.replaceChildren(...keep.kids);pulse(false);}
@@ -12321,6 +12326,10 @@ async function hvFace(o={}){const d3=!!(V&&B),st=hvU("stig"),fu=hvU("future");if
 /* 3. The door: the last choice played out, one of three ways (after W3/W3x, before the ending) */
 async function hvDoorCut(n,o={}){const d3=!!V,gid=k=>hvU(k),boy=()=>V&&V.hvBoy;
   const walk=(k,x,y)=>{const u=gid(k);if(u){u.x=x;u.y=y;renderTokens();}};
+  if(d3&&boy()){const b=boy(),sm=hvM("stig");if(sm){const fx=Math.sin(sm.face),fz=Math.cos(sm.face);b.g.position.set(sm.pos.x-fx*.55+fz*.32,.03,sm.pos.z-fz*.55-fx*.32);b.face=sm.face;}}
+  const embers=S=>{if(!V||!V.sparks)return;let t=0;const Vb=V,tk=(dt)=>{t+=dt;if(t<.12)return;t=0; // inside the fire: sparks rising past the lens
+      for(let i=0;i<3;i++)Vb.sparks.spawn(hvC(6+(Math.random()-.5)*3.2,1.3+Math.random()*.9,.05+Math.random()*.5),Math.random()<.5?"#ffb060":"#ff7a2a",1,{sp:.15,up:.9,lf:1.4,gr:.3,sz:.07});};
+    Vb.ticks.push(tk);S.undo(()=>{Vb.ticks=Vb.ticks.filter(f=>f!==tk);});};
   let plan;const F2c=d3?hvC(8,3):null,F2s=d3?hvC(6,5):null,F2=d3?Math.atan2(F2s.x-F2c.x,F2s.z-F2c.z):0; // door 2: the way the future self looks, at Stig's step back
   const B2=d3?Math.atan2(F2s.x-hvC(10.5,4.5).x,F2s.z-hvC(10.5,4.5).z):0; // door 2: where the boy stops, looking back at Stig
   const F3=d3?Math.atan2(hvC(6,2).x-hvC(11,6).x,hvC(6,2).z-hvC(11,6).z):0; // door 3: sat by the wall, he watches them at the door
@@ -12329,7 +12338,7 @@ async function hvDoorCut(n,o={}){const d3=!!V,gid=k=>hvU(k),boy=()=>V&&V.hvBoy;
     {at:S=>{walk("stig",6,3);setTimeout(()=>{for(const k of["katy","saphira","hans","thorn"])hvFaceTo(k,hvC(6,3).x,hvC(6,3).z);},900);},cam:{from:{at:hvC(6,4.8,.5),yaw:1.8,pitch:.2,dist:4.3},to:{at:hvC(6,4.2,.5),yaw:1.68,pitch:.16,dist:3.9},ms:3600,fov:38,tall:{fov:54}}},
     {at:S=>{walk("stig",6,2);hvSnd("white-out");setTimeout(()=>{if(S.over||!B)return;const u=gid("stig");if(u){u.gone=true;renderTokens();}S.flash("#ffffffdd");hvVeil(S,"hv-white");hvExp(S,2.4,900);if(!hvHas("white-out"))hvSnd("silence");},1300);},
       cam:{from:{at:hvC(6,1,1.1),yaw:.05,pitch:.14,dist:3.4},to:{at:hvC(6,1,1.1),yaw:0,pitch:.1,dist:2.2},ms:3600,fov:40,tall:{fov:56}}},
-    {at:S=>{const v=S.el.querySelector(".hv-white");if(v)v.classList.add("thin");hvExp(S,1.25,2600);hvDream(S,.9,2500);walk("katy",4,8);walk("saphira",8,8);walk("hans",6,9);walk("thorn",9,8);hvSnd("drip");},
+    {at:S=>{const v=S.el.querySelector(".hv-white");if(v)v.classList.add("thin");hvVeil(S,"hv-inflame");embers(S);hvExp(S,1.25,2600);hvDream(S,.9,2500);walk("katy",4,8);walk("saphira",8,8);walk("hans",6,9);walk("thorn",9,8);hvSnd("drip");},
       cam:{from:{pos:hvC(6.3,.9,.5),look:hvC(6,9,.4)},to:{pos:hvC(5.8,.92,.62),look:hvC(6.1,9,.3)},ms:7000,fov:[50,42],roll:.04,ease:"soft"}}, // behind the fire's face: the crew through the flames
     {at:S=>{const v=S.el.querySelector(".hv-white");if(v)v.classList.add("gone");hvVeil(S,"hv-ashen");if(V&&V.sparks)for(let i=0;i<24;i++)V.sparks.spawn(hvC(6,1.4,.3+Math.random()).add(new THREE.Vector3((Math.random()-.5)*2,0,0)),"#8a8680",1,{sp:.1,up:-.1,lf:2,sz:.05});},
       cam:{from:{pos:hvC(5.8,.92,.62),look:hvC(6.1,9,.3)},to:{pos:hvC(5.9,.95,.7),look:hvC(6,8,.35)},ms:5200,fov:[42,30],roll:.04,ease:"soft"}},
@@ -12359,7 +12368,8 @@ async function hvDoorCut(n,o={}){const d3=!!V,gid=k=>hvU(k),boy=()=>V&&V.hvBoy;
       cam:{from:{at:hvC(6,1,1),yaw:.3,pitch:.2,dist:5.2},to:{at:hvC(6,1,.9),yaw:.2,pitch:.16,dist:4.2},ms:6000,fov:38,ease:"soft",tall:{fov:54}}},
     {at:S=>{hvVeil(S,"hv-sea");},cam:{from:{at:hvC(6,6),yaw:.2,pitch:1.5,dist:12},to:{at:hvC(6,6),yaw:.3,pitch:1.52,dist:16},ms:5000,ease:"soft"}},
     {at:S=>{walk("future",11,6);setTimeout(()=>{if(!S.over&&B)hvFaceTo("future",hvC(6,2).x,hvC(6,2).z);},1200);const v=S.el.querySelector(".hv-sea");if(v)v.classList.remove("on");},cam:{from:{at:hvC(11,6,.4),yaw:F3-.45,pitch:.25,dist:3},to:{at:hvC(11,6,.4),yaw:F3-.3,pitch:.2,dist:2.5},ms:4200,fov:34,tall:{fov:48}}},
-    {at:S=>hvFaceTo("future",hvC(6,2).x,hvC(6,2).z),cam:{from:{at:hvC(11,6,.5),yaw:F3-.3,pitch:.14,dist:2.1},to:{at:hvC(11,6,.52),yaw:F3-.22,pitch:.1,dist:1.8},ms:3000,fov:30,tall:{fov:42}}},
+    {at:S=>hvFaceTo("future",hvC(6,2).x,hvC(6,2).z),cam:{from:{pos:hvC(11.5,7.1,.62),look:hvC(6.6,2.6,.42)},to:{pos:hvC(11.35,6.95,.58),look:hvC(6.4,2.4,.42)},ms:3400,fov:[34,30],
+      tall:{fov:42,from:{at:hvC(11,6,.5),yaw:F3-.3,pitch:.14,dist:2.1},to:{at:hvC(11,6,.52),yaw:F3-.22,pitch:.1,dist:1.8}}}},
     {at:S=>hvSnd("heartbeat-one"),hold:3000,black:true}]
   :[{at:()=>hvSnd("count")},{},{},{},{at:()=>{hvSnd("silence");setTimeout(()=>hvSnd("breath"),900);}},{at:S=>hvVeil(S,"hv-sea")},{},{},{at:()=>hvSnd("heartbeat-one"),hold:3000,black:true}];
   plan.extra=hvDrift();
