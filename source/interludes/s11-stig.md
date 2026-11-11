@@ -1042,58 +1042,58 @@ The sigil under your sleeve is quiet now. Not finished. The tide doesn't finish.
 ## Cutscene: flake
 
 - The cave, held still. Ash hangs in the lamplight like snow that forgot to fall.
-- Close on a big hand, then a sleeve. One flake settles on the cloth.
-- The flake darkens and spreads, ink on a page. Under the cloth, faint lines of light: the sigil, waking.
-- Stig: One.
+- One flake comes down and settles on your sleeve.
+- It darkens and spreads like ink on a page. Under the cloth, the sigil wakes.
+- Stig: Two.
 - Two heartbeats, out of step.
-- His boot comes down for the third pace, and goes through the floor into black water.
-- Down. Bubbles rising past the lamp, the lamp shrinking to a coin, then a star.
+- Your foot comes down for the third pace, and the floor isn't there.
+- Down. The lamp shrinks to a coin, then a star.
 - @future: Count again.
-- Title over the deep: THE ELEVEN PACES.
+- The Eleven Paces
 
 ## Cutscene: face
 
-- Black stone, a door of fire roaring without moving. Steam where the water meets the heat.
+- A door of fire, roaring without moving. Steam where the water meets the heat.
 - A broad grey back, head bowed, waist-deep. Water running off him, never running out.
-- Stig's hand comes into frame and settles on that shoulder.
+- You put your hand on his shoulder.
 - He turns. Slowly, the way a man with a bad neck turns.
-- Grey hands. Grey to the elbow. Blue eyes, red at the rims.
-- The boy's hand tightens on Stig's.
+- It's you. Grey to the elbow. Blue eyes, red at the rims.
+- The boy's hand tightens on yours.
 - @future: Stop what you're doing.
-- Both voices again, a half-beat apart: Stop. / Don't.
+- @future: Stop. / Don't.
 - He reaches out. Not to strike. To hold.
 
 ## Cutscene: door 1
 
-- Stig lets go of the boy's hand. The boy doesn't cry.
+- You let go of the boy's hand. He doesn't cry.
 - One step. The crew turn, too late.
-- Fire closes over him, and goes white.
-- Inside: every tide at once. The crew walking away, the Hills with the ice gone, black sand turning over in its sleep, a woman far below lifting her head.
-- His fingertips begin to go grey.
-- Far off, at the bottom of a well, a cave, a lamp, a big man with a flake of ash on his sleeve.
+- The fire closes over you, and goes white.
+- From inside, you can see everything: the crew, the Hills, the sand turning in its sleep.
+- Your fingertips begin to go grey.
+- Far off: a cave, a lamp, a big man with ash on his sleeve.
 - @future: Stop.
 - Stig: Three.
 
 ## Cutscene: door 2
 
-- One step back. His whole body argues with it.
-- The future self, on his knees, flickers like a lantern in a gale.
-- His raised hand goes clear. The fire shows through the fingers, then the wrist. The grey drains out and it's just a hand.
+- One step back. Your whole body argues with it.
+- On his knees, he flickers like a lantern in a gale.
+- His hand goes clear. The grey drains out of it. It's just a hand.
 - @future: Thank you. / What have you done?
 - He's gone. The water settles where he was.
-- The boy lets go and runs off into the dark of the mountain, splashing.
+- The boy lets go of your hand and runs off into the dark.
 - @boy: There's another way. I'll go and look.
-- The cave. The floor by Stig's stone, dry.
+- The cave again. The floor by your stone is dry.
 - Stig: Three.
 
 ## Cutscene: door 3
 
-- Stig counts under his breath. Faces, one by one.
+- You count heads. Face by face.
 - Stig: ...and me.
-- He turns away from the door and holds out his hand.
-- Katy's hand. Saphira's, a beat later. Hans's, warm round all of them. Thorn's. Hands past the light. The boy's on top.
-- All of them press flat on the fire. It stops roaring. It listens.
+- You turn from the door and hold out your hand.
+- Katy's hand. Saphira's. Hans's, warm round all of them. Thorn's. The boy's on top.
+- Together, flat on the fire. It stops roaring. It listens.
 - Far below, a woman with clear hands lets out a long breath.
-- The future self sits down by the wall, out of the water, a little apart.
+- He sits down by the wall, a little apart.
 - @future: So that's how. Huh.
 - Stig: Three.
