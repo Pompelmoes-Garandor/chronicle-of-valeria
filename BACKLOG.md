@@ -63,6 +63,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Stig's weapon is a shovel: sheet, fight move and icon, and the code-drawn mini (the sculpt follows in the avatar thread)** · Lore · Sam · PR #107
 - [x] **The Eleven Paces: the boy's way out at the door is a firelit cleft in the rock with ash drifting across it** · Changed · Sam · PR #106
 - [x] **The Eleven Paces: the undertow fight eased (future self 40 HP, grey hands +3 to hit), and the boy runs into a corner gone dark instead of fading against lit rock** · Changed · Sam · PR #105
 - [x] **The Eleven Paces, round 3: a living door of fire, the boy runs off across the light, paintings rise out of black, the grey reaching hand, a wider far-off window on phones, and the pinned strip on desktop covers the words under it (was a known bug)** · Changed · Sam · PR #104
