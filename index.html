@@ -12379,7 +12379,7 @@ async function hvFlake(o={}){const d3=!!V;
   // Everything here is placed from his own size and the way he faces, so a new statue of him keeps it on the sleeve.
   const SD=1,sm=d3&&hvM("stig"),th=sm?sm.face:0,tp=sm&&sm.top||.93,
     Ls=new THREE.Vector3(Math.cos(th)*SD,0,-Math.sin(th)*SD),Fw=new THREE.Vector3(Math.sin(th),0,Math.cos(th)),
-    P=sm?sm.pos.clone().addScaledVector(Ls,.22*tp).addScaledVector(Fw,.03*tp).setY((sm.pos.y||0)+.64*tp):null,Y=th+SD*.8,Up=(h)=>P&&P.clone().setY(P.y+h);
+    P=sm?sm.pos.clone().addScaledVector(Ls,.15*tp).addScaledVector(Fw,.07*tp).setY((sm.pos.y||0)+.64*tp):null,Y=th+SD*.8,Up=(h)=>P&&P.clone().setY(P.y+h);
   // the flake: grey and matte, a ragged curl of ash (no glow, so it never reads as a spark), seen falling the whole way into frame
   const flake=S=>{if(!d3||!P)return;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:hvAshTex(),color:0xb0b0b0,transparent:true,depthWrite:false,depthTest:false,fog:false}));
     s.scale.set(.036,.036,1);s.renderOrder=4;V.root.add(s);const fr=P.clone().addScaledVector(Ls,.05).addScaledVector(Fw,.05).setY(P.y+.34);
@@ -12484,7 +12484,7 @@ async function hvDoorCut(n,o={}){const d3=!!V,gid=k=>hvU(k),boy=()=>V&&V.hvBoy;
     {at:S=>{hvFaceTo("stig",hvC(6,8).x,hvC(6,8).z);},cam:{from:{at:hvAt("stig",.6),yaw:.35,pitch:.16,dist:2.6},to:{at:hvAt("stig",.62),yaw:.15,pitch:.12,dist:2.2},ms:3400,fov:36,tall:{fov:50}}},
     {at:S=>{const b=boy();if(b)b.mode="follow";walk("katy",5,5);const wl=(k,x,y,t)=>setTimeout(()=>{if(!S.over&&B)walk(k,x,y);},t);wl("saphira",7,5,700);wl("hans",6,5,1300);wl("thorn",8,5,1800);},
       cam:{from:{at:hvC(6.3,4.6,.45),yaw:1.3,pitch:.24,dist:4.2},to:{at:hvC(6.3,4.5,.45),yaw:1.18,pitch:.2,dist:3.8},ms:5200,fov:28,
-        tall:{fov:42,from:{at:hvC(6.2,4.5,.55),yaw:1.25,pitch:.62,dist:3.4},to:{at:hvC(6.2,4.45,.55),yaw:1.12,pitch:.56,dist:3.1}}}}, // low, at their height, a long lens, from the side (clear of the wall and of the crew walking in)
+        tall:{fov:46,from:{at:hvC(6.3,4.7,.5),yaw:1.25,pitch:.42,dist:3.1},to:{at:hvC(6.3,4.65,.48),yaw:1.12,pitch:.36,dist:2.7}}}}, // low, at their height, a long lens, from the side (clear of the wall and of the crew walking in)
     {at:S=>{walk("stig",6,2);walk("katy",5,2);walk("saphira",7,2);walk("hans",4,2);walk("thorn",8,2);setTimeout(()=>{if(S.over||!B||!V)return;for(const k of["stig","katy","saphira","hans","thorn"])hvFaceTo(k,hvC(6,0).x,hvC(6,0).z);
         S.tween(3000,k=>{if(B)B.sc.calm=k;},null);hvSnd(hvHas("fire-hush")?"fire-hush":"silence");setTimeout(()=>hvSnd("breath"),hvHas("fire-hush")?2400:900);},1800);},
       cam:{from:{at:hvC(6,1,1),yaw:.3,pitch:.2,dist:5.2},to:{at:hvC(6,1,.9),yaw:.2,pitch:.16,dist:4.2},ms:6000,fov:38,ease:"soft",tall:{fov:54}}},
@@ -12492,8 +12492,8 @@ async function hvDoorCut(n,o={}){const d3=!!V,gid=k=>hvU(k),boy=()=>V&&V.hvBoy;
     {at:S=>{hvPut(gid("future"),11,6);hvFaceTo("future",hvC(6,2).x,hvC(6,2).z);{const m=hvM("future");if(m)m.face=m.faceT;} // a cut: he is already by the wall, and sits
         setTimeout(()=>{if(!S.over&&B)S.tween(1500,k=>{if(B)B.sc.sit=k*k*(3-2*k);},null);},250);
         {const X=V&&V.t3x;if(X)for(let i=0;i<9;i++)setTimeout(()=>{if(S.over||!V)return;const a=Math.random()*6.28,r=.18+Math.random()*.16,c=hvC(11,6,.04);c.x+=Math.cos(a)*r;c.z+=Math.sin(a)*r;X.smoke.spawn(c,"#0b0a09",1,{sp:.05,up:.08,lf:2.6,gr:-.02,sz:.22,sz1:.5,dr:.6,a:.75});},300+i*240);}S.undo(()=>{if(B)B.sc.sit=0;});const v=S.el.querySelector(".hv-sea");if(v)v.classList.remove("on");
-        const L=V&&V.hvWarm;if(L){L.position.copy(hvC(10.4,5.3,.75));S.tween(1400,k=>{L.intensity=6*k;},null);S.undo(()=>{L.intensity=0;});}
-        if(B){S.tween(1800,k=>{if(B){B.sc.amber=.5*k;B.sc.warm=.15*k;B.sc.dim=.4*k;}},null);S.undo(()=>{if(B){B.sc.amber=0;B.sc.warm=0;B.sc.dim=0;}});}},cam:{from:{at:hvC(11,6,.36),yaw:F3-.5,pitch:.12,dist:1.9},to:{at:hvC(11,6,.32),yaw:F3-.32,pitch:.1,dist:1.6},ms:4200,fov:30,
+        const L=V&&V.hvWarm;if(L){L.position.copy(hvC(10.4,5.3,.75));L.intensity=6;S.undo(()=>{L.intensity=0;});}
+        if(B){B.sc.amber=.5;B.sc.warm=.15;B.sc.dim=.4;S.undo(()=>{if(B){B.sc.amber=0;B.sc.warm=0;B.sc.dim=0;}});}},cam:{from:{at:hvC(11,6,.36),yaw:F3-.5,pitch:.12,dist:1.9},to:{at:hvC(11,6,.32),yaw:F3-.32,pitch:.1,dist:1.6},ms:4200,fov:30,
         tall:{fov:40,from:{at:hvC(11,6,.36),yaw:F3-.45,pitch:.12,dist:1.9},to:{at:hvC(11,6,.32),yaw:F3-.3,pitch:.1,dist:1.6}}}},
     {at:S=>{hvFaceTo("future",hvC(6,2).x,hvC(6,2).z);if(B&&V&&V.cam.aspect>=.9){B.sc.dim=1;S.undo(()=>{if(B)B.sc.dim=0;});}},cam:{from:{pos:hvC(11.45,7.2,.78),look:hvC(6.6,2.6,.42)},to:{pos:hvC(11.3,7.05,.72),look:hvC(6.4,2.4,.42)},ms:3400,fov:[34,30],
       tall:{fov:40,from:{at:hvC(11,6,.32),yaw:F3-.3,pitch:.1,dist:1.7},to:{at:hvC(11,6,.32),yaw:F3-.22,pitch:.08,dist:1.5}}}},

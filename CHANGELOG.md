@@ -6,6 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **Changed** *The Eleven Paces* with Stig's new statue: the bit of ash lands on his sleeve, clear of the shovel, and the ink spreads on the cloth. When the old man sits by the wall, the fire's light is on him from the first moment. On a phone the crew's huddle is seen from closer. (Sam)
 - **New** Almost everyone on the 3D table is sculpted now, each from a painting of their own: Saphira, Hans, Stig with his shovel, Thorn, Matthew, Teenoog with his ruined hat and eye patch, and the foes of session 10: the Hollowers, the Ash Husks and the Ash Hulk, the Vine and Needle Blights, the Hollow Warden and the Grey Man. They stand in every fight and on the sheets with real faces, cloaks and weapons you can make out up close. Until a statue has loaded, and on any device that cannot load it, the old mini stands in. (Sam)
 - **Fixed** *The Eleven Paces*, round 8: tapping Skip partway through a door's cutscene no longer trips an error. At the end of the third door the old man is seen from the chest up as he settles by the wall, with the black sand stirring round him, instead of looking like he sinks through the floor. On a phone the crew's huddle is seen from above, onto their hands, and the count of heads settles on one face instead of panning across empty fire. (Sam)
 - **Fixed** Behind the scenes: the sound check listens to each vision sound on its own now, so the cave's own drips can't fool it. Nothing changes in what you hear. (Sam)
