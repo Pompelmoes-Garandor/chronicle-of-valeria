@@ -7717,6 +7717,7 @@ function t3n_fin(f,b,col,{s=1,k=1,mon=0}={}){const c0=new THREE.Color(col),U={va
    float or quantized attributes and one embedded picture. h = height from soles to crown, ry = turn it to face forward, rim = its edge light,
    sink = the share of the model's height that is its own sculpted base, which goes down into the plinth,
    tone = how bright the picture is painted on (.85 if left out), rimK = strength of the edge light (.45 if left out), crew:1 = fetch it as soon as the table opens (the rest load when they first stand on a table).
+   sway = how far it rocks (a hand rising out of the ground, .2 is about the drawn one), ash = the colour of the grains it sheds.
    One line per sculpted mini, for example  stig:{src:"minis/stig.glb",h:.84,ry:0,rim:"#8fc8ff"}  ---- */
 const MINI3D={stig:{src:"minis/stig.glb",h:.92,ry:0,rim:"#8fc8ff",tone:1.05,crew:1},katy:{src:"minis/katy.glb",h:.8,ry:0,rim:"#e7a3b8",crew:1},
   saphira:{src:"minis/saphira.glb",h:.86,ry:0,rim:"#b58cff",tone:1.3,crew:1},
@@ -7724,7 +7725,11 @@ const MINI3D={stig:{src:"minis/stig.glb",h:.92,ry:0,rim:"#8fc8ff",tone:1.05,crew
   thorn:{src:"minis/thorn.glb",h:.86,ry:0,rim:"#9fd18a",tone:1.05},matthew:{src:"minis/matthew.glb",h:.86,ry:0,rim:"#e8c37a",tone:1.05},
   grey:{src:"minis/grey.glb",h:.88,ry:0,tone:1.15},warden:{src:"minis/warden.glb",h:.88,ry:0,tone:1.05},hollower:{src:"minis/hollower.glb",h:.82,ry:0},
   husk:{src:"minis/husk.glb",h:.82,ry:0,rim:"#ff8a4a",tone:1.05},hulk:{src:"minis/hulk.glb",h:1.08,ry:0,rim:"#ff8a4a",tone:1.05},vine:{src:"minis/vine.glb",h:.9,ry:0,rim:"#9fd18a"},
-  needle:{src:"minis/needle.glb",h:.9,ry:0,tone:1.25,rimK:.6},hellbat:{src:"minis/hellbat.glb",h:.62,ry:0,rim:"#ff6a2a",tone:1.1},matriarch:{src:"minis/matriarch.glb",h:.95,ry:0,rim:"#ff6a2a",tone:1.3,rimK:.7}};
+  needle:{src:"minis/needle.glb",h:.9,ry:0,tone:1.25,rimK:.6},hellbat:{src:"minis/hellbat.glb",h:.62,ry:0,rim:"#ff6a2a",tone:1.1},matriarch:{src:"minis/matriarch.glb",h:.95,ry:0,rim:"#ff6a2a",tone:1.3,rimK:.7},
+  steward:{src:"minis/steward.glb",h:1.05,ry:0,rim:"#7fe0d8",tone:1.1},heart:{src:"minis/heart.glb",h:.9,ry:0,rim:"#ff5a4a",tone:1.05},
+  shade:{src:"minis/shade.glb",h:.85,ry:0,rim:"#a9b4ff",tone:1.2},shadowself:{src:"minis/shadowself.glb",h:.85,ry:0,rim:"#8a6cf0",tone:1.2,rimK:.7},
+  drowned:{src:"minis/drowned.glb",h:.85,ry:0,rim:"#bfe6ff",tone:1.15},sleeper:{src:"minis/sleeper.glb",h:.16,ry:0},
+  ashhand:{src:"minis/ashhand.glb",h:.56,ry:0,rim:"#c8b8a8",tone:1.1,sway:.2,ash:"#8a8680"}};
 const t3g_have=new Map(),t3g_wait=new Map();
 function t3g_read(buf){const dv=new DataView(buf);if(buf.byteLength<20||dv.getUint32(0,true)!==0x46546C67)throw new Error("not a GLB");
   let off=12,J=null,bin=null;while(off+8<=buf.byteLength){const n=dv.getUint32(off,true),t=dv.getUint32(off+4,true);
@@ -7762,7 +7767,7 @@ function t3g_load(id){const d=MINI3D[id];if(!d||!T3GL)return Promise.resolve(nul
     const tone=d.tone==null?.85:d.tone,y0=bb.min.y+sk,col=new Float32Array(P.count*3);
     for(let i=0;i<P.count;i++){const t=clamp((v.fromBufferAttribute(P,i).applyMatrix4(R).y-y0)/(H-sk),0,1),c=(.7+.3*t)*tone;col[i*3]=col[i*3+1]=col[i*3+2]=c;}
     G.geo.setAttribute("color",new THREE.BufferAttribute(col,3));
-    G.top=.07+d.h;G.rim=d.rim||"#c9a35c";G.rimK=d.rimK==null?.45:d.rimK;t3g_have.set(id,G);t3g_swap(id);return G;})().catch(e=>{console.warn("sculpted mini",id,e&&e.message||e);return null;});
+    G.top=.07+d.h;G.rim=d.rim||"#c9a35c";G.rimK=d.rimK==null?.45:d.rimK;G.sway=d.sway||0;G.ash=d.ash||null;t3g_have.set(id,G);t3g_swap(id);return G;})().catch(e=>{console.warn("sculpted mini",id,e&&e.message||e);return null;});
   t3g_wait.set(id,job);return job;}
 function t3g_warm(){for(const id in MINI3D)if(MINI3D[id].crew)t3g_load(id);} // the crew comes early; a foe's file is fetched when its mini first stands on a table
 /* a file that lands while a fight is on the table: the stand-in steps off its plinth and the sculpt steps on */
@@ -7772,7 +7777,11 @@ function t3g_swap(id){if(!V||!V.minis)return;for(const [u,m] of V.minis){if(m.sc
 function t3g_fig(f,u){const G=t3g_have.get(u.key),up=new THREE.Group(),m=new THREE.Mesh(G.geo,new THREE.MeshStandardMaterial({map:G.tex||null,vertexColors:true,roughness:.86,metalness:0}));
   m.matrixAutoUpdate=false;m.matrix.copy(G.fit);up.add(m);f.add(up);
   const b={up,top:G.top,hand:new THREE.Vector3(.2,G.top*.55,.12),sculpt:true},ph=Math.random()*6.28;let dn=0;
-  b.anim=(dt,tt,now,st)=>{dn+=((st.down?1:0)-dn)*Math.min(1,dt*3);const br=Math.sin(tt*1.5+ph)*.006*(1-dn);up.scale.set(1+br*.4,1+br,1+br*.6);};
+  let last=-1;
+  b.anim=(dt,tt,now,st)=>{dn+=((st.down?1:0)-dn)*Math.min(1,dt*3);const br=Math.sin(tt*1.5+ph)*.006*(1-dn);up.scale.set(1+br*.4,1+br,1+br*.6);
+    // sway: a hand rising out of the ground rocks slowly, like the drawn one; ash: it sheds a grain now and then
+    if(G.sway&&!st.gone&&!st.down){up.rotation.x=G.sway*(.5+Math.sin(tt*1.2+ph)*.45);up.rotation.z=G.sway*Math.sin(tt*.8+ph)*.4;}
+    if(G.ash&&!st.gone&&!st.down){const q=Math.floor((tt+ph)/.7);if(q!==last&&V&&V.sparks){last=q;up.updateWorldMatrix(true,false);const p=up.localToWorld(t3m_tmp.set((Math.random()-.5)*.1,G.top*.75,.1));V.root.worldToLocal(p);V.sparks.spawn(p,G.ash,1,{sp:.04,up:-.2,lf:.9,sz:.035});}}};
   return t3n_fin(f,b,G.rim,{k:G.rimK});} // a sculpt's surface is bumpy, so the edge light catches everywhere: keep it low
 function t3mini(Vb,u){const g=new THREE.Group(),fig=new THREE.Group(),s=u.size||1;g.add(fig);
   const sideCol=u.side==="foe"?"#c2452c":u.side==="ally"?"#7bc36a":(u.hex||"#c9a35c");
