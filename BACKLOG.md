@@ -63,6 +63,11 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **The Eleven Paces, round 8: Skip mid-cutscene error fixed, chest-up sitting shot with black sand, phone huddle from above, phone count on one face** · Fixed · Sam · PR #114
+- [x] **The Eleven Paces, round 7: the future self sits by the wall, gentler firelight, clean last look, huddle over their heads, brighter boy edge** · Changed · Sam · PR #112
+- [x] **The Eleven Paces, round 6: shadow boy, short white-out, door 3 huddle shot, firelight on the future self, fight words stack** · Changed · Sam · PR #111
+- [x] **The Eleven Paces, round 5: cheaper fire, the ash-to-ink opening, tighter doors** · Changed · Sam · PR #109
+- [x] **Sessions 1 to 3 in the Chronicle, from Katy's journal; Jax and Kane on the map** · Lore · Sam · PR #101
 - [x] **Stig's weapon is a shovel: sheet, fight move and icon, and the code-drawn mini (the sculpt follows in the avatar thread)** · Lore · Sam · PR #107
 - [x] **The Eleven Paces: the boy's way out at the door is a firelit cleft in the rock with ash drifting across it** · Changed · Sam · PR #106
 - [x] **The Eleven Paces: the undertow fight eased (future self 40 HP, grey hands +3 to hit), and the boy runs into a corner gone dark instead of fading against lit rock** · Changed · Sam · PR #105
@@ -72,6 +77,8 @@ Newest first, with the PR that shipped it.
 - [x] **The past in the visions legible again (clear sepia, sharper on phones), and the pinned paces strip clean under the vision layer** · Fixed · Sam · PR #99
 - [x] **Haunted interface for the visions: paces pinned while reading and counted in the picture, weighty choices, rewinding and crumbling text, film captions in cutscenes; reusable for later visions** · Changed · Sam · PR #94
 - [x] **Fever-dream look for the visions (VISION FX): the painting warped, past and future tints, ash, black water, embers, the door of fire, dread and flicker; reusable for later visions** · New · Sam · PR #92
+- [x] **Sound check of the whole Chronicle (every interlude, cutscene, fight, the map); the opening had dead air, now a cave bed runs under it** · Changed · Sam · PR #110
+- [x] **Opening cutscene of The Eleven Paces was silent (sounds waited for the first page); new ash-land and sigil-wake cues; sound test checks cutscenes** · Fixed · Sam · PR #108
 - [x] **Vision sounds levelled in place over the music: the music steps back 5 dB under each, buried cues raised** · Changed · Sam · PR #103
 - [x] **No sound anywhere since the volume slider (#90): the volume knob was wired into itself; plus a test that listens to the real output** · Fixed · Sam · PR #102
 - [x] **Three ending sounds for the door of fire: boy-run, fire-hush, white-out** · Changed · Sam · PR #96
