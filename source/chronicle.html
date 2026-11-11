@@ -11809,17 +11809,32 @@ const VKX={
       const g=a.createGain();vkEnv(g,s,.03,.05,len);const F=[[vkR(450,750),6],[vkR(1000,1500),8]].map(([f,q])=>{const x=a.createBiquadFilter();x.type="bandpass";x.frequency.value=f;x.Q.value=q;return x;});
       const lp=a.createBiquadFilter();lp.type="lowpass";lp.frequency.value=1600;o1.connect(F[0]).connect(lp);o1.connect(F[1]).connect(lp);vkOut(b,lp.connect(g),{pan:p,room:.5,cave:.3});o1.start(s);o1.stop(s+len+.1);vkTrack(b,o1);
       vkN(b,s,{type:"bandpass",f:4500,q:2,v:.012,att:.01,dec:.06,pan:p});}}},
+  // a child's bare feet on wet stone, running off into the dark: quick slaps, receding, smaller and further into the cave (door 2)
+  "boy-run"(b,t,o){let s=t,i=0;while(s<t+2.5){const k=1-(s-t)/2.7,p=(i%2?.12:-.12)+.5*(1-k),f=vkR(1300,1800)*(.55+.45*k);
+      vkN(b,s,{type:"bandpass",f,q:1.4,v:.3*k*k,att:.002,dec:.035+.03*(1-k),pan:p,room:.25*k,cave:.35+.6*(1-k)}); // the slap of a sole
+      vkT(b,s,{f:150,f1:80,v:.18*k*k,dec:.05,pan:p,lp:400}); // the heel
+      if(Math.random()<.45)vkN(b,s+.025,{type:"highpass",f:vkR(3000,5000),v:.08*k,att:.004,dec:.07,pan:p,cave:.5}); // a splash where it's wettest
+      s+=vkR(.15,.2)*(1+.25*(1-k));i++;}
+    vkN(b,t+1.6,{type:"bandpass",f:900,q:2,v:.025,att:.4,dec:2.2,cave:.9,pan:.5});}, // and the dark keeps the last of it
+  // the door of fire's roar sinks to a held hush, as if it is listening (door 3)
+  "fire-hush"(b,t,o){vkN(b,t,{f:1500,f1:180,v:.34,att:.05,dec:3.1,cave:.3});vkN(b,t,{type:"bandpass",f:2200,f1:500,q:3,v:.1,att:.05,dec:2.6,cave:.4});
+    vkN(b,t,{type:"bandpass",f:240,f1:120,q:4,v:.14,att:.05,dec:3,cave:.2});vkT(b,t,{f:38,f1:30,v:.12,att:.05,dec:3.2});
+    for(let i=0,d=0;d<2.4;i++,d+=vkR(.06,.12)*(1+i*.12))vkN(b,t+d,{type:"bandpass",f:vkR(2500,5000),q:3,v:vkR(.04,.09)*(1-d/2.6),att:.001,dec:.02,pan:vkR(-.7,.7)}); // the crackle thins out
+    vkN(b,t+1.2,{type:"highpass",f:3200,v:.028,att:2,hold:5,dec:3,cave:.5});vkN(b,t+1.5,{type:"bandpass",f:520,q:7,v:.02,att:2,hold:5,dec:3,cave:.6});}, // the hush that stays
+  // a rising, airless swell, nothing echoing, that cuts dead (door 1); the wrapper below silences the whole mix at the cut
+  "white-out"(b,t,o){const L=1.3,c=.012;vkN(b,t,{type:"highpass",f:300,f1:9000,v:.32,att:L,dec:c});vkN(b,t,{type:"bandpass",f:700,f1:5200,q:3,v:.12,att:L,dec:c});
+    for(const m of [57,61,64,68])vkT(b,t,{f:vkHz(m-12),f1:vkHz(m+12),v:.035,att:L,dec:c,det:vkR(-4,4)});vkT(b,t,{f:42,f1:84,v:.2,att:L,dec:c});},
   // everything cuts out for one beat
   silence(b,t,o){vkDip(b,t,.9);}};
 function vkDip(b,t,len){const g=b.out.gain;g.cancelScheduledValues(t);g.setValueAtTime(g.value||1,t);g.linearRampToValueAtTime(0,t+.02);g.setValueAtTime(0,t+len);g.linearRampToValueAtTime(1,t+len+.25);}
 /* each cue's level, so they sit together (dB, measured), and what dread adds underneath */
 const VK_TRIM={drip:11.5,"surf-reverse":-5.3,surf:-5.7,boards:1.9,"chimes-slow":5,timbers:-2.6,rain:-4.3,spade:4,"breath-reverse":-6,breath:-6,
-  "heartbeat-two":2.8,"heartbeat-one":1,chalk:2,toast:5.6,dirge:-2,"fire-still":-3,rewind:-2.5,count:22,silence:0};
+  "heartbeat-two":2.8,"heartbeat-one":1,chalk:2,toast:5.6,dirge:-2,"fire-still":-3,rewind:-2.5,count:22,silence:0,"boy-run":10,"fire-hush":2,"white-out":-3};
 function vkSub(b,db){const a=b.a,k=Math.pow(10,db/20),mk=to=>{const g=a.createGain();g.gain.value=k;g.connect(to);return g;};return {a,nb:b.nb,out:b.out,dry:mk(b.dry),cave:mk(b.cave),room:mk(b.room)};}
 function vkDread(b,t,d){if(d<3)return;vkT(b,t,{f:31,v:.05*(d-2),att:3,hold:4,dec:4});vkN(b,t+1,{type:"bandpass",f:vkR(500,900),q:6,v:.012*(d-2),att:2,hold:2,dec:3,cave:.9,pan:vkR(-.8,.8)});
   if(d>=5){const s=vkBreath(b.a),r=s&&vkRev(b.a,"breath",s);vkPlay(b,t+2,r,{v:.12,rate:.6,lp:900,cave:.9,pan:vkR(-.7,.7)});}}
 /* play a cue on bus b at time t (both made by the caller); returns false for an unknown name */
-function vkPlayCue(b,name,t,o={}){const f=VKX[name];if(!f)return false;const s=vkSub(b,VK_TRIM[name]||0);f(s,t,Object.assign({dread:0},o));vkDread(s,t,o.dread|0);return true;}
+function vkPlayCue(b,name,t,o={}){const f=VKX[name];if(!f)return false;const s=vkSub(b,VK_TRIM[name]||0);f(s,t,Object.assign({dread:0},o));if(name!=="white-out")vkDread(s,t,o.dread|0);return true;}
 /* the kit inside an interlude: one kit bus per interlude mix, into its fx bus (so it ducks under Hans and fades with the rest) */
 function hvVk(name,o={}){const b=IFX.bus;if(!b||b.fading||!IFX.a)return false;if(!b.vk||b.vk.a!==IFX.a){b.vk=vkMakeBus(IFX.a,b.fx);b.vk.out.gain.value=.5;}
   return vkPlayCue(b.vk,name,iNow()+.02,Object.assign({dread:(IST&&IST.dread)|0},o));}
@@ -11844,6 +11859,9 @@ const HV_SND={
   "fire-still":()=>{hvL("roar",.9,3);hvVk("fire-still");},
   rewind:(s,t)=>{hvVk("rewind");IACT.sweep({hi:600,s:.6},t);IACT.sweep({hi:18000,s:1.2},t+2.2);},
   count:()=>hvVk("count"),
+  "boy-run":()=>hvVk("boy-run"),
+  "fire-hush":()=>{hvVk("fire-hush");if(IFX.lay&&IFX.lay.roar)hvL("roar",.1,3);}, // the roar layer sinks with it
+  "white-out":()=>{hvVk("white-out");setTimeout(()=>{if(IFX.bus&&IFX.sc)HV_SND.silence(IFX.sc,iNow(),{ms:2600});},1300);}, // dead silence at the cut, the whole mix
   silence:(s,t,o)=>{const b=IFX.bus;if(!b)return;const g=b.duck.gain,ms=(o&&o.ms)||900;g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);g.linearRampToValueAtTime(0,t+.05);g.setValueAtTime(0,t+ms/1000);g.linearRampToValueAtTime(1,t+ms/1000+.6);},
   "voice-boy":(s,t,o)=>{const n=Math.min(4,1+((o&&o.n)||8)/10|0);for(let i=0;i<n;i++){const b=iVoxC("katy");const src=iB(s,t+i*.55,b);try{src.playbackRate.value=1.28;}catch(e){}src.connect(iOut(s,{bus:"fx",v:.08,near:.5,pan:-.35,lp:3000}));}},
   "voice-future":(s,t,o)=>{const n=Math.min(4,1+((o&&o.n)||8)/10|0);for(let i=0;i<n;i++)for(const [dl,pan] of [[0,.3],[.13,.42]]){const b=iVoxC("stig"),src=iB(s,t+i*.6+dl,b);try{src.playbackRate.value=.78;}catch(e){}

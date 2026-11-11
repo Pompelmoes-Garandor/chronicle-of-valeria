@@ -65,6 +65,7 @@ Newest first, with the PR that shipped it.
 
 - [x] **Haunted interface for the visions: paces pinned while reading and counted in the picture, weighty choices, rewinding and crumbling text, film captions in cutscenes; reusable for later visions** · Changed · Sam · PR #94
 - [x] **Fever-dream look for the visions (VISION FX): the painting warped, past and future tints, ash, black water, embers, the door of fire, dread and flicker; reusable for later visions** · New · Sam · PR #92
+- [x] **Three ending sounds for the door of fire: boy-run, fire-hush, white-out** · Changed · Sam · PR #PRNUM
 - [x] **Stig's visions get their own sound kit: 19 cues that warp with the dread, reusable for later visions** · Changed · Sam · PR #93
 - [x] **Stig's haunted interlude *The Eleven Paces*: visions of past and future, dread and flicker, the undertow fight, five cutscenes, seven paintings, its own sound** · New · Sam · PR #91
 - [x] **Folk music under the recap, one sound switch, a volume slider** · New · Sam · PR #90
