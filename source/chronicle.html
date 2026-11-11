@@ -311,6 +311,8 @@ table.ans td,table.ans th{border-bottom:1px solid #c9a35c22;padding:6px 4px;text
 #play>canvas.vfx{position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:2}
 #play.vfx-on>.pl-top,#play.vfx-on .pl-side,#play.vfx-on .pl-story>:not(.art){z-index:3}
 #play.vfx-on .pl-story .art{z-index:3;box-shadow:none;background:transparent} /* the picture box, see-through, keeps its own overlays (paces, whispers, washes) over the warped picture */
+#play.vfx-on .pl-story.hv .art{z-index:4} /* pinned as a strip (OWNER ui), it stays over the words scrolling under it; its paces bar is opaque enough to hide them */
+#play.vfx-on .pl-story.hv .hv-bar{bottom:0;height:38px;padding-bottom:7px;box-sizing:border-box;background:linear-gradient(#07121800,#071218f0 22%,#071218f8)}
 .ic-flash{position:absolute;inset:0;pointer-events:none;opacity:0}
 .ic-flash.ic-warm{background:radial-gradient(ellipse at 50% 55%,#ffd8a066,#ffb26a22 45%,transparent 75%)}
 .ic-flash.ic-fire{background:radial-gradient(ellipse at 50% 90%,#ffb05a88,#e8743b33 40%,transparent 70%)}
@@ -442,6 +444,60 @@ table.ans td,table.ans th{border-bottom:1px solid #c9a35c22;padding:6px 4px;text
 @keyframes hvWash{0%{transform:translateY(100%)}45%{transform:translateY(-12%)}100%{transform:translateY(100%)}}
 @keyframes hvWh{0%{opacity:0;filter:blur(5px);transform:translateY(4px)}25%{opacity:.85;filter:blur(0)}70%{opacity:.7}100%{opacity:0;filter:blur(4px);transform:translateY(-10px)}}
 @keyframes hvStep{0%{transform:scale(1.8);opacity:0}60%{opacity:1}}
+/* OWNER ui: the haunted interludes' interface (The Eleven Paces, and the visions after it). Phone first.
+   The paces stay in view: the picture scrolls up until only its tide strip is left, pinned under the title (--hv-ah is the picture's height, set by hvUpdate).
+   A pace taken is counted in the picture (.hv-count). A real choice gets a tide line; the one picked fills, the rest sink (.hv-picked, set by iPassage).
+   A passage told again rewinds in, right to left. Ash-eaten words crumble letter by letter (hvCrumble). Cutscenes (.t3c.hv) caption like a film, inside a deeper letterbox. */
+.pl-story.hv .art{position:sticky;top:calc(38px - var(--hv-ah,300px));z-index:3;box-shadow:0 0 0 1px var(--hairline),0 14px 18px -6px #0b0d12}
+.pl-story.hv .hv-bar{bottom:7px;gap:10px}
+.pl-story.hv .hv-paces{gap:4px}.pl-story.hv .hv-paces i{width:9px;height:15px}
+.pl-story.hv .hv-lab{font-size:10.5px;letter-spacing:.1em;color:#dcecf3;text-shadow:0 1px 4px #000}
+@media (min-width:600px){.pl-story.hv .hv-bar{gap:14px}.pl-story.hv .hv-paces{gap:6px}.pl-story.hv .hv-paces i{width:10px;height:16px}.pl-story.hv .hv-lab{font-size:11px;letter-spacing:.16em}}
+.pl-story.hv .hv-dread{gap:4px}.pl-story.hv .hv-dread i{width:7px;height:10px}
+.hv-count{position:absolute;left:0;right:0;top:34%;z-index:2;text-align:center;pointer-events:none;font:400 clamp(30px,8vw,52px)/1 var(--display);color:#e6f2f7;letter-spacing:.02em;text-shadow:0 2px 18px #000,0 0 30px #7fb8dc66;opacity:0}
+.pl-story.hv .pl-choices:has(>.pl-btn:not(.pri)+.pl-btn:not(.pri))::before{content:"";display:block;width:72%;height:9px;margin:4px auto 8px;opacity:.75;
+  background:radial-gradient(ellipse 14px 4px at 50% 100%,#9fd0e866,transparent 72%) 0 0/28px 9px repeat-x;-webkit-mask:linear-gradient(90deg,transparent,#000 30%,#000 70%,transparent);mask:linear-gradient(90deg,transparent,#000 30%,#000 70%,transparent)}
+.pl-story.hv-past .pl-choices .pl-btn:not(.pri){background:#17120c;border-color:#c9a35c4d}
+.pl-story.hv-future .pl-choices .pl-btn:not(.pri){background:#0b141a;border-color:#7fb8dc40}
+.pl-story.hv-future .pl-choices .pl-btn:not(.pri)::before{color:#9fd0e8;box-shadow:inset 0 0 0 1px #7fb8dc66}
+.pl-story.hv .pl-choices .pl-btn:not(.pri){transition:box-shadow .7s cubic-bezier(.3,.6,.3,1),border-color .4s,opacity .5s,filter .5s,transform .6s}
+.pl-story.hv .pl-choices.hv-picked .pl-btn{pointer-events:none}
+.pl-story.hv .pl-choices.hv-picked .pl-btn.hv-pick:not(.pri){border-color:#9fd0e8;box-shadow:inset 0 -90px 0 0 #7fb8dc26,0 0 18px #7fb8dc33}
+.pl-story.hv-past .pl-choices.hv-picked .pl-btn.hv-pick:not(.pri){border-color:var(--brass-hi);box-shadow:inset 0 -90px 0 0 #c9a35c26,0 0 18px #ecd08f2e}
+.pl-story.hv .pl-choices.hv-picked .pl-btn:not(.hv-pick){opacity:0;filter:blur(3px);transform:translateY(6px)}
+.pl-story.hv .pl-choices.hv-picked .pl-btn:disabled:not(.hv-pick){opacity:0}
+.hv-cr{white-space:nowrap}.hv-cr .hv-l{display:inline-block;white-space:pre}
+.hv-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.t3c.hv .t3c-lb{height:12%}
+.t3c.hv .t3c-lb:nth-child(2){height:max(12%,138px);box-shadow:0 -46px 46px -6px #000}
+.t3c.hv.out .t3c-lb{height:0}
+.t3c.hv .t3c-cap{bottom:12px;width:min(760px,calc(100% - 28px));background:none;border:0;box-shadow:none;padding:0;gap:0;text-align:center}
+.t3c.hv .t3c-cap .face{display:none}
+.t3c.hv .t3c-cap .who{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:6px;font:500 10px/1.2 var(--label);letter-spacing:.24em;color:#9fd0e8}
+.t3c.hv .t3c-cap .who:empty{display:none}
+.t3c.hv .t3c-cap .who::before,.t3c.hv .t3c-cap .who::after{content:"";width:28px;height:1px;background:currentColor;opacity:.5}
+.t3c.hv .t3c-cap.hv-boyv .who{color:#f2d6a8}
+.t3c.hv .t3c-cap .txt{font:italic clamp(18px,2.3vw,24px)/1.38 var(--body);color:#efe6d2;text-shadow:0 1px 2px #000,0 0 14px #000}
+.t3c.hv .t3c-cap .foot{justify-content:center;margin-top:8px}.t3c.hv .t3c-cap .bar{flex-basis:90px;height:1px}.t3c.hv .t3c-cap .bar i{background:#9fd0e8}
+.t3c.hv .t3c-cap .hint{font-size:9px;color:#ffffff40}
+@media (prefers-reduced-motion:no-preference){
+  .pl-story.hv .pl-choices>.pl-btn{animation:hvOpt .8s cubic-bezier(.2,.7,.2,1) both}
+  .pl-story.hv .pl-choices>.pl-btn:nth-child(2){animation-delay:.12s}.pl-story.hv .pl-choices>.pl-btn:nth-child(3){animation-delay:.24s}.pl-story.hv .pl-choices>.pl-btn:nth-child(n+4){animation-delay:.36s}
+  .hv-count{animation:hvCount 2.4s ease-out both}
+  .pl-story.hv-again .pl-inter>*{animation-name:hvRewText;animation-duration:1.4s}
+  .pl-story.hv-again .pl-inter{position:relative}
+  .pl-story.hv-again .pl-inter::after{content:"";position:absolute;top:-6px;bottom:-6px;width:2px;right:0;pointer-events:none;background:linear-gradient(#e8b4ff00,#e8b4ffaa 20%,#e8b4ffaa 80%,#e8b4ff00);box-shadow:0 0 14px 2px #c8a0ff55;opacity:0;animation:hvHead 1.6s cubic-bezier(.4,0,.2,1) .1s both}
+  .hv-cr .hv-l{animation:hvCrumb 2.6s cubic-bezier(.5,0,.8,.4) calc(var(--hv-d,3s) + var(--k) * 70ms) forwards}
+  .t3c.hv.in:not(.out) .t3c-lb:first-child{animation:hvLb 9s ease-in-out 1s infinite alternate}
+  .t3c.hv .t3c-cap .txt{transition:opacity .5s,filter .5s}.t3c.hv .t3c-cap:not(.on) .txt{filter:blur(4px)}
+}
+@media (prefers-reduced-motion:reduce){.hv-cr .hv-l{color:#8a8680}}
+@keyframes hvOpt{from{opacity:0;transform:translateY(10px);filter:blur(3px)}}
+@keyframes hvCount{0%{opacity:0;transform:scale(1.25);filter:blur(6px)}22%{opacity:1;transform:none;filter:none}70%{opacity:.9}100%{opacity:0;filter:blur(3px);transform:translateY(-6px)}}
+@keyframes hvRewText{0%{opacity:.2;clip-path:inset(-4px -4px -4px 100%);transform:translateX(22px);filter:blur(2px)}70%{opacity:1;filter:none}100%{opacity:1;clip-path:inset(-4px -4px -4px -4px);transform:none;filter:none}}
+@keyframes hvHead{0%{right:0;opacity:0}10%{opacity:1}85%{opacity:1}100%{right:100%;opacity:0}}
+@keyframes hvCrumb{0%{color:inherit}35%{color:#8a8680;transform:none;filter:none}100%{color:#5a5650;opacity:.22;filter:blur(1.2px);transform:translate(var(--dx),.55em) rotate(var(--rt))}}
+@keyframes hvLb{to{height:13.5%}}
 /* Protocol Zero: a wider, letterboxed picture with a camera on it, chapter cards over it */
 .pl-story.sw .art{width:min(900px,100%);background:#000}
 .pl-story.sw .art::before{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(#000 0,#000 5.5%,transparent 5.5%,transparent 94.5%,#000 94.5%)}
@@ -10156,6 +10212,7 @@ function t3cine(shots,{id="",end="board"}={}){
     const title=h("div",{class:"t3c-title"},h("div",{class:"eye"}),h("div",{class:"t"}),h("div",{class:"rule"})),big=h("div",{class:"t3c-big"}),flash=i("div","t3c-flash");
     const skip=h("button",{type:"button",class:"t3c-skip"},"Skip ▸▸");
     const el=h("div",{class:"t3c",role:"dialog","aria-label":"A cinematic. Tap to go on, Skip or Escape to end it."},i("i","t3c-lb"),i("i","t3c-lb"),i("div","t3c-veil"),flash,title,big,cap,skip);
+    if(IST&&IST.I&&IST.I.haunt)el.classList.add("hv");
     const S=T3C={shots,i:-1,id,end,d3,V:d3?V:null,el,cap,title,big,res,gen:PLAY.gen,lastIn:performance.now(),undos:[],typed:true};
     S.flash=(col="#9be36a99")=>{if(reduced)return;flash.style.setProperty("--t3c-fl",col);flash.classList.remove("go");void flash.offsetWidth;flash.classList.add("go");};
     S.shake=a=>{if(!reduced)S.shk={a,t0:performance.now()};};
@@ -10430,7 +10487,9 @@ function iPassage(p,opts,{spk=""}={}){return new Promise(res=>{clearStory();
   if(window.__iset)try{window.__iset(IST,p);}catch(e){console.error(e);} // hook for the scene's look (sets, light, camera)
   if(spk)storyEl.append(h("div",{class:"pl-spk"},spk));
   const rd=h("div",{class:"pl-read pl-inter",tabindex:"-1",html:iFill(p.html)});storyEl.append(rd);
-  storyEl.append(h("div",{class:"pl-choices"},...opts.map((o,i)=>h("button",{type:"button",class:"pl-btn"+(opts.length===1?" pri":""),disabled:!!o.off,onclick:()=>{if(typeof hush==="function")hush();res(i);}},o.t,o.sub?h("small",{},o.sub):null))));
+  storyEl.append(h("div",{class:"pl-choices"},...opts.map((o,i)=>h("button",{type:"button",class:"pl-btn"+(opts.length===1?" pri":""),disabled:!!o.off,onclick:e=>{if(typeof hush==="function")hush();const b=e.currentTarget,box=b.parentNode;
+    if(box.classList.contains("hv-picked"))return;
+    if(storyEl.classList.contains("hv")&&!reduced&&!b.classList.contains("pri")){box.classList.add("hv-picked");b.classList.add("hv-pick");setTimeout(()=>res(i),720);}else res(i);}},o.t,o.sub?h("small",{},o.sub):null))));
   sayIt(iIf(p.html));storyEl.scrollTop=0;iFocus(rd);if(PLAY.auto){const ok=opts.map((o,i)=>o.off?-1:i).filter(i=>i>=0);setTimeout(()=>res(pick(ok)),IPACE);}});}
 const IPACE=+((location.search.match(/[?&]pace=(\d+)/)||[])[1]||0); // playtest=auto&pace=ms: linger on each passage (for screenshots)
 /* a screen reader starts at the new passage, not at the button that was just pressed (which is gone) */
@@ -11501,12 +11560,19 @@ const HV_BOY='<svg viewBox="0 0 40 100" aria-hidden="true"><path fill="#1a120b" 
 function hvHud(){const pr=h("div",{class:"hv-paces",role:"img"},...Array.from({length:11},(_,i)=>h("i",{html:HV_FOOT,style:`--i:${i}`})));
   return h("div",{class:"hv-hud"},h("i",{class:"hv-watcher","aria-hidden":"true",html:HV_MAN}),h("i",{class:"hv-boy","aria-hidden":"true",html:HV_BOY}),h("i",{class:"hv-water","aria-hidden":"true"}),
     h("div",{class:"hv-bar"},pr,h("span",{class:"hv-lab"}),h("span",{class:"hv-him",role:"img",html:HV_MAN}),h("span",{class:"hv-dread",role:"img"},...Array.from({length:5},()=>h("i",{})))));}
+const HV_COUNT=["One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Eleven"];
+/* ash-eaten words crumble letter by letter, from the time hvReader gave them (--hv-d); a screen reader reads the words whole */
+function hvCrumble(){if(!storyEl)return;storyEl.querySelectorAll(".pl-inter .hv-ash:not(.hv-cr)").forEach(a=>{const t=a.textContent;a.classList.add("hv-cr");a.removeAttribute("aria-label");
+  a.replaceChildren(h("span",{class:"hv-sr"},t),h("span",{"aria-hidden":"true"},...[...t].map((c,k)=>h("span",{class:"hv-l",style:`--k:${k};--dx:${(Math.random()*.5-.15).toFixed(2)}em;--rt:${Math.round(Math.random()*70-35)}deg`},c))));});}
 function hvUpdate(S,hud){const c=HV_PACES[S.I.id]||{face:[]},taken=hvTaken(S),left=11-taken,d=S.dread||0,face=c.face.includes(S.at);
   hud.style.setProperty("--hv-c",(taken/11).toFixed(3));hud.style.setProperty("--hv-w",(7+taken*2.6+d*1.2).toFixed(1)+"%");
   hud.classList.toggle("hv-face",face);
   const prs=hud.querySelectorAll(".hv-paces i");prs.forEach((e,i)=>{const on=i<taken;if(on&&!e.classList.contains("on")&&S.hvSteps!=null&&i>=S.hvSteps){e.classList.add("new");
     if(IFX.bus&&!IFX.bus.fading&&IFX.sc)try{IFXS.step(IFX.sc,iNow()+.25*(i-S.hvSteps),{v:.4,f:66,grit:1.3,near:.3,lp:2600});IFXS.drip(IFX.sc,iNow()+.25*(i-S.hvSteps)+.08,{f:900,v:.35});}catch(e){}}
     e.classList.toggle("on",on);});
+  const box=hud.parentNode;if(box&&box.offsetHeight)storyEl.style.setProperty("--hv-ah",box.offsetHeight+"px");
+  if(box&&S.hvSteps!=null&&taken>S.hvSteps&&taken<=11&&!reduced){box.querySelectorAll(".hv-count").forEach(n=>n.remove());
+    const n=h("span",{class:"hv-count","aria-hidden":"true"},HV_COUNT[taken-1]+".");box.append(n);setTimeout(()=>n.remove(),2600);}
   S.hvSteps=taken;
   hud.querySelector(".hv-paces").setAttribute("aria-label",`${left} of eleven paces left`);
   hud.querySelector(".hv-lab").textContent=left<=0?"":left===1?"one pace left":`${left} paces left`;
@@ -11534,7 +11600,7 @@ function hvCine(S,p){const box=artCv&&artCv.parentNode;if(!box||!storyEl)return;
   storyEl.classList.toggle("hv-d3",d>=3);storyEl.classList.toggle("hv-d5",d>=5);
   if(moved){S.hvAt=S.at;S.hvTm.forEach(clearTimeout);S.hvTm=[];if(S.hvV&&S.hvV!==v)hvWash(box,v==="now"?S.hvV:v);if(again)hvWash(box,"again");S.hvV=v;}
   hvUpdate(S,hud);
-  if(moved&&p&&P&&p.html===P.html){hvReader(S);hvScatter(S,box);if(again)hvRewind(S,hud);}
+  if(moved&&p&&P&&p.html===P.html){hvReader(S);hvCrumble();hvScatter(S,box);if(again)hvRewind(S,hud);}
   hvVfx(S,p);} // the vision layer (VISION FX)
 /* a check with real dice: "(Wisdom save DC 15: go to A / B)". Roll here, or type the number on your own d20 */
 function iDie(){return new Promise(res=>{clearStory();
