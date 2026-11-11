@@ -63,6 +63,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Stig's visions get their own sound kit: 19 cues that warp with the dread, reusable for later visions** · Changed · Sam · PR #PRNUM
 - [x] **Stig's haunted interlude *The Eleven Paces*: visions of past and future, dread and flicker, the undertow fight, five cutscenes, seven paintings, its own sound** · New · Sam · PR #91
 - [x] **Folk music under the recap, one sound switch, a volume slider** · New · Sam · PR #90
 - [x] **The crash cinematic has sound (swarm fire, rockets, the fall, impact, black-box beeps)** · New · Sam · PR #88
