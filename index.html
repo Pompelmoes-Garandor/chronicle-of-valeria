@@ -365,6 +365,7 @@ table.ans td,table.ans th{border-bottom:1px solid #c9a35c22;padding:6px 4px;text
 .ic-card .ic-mood{font:italic 18px/1.5 var(--body);color:var(--parch-dim);margin:12px 0 0;text-wrap:balance}
 .ic-card .ic-tap{font:400 11px/1 var(--mono);letter-spacing:.14em;color:#ffffff55;margin-top:22px;text-transform:uppercase}
 .ic-card.out{opacity:0;transition:opacity .45s;pointer-events:none}
+.pl-story.ic-hold .pl-inter{visibility:hidden}.pl-story.ic-hold .pl-inter,.pl-story.ic-hold .pl-inter *{animation-play-state:paused!important}
 .ic-say{width:min(620px,100%);display:flex;gap:14px;align-items:flex-start;box-sizing:border-box;padding:14px 16px 12px;border-radius:14px;background:linear-gradient(#0b0d12d0,#0b0d12ee);border:1px solid var(--hairline);margin-top:12px}
 .ic-say .hans-face{--hf-size:52px;flex:none}.ic-say>div{flex:1;min-width:0}
 .ic-say .ic-who2{font:400 11px/1.3 var(--mono);letter-spacing:.14em;color:var(--brass);margin-bottom:6px;text-transform:uppercase}
@@ -440,9 +441,15 @@ table.ans td,table.ans th{border-bottom:1px solid #c9a35c22;padding:6px 4px;text
 .hv-deep.far::before{transform:scale(.2)}.hv-deep.star::before{transform:scale(.05);opacity:.8}
 .hv-deep::after{content:"";position:absolute;inset:0;opacity:.7;background-image:radial-gradient(circle,#cfeaf255 0 2px,transparent 3px),radial-gradient(circle,#cfeaf244 0 1.5px,transparent 2.5px),radial-gradient(circle,#cfeaf233 0 3px,transparent 4px);
   background-size:90px 140px,60px 110px,150px 210px;background-position:10px 0,40px 30px,80px 60px}
-.hv-white{background:#fff8ec;transition:opacity .8s ease}.hv-white.thin{opacity:.5!important;mix-blend-mode:screen;transition:opacity 2.5s ease}
+.hv-white{background:#fff8ec;transition:opacity .8s ease}.hv-white.thin{opacity:.5!important;mix-blend-mode:screen;transition:opacity 2.5s ease}.hv-white.thin.gone{opacity:.18!important}
 .hv-well{background:radial-gradient(circle at 50% 50%,transparent 0 9vmin,#000 10vmin)}
 .hv-dry{background:radial-gradient(ellipse at 50% 70%,#2a1c10,#050403 70%)}
+@property --hv-gr{syntax:"<percentage>";inherits:false;initial-value:85%}
+/* door 1, inside the fire: his sight goes grey from the edges in, the way his fingertips do */
+.t3c .hv-ashen{backdrop-filter:grayscale(1) brightness(.8) contrast(.9);-webkit-backdrop-filter:grayscale(1) brightness(.8) contrast(.9);
+  -webkit-mask:radial-gradient(ellipse at 50% 50%,#0000 var(--hv-gr),#000 calc(var(--hv-gr) + 30%));mask:radial-gradient(ellipse at 50% 50%,#0000 var(--hv-gr),#000 calc(var(--hv-gr) + 30%));
+  transition:opacity 1s ease,--hv-gr 5.5s cubic-bezier(.5,0,.7,1)}
+.t3c .hv-ashen.on{--hv-gr:0%}
 .hv-sea{background:radial-gradient(ellipse at 50% 85%,#bfe6ff22,transparent 40%),linear-gradient(180deg,#04121acc,#000a10f2)}
 .t3c-cap.hv-fut .txt{color:#d6ecf6;text-shadow:2px 0 #9fd0e855,-2px 0 #ff6a6a30}.t3c-cap.hv-boyv .txt{color:#f6dcb4}
 @media (prefers-reduced-motion:no-preference){
@@ -7785,7 +7792,7 @@ function t3mini(Vb,u){const g=new THREE.Group(),fig=new THREE.Group(),s=u.size||
   const mats=[];g.traverse(o=>{if(o.isMesh&&o.material&&o.material.isMeshStandardMaterial&&o!==rim)mats.push({m:o.material,e:o.material.emissive.clone(),ei:o.material.emissiveIntensity,t:o.material.transparent});}); // t: blended by its builder; the rest only while fading (t3animMini)
   const p=Vb.unitPos(u);g.position.copy(p);fig.rotation.y=u.side==="foe"?(Vb.tree?0:Math.PI):0;
   Vb.root.add(g);
-  return {u,g,fig,up:b.up,ring,rim,hit,top,hand:b.hand,core:b.core,blade:b.blade,anim:b.anim,sculpt:!!b.sculpt,mats,pos:p.clone(),face:fig.rotation.y,tilt:0,fade:1,hitT:0,lunge:null,gone:false,t0:Math.random()*10};}
+  return {u,g,fig,up:b.up,ring,rim,base,hit,top,hand:b.hand,core:b.core,blade:b.blade,anim:b.anim,sculpt:!!b.sculpt,mats,pos:p.clone(),face:fig.rotation.y,tilt:0,fade:1,hitT:0,lunge:null,gone:false,t0:Math.random()*10};}
 /* t3u: the plinth profile (bottom to top): bevel, brass band, a dark lip, then the painted top. One draw call */
 function t3uBaseGeo(s){const P=[[0,0],[.44,0],[.458,.008],[.466,.024],[.466,.044],[.456,.058],[.43,.064],[.41,.068],[.3,.071],[0,.072]],
     C=["#140f0a","#3a2814","#8a6630","#d8b673","#c49a52","#7a5a2a","#2a2016","#3b3426","#2f2b22","#2b281f"];
@@ -8253,7 +8260,7 @@ function t3animMini(m,u,dt,tt,now){const rm=reduced,gone=!!(u.gone||u.ghost),dow
   if(gone&&!m.gone){m.gone=true;t3death(m,u);}
   if(!gone&&m.gone)m.gone=false;
   const sink=gone?(1-m.fade)*.45:heart?K.fall*.25:0,fx=Math.sin(m.face),fz=Math.cos(m.face);
-  fig.position.set(V.tree?0:fx*.16*ff,bob-sink,V.tree?0:fz*.16*ff);
+  fig.position.set(V.tree?0:fx*.16*ff,bob-sink-(m.bare||0),V.tree?0:fz*.16*ff); // bare: off its plinth, on the floor (a vision's cutscene)
   fig.rotation.y=m.face;fig.rotation.x=lean*(1-ff)+(V.tree?0:K.fall);fig.rotation.z=roll*(1-ff)+(V.tree?K.fall*(m.face>=0?-1:1):0)+(gone&&!rm?(1-m.fade)*.25:0);
   const s0=K.s0;fig.scale.set(s0*(1-sq*.5),s0*(1+sq),s0*(1-sq*.5));
   const tr=m.fade<.995;if(tr!==!!m.t3k_tr){m.t3k_tr=tr;for(const o of m.mats){const t=o.t||tr;if(o.m.transparent!==t){o.m.transparent=t;o.m.needsUpdate=true;}}} // blend only while fading
@@ -10241,7 +10248,7 @@ function t3cSee(a,b,skip=[],near=1.2){if(!t3cClear(a,b,skip,near))return false;
   S.t+=performance.now()-now;return !hit;}
 function t3cWho(who){if(!who)return "";const k=String(who).toLowerCase();return (CREW[k]||MON[k]||{}).name||(k==="hans"?"Hans":String(who));}
 
-function t3cine(shots,{id="",end="board"}={}){
+function t3cine(shots,{id="",end="board",flow=null}={}){
   if(T3C)t3cEnd(T3C,"skipped");
   return new Promise(res=>{
     const d3=t3on(),i=(tag,c)=>h(tag,{class:c,"aria-hidden":"true"});
@@ -10250,7 +10257,7 @@ function t3cine(shots,{id="",end="board"}={}){
     const skip=h("button",{type:"button",class:"t3c-skip"},"Skip ▸▸");
     const el=h("div",{class:"t3c",role:"dialog","aria-label":"A cinematic. Tap to go on, Skip or Escape to end it."},i("i","t3c-lb"),i("i","t3c-lb"),i("div","t3c-veil"),flash,title,big,cap,skip);
     if(IST&&IST.I&&IST.I.haunt)el.classList.add("hv");
-    const S=T3C={shots,i:-1,id,end,d3,V:d3?V:null,el,cap,title,big,res,gen:PLAY.gen,lastIn:performance.now(),undos:[],typed:true};
+    const S=T3C={shots,i:-1,id,end,d3,V:d3?V:null,el,cap,title,big,res,gen:PLAY.gen,lastIn:performance.now(),undos:[],typed:true,flow:flow??!!(IST&&IST.I&&IST.I.haunt)}; // flow: plays through like a film (a vision's cutscenes)
     S.flash=(col="#9be36a99")=>{if(reduced)return;flash.style.setProperty("--t3c-fl",col);flash.classList.remove("go");void flash.offsetWidth;flash.classList.add("go");};
     S.shake=a=>{if(!reduced)S.shk={a,t0:performance.now()};};
     S.tween=(ms,fn,done)=>{if(S.d3&&V===S.V&&!reduced&&ms>0)V.fx.push({t0:performance.now(),dur:ms,tick:fn,end:done});else{fn(1);done&&done();}};
@@ -10292,7 +10299,7 @@ function t3cNext(S){if(S.over)return;clearTimeout(S.tmo);clearInterval(S.iv);
   else{cap.classList.remove("on");S.typed=true;}
   if(sh.black)el.classList.add("black");
   // a line that would play on past ~12 s without a tap waits for one (the player stays in charge)
-  S.mustTap=sh.wait==="tap"||!!(sh.caption||sh.big)&&now-S.lastIn>12000&&!PLAY.auto||/[?&]cinehold/.test(location.search); // cinehold: a test holds every shot
+  S.mustTap=sh.wait==="tap"||!S.flow&&!!(sh.caption||sh.big)&&now-S.lastIn>12000&&!PLAY.auto||/[?&]cinehold/.test(location.search); // cinehold: a test holds every shot
   if(sh.at)try{sh.at(S);}catch(e){console.error(e);}
   S.tmo=setTimeout(()=>{if(S.mustTap){el.classList.add("wait");S.waiting=true;}else t3cNext(S);},PLAY.auto&&!/[?&]cine(=|&|$)/.test(location.search)?60:hold);}
 
@@ -10721,8 +10728,8 @@ function iTitle(I){const T=INTERLUDE_TEXT[I.id]||(typeof BONUS_TEXT!=="undefined
     h("div",{class:"ic-in"},h("div",{class:"ic-eye"},I.eye||"Interlude"),h("div",{class:"ic-t"},T.title||""),h("div",{class:"ic-rule"}),h("div",{class:"ic-who"},who),
       IMOOD[I.id]?h("p",{class:"ic-mood"},IMOOD[I.id]):null,h("div",{class:"ic-tap"},"tap to begin")),
     IPICT[I.art]?h("i",{class:"ic-pic","aria-hidden":"true",style:`background-image:url(${IPICT[I.art].src});background-position:${Math.round(IPICT[I.art].lx*100)}% center`}):null); // the painting behind the name; without the file, the dark card as before
-  let done=false;const key=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go();}};
-  const go=()=>{if(done)return;done=true;clearTimeout(t);removeEventListener("keydown",key,true);card.classList.add("out");setTimeout(()=>card.remove(),reduced?0:460);};
+  let done=false;const key=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go();}},se=storyEl;if(se)se.classList.add("ic-hold"); // the first page waits under the card, so the two never show at once
+  const go=()=>{if(done)return;done=true;clearTimeout(t);removeEventListener("keydown",key,true);card.classList.add("out");setTimeout(()=>{card.remove();if(se){se.classList.remove("ic-hold");se.dispatchEvent(new Event("ichold"));}},reduced?0:460);};
   card.onclick=go;addEventListener("keydown",key,true);const t=setTimeout(go,PLAY.auto?1200:3000);stage.append(card);}
 /* after the passage is on screen: the Echo inks in, Hans's log writes itself, a tie gets Hans's speaker card */
 function iAfter(p){if(!storyEl)return;
@@ -11577,13 +11584,13 @@ if(devPlay())window.__iscore={score:iScore,stop:iScoreStop,snd:iScoreSnd,echo:ek
    Intrusions (~text~ in the script) bleed into the passage after a reader has had time to reach them, with a whisper; at
    higher dread the Watcher's whispers (## Whispers) drift over the picture too. Sound: IFOLEY[id].P is worked out per
    passage (hvFoleyP) from its tag and how far he has walked. Everything here is look and sound; the story never waits on it. */
-const HV_PACES={"s11-stig":{base:2,rooms:["P1a","P2a","P3a","S1","Q1a","Q2a","Q3a"],set:{W1:10,W2:11,W2x:11,W3:11,W3x:11},face:["W2","W2x","W3","W3x"]}};
+const HV_PACES={"s11-stig":{base:2,rooms:["P1a","P2a","P3a","S1","Q1a","Q2a","Q3a"],set:{H1:0,W1:10,W2:11,W2x:11,W3:11,W3x:11},count:["H1"],face:["W2","W2x","W3","W3x"]}}; // count: passages whose bare "One." / "Two." lines take a pace as they appear
 const hvRooms=I=>{const c=HV_PACES[I.id];if(!c)return [];const T=INTERLUDE_TEXT[I.id].passages,own={};
   // a room is every passage reachable from its first one before the story goes back to a hub (or on to the next room)
   for(const r of c.rooms){const q=[r],seen=new Set();while(q.length){const id=q.shift();if(seen.has(id)||!T[id]||T[id].then||(id!==r&&c.rooms.includes(id)))continue;seen.add(id);
     for(const o of T[id].opts)for(const g of [o.go,o.fail,o.alt&&o.alt.go])if(g&&!g.startsWith("@"))q.push(g);}own[r]=seen;}
   return own;};
-function hvTaken(S){const c=HV_PACES[S.I.id];if(!c)return 0;if(c.set[S.at]!=null)return c.set[S.at];
+function hvTaken(S){const c=HV_PACES[S.I.id];if(!c)return 0;if(S.hvCnt&&S.hvCnt.at===S.at)return S.hvCnt.n;if(c.set[S.at]!=null)return c.set[S.at];
   const own=S.hvOwn||(S.hvOwn=hvRooms(S.I));let n=0;for(const r of c.rooms)if(S.seen.includes(r)&&!own[r].has(S.at))n++;
   return Math.min(11,c.base+n);}
 function hvDread(n){if(!IST)return;const d=Math.max(0,Math.min(5,(IST.dread||0)+n));if(d===IST.dread)return;IST.dread=d;
@@ -11639,7 +11646,8 @@ function hvCine(S,p){const box=artCv&&artCv.parentNode;if(!box||!storyEl)return;
   storyEl.classList.toggle("hv-d3",d>=3);storyEl.classList.toggle("hv-d5",d>=5);
   if(moved){S.hvAt=S.at;S.hvTm.forEach(clearTimeout);S.hvTm=[];if(S.hvV&&S.hvV!==v)hvWash(box,v==="now"?S.hvV:v);if(again)hvWash(box,"again");S.hvV=v;}
   hvUpdate(S,hud);
-  if(moved&&p&&P&&p.html===P.html){hvReader(S);hvCrumble();hvScatter(S,box);if(again)hvRewind(S,hud);}
+  // the words aren't on the page yet (this runs from iPassage's hook, before it adds them): read them right after it has
+  if(moved&&p&&P&&p.html===P.html){const at=S.at;Promise.resolve().then(()=>{if(IST!==S||S.at!==at||!storyEl)return;try{hvReader(S);hvCrumble();hvScatter(S,box);if(again)hvRewind(S,hud);}catch(e){console.error(e);}});}
   hvVfx(S,p);} // the vision layer (VISION FX)
 /* a check with real dice: "(Wisdom save DC 15: go to A / B)". Roll here, or type the number on your own d20 */
 function iDie(){return new Promise(res=>{clearStory();
@@ -11720,8 +11728,13 @@ function hvFlicker(n){if(!IST)return;const f=Math.max(0,Math.min(5,(IST.flicker?
   hvVfx(IST);if(n>0&&IST.vfxV==="future")VFX.pulse("face");}
 /* what happens in the text, at a reader's pace: intrusions, voices, ash, sound cues */
 function hvReader(S){const rd=storyEl&&storyEl.querySelector(".pl-inter");if(!rd)return;let words=0;const rate=SAY.on?2.6:4.2,at=w=>Math.min(SAY.on?14:5,.6+w/rate);
-  const fire=(d,fn)=>S.hvTm.push(setTimeout(()=>{if(IST!==S||!IFX.bus||IFX.bus.fading||!IFX.sc)return;try{fn(IFX.sc,iNow());}catch(e){console.error(e);}},d*1000));
+  const se=storyEl,gate=se.classList.contains("ic-hold")?new Promise(r=>se.addEventListener("ichold",r,{once:true})):null, // the title card is still up: the words wait under it, and so do their sounds
+    later=(d,fn)=>{const go=()=>S.hvTm.push(setTimeout(fn,d*1000));if(gate)gate.then(go);else go();},
+    fire=(d,fn)=>later(d,()=>{if(IST!==S||!IFX.bus||IFX.bus.fading||!IFX.sc)return;try{fn(IFX.sc,iNow());}catch(e){console.error(e);}}),
+    cnt=(HV_PACES[S.I.id]||{}).count||[],here=S.at;
   for(const el of rd.children){const d=at(words);
+    if(cnt.includes(here)&&el.tagName==="P"){const k=HV_COUNT.indexOf((el.textContent||"").trim().replace(/\.$/,""));
+      if(k>=0)later(Math.min(16,.6+words/rate)+.2,()=>{if(IST!==S||S.at!==here)return;S.hvCnt={at:here,n:k+1};const hud=artCv&&artCv.parentNode&&artCv.parentNode.querySelector(".hv-hud");if(hud)hvUpdate(S,hud);});}
     if(el.classList.contains("ic-intr")){el.style.setProperty("--hv-d",d.toFixed(2)+"s");const k=el.dataset.v;fire(d+.15,(s,t)=>IFXS.whisper(s,t,{v:k==="whisper"?1:.6,cold:k==="future"}));}
     if(el.classList.contains("hv-say")){el.style.setProperty("--hv-d",d.toFixed(2)+"s");const w=el.dataset.who,n=(el.textContent||"").split(/\s+/).length;fire(d+.1,(s,t)=>HV_SND["voice-"+w]&&HV_SND["voice-"+w](s,t,{n}));}
     if(el.classList.contains("hv-snd")){const k=el.dataset.snd;if(HV_SND[k])fire(Math.max(.3,d-.4),(s,t)=>HV_SND[k](s,t,{}));else if(devPlay())console.warn("sound cue missing: "+k);}
@@ -12165,7 +12178,7 @@ IFIGHTS.undertow={key:"i-undertow",map:"idoor",dim:true,undead:true,sc:{tide:1,f
     if(d>=3)log("The dread is on you: a third hand comes up out of the black sand.","r");},
   async onRound(r){const S=B.sc;
     if(r===1&&!B.t3cScratch&&t3cWant(HV_CUT.face)){t3cMark(HV_CUT.face);await hvFace();}
-    if(r===1){log("He stands between you and the door, and he doesn't move. He's waiting to hold you.","b");uwBark(uwFlick()<=1?"faint":"start",B.units.find(o=>o.key==="future"));}
+    if(r===1){log("He stands between you and the door, and he doesn't move. He's waiting to hold you.","b");uwBark(uwFlick()>=4?"faint":"start",B.units.find(o=>o.key==="future"));}
     iGhosts(r,[[3,2],[9,2],[6,2]],"claws back up out of the black sand.");
     if(r>1&&S.tide<9){S.tide++;log(S.tide>=8?"The black water's everywhere now. It's stopped moving.":"The tide comes in from the door. The black water spreads.","r");iRepaint();}},
   async startTurn(u){const S=B.sc;if(u.key==="future"){u.held1=false;return false;}if(u.key!=="stig")return false;
@@ -12204,6 +12217,7 @@ Object.assign(IAI,{
    then "Watch again" in the play menu; on the flat board only the letterbox and the captions play. */
 const HV_CUT={flake:"s11-flake",face:"s11-face",door1:"s11-door1",door2:"s11-door2",door3:"s11-door3"};
 function hvCuts(key){const T=INTERLUDE_TEXT["s11-stig"];return (T&&T.cuts&&T.cuts[key])||[];}
+const hvHas=k=>typeof HV_SND!=="undefined"&&!!HV_SND[k];
 function hvSnd(k,o={}){if(typeof HV_SND==="undefined"||!HV_SND[k]||!IFX.bus||IFX.bus.fading||!IFX.sc)return;try{HV_SND[k](IFX.sc,iNow(),o);}catch(e){console.error(e);}}
 // the sets: the cave where the paces are walked, and the door of fire with everyone there (the fight's board, the tide all in)
 const HV_STAGE={
@@ -12238,10 +12252,16 @@ function hvShots(key,plan){const L=hvCuts(key),out=[];
     const nm=INTERLUDE_TEXT["s11-stig"].title,title=/^title\b[^:]*:\s*(.+)$/i.exec(c.t)||(c.t.trim().replace(/\.$/,"").toLowerCase()===nm.toLowerCase()?[c.t,nm]:null); // "Title: …" or the bare title
     if(title)sh=Object.assign(p,{title:{eye:"Interlude · Stig",t:INTERLUDE_TEXT["s11-stig"].title},hold:p.hold||4200});
     else sh=Object.assign(p,{caption:c.t,who:c.who||undefined});
-    sh.at=S=>{S.cap.classList.toggle("hv-fut",c.who==="future");S.cap.classList.toggle("hv-boyv",c.who==="boy");S.cap.classList.toggle("hv-two",two);
+    sh.at=S=>{if(i===0)hvBare(S);S.cap.classList.toggle("hv-fut",c.who==="future");S.cap.classList.toggle("hv-boyv",c.who==="boy");S.cap.classList.toggle("hv-two",two);
       if(c.who==="future"||c.who==="boy")hvSnd("voice-"+c.who,{n:c.t.split(/\s+/).length*(two?2:1)});if(act)try{act(S);}catch(e){console.error(e);}};
     out.push(sh);});
   return out;}
+/* a film set, not a board: while a vision's cutscene plays, the plinths, their coloured rims and the grid go, and the minis stand on the floor.
+   A tick keeps it so for a mini that changes mid-shot (a sculpt arriving); the end of the cutscene puts the board back. */
+function hvBare(S){if(!S.d3||!V||S.bare)return;S.bare=true;const Vb=V,U=Vb.t3u&&Vb.t3u.reg&&Vb.t3u.reg.material.uniforms,g0=U&&U.uG?U.uG.value:null;
+  const strip=()=>{for(const m of Vb.minis.values())if(!m.bare){if(m.base)m.base.visible=false;if(m.rim)m.rim.visible=false;m.bare=.07;}};
+  strip();if(g0!=null)U.uG.value=0;Vb.ticks.push(strip);
+  S.undo(()=>{Vb.ticks=Vb.ticks.filter(f=>f!==strip);for(const m of Vb.minis.values()){if(m.base)m.base.visible=true;if(m.rim)m.rim.visible=true;m.bare=0;}if(g0!=null)U.uG.value=g0;});}
 const hvDrift=k=>V?{cam:{from:{at:hvC(6,6,.4),yaw:.2,pitch:.6,dist:9},to:{at:hvC(6,6,.4),yaw:.35,pitch:.55,dist:8.4},ms:4000}}:{};
 
 /* 1. The flake: the cave held still, the ash, the sigil waking, three paces, and the floor goes; down into the title */
@@ -12251,17 +12271,17 @@ async function hvFlake(o={}){const d3=!!V;
       const z=.03+Math.random()*.04;s.scale.set(z,z,1);s.position.set((Math.random()-.5)*10,.2+Math.random()*2.4,(Math.random()-.5)*9);V.root.add(s);L.push([s,Math.random()*6]);}
     const tk=(dt,tt)=>{for(const [s,ph] of L)s.position.y-=dt*.006*(1+Math.sin(tt*.3+ph));};V.ticks.push(tk);
     S.undo(()=>{if(V){V.ticks=V.ticks.filter(f=>f!==tk);for(const [s] of L)V.root.remove(s);}});};
-  const flake=S=>{if(!d3)return;const m=hvM("stig");if(!m)return;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t3dotTex(),color:0x2a2826,transparent:true,opacity:.95,depthWrite:false}));s.scale.set(.06,.06,1);V.root.add(s);
+  const flake=S=>{if(!d3)return;const m=hvM("stig");if(!m)return;const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t3dotTex(),color:0xc4beb4,transparent:true,opacity:.95,depthWrite:false,fog:false}));s.scale.set(.05,.05,1);V.root.add(s); // pale ash, so it shows against him
     const to=m.pos.clone().add(new THREE.Vector3(.16,.58,.06)),fr=to.clone().add(new THREE.Vector3(.25,1.1,.15));S.tween(3400,k=>{s.position.lerpVectors(fr,to,t3cEase.out(k));s.position.x+=Math.sin(k*9)*.04*(1-k);},null);
     S.undo(()=>{if(V)V.root.remove(s);});S.flake=s;};
   const sigil=S=>{if(!d3)return;const m=hvM("stig");if(!m)return;const g=new THREE.Sprite(new THREE.SpriteMaterial({map:t3dotTex(),color:0x5fd8e8,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending,fog:false}));
-    g.position.copy(m.pos).add(new THREE.Vector3(.16,.56,.06));V.root.add(g);S.tween(2600,k=>{g.scale.setScalar(.05+.5*k);g.material.opacity=.9*Math.sin(Math.min(1,k*1.3)*Math.PI*.5);if(S.flake)S.flake.material.color.setRGB(.16-.1*k,.15-.1*k,.15-.1*k);},null);
+    g.position.copy(m.pos).add(new THREE.Vector3(.16,.56,.06));V.root.add(g);S.tween(2600,k=>{g.scale.setScalar(.04+.22*k);g.material.opacity=.8*Math.sin(Math.min(1,k*1.3)*Math.PI*.5);if(S.flake){S.flake.material.color.setRGB(.77-.72*k,.75-.7*k,.71-.66*k);S.flake.scale.setScalar(.05+.05*k);}},null); // the ash goes to ink and spreads
     S.flash("#5fd8e855");S.undo(()=>{if(V)V.root.remove(g);});};
   const pace=(n,snd)=>S=>{const u=hvU("stig");if(u){u.y=9-n;renderTokens();}if(IFXS&&IFX.sc&&IFX.bus&&!IFX.bus.fading)try{IFXS.step(IFX.sc,iNow()+.5,{v:.5,f:66,grit:1.3,near:.3,lp:2600});IFXS.drip(IFX.sc,iNow()+.6,{f:900,v:.3});}catch(e){}if(snd)hvSnd(snd);};
   const plan=d3?[
     {at:S=>{ash(S);hvSnd("drip");hvDream(S,.35,4000);},cam:{from:{at:hvC(6,5,.4),yaw:-.65,pitch:.8,dist:11.5},to:{at:hvC(6,5,.4),yaw:-.38,pitch:.56,dist:9.4},ms:5600,ease:"soft"}},
-    {at:flake,cam:{from:{at:hvAt("stig",.48),yaw:Math.PI-.75,pitch:.26,dist:2.8},to:{at:hvAt("stig",.52),yaw:Math.PI-.55,pitch:.16,dist:2.1},ms:4200,fov:30,tall:{fov:44}}},
-    {at:sigil,cam:{from:{at:hvAt("stig",.52),yaw:Math.PI-.55,pitch:.16,dist:2.1},to:{at:hvAt("stig",.55),yaw:Math.PI-.4,pitch:.1,dist:1.7},ms:3600,fov:26,tall:{fov:38}}},
+    {at:flake,cam:{from:{at:hvAt("stig",.66,.12,.05),yaw:Math.PI-.8,pitch:.34,dist:1.25},to:{at:hvAt("stig",.6,.14,.06),yaw:Math.PI-.62,pitch:.22,dist:.95},ms:4200,fov:30,tall:{fov:44}}}, // the sleeve: the flake drifts down into frame
+    {at:sigil,cam:{from:{at:hvAt("stig",.58,.15,.06),yaw:Math.PI-.62,pitch:.2,dist:.9},to:{at:hvAt("stig",.57,.16,.06),yaw:Math.PI-.5,pitch:.12,dist:.68},ms:3600,fov:[28,24],tall:{fov:[42,36]}}},
     {at:pace(1),cam:{from:{pos:hvAt("stig",1.15,.2,1.5),look:hvC(6,3,.5)},to:{pos:hvAt("stig",1.1,.15,.9),look:hvC(6,3,.45)},ms:2600,fov:40,tall:{fov:54}}},
     {at:pace(2,"heartbeat-two"),cam:{from:{at:hvAt("stig",.12,0,-1),yaw:1.45,pitch:.04,dist:1.6},to:{at:hvAt("stig",.12,0,-1.4),yaw:1.3,pitch:.04,dist:1.4},ms:2800,fov:34,tall:{fov:48}}},
     {at:S=>{pace(3)(S);setTimeout(()=>{if(S.over||!B)return;B.sc.tide=3;S.flash("#06121a99");S.shake(.07);hvSnd("surf");hvDream(S,.8,1200);},1000);},
@@ -12305,13 +12325,14 @@ async function hvDoorCut(n,o={}){const d3=!!V,gid=k=>hvU(k),boy=()=>V&&V.hvBoy;
   const B2=d3?Math.atan2(F2s.x-hvC(10.5,4.5).x,F2s.z-hvC(10.5,4.5).z):0; // door 2: where the boy stops, looking back at Stig
   const F3=d3?Math.atan2(hvC(6,2).x-hvC(11,6).x,hvC(6,2).z-hvC(11,6).z):0; // door 3: sat by the wall, he watches them at the door
   if(n==="1")plan=d3?[
-    {at:S=>{const b=boy();if(b)b.mode="stay";hvDream(S,.3,2000);},cam:{from:{at:hvAt("stig",.45,.2,.3),yaw:1.35,pitch:.14,dist:2.4},to:{at:hvAt("stig",.45,.2,.3),yaw:1.2,pitch:.12,dist:2},ms:3800,fov:34,tall:{fov:48}}},
-    {at:S=>{walk("stig",6,3);setTimeout(()=>{for(const k of["katy","saphira","hans","thorn"])hvFaceTo(k,hvC(6,3).x,hvC(6,3).z);},900);},cam:{from:{at:hvC(6,4,.6),yaw:-.25,pitch:.32,dist:5.2},to:{at:hvC(6,3,.6),yaw:-.15,pitch:.28,dist:4.6},ms:3600,fov:38,tall:{fov:54}}},
-    {at:S=>{walk("stig",6,2);setTimeout(()=>{if(S.over||!B)return;const u=gid("stig");if(u){u.gone=true;renderTokens();}S.flash("#ffffffdd");hvVeil(S,"hv-white");hvExp(S,2.4,900);hvSnd("silence");},1300);},
+    {at:S=>{const b=boy();if(b)b.mode="stay";hvDream(S,.3,2000);},cam:{from:{at:hvAt("stig",.34,-.16,.28),yaw:-.8,pitch:.16,dist:2.3},to:{at:hvAt("stig",.36,-.16,.28),yaw:-.66,pitch:.12,dist:1.95},ms:3800,fov:34,tall:{fov:48}}}, // the boy in front, Stig beyond him, the fire beyond both
+    {at:S=>{walk("stig",6,3);setTimeout(()=>{for(const k of["katy","saphira","hans","thorn"])hvFaceTo(k,hvC(6,3).x,hvC(6,3).z);},900);},cam:{from:{at:hvC(6,4.8,.5),yaw:1.8,pitch:.2,dist:4.3},to:{at:hvC(6,4.2,.5),yaw:1.68,pitch:.16,dist:3.9},ms:3600,fov:38,tall:{fov:54}}},
+    {at:S=>{walk("stig",6,2);hvSnd("white-out");setTimeout(()=>{if(S.over||!B)return;const u=gid("stig");if(u){u.gone=true;renderTokens();}S.flash("#ffffffdd");hvVeil(S,"hv-white");hvExp(S,2.4,900);if(!hvHas("white-out"))hvSnd("silence");},1300);},
       cam:{from:{at:hvC(6,1,1.1),yaw:.05,pitch:.14,dist:3.4},to:{at:hvC(6,1,1.1),yaw:0,pitch:.1,dist:2.2},ms:3600,fov:40,tall:{fov:56}}},
-    {at:S=>{const v=S.el.querySelector(".hv-white");if(v)v.classList.add("thin");hvDream(S,.9,2500);walk("katy",4,10);walk("saphira",8,10);walk("hans",6,11);walk("thorn",10,10);hvSnd("drip");},
-      cam:{from:{pos:hvC(6.6,1.5,.25),look:hvC(5.6,0,2.4)},to:{pos:hvC(5.5,1.4,.35),look:hvC(6.4,0,2.8)},ms:7000,fov:[62,48],roll:.05,ease:"soft"}},
-    {at:S=>{if(V&&V.sparks)for(let i=0;i<24;i++)V.sparks.spawn(hvC(6,1,1+Math.random()).add(new THREE.Vector3((Math.random()-.5)*3,0,.3)),"#8a8680",1,{sp:.1,up:-.1,lf:2,sz:.05});},cam:{from:{at:hvC(6,1,.9),yaw:.2,pitch:.06,dist:1.6},to:{at:hvC(6,1,.9),yaw:.12,pitch:.05,dist:1.3},ms:3600,fov:30}},
+    {at:S=>{const v=S.el.querySelector(".hv-white");if(v)v.classList.add("thin");hvExp(S,1.25,2600);hvDream(S,.9,2500);walk("katy",4,8);walk("saphira",8,8);walk("hans",6,9);walk("thorn",9,8);hvSnd("drip");},
+      cam:{from:{pos:hvC(6.3,.9,.5),look:hvC(6,9,.4)},to:{pos:hvC(5.8,.92,.62),look:hvC(6.1,9,.3)},ms:7000,fov:[50,42],roll:.04,ease:"soft"}}, // behind the fire's face: the crew through the flames
+    {at:S=>{const v=S.el.querySelector(".hv-white");if(v)v.classList.add("gone");hvVeil(S,"hv-ashen");if(V&&V.sparks)for(let i=0;i<24;i++)V.sparks.spawn(hvC(6,1.4,.3+Math.random()).add(new THREE.Vector3((Math.random()-.5)*2,0,0)),"#8a8680",1,{sp:.1,up:-.1,lf:2,sz:.05});},
+      cam:{from:{pos:hvC(5.8,.92,.62),look:hvC(6.1,9,.3)},to:{pos:hvC(5.9,.95,.7),look:hvC(6,8,.35)},ms:5200,fov:[42,30],roll:.04,ease:"soft"}},
     {at:S=>{hvVeil(S,"hv-well");},cam:{from:{at:hvC(6,6),yaw:.8,pitch:1.55,dist:20},to:{at:hvC(6,6),yaw:.9,pitch:1.56,dist:34},ms:6000,ease:"in"}},
     {at:S=>hvSnd("heartbeat-two")},
     {at:S=>hvSnd("heartbeat-one"),hold:3400,black:true}]
@@ -12322,7 +12343,7 @@ async function hvDoorCut(n,o={}){const d3=!!V,gid=k=>hvU(k),boy=()=>V&&V.hvBoy;
     {at:S=>{B.sc.fl=1;S.tween(3200,k=>{if(B)B.sc.warm=k;},null);hvDream(S,.6,2500);},cam:{from:{at:hvAt("future",.42),yaw:F2+.45,pitch:.12,dist:2},to:{at:hvAt("future",.44),yaw:F2+.3,pitch:.1,dist:1.7},ms:3400,fov:30,tall:{fov:44}}},
     {at:S=>{S.shake(.02);},cam:{from:{at:hvAt("future",.48),yaw:F2+.08,pitch:.08,dist:1.6},to:{at:hvAt("future",.5),yaw:F2,pitch:.06,dist:1.35},ms:3600,fov:[30,26],tall:{fov:[44,38]}}},
     {at:S=>{const u=gid("future");if(u){u.gone=true;renderTokens();}hvSnd("silence");},cam:{from:{at:hvC(8,3,.1),yaw:-.3,pitch:.5,dist:2.4},to:{at:hvC(8,3,.1),yaw:-.2,pitch:.6,dist:2.1},ms:3400,fov:34}},
-    {at:S=>{const b=boy();if(b){b.mode="run";b.to=hvC(10.5,4.5);}hvSnd("heartbeat-one");},cam:{from:{at:hvC(8,4.8,.3),yaw:-.95,pitch:.28,dist:3.2},to:{at:hvC(9.6,4.6,.3),yaw:-.9,pitch:.24,dist:3.5},ms:4200,fov:38,tall:{fov:54}}},
+    {at:S=>{const b=boy();if(b){b.mode="run";b.to=hvC(10.5,4.5);}hvSnd("heartbeat-one");setTimeout(()=>{if(!S.over)hvSnd("boy-run");},350);},cam:{from:{at:hvC(9.2,4.7,.35),yaw:-1.25,pitch:.3,dist:4.4},to:{at:hvC(10,4.6,.35),yaw:-1.2,pitch:.26,dist:4.2},ms:4200,fov:38,tall:{fov:54}}}, // from behind Stig: the boy runs away from him, into the dark
     {at:S=>{const b=boy(),sm=hvM("stig");if(b){if(sm)b.look=Math.atan2(sm.pos.x-b.g.position.x,sm.pos.z-b.g.position.z);b.mode="stay";setTimeout(()=>{if(S.over||!b)return;b.look=null;b.mode="run";b.to=hvC(11.6,1.2);setTimeout(()=>{if(b)b.want=0;},1400);},2600);}},
       cam:{from:{at:hvC(10.5,4.5,.32),yaw:B2+.45,pitch:.12,dist:1.7},to:{at:hvC(10.5,4.5,.32),yaw:B2+.35,pitch:.1,dist:1.45},ms:3600,fov:34,tall:{fov:48}}},
     {at:S=>{hvVeil(S,"hv-dry");},hold:4200},
@@ -12330,11 +12351,11 @@ async function hvDoorCut(n,o={}){const d3=!!V,gid=k=>hvU(k),boy=()=>V&&V.hvBoy;
   :[{},{},{},{},{at:()=>hvSnd("silence")},{at:()=>hvSnd("heartbeat-one")},{},{at:S=>hvVeil(S,"hv-dry"),hold:3600},{hold:3000,black:true}];
   else plan=d3?[
     {at:S=>{hvSnd("count");hvDream(S,.2,2000);},cam:{from:{at:hvAt("katy",.7),yaw:.5,pitch:.12,dist:2.2},to:{at:hvAt("hans",.75),yaw:-.3,pitch:.12,dist:2.4},ms:5400,ease:"soft",fov:34,tall:{fov:48}}},
-    {cam:{from:{at:hvAt("stig",.78),yaw:.3,pitch:.05,dist:1.3},to:{at:hvAt("stig",.8),yaw:.2,pitch:.04,dist:1.05},ms:3000,fov:28,tall:{fov:40}}},
+    {cam:{from:{at:hvAt("stig",.6),yaw:.5,pitch:-.02,dist:2.3},to:{at:hvAt("stig",.64),yaw:.36,pitch:0,dist:1.95},ms:3400,fov:30,tall:{fov:44}}},
     {at:S=>{hvFaceTo("stig",hvC(6,8).x,hvC(6,8).z);},cam:{from:{at:hvAt("stig",.6),yaw:.35,pitch:.16,dist:2.6},to:{at:hvAt("stig",.62),yaw:.15,pitch:.12,dist:2.2},ms:3400,fov:36,tall:{fov:50}}},
     {at:S=>{walk("katy",5,5);setTimeout(()=>walk("saphira",7,5),700);setTimeout(()=>walk("hans",6,5),1300);setTimeout(()=>walk("thorn",8,5),1800);},cam:{from:{at:hvC(6,4.6,.5),yaw:.65,pitch:.48,dist:5},to:{at:hvC(6,4.6,.5),yaw:.5,pitch:.42,dist:4.4},ms:5200,fov:38,tall:{fov:54}}},
     {at:S=>{walk("stig",6,2);walk("katy",5,2);walk("saphira",7,2);walk("hans",4,2);walk("thorn",8,2);setTimeout(()=>{if(S.over||!B)return;for(const k of["stig","katy","saphira","hans","thorn"])hvFaceTo(k,hvC(6,0).x,hvC(6,0).z);
-        S.tween(3000,k=>{if(B)B.sc.calm=k;},null);hvSnd("silence");setTimeout(()=>hvSnd("breath"),900);},1800);},
+        S.tween(3000,k=>{if(B)B.sc.calm=k;},null);hvSnd(hvHas("fire-hush")?"fire-hush":"silence");setTimeout(()=>hvSnd("breath"),hvHas("fire-hush")?2400:900);},1800);},
       cam:{from:{at:hvC(6,1,1),yaw:.3,pitch:.2,dist:5.2},to:{at:hvC(6,1,.9),yaw:.2,pitch:.16,dist:4.2},ms:6000,fov:38,ease:"soft",tall:{fov:54}}},
     {at:S=>{hvVeil(S,"hv-sea");},cam:{from:{at:hvC(6,6),yaw:.2,pitch:1.5,dist:12},to:{at:hvC(6,6),yaw:.3,pitch:1.52,dist:16},ms:5000,ease:"soft"}},
     {at:S=>{walk("future",11,6);setTimeout(()=>{if(!S.over&&B)hvFaceTo("future",hvC(6,2).x,hvC(6,2).z);},1200);const v=S.el.querySelector(".hv-sea");if(v)v.classList.remove("on");},cam:{from:{at:hvC(11,6,.4),yaw:F3-.45,pitch:.25,dist:3},to:{at:hvC(11,6,.4),yaw:F3-.3,pitch:.2,dist:2.5},ms:4200,fov:34,tall:{fov:48}}},

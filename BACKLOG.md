@@ -64,6 +64,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **The Eleven Paces, round 2: cutscenes play like film (no plinths or grid, no waiting for taps, new shots), the story's own sound cues play, paces count on the first page, title card fix** · Changed · Sam · PR #TBD
 - [x] **The Eleven Paces rewritten so it reads like Stig, not like AI: every passage, choice, cutscene caption and fight line** · Changed · Sam · PR #100
 - [x] **The past in the visions legible again (clear sepia, sharper on phones), and the pinned paces strip clean under the vision layer** · Fixed · Sam · PR #99
 - [x] **Haunted interface for the visions: paces pinned while reading and counted in the picture, weighty choices, rewinding and crumbling text, film captions in cutscenes; reusable for later visions** · Changed · Sam · PR #94
