@@ -7711,9 +7711,15 @@ function t3n_fin(f,b,col,{s=1,k=1,mon=0}={}){const c0=new THREE.Color(col),U={va
    The GLB is read here, without a loader add-on, in the plain shape source/minis/README.md describes: one mesh, one primitive,
    float or quantized attributes and one embedded picture. h = height from soles to crown, ry = turn it to face forward, rim = its edge light,
    sink = the share of the model's height that is its own sculpted base, which goes down into the plinth,
-   tone = how bright the picture is painted on (.85 if left out), rimK = strength of the edge light (.45 if left out).
+   tone = how bright the picture is painted on (.85 if left out), rimK = strength of the edge light (.45 if left out), crew:1 = fetch it as soon as the table opens (the rest load when they first stand on a table).
    One line per sculpted mini, for example  stig:{src:"minis/stig.glb",h:.84,ry:0,rim:"#8fc8ff"}  ---- */
-const MINI3D={stig:{src:"minis/stig.glb",h:.88,ry:-.52,rim:"#8fc8ff",sink:.11},katy:{src:"minis/katy.glb",h:.8,ry:0,rim:"#e7a3b8"}};
+const MINI3D={stig:{src:"minis/stig.glb",h:.92,ry:0,rim:"#8fc8ff",tone:1.05,crew:1},katy:{src:"minis/katy.glb",h:.8,ry:0,rim:"#e7a3b8",crew:1},
+  saphira:{src:"minis/saphira.glb",h:.86,ry:0,rim:"#b58cff",tone:1.3,crew:1},
+  hans:{src:"minis/hans.glb",h:.95,ry:0,rim:"#6fb8ff",tone:1.05,crew:1},teenoog:{src:"minis/teenoog.glb",h:.92,ry:0,rim:"#ff6a4a",tone:1.1},
+  thorn:{src:"minis/thorn.glb",h:.86,ry:0,rim:"#9fd18a",tone:1.05},matthew:{src:"minis/matthew.glb",h:.86,ry:0,rim:"#e8c37a",tone:1.05},
+  grey:{src:"minis/grey.glb",h:.88,ry:0,tone:1.15},warden:{src:"minis/warden.glb",h:.88,ry:0,tone:1.05},hollower:{src:"minis/hollower.glb",h:.82,ry:0},
+  husk:{src:"minis/husk.glb",h:.82,ry:0,rim:"#ff8a4a",tone:1.05},hulk:{src:"minis/hulk.glb",h:1.08,ry:0,rim:"#ff8a4a",tone:1.05},vine:{src:"minis/vine.glb",h:.9,ry:0,rim:"#9fd18a"},
+  needle:{src:"minis/needle.glb",h:.9,ry:0,tone:1.25,rimK:.6},hellbat:{src:"minis/hellbat.glb",h:.62,ry:0,rim:"#ff6a2a",tone:1.1},matriarch:{src:"minis/matriarch.glb",h:.95,ry:0,rim:"#ff6a2a",tone:1.3,rimK:.7}};
 const t3g_have=new Map(),t3g_wait=new Map();
 function t3g_read(buf){const dv=new DataView(buf);if(buf.byteLength<20||dv.getUint32(0,true)!==0x46546C67)throw new Error("not a GLB");
   let off=12,J=null,bin=null;while(off+8<=buf.byteLength){const n=dv.getUint32(off,true),t=dv.getUint32(off+4,true);
@@ -7753,9 +7759,9 @@ function t3g_load(id){const d=MINI3D[id];if(!d||!T3GL)return Promise.resolve(nul
     G.geo.setAttribute("color",new THREE.BufferAttribute(col,3));
     G.top=.07+d.h;G.rim=d.rim||"#c9a35c";G.rimK=d.rimK==null?.45:d.rimK;t3g_have.set(id,G);t3g_swap(id);return G;})().catch(e=>{console.warn("sculpted mini",id,e&&e.message||e);return null;});
   t3g_wait.set(id,job);return job;}
-function t3g_warm(){for(const id in MINI3D)t3g_load(id);}
+function t3g_warm(){for(const id in MINI3D)if(MINI3D[id].crew)t3g_load(id);} // the crew comes early; a foe's file is fetched when its mini first stands on a table
 /* a file that lands while a fight is on the table: the stand-in steps off its plinth and the sculpt steps on */
-function t3g_swap(id){if(!V||!V.minis)return;for(const [u,m] of V.minis){if(m.sculpt||!(u.key===id&&(u.crew||u.side==="pc")||id==="stig"&&u.key==="future"))continue;
+function t3g_swap(id){if(!V||!V.minis)return;for(const [u,m] of V.minis){if(m.sculpt||!(u.key===id||id==="stig"&&u.key==="future"))continue;
   const f=m.face,pz=m.pos.clone();V.root.remove(m.g);t3free(m.g);const n=t3mini(V,u);n.face=f;n.fig.rotation.y=f;n.pos.copy(pz);n.g.position.copy(pz);V.minis.set(u,n);}}
 /* the builder: a sculpt stands still like a real miniature. It only breathes a little; the table tips it over when it drops */
 function t3g_fig(f,u){const G=t3g_have.get(u.key),up=new THREE.Group(),m=new THREE.Mesh(G.geo,new THREE.MeshStandardMaterial({map:G.tex||null,vertexColors:true,roughness:.86,metalness:0}));
@@ -7769,7 +7775,7 @@ function t3mini(Vb,u){const g=new THREE.Group(),fig=new THREE.Group(),s=u.size||
   const base=new THREE.Mesh(t3uBaseGeo(s),new THREE.MeshStandardMaterial({vertexColors:true,roughness:.52,metalness:.38}));base.receiveShadow=true;g.add(base);
   const rim=new THREE.Mesh(new THREE.TorusGeometry(.436*s,.016+.004*s,6,44),new THREE.MeshStandardMaterial({color:sideCol,emissive:sideCol,emissiveIntensity:.7,roughness:.35,metalness:.2}));rim.rotation.x=Math.PI/2;rim.position.y=.071;g.add(rim);
   const ring=new THREE.Mesh(new THREE.PlaneGeometry(2*s,2*s),t3uRingMat(sideCol));ring.rotation.x=-Math.PI/2;ring.position.y=.018;ring.visible=false;ring.renderOrder=2;g.add(ring);
-  const own=u.crew||u.side==="pc",cut=own&&t3g_have.get(u.key)?t3g_fig:null;if(own&&!cut)t3g_load(u.key); // not here yet: the stand-in plays, t3g_swap changes them over
+  const own=u.crew||u.side==="pc",sc=!!MINI3D[u.key],cut=sc&&t3g_have.get(u.key)?t3g_fig:null;if(sc&&!cut)t3g_load(u.key); // not here yet: the stand-in plays, t3g_swap changes them over
   let b;try{if(cut)b=cut(fig,u);else{T3AV=own?avOpts(u.key):null;b=(T3MINI[u.key]||((f)=>t3body(f,{cloth:u.hex||"#666",skin:"#c9b49a"})))(fig,u);if(T3AV&&T3AV.sc&&T3AV.sc!==1){fig.scale.multiplyScalar(T3AV.sc);b.top*=T3AV.sc;}}}catch(e){console.error(e);b={up:fig,top:.8,hand:new THREE.Vector3(0,.4,.1)};}finally{T3AV=null;}
   if(!b.big&&s>1)fig.scale.setScalar(s*.8);
   fig.traverse(o=>{if(o.isMesh){o.castShadow=T3Q.hi;}}); // phones draw no shadow maps

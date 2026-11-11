@@ -6,6 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **New** Almost everyone on the 3D table is sculpted now, each from a painting of their own: Saphira, Hans, Stig with his shovel, Thorn, Matthew, Teenoog with his ruined hat and eye patch, and the foes of session 10: the Hollowers, the Ash Husks and the Ash Hulk, the Vine and Needle Blights, the Hollow Warden and the Grey Man. They stand in every fight and on the sheets with real faces, cloaks and weapons you can make out up close. Until a statue has loaded, and on any device that cannot load it, the old mini stands in. (Sam)
 - **Lore** Stig fights with a shovel, not a mace. His sheet, his fight moves and the mini that stands in while his statue loads all show the shovel now; it hits the same as the mace did (+3, 1d6 bludgeoning). His statue gets its shovel in a later update. (Sam)
 - **Changed** In *The Eleven Paces*, the dark the boy runs into at the door is a cleft in the rock now, its edge caught by the firelight and ash drifting across its mouth, instead of a soft black patch. (Sam)
 - **Changed** *The Eleven Paces*: the fight with Stig's future self is a little easier to win. He has 40 hit points instead of 45, and the grey hands miss more often. A careful Stig (counting heads, turning the hands, keeping his spells on his future self) should win most nights; a careless one can still go under. When the boy runs off at the door, the far corner goes dark ahead of him and he fades into it, instead of melting into the lit rock. (Sam)
