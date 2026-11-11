@@ -6,6 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **Fixed** Behind the scenes: the sound check listens to each vision sound on its own now, so the cave's own drips can't fool it. Nothing changes in what you hear. (Sam)
 - **Changed** *The Eleven Paces*, round 7: at the end of the third door the old man really sits down by the wall, the fire lights him gently instead of washing him out, and his last look at the crew by the fire is over a dark shoulder rather than a pale blur. The huddle at the door is seen from just above their heads, so nobody's cloak fills the screen, and the boy's warm edge is bright enough to see. (Sam)
 - **Changed** *The Eleven Paces*, round 6: the boy is a dark shape with a warm edge, a shadow of a child, instead of a pale doll. Stepping into the fire is a short white flash, not two seconds of glare. After the second door the water keeps rippling and steaming while the line is up. At the third door the crew's huddle is filmed low from the side, no longer from inside the wall, and the fire really does throw its light on the old man by the wall. In the fight, two words over the same piece no longer land on top of each other. (Sam)
 - **Changed** The opening of *The Eleven Paces* never goes quiet: the cave breathes under the whole cutscene (the lamp, slow drips, a low pull from below) between its sounds, as it does once you start reading. (Sam)
