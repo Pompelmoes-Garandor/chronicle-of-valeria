@@ -800,6 +800,8 @@ She smiles. You've never seen your face do that.
 
 Then she gets up, and puts the lute case back on her back, and walks off into the ash. She doesn't look round. You don't think she's going anywhere bad. She's walking like someone with somewhere to be.
 
+Far off in the ash, where she's going, there's a doorway. There's fire in it, and the fire doesn't move.
+
 ?seen P1b: On the way, she passes a young man on a bridge, and drops a coin in his hat.
 
 {sound: notes-four}
@@ -835,6 +837,8 @@ She looks at her own hands. The grey is going out of them, slowly, from the fing
 @future: "Well, I'll be."
 
 She doesn't say thank you. You wouldn't have either. She gets up and walks off into the ash, without the case. She left it on the ground.
+
+Far off behind her there's a doorway with fire in it that doesn't move. She doesn't look at it once.
 
 You don't play anything. You put the ukulele down, on the floor, out of the way. You sit down next to him, in the ash, with your shoulder against his.
 
@@ -874,7 +878,9 @@ She's crying. The older you. You've never seen yourself cry. It's not pretty.
 
 @future: "I never asked," she says. "Not once. Twenty years."
 
-Then she's laughing, the laugh, your mother's laugh, and she gets up and walks off into the ash, humming the next line, and somebody in the dark ahead of her picks it up.
+Then she's laughing, the laugh, your mother's laugh, and she gets up and walks off into the ash, humming the next line.
+
+Far ahead of her there's a doorway full of fire that doesn't move. Somebody big is sitting by it with a towel over one knee. He picks the tune up. Badly.
 
 {sound: notes-four}
 
@@ -958,7 +964,7 @@ Nobody owns up.
 - The mouths in the ash fall quiet, one at a time.
 - She mouths the words with you, on her knees.
 - @future: That's how it goes.
-- She stands, shoulders the case, and walks off into the ash.
+- She stands, shoulders the case, and walks off into the ash, toward a doorway of fire.
 - Katy: E.
 
 ## Cutscene: end 2
@@ -966,7 +972,7 @@ Nobody owns up.
 - Your palm, flat on the string. It stops.
 - She looks at her hands. The grey goes out of them, from the fingertips back.
 - @future: Oh.
-- She leaves the lute case lying in the ash and walks away without it.
+- She leaves the lute case lying in the ash and walks away from the fire.
 - You sit down next to him. Shoulder to shoulder.
 
 ## Cutscene: end 3
@@ -976,5 +982,5 @@ Nobody owns up.
 - A low hum from behind you, badly. Then another, with a beep in it. Then a third, quiet and exact.
 - She laughs, and it's your mother's laugh.
 - @future: I never asked.
-- She walks off humming, and somebody in the dark ahead picks it up.
+- She walks off humming. Far ahead, by a doorway of fire, somebody picks it up.
 - Katy: E.

@@ -862,7 +862,7 @@ It thinks. You can feel it think. The cloth round it moves.
 
 @eye: "See," it says. "Just see. Not for her. Not for gloves. For me."
 
-It looks past you at your shadow, at the dark where the dagger's voice is, at the white light.
+It looks past you at your shadow, at the dark where the dagger's voice is, at the white light. And past that, at something you can't see from here. A long way off: a doorway full of fire that doesn't move, and people standing in front of it. It looks for a long time.
 
 @eye: "With you," it says, as if it had just found the word. "See with you. Not for you."
 
@@ -959,5 +959,6 @@ The eye is open. Not wide. Just open. It's looking where you're looking. Katy, b
 - You turn your head to look at it. It's already looking at you.
 - Saphira: What do you want?
 - @eye: See with you.
+- Far off, past the light: a doorway of fire, and the crew in front of it.
 - Your shadow laughs, your laugh.
 - When you look at Katy, it looks at Katy.

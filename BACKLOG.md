@@ -64,6 +64,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Four Notes and Two Tongues, round 2: endings glimpse Stig's door of fire, Saphira's fight in a bare wax room** · Changed · Sam · PR #119
 - [x] **Katy's *Four Notes* and Saphira's *Two Tongues*: haunted interludes with visions, cutscenes, 18 paintings, their own sound and a balanced fight each (held back until Sam plays them)** · New · Sam · PR #118
 - [x] **The Eleven Paces with the shovel statue: ash on the sleeve, firelight from the first frame, closer phone huddle** · Changed · Sam · PR #116
 - [x] **The Eleven Paces, round 8: Skip mid-cutscene error fixed, chest-up sitting shot with black sand, phone huddle from above, phone count on one face** · Fixed · Sam · PR #114
