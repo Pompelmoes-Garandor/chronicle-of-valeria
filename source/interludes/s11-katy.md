@@ -56,9 +56,9 @@
 
 ## H1. Three of four
 
-He tries.
+Your father is trying to play.
 
-You put the ukulele across his knees and he looks at it a long while before he touches it. Bronze. Worn bright where your thumb goes. It was his before it was yours.
+You put the ukulele across his knees and he looks at it a long while before he touches it. It's bronze, worn bright where your thumb goes. It was his before it was yours.
 
 His left hand finds the neck. The fingers are grey to the second knuckle and they don't bend all the way any more. He gets them onto the strings anyway.
 
@@ -116,13 +116,13 @@ She looks at you with one eye, then the other. Birds do that.
 
 Then she hops down off the ukulele onto your father's wrist, and his skin under her feet isn't grey any more. It's brown. Young. There's a callus on the side of his thumb.
 
-She looks at you again. Come on, then.
+She looks at you again, as if to say: come on, then.
 
 → Put your hand on his wrist, next to her feet. (go to E0)
 
 ## E0. His
 
-The cave goes out like a lamp, and you're standing in a lot of other places at once, none of them quite yet.
+The cave goes out like a lamp, and you're standing in lots of other places at once. They're memories, and none of them are yours.
 
 They're his. You know it the way you know your own handwriting. Every one of them smells a bit of him: lamp oil, wet wool, the tin he keeps his spare strings in.
 
@@ -142,7 +142,7 @@ Three of them come up clear enough to step into. Bluefoot hops along your arm to
 
 Rain. Proper rain, the kind that gets inside your boots.
 
-A stone bridge over a brown river, dusk, a town at one end you don't know. Not elvish. Too many chimneys. People are hurrying across with their collars up and their heads down.
+A stone bridge over a brown river, dusk, a town at one end you don't know. It isn't an elf town. It has too many chimneys. People are hurrying across with their collars up and their heads down.
 
 In the middle of the bridge a young man is playing a lute to all of them. Nobody stops. He's maybe nineteen. Wide hat, gone soft with the wet. Water runs off the brim in a string. He's playing well, too well for a bridge in the rain, and he knows it, and he's a bit cross about it.
 
@@ -419,7 +419,7 @@ Wrong way. The notes are going backwards. His fingers are lifting off the string
 
 The lamp is on the wrong side of the cave. Stig sits back down on his stone, then stands up, then sits down. Hans is humming his beat backwards. It sounds like someone breathing in for too long.
 
-You look at your hands. You haven't reached across him yet. You're about to. You always are.
+You look at your hands. You haven't reached across him to play the E yet. You're about to. In this loop, you're always about to.
 
 Then you have, and the E is ringing, and it's never going to stop.
 
@@ -577,7 +577,7 @@ At the back, the girl with the ukulele has gone.
 
 A dirt track, dawn, mist lying in the low fields. A cart, one horse, going slowly.
 
-You're driving it. Older. The streak of grey at the front of your hair.
+You're the one driving it, older, with a streak of grey at the front of your hair.
 
 Your hands on the reins are grey to the second knuckle.
 
@@ -676,7 +676,7 @@ She looks past you, at him, first. Her face does something you'd never let yours
 
 @future: "He's alive. Look at him."
 
-You don't want to. You do. Grey to the elbow. Still. Eyes on the strings.
+You don't want to look at him, but you do. He's grey to the elbow and he isn't moving. His eyes are on the strings.
 
 @future: "I've played it every night for twenty years. Look at my hands."
 
@@ -706,7 +706,7 @@ She reaches for the ukulele. She isn't trying to hurt you. She wants to take it 
 
 You put your hand on her shoulder and she turns round.
 
-It's you. The streak of grey. Grey to the elbows, like him. Your mother's mouth.
+It's you, older. She has the streak of grey in her hair, and she's grey up to the elbows, like him. She has your mother's mouth.
 
 @future: "Put it down."
 

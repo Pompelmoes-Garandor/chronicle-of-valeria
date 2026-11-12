@@ -71,7 +71,7 @@ WHO = {"boy": "The boy", "future": "Him"}
 # the eye in Saphira's cloak speaks Draconic and her patron Elvish, and the page names the tongue
 WHO_BY = {"s11-katy": {"future": "Her"},
           "s11-saphira": {"future": "Your shadow", "eye": "The eye", "patron": "Her"},
-          "s11-hans": {"future": "The last one up"}}
+          "s11-hans": {"future": "The last one awake"}}
 TONGUE = {"eye": "Draconic", "patron": "Elvish"}
 CUR = {"name": ""}
 
