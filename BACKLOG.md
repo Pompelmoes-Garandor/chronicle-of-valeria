@@ -29,6 +29,7 @@ Things that are wrong on the live site today. Check this list before **Now**: a 
 
 Top of the list is what to work on next.
 
+- [ ] **Sam plays Four Notes and Two Tongues and says when Katy and Saphira see them** · Lore · Sam · Needs Sam. Katy's and Saphira's haunted interludes are built but held back: only Sam (signed in as DM) and `?interlude=s11-katy` or `?interlude=s11-saphira` open them. `K11_ON` and `SA11_ON` in `chronicle.html` turn them on for their players. The open lore calls are the `[SAM?]` notes in `source/interludes/s11-katy.md` and `s11-saphira.md`. Pick which paintings stay (the other seed of each is on the `art/s11-drafts` branch).
 - [ ] **Sam plays The Eleven Paces and says when Stig sees it** · Lore · Sam · Needs Sam. Stig's haunted interlude is built but only Sam (signed in as DM) and `?interlude=s11-stig` open it; `S11_ON` in `chronicle.html` turns it on for Stig's player. The open lore calls are the `[SAM?]` notes in `source/interludes/s11-stig.md` and the DM notes in the project files (never in the repo). Pick which paintings stay.
 - [ ] **Sam plays Protocol Zero and says when players see it** · Lore · Sam · Needs Sam. The Steward's bonus level is built but only Sam (signed in as DM), `?interlude` and `?steward` open it; `SW_ON` in `chronicle.html` turns it on for everyone. The ten open questions in the script doc (the ship's name *the Echo*, the invented bridge and engine room, Teenoog's mount, two lines to spoiler-check) are still Sam's: https://claude.ai/artifact/6AQmuc6JWHMxYcD2FuRZmf
 - [ ] **Sam reads the architecture doc for live online storage** · Changed · Sam · Ask this first when Sam starts his next session. Niels wrote a plan to move the site to Netlify, with shared lore in Netlify Blobs, table-only sign-in (email or Google), and players proposing changes that Sam approves as DM: https://claude.ai/artifact/GAzMi1qU52yxoCkHtLsWyW (Niels shares it with Sam; it only opens for people it's shared with). Ask Sam (1) whether he wants to read it now and (2) whether to make it available in GitHub, as an `ARCHITECTURE.md` in the repo root or as an issue. The doc's open questions need his answer before any building starts. Fleshes out **Live online storage** under Later.
@@ -63,6 +64,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Katy's *Four Notes* and Saphira's *Two Tongues*: haunted interludes with visions, cutscenes, 18 paintings, their own sound and a balanced fight each (held back until Sam plays them)** · New · Sam · PR #118
 - [x] **The Eleven Paces with the shovel statue: ash on the sleeve, firelight from the first frame, closer phone huddle** · Changed · Sam · PR #116
 - [x] **The Eleven Paces, round 8: Skip mid-cutscene error fixed, chest-up sitting shot with black sand, phone huddle from above, phone count on one face** · Fixed · Sam · PR #114
 - [x] **The Eleven Paces, round 7: the future self sits by the wall, gentler firelight, clean last look, huddle over their heads, brighter boy edge** · Changed · Sam · PR #112
