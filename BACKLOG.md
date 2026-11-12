@@ -65,7 +65,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
-- [x] **Thaw: Hans's haunted interlude (the great house, the last guest, the frost fight)** · New · Sam · PR #PRNUM
+- [x] **Thaw: Hans's haunted interlude (the great house, the last guest, the frost fight)** · New · Sam · PR #120
 - [x] **Four Notes and Two Tongues, round 2: endings glimpse Stig's door of fire, Saphira's fight in a bare wax room** · Changed · Sam · PR #119
 - [x] **Katy's *Four Notes* and Saphira's *Two Tongues*: haunted interludes with visions, cutscenes, 18 paintings, their own sound and a balanced fight each (held back until Sam plays them)** · New · Sam · PR #118
 - [x] **The Eleven Paces with the shovel statue: ash on the sleeve, firelight from the first frame, closer phone huddle** · Changed · Sam · PR #116
