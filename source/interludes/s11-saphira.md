@@ -84,11 +84,11 @@ The eye has never said anything. Not once.
 
 → Continue (go to H2)
 
-## H2. Held
+## H2. Both
 
 The ash stops.
 
-It doesn't fall. It hangs in the lamplight like dust in a sunbeam. Katy's hand is halfway to her father's. Stig is half up. Hans has his head on one side.
+It doesn't fall. It hangs in the lamplight like dust in a sunbeam. Every pair of hands stops where it is. Katy's, halfway to her father's. Stig's, on the towel. Hans's, at his sides, where they always are.
 
 Nobody's moving except you. And the eye.
 
@@ -134,7 +134,7 @@ You watch it. You lift your hand, slowly. Its hand is up before yours, by a hear
 
 The cave goes thin, like a stage curtain with a lamp behind it.
 
-Behind it there are rooms, and they're the eye's. Everything's seen from a little high and to the left, from somebody's shoulder, and the edges are dark and round like looking through a keyhole.
+Behind it there are rooms, and they're the eye's. Everything's seen from a little high and to the left, from somebody's shoulder and the edges are dark and round.
 
 You know where it sits. You can feel the shape of your own shoulder under you, in every one of them.
 
@@ -168,7 +168,7 @@ The eye listens to it.
 
 The door opens. It's you.
 
-You don't look like that. You look like that. Hair scraped back, blood on your knuckles, moving fast and low, like you were taught. You come in and see the cloak and stop.
+You don't remember looking like that. You did. Hair scraped back, blood on your knuckles, moving fast and low, like you were taught. You come in and see the cloak and stop.
 
 The eye looks at you. You never knew it did. You thought it was asleep.
 
@@ -286,7 +286,7 @@ It takes longer than you'd think. Good paper does. Halfway through it sticks on 
 
 The two halves go up in the wind out of the torn sky and away. The eye watches them go until they're nothing.
 
-@eye: "Good," it says. You never knew it had an opinion.
+@eye: "Good," it says.
 
 → Back (go to E0)
 
@@ -296,7 +296,7 @@ Your room at the inn. Night. Valarius. The cloak's on the bed, spread out, and t
 
 You remember the noise, mostly. Something like a sigh out of a whole building.
 
-From the eye, it's different. It's not a noise. It's a weight going. It's like being let out of a box you didn't know you were in. Everything goes clear and sharp and too bright, all at once. Every face round the bed.
+From the eye, it's different. It's not a noise. It's a weight going. Everything goes clear and sharp and too bright, all at once. Every face round the bed.
 
 It looks at all of them, one after the other, fast, like you'd look round a room for the exits.
 
@@ -347,8 +347,6 @@ The eye looks at you a long time.
 
 Then: "Not cursed. Not asleep. In the way."
 
-You don't think it's ever been anything before. You think it's just been told what it is.
-
 → Back (go to E0)
 
 ## S1. The oldest one {past}
@@ -358,8 +356,6 @@ You don't think it's ever been anything before. You think it's just been told wh
 @eye: "One more," it says. "The first. Hold still."
 
 @patron: "No."
-
-It's the first time she's sounded short with you.
 
 The rooms go. There's dark, a lot of it. Not cave-dark. The dark at the bottom of a well, where it's been dark for so long the dark has a smell.
 
@@ -567,7 +563,7 @@ Then you look at the patron's hands. At the cards.
 
 On the back of every card, in ink, there's an eye. Shut.
 
-The older you sees you looking. She can't see you. She looks anyway, right at where you're standing, the way you look at a door you think you heard.
+The older you sees you looking. She can't see you. She looks anyway, right at where you're standing, the way you look at a dark corner.
 
 "Don't," she says. In Draconic.
 
@@ -680,7 +676,7 @@ On your shoulder, the eye in your hood goes very still.
 
 "Keep what shut?"
 
-@future: "Everything." She touches the side of her face, under the eye. "You keep it, it keeps you. It sees everything. It sees what's coming before you've finished breathing in. You never get surprised again. Not by anyone."
+@future: "Everything." She touches the side of her face, under the eye. "You keep it, it keeps you. It sees everything. It sees what's coming before you've finished breathing in. You never get surprised again. Not by anyone. Shut, it's just a cloak. Nobody comes for a cloak."
 
 "That sounds all right."
 
@@ -748,7 +744,7 @@ The gloves have dropped. Empty, on the floor.
 
 She looks up at you. Both of her eyes. Yours and the other.
 
-@future: "Well," she says. "It's yours. Not mine yet."
+@future: "It's yours," she says. "Not mine yet."
 
 On your shoulder the eye in your hood is open. It's looking at you. It's waiting for you to say something. You've never felt it wait like this. Not even in the dark with the patron's offer.
 
@@ -770,7 +766,7 @@ You're on your knees in the wax and you don't remember going down. There's a glo
 
 Your shadow is kneeling in front of you. Her hand is over the eye too, over the glove, gently.
 
-@future: "There," she says. "That's what it's like. Quiet."
+@future: "There," she says. "No more surprises."
 
 It is quiet. You can't hear the dagger. You can't hear the eye. You can't hear anything over your own breath.
 
@@ -808,7 +804,7 @@ Your shadow, on her knee in the wax, closes both her eyes.
 
 {sound: silence}
 
-The cave comes back. The lamp flickers. The ash comes down again.
+The eye blinks, slow. The cave's back: lamp, ash, every pair of hands.
 
 You're standing with your back to the wall and your cloak in your hands, held out to nothing. Nobody saw. You put it back on.
 
@@ -834,7 +830,7 @@ When you breathe in, she breathes in. Exactly. Not a heartbeat early.
 
 {sound: silence}
 
-The cave comes back. The lamp flickers. The ash comes down again.
+The eye blinks, slow. The cave's back: lamp, ash, every pair of hands.
 
 You've got your hood up. Your back's to the wall.
 
@@ -874,7 +870,7 @@ Your shadow on her knee laughs. It's your laugh. You don't laugh much.
 
 {sound: silence}
 
-The cave comes back. The lamp flickers. The ash comes down again.
+The eye blinks, slow. The cave's back: lamp, ash, every pair of hands.
 
 The eye is open. Not wide. Just open. It's looking where you're looking. Katy, by her father. Stig, with the towel. When you look away, it looks away.
 

@@ -248,7 +248,7 @@ You step out of the foxgloves onto the bank.
 
 Your mother turns her head.
 
-She looks right at you. For one breath she sees something; you can tell from the way her shoulders go. She's a wood elf, and she was a ranger before she was anything at court. She knows when someone's in the trees.
+She looks right at you. For one breath she sees something; you can tell from the way her shoulders go. She knows when someone's in the trees.
 
 "Matthew," she says, very quietly. "There's somebody there."
 
@@ -367,7 +367,7 @@ She doesn't eat it. She just looks, a long time. Then she goes up into the dark 
 
 You remember. You'd forgotten and now you remember. The blue-legged bird. It came three summers running. You told your mother and she said that was nice, and she went to the window and looked out at the roofs for a long time, and didn't say anything else.
 
-He was looking. All that time. He sent a bird to look at you.
+He was looking. All that time.
 
 [SAM?: Bluefoot visiting Katy at court; fits "after Doloris he only sent Bluefoot to check Katy was alive", but this is earlier]
 
@@ -620,7 +620,7 @@ You take the bronze ukulele out of the case. You tuck it in under the blanket, n
 
 Then you get back up on the seat and take the reins in your grey hands and go, before anyone at the farmhouse comes out.
 
-You don't look back. You're good at that.
+The older you doesn't look back.
 
 The cart goes on into the mist. You watch it go from the gate.
 
@@ -670,7 +670,7 @@ She looks past you, at him, first. Her face does something you'd never let yours
 
 "Put what down?"
 
-@future: "That." She nods at your hand. You're holding the ukulele. You don't remember picking it up off his knees. "You'll play it until it eats you. Same as him. That's what it's for, in the end. Holding something back with your hands until there's nothing left of your hands."
+@future: "That." She nods at your hand. You're holding the ukulele. You don't remember picking it up off his knees. "You'll play it until it eats you. Same as him."
 
 "He's alive because he played it."
 
@@ -678,7 +678,7 @@ She looks past you, at him, first. Her face does something you'd never let yours
 
 You don't want to. You do. Grey to the elbow. Still. Eyes on the strings.
 
-@future: "I went looking for him for twenty years. You know what I found? A song. That's all anybody ever leaves you. A song and a bird."
+@future: "I've played it every night for twenty years. Look at my hands."
 
 "Then why are you here?"
 
@@ -734,7 +734,7 @@ She reaches for it. The mouths come up out of the ash.
 
 {sound: heartbeat-one}
 
-She goes down on her knees in the ash. She isn't hurt. She's tired, the tiredest you've ever seen anybody.
+She goes down on her knees in the ash. Ash comes off her hands like flour.
 
 ?flicker>=3: She's hardly there. You can see the lamp through her.
 
@@ -748,7 +748,7 @@ She looks up at you.
 
 Your father hasn't moved. His hand is on the neck of the ukulele where you put it back. His eyes are on the strings.
 
-You've got the E. You've got about one breath of it left. You know, the way you know things in dreams, that what you do with it is going to stay done.
+You've got the E. You've got about one breath of it left. Whatever you do with it, you won't get it back.
 
 → Play the song through. All of it, to the end. (go to End 1)
 → Put your palm flat on the string and stop it. Then just sit with him. (go to End 2)
@@ -764,7 +764,7 @@ You're on your knees in the ash and you don't remember going down.
 
 She's kneeling in front of you. She's got her grey hand over your mouth, gently. She takes it away.
 
-@future: "There. That's what it's like. Now you know."
+@future: "That's the end of the song. That's all it is."
 
 She sits back on her heels.
 
@@ -786,7 +786,9 @@ You've got the E. You've got about one breath of it.
 
 You play it.
 
-All of it. The four notes, and the line after, and the turn in the middle that goes down when you think it's going up. You didn't know you knew that bit. You learned it on a bridge in the rain.
+All of it. The four notes, and the line after, and the turn in the middle that goes down when you think it's going up. You didn't know you knew that bit.
+
+?seen P1c: You learned it on a bridge in the rain.
 
 The mouths in the ash try to sing along wrong and you don't let them. You play over them. You've played over drunks and courtiers and a queen's guard banging on a door. You can play over ash.
 
@@ -806,7 +808,7 @@ Far off in the ash, where she's going, there's a doorway. There's fire in it, an
 
 {sound: notes-four}
 
-The cave comes back. The lamp flickers. The ash comes down again. The E is still ringing, an ordinary E, the kind that stops on its own in a few breaths.
+The E stops on its own, the ordinary way. The cave's back. The E is still ringing, an ordinary E, the kind that stops on its own in a few breaths.
 
 Your father looks up from the strings. At you.
 
@@ -844,7 +846,7 @@ You don't play anything. You put the ukulele down, on the floor, out of the way.
 
 {sound: silence}
 
-The cave comes back. The lamp flickers. The ash comes down again.
+The E stops on its own, the ordinary way. The cave's back.
 
 You're sitting next to your father. Not playing anything. You don't think you've ever done this. Sat next to someone and not been the music.
 
@@ -876,7 +878,7 @@ Then someone else. Hans, with a beep in it. Then Saphira, so quiet you nearly mi
 
 She's crying. The older you. You've never seen yourself cry. It's not pretty.
 
-@future: "I never asked," she says. "Not once. Twenty years."
+@future: "Twenty years," she says. "Nobody ever picked it up before."
 
 Then she's laughing, the laugh, your mother's laugh, and she gets up and walks off into the ash, humming the next line.
 
@@ -884,7 +886,7 @@ Far ahead of her there's a doorway full of fire that doesn't move. Somebody big 
 
 {sound: notes-four}
 
-The cave comes back. The lamp flickers. The ash comes down again.
+The E stops on its own, the ordinary way. The cave's back.
 
 The E has stopped. Nobody's humming anything. Stig is sitting on his stone with the towel. Saphira is looking at the wall.
 
@@ -981,6 +983,6 @@ Nobody owns up.
 - Nothing.
 - A low hum from behind you, badly. Then another, with a beep in it. Then a third, quiet and exact.
 - She laughs, and it's your mother's laugh.
-- @future: I never asked.
+- @future: Nobody ever picked it up before.
 - She walks off humming. Far ahead, by a doorway of fire, somebody picks it up.
 - Katy: E.
