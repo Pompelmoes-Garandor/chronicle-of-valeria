@@ -64,6 +64,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Katy's *Four Notes* and Saphira's *Two Tongues*: haunted interludes with visions, cutscenes, 18 paintings, their own sound and a balanced fight each (held back until Sam plays them)** · New · Sam · PR #118
 - [x] **The Eleven Paces with the shovel statue: ash on the sleeve, firelight from the first frame, closer phone huddle** · Changed · Sam · PR #116
 - [x] **The Eleven Paces, round 8: Skip mid-cutscene error fixed, chest-up sitting shot with black sand, phone huddle from above, phone count on one face** · Fixed · Sam · PR #114
 - [x] **The Eleven Paces, round 7: the future self sits by the wall, gentler firelight, clean last look, huddle over their heads, brighter boy edge** · Changed · Sam · PR #112
