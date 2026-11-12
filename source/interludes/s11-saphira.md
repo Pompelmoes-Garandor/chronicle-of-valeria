@@ -56,21 +56,21 @@
 
 ## H1. A flake
 
-Your back's to the wall. Always is. From here you can see the whole cave, both ways out and every pair of hands.
+You're sitting with your back to the wall, as you always do. From here you can see the whole cave, both ways out, and everyone's hands.
 
-Katy kneeling by her father. Stig getting up off his stone with that towel. Thorn watching the tunnel. Hans being still.
+Katy is kneeling by her father. Stig is getting up off his stone with his towel. Thorn is watching the tunnel. Hans is standing guard, perfectly still.
 
 Ash comes down through the lamplight. It's been coming down all day. You've stopped noticing it on your sleeves.
 
 One flake comes down past your face and lands in the eye on your cloak.
 
-Right in it. On the wet.
+It lands right on the wet surface of the eye.
 
 {sound: eye-open}
 
 The eye blinks.
 
-It's never blinked fast before. It blinks slow, when it bothers. This one's quick, hard, twice. A tear comes out of the corner of it and runs down the cloth. It's black.
+It has never blinked fast before. Usually it blinks slowly, if it bothers at all. This time it blinks twice, quick and hard. A tear comes out of the corner of it and runs down the cloth. It's black.
 
 Then, very close to your ear, so close it's almost inside your hood, something says a word.
 
@@ -118,7 +118,7 @@ You turn your head.
 
 Your shadow's already turned its head.
 
-You watch it. You lift your hand, slowly. Its hand is up before yours, by a heartbeat. The time it takes to decide.
+You watch it. You lift your hand, slowly. Its hand goes up a heartbeat before yours, about the time it takes you to decide to move.
 
 ~Too slow.~
 
@@ -209,7 +209,7 @@ You were quick. You remember being quick. From up here you can see you weren't c
 
 The eye watches your hands come at it. Then it's on your shoulders, and the room swings, and you're out of the door.
 
-It looks back. You never did. At the hook. At the wall.
+As you go, the eye looks back at the hook and the wall. You never looked back.
 
 Then it looks at you. Close, from your shoulder, for the first time. At the side of your face, the cut on your jaw, your ear.
 
@@ -280,7 +280,7 @@ From the eye you can see your own face. You look terrified. You'd have bet money
 
 {sound: paper-tear}
 
-You pull. She pulls. It goes.
+You pull your end. She pulls hers. The contract tears in two.
 
 It takes longer than you'd think. Good paper does. Halfway through it sticks on the seal and Katy says something rude and you both pull harder.
 
@@ -405,7 +405,7 @@ The eye doesn't open.
 
 {sound: rewind}
 
-Your back's to the wall. Always is.
+You're back with your back to the wall.
 
 Ash goes up past your face. Up. Off your sleeves and away into the dark, dry, like it never came down.
 
@@ -419,7 +419,7 @@ In Draconic. Her voice, from the dagger, in the eye's language.
 
 In Elvish. Old court Elvish, all long vowels, from your hood.
 
-Wrong way round. They've swapped. You're fluent in both and for a moment you can't tell who's talking.
+The voices are the wrong way round: the patron is speaking Draconic and the eye is speaking Elvish. You're fluent in both and for a moment you can't tell who's talking.
 
 The lamp's on the wrong side of the cave. Katy takes her hand back from her father's. Stig sits down. Hans is humming his beat backwards.
 
@@ -463,7 +463,7 @@ There's a woman at the table pressing a seal into hot wax on the collar of a clo
 
 It's you.
 
-Older. Quiet. You look like someone who's paid well and sleeps fine. There's a ring on your hand with the Order's mark.
+It's an older you. She's quiet, and she looks like someone who's paid well and sleeps fine. There's a ring on your hand with the Order's mark.
 
 On the cloak in front of you there's something in the cloth, half open, under the wax. Watching you.
 
@@ -577,9 +577,9 @@ Then she picks up her cards.
 
 A campfire, at night, in the open. Low hills you don't know. Stars.
 
-The crew. Older. All of them. Stig's gone grey and wide and he's arguing with Hans about how long to leave the pot on. Katy's got a streak of grey at the front of her hair. Thorn is there, at the edge of the light.
+The crew are all older. Stig's gone grey and wide and he's arguing with Hans about how long to leave the pot on. Katy's got a streak of grey at the front of her hair. Thorn is there, at the edge of the light.
 
-You're sitting a bit apart. Older. Your back's to a rock. Always is.
+An older you is sitting a bit apart, with her back to a rock, as always.
 
 You're talking. Quietly, steady, not stopping. Into your hood.
 
@@ -664,7 +664,7 @@ You put your hand on its shoulder. It's cold and it's solid. It turns round.
 
 It's you.
 
-Older. Silver hair loose. The cut on your jaw, healed white. Your mouth. Your nose. Your right eye.
+It's an older you. Her silver hair is loose. The cut on your jaw has healed to a white line. She has your mouth, your nose and your right eye.
 
 The left one isn't yours.
 
@@ -706,7 +706,7 @@ She reaches for your hood, gently. She wants to pull it shut over the eye before
 
 You put your hand on its shoulder and it turns round.
 
-It's you. Silver hair loose. And the eye, in your face, where your left eye should be.
+It's you, older, with your silver hair loose, and the eye from the cloak in your face where your left eye should be.
 
 @future: "Keep it shut."
 
