@@ -3918,7 +3918,7 @@ function closingCard(){
   el.replaceChildren(h("div",{class:"ch-in"},h("div",{class:"ch-n"},"END OF CHAPTER "+ROMAN(AS_OF)),h("div",{class:"ch-t"},s.t),h("div",{class:"ch-rule"}),
     h("div",{class:"ch-btns"},b("btn ghost","Fly the route",()=>{shut(true);flyRoute(AS_OF);}),b("btn ghost","Replay",()=>{shut(true);startRecap();}),b("btn","Explore the map",()=>shut()))));
   el.classList.remove("out"); el.classList.add("end"); el.hidden=false; R3.card=shut; el.onclick=()=>shut();
-  const t=setTimeout(shut,9000);
+  const t=setTimeout(shut,12000);
 }
 if(RECAP3){
   // left and right turn the page, space goes on; keys typed into a field or pressed on a button keep their own meaning
