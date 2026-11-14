@@ -6,6 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **Fixed** On a computer with the flat board: after you click a foe to attack it, Enter ends the turn again. It did nothing before, because the click left the foe selected. (Claude, for Sam)
 - **New** The list of interludes is a set of painted cards now: each interlude shows its own painting behind its name, two side by side on a computer. Add `?nohub` to the address for the plain list. (Claude, for Sam)
 - **Fixed** Close up, the crew's road was thin and pale on bright ground. It is now a firmer stroke with a darker edge when you zoom right in. (Claude, for Sam)
 - **Changed** The map runs faster on a computer. The far side of the globe is no longer drawn, the land uses a lighter mesh when you are zoomed far out, and weather is only worked out over ground the crew has seen. If your computer had to drop the painted look or the lens to keep up, they now come back by themselves once the map runs smoothly again. Nothing looks different. `?oldspeed` on the address puts it back as it was. (Claude, for Sam)
