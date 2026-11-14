@@ -406,6 +406,17 @@ table.ans td,table.ans th{border-bottom:1px solid #c9a35c22;padding:6px 4px;text
 @keyframes i3In{from{opacity:0;transform:translateY(8px)}}
 @keyframes i3Out{to{opacity:0;transform:translateY(-6px)}}
 @keyframes i3Bob{50%{transform:translateY(3px) rotate(45deg)}}
+/* ---- interludes 3.0: the hub. The list of interludes as painted cards (iHubPaint adds .i3-hub to the list and .i3-hc to a card). ?nohub: the plain list. ---- */
+.pl-choices.i3-hub{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-self:center;width:100%;max-width:1040px}
+.pl-choices.i3-hub>.pl-btn:not(.i3-hc){grid-column:1/-1}
+.pl-choices.i3-hub .pl-btn.i3-hc{position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;gap:5px;text-align:left;min-height:128px;padding:14px 16px;overflow:hidden;border-radius:12px;background:#0b0d12;font:400 21px/1.15 var(--display);letter-spacing:0;color:var(--parch)}
+.pl-choices.i3-hub .i3-hc>.i3-hp{position:absolute;inset:0;background-size:cover;background-repeat:no-repeat;transition:transform .7s cubic-bezier(.2,.7,.2,1)}
+.pl-choices.i3-hub .i3-hc::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#0b0d1200 0,#0b0d1233 42%,#0b0d12e0 84%)}
+.pl-choices.i3-hub .i3-hc>span,.pl-choices.i3-hub .i3-hc>small{position:relative;z-index:1;text-shadow:0 1px 6px #000}
+.pl-choices.i3-hub .i3-hc>small{font:500 11px/1.2 var(--label);letter-spacing:.09em;text-transform:uppercase;color:var(--brass-hi)}
+@media (hover:hover){.pl-choices.i3-hub .i3-hc:hover>.i3-hp{transform:scale(1.04)}}
+@media (prefers-reduced-motion:reduce){.pl-choices.i3-hub .i3-hc>.i3-hp{transition:none}}
+@media (min-width:760px){.pl-choices.i3-hub{grid-template-columns:repeat(2,minmax(0,1fr))}.pl-choices.i3-hub .pl-btn.i3-hc{min-height:168px}}
 /* the vision layer (VISION FX): over the play screen, under its words and buttons */
 #play>canvas.vfx{position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:2}
 #play.vfx-on>.pl-top,#play.vfx-on .pl-side,#play.vfx-on .pl-story>:not(.art){z-index:3}
@@ -12847,6 +12858,12 @@ async function interludeHub(){
     if(own&&!myResults()[own.id]&&!isSent(own.id)){await runInterlude(own);if(!PLAY.on)return;}
     return interludeHub2(list,local,dm);}
   return interludeHub2(list,local,dm);}
+/* interludes 3.0: the hub's list as painted cards: each interlude's own painting behind its name. Without the file the card stays dark and reads the same. ?nohub: the plain list. */
+const I3_HUB=!/[?&]nohub(=|&|$)/.test(location.search);
+function iHubPaint(list){if(!I3_HUB||!storyEl)return;const box=storyEl.querySelector(".pl-choices");if(!box)return;box.classList.add("i3-hub");
+  [...box.children].forEach((b,i)=>{const I=list[i],P=I&&IPICT[I.art];if(!P||!P.src)return;b.classList.add("i3-hc");
+    const t=b.firstChild;if(t&&t.nodeType===3)b.replaceChild(h("span",{},t.textContent),t);
+    b.prepend(h("i",{class:"i3-hp","aria-hidden":"true",style:`background-image:url(${P.src});background-position:${Math.round((P.lx??.5)*100)}% center`}));});}
 async function interludeHub2(list,local,dm){
   storyView("memory");setTitle("Between sessions","Interludes");
   const mine=myResults();
@@ -12863,7 +12880,7 @@ async function interludeHub2(list,local,dm){
     :online()?"Before the table finishes session 10. Play yours on your own."
     :local?"Hans keeps your log on this phone. Read the fire again, play yours again, or send the log to the DM."
     :"A test copy: played here, it stays on this device.";
-  const i=await choose(intro,opts);
+  const asked=choose(intro,opts);iHubPaint(list);const i=await asked;
   if(i<list.length){await runInterlude(list[i]);if(PLAY.on)return interludeHub2(list,local,dm);return;}
   if(unsent.length&&i===list.length){await (local?iShareSend:iSend)(unsent.map(I=>I.id));return interludeHub2(list,local,dm);}
   if(i===bonus){await runSteward();if(PLAY.on)return interludeHub2(list,local,dm);return;}

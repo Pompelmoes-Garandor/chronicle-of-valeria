@@ -6,6 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **New** The list of interludes is a set of painted cards now: each interlude shows its own painting behind its name, two side by side on a computer. Add `?nohub` to the address for the plain list. (Claude, for Sam)
 - **Changed** The road on the map: the crew's journey is now an inked dashed line you can see at every zoom, brass for the old legs and ember for the session on show, with small arrowheads that point the way they went. The waystone jump is a thin arc of teal light across the Fire Sea with a pulse running along it. Fly the route starts gently from where you were looking, follows the road low, climbs high for the jump and comes to rest where the road ends. (Claude, for Sam)
 - **Changed** The pins on the map now show what each place is: a town, an inn, a mountain, a ruin, a cave, a forest or old Valerian tech, each on its own small seal. Realms and seas are written across the map in wide capitals, rumours keep a dashed ring and a question mark, this session's places have an ember ring, and the place whose card is open sits in brass brackets. Seals are easier to hit with a thumb. (Claude, for Sam)
 - **Fixed** In the root tunnels, a Hollower that fled into the walls can no longer be shot or burned while it is away. Before, that could leave the fight with nobody to fight and no way to end. Behind the scenes there is now a fight simulator that plays every fight hundreds of times in a few seconds, to check the balance with numbers. (Claude, for Sam)
