@@ -2581,6 +2581,141 @@ void main(){float d=length(gl_PointCoord-0.5); float a=smoothstep(0.5,0.1,d)*vA;
 {const n=1400,pos=new Float32Array(n*3);for(let i=0;i<n;i++){const v=new THREE.Vector3().randomDirection().multiplyScalar(30+Math.random()*20);pos.set([v.x,v.y,v.z],i*3)}
  const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.BufferAttribute(pos,3));
  scene.add(new THREE.Points(g,new THREE.PointsMaterial({color:0xd9cfb8,size:0.06,sizeAttenuation:true,transparent:true,opacity:.7})));}
+// SKY3: the sky behind the world, like an old star atlas come alive. A Milky Way with dust lanes and a breath of nebula
+// colour is painted once at load into one picture and wrapped round the view; a few thousand stars of every brightness and
+// warmth sit on top as points (the bright ones glow, all of them twinkle a little); the sun is a real disc where uSun points,
+// hidden by the world and flaring softly at its edge; thin northern and southern lights hang over the night side of the cold
+// caps; and from far out, faint brass lines join the brightest stars. The whole sky turns with the sun, as it does for a
+// turning world. In table mode it fades away, so the flat map stays a chart on a table. ?nosky3 brings back the plain stars.
+const SKY3_ON=!/[?&]nosky3/.test(location.search);
+const SKY3=SKY3_ON&&(()=>{
+  const old=scene.children.find(o=>o.isPoints&&o.material.isPointsMaterial); if(old) old.visible=false;
+  let seed=20261113; const rnd=()=>{seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};   // the same sky on every visit
+  const V=sphDir(110,-20), GP=new THREE.Vector3().crossVectors(V,new THREE.Vector3(0.3,0.8,0.52).normalize()).normalize(), GC=V.clone().applyAxisAngle(GP,0.6);   // the band's pole and its bright heart
+  const U={uSky:{value:null},uSun:uniforms.uSun,uTime:uniforms.uTime,uRot:{value:new THREE.Matrix3()},uFade:{value:1},uStar:{value:1},uGain:{value:1.8},uHot:{value:1},uWash:{value:1},
+    uSunC:{value:new THREE.Vector3(1,0.94,0.8)},uPx:{value:900},uMove:{value:reduced?0:1},uLines:{value:0},uVis:{value:0},uAsp:{value:1},uAur:{value:0}};
+  // the painted part, baked once (smaller on phones)
+  const W=SMALL?1024:2048, rt=new THREE.WebGLRenderTarget(W,W/2,{depthBuffer:false,minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,wrapS:THREE.RepeatWrapping,generateMipmaps:false});
+  U.uSky.value=rt.texture;
+  const bs=new THREE.Scene(), bc=new THREE.Camera(), bq=new THREE.Mesh(new THREE.PlaneGeometry(2,2),new THREE.ShaderMaterial({uniforms:{uGP:{value:GP},uGC:{value:GC}},depthTest:false,depthWrite:false,
+    vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.0,1.0);}`,fragmentShader:`
+precision highp float; varying vec2 vUv; uniform vec3 uGP,uGC;
+float h3(vec3 p){p=fract(p*0.3183099+vec3(0.1,0.2,0.3));p*=17.0;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}
+float n3(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.0-2.0*f);
+  return mix(mix(mix(h3(i),h3(i+vec3(1,0,0)),f.x),mix(h3(i+vec3(0,1,0)),h3(i+vec3(1,1,0)),f.x),f.y),mix(mix(h3(i+vec3(0,0,1)),h3(i+vec3(1,0,1)),f.x),mix(h3(i+vec3(0,1,1)),h3(i+vec3(1,1,1)),f.x),f.y),f.z);}
+float fb(vec3 p){float a=0.5,s=0.0;for(int i=0;i<6;i++){s+=a*n3(p);p=p*2.03+vec3(1.7,9.2,3.1);a*=0.5;}return s;}
+void main(){
+  float lo=(vUv.x-0.5)*6.2831853, la=(vUv.y-0.5)*3.14159265;
+  vec3 d=vec3(cos(la)*sin(lo),sin(la),cos(la)*cos(lo));
+  float sb=dot(d,uGP), b=asin(clamp(sb,-1.0,1.0));
+  float cl=dot(normalize(d-uGP*sb+1e-5),uGC), core=smoothstep(-0.3,1.0,cl);
+  vec3 w=d+0.3*(vec3(fb(d*2.3+4.0),fb(d*2.3+11.0),fb(d*2.3+23.0))-0.5);
+  float wid=mix(0.09,0.20,core*core), band=exp(-pow(b/wid,2.0)), wide=exp(-pow(b/(wid*2.6),2.0));
+  float cloud=fb(w*5.0), fine=fb(w*17.0+3.0);
+  float mw=(band*(0.3+1.0*cloud)*(0.4+0.8*core)+wide*0.14*(0.5+core))*(0.7+0.6*fine);
+  float lane=smoothstep(0.40,0.66,fb(w*7.0+31.0))*exp(-pow((b+0.03*sin(cl*7.0))/(wid*0.6),2.0));
+  float lane2=smoothstep(0.48,0.70,fb(w*13.0+57.0))*band;
+  mw*=(1.0-0.88*lane)*(1.0-0.5*lane2);
+  vec3 col=mix(vec3(0.58,0.66,0.84),vec3(1.0,0.85,0.60),core*band)*mw*0.30;
+  col+=vec3(0.34,0.15,0.08)*lane*(1.0-lane)*band*0.22;                       // dust glows a dull red at its edges
+  float n1=smoothstep(0.52,0.82,fb(d*3.1+71.0)), n2=smoothstep(0.55,0.85,fb(d*2.7+113.0));
+  col+=vec3(0.62,0.22,0.27)*n1*(0.22+0.78*wide)*0.16*fb(w*9.0+5.0);         // madder rose
+  col+=vec3(0.16,0.42,0.44)*n2*(0.22+0.78*wide)*0.14*fb(w*8.0+15.0);        // verdigris
+  col+=vec3(0.9,0.88,0.8)*pow(h3(floor(d*340.0)),36.0)*0.22*(0.15+mw*2.0); // star dust too fine to count
+  col=sqrt(clamp(col,0.0,1.0))+(h3(vec3(gl_FragCoord.xy,7.0))-0.5)/255.0;
+  gl_FragColor=vec4(col,1.0);
+}`})); bq.frustumCulled=false; bs.add(bq);
+  const bake=()=>{const t=renderer.getRenderTarget(); renderer.setRenderTarget(rt); renderer.render(bs,bc); renderer.setRenderTarget(t);};
+  bake(); renderer.domElement.addEventListener("webglcontextrestored",bake);
+  const FAR=`gl_Position=vec4(p.xy,p.w*0.9999,p.w);`, OFF=`vec4(2.0,2.0,2.0,1.0)`;
+  const mk=(vs,fs,o)=>new THREE.ShaderMaterial(Object.assign({uniforms:U,vertexShader:vs,fragmentShader:"precision highp float;\n"+fs,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending},o));
+  const add=(m,ro)=>{m.frustumCulled=false; m.renderOrder=ro; scene.add(m); return m;};
+  // the dome: the baked picture and the sun's disc, behind everything
+  const dome=add(new THREE.Mesh(new THREE.SphereGeometry(1,32,20),mk(`
+uniform mat3 uRot; uniform float uFade; varying vec3 vD,vW;
+void main(){vD=position; vW=uRot*position; vec4 p=projectionMatrix*vec4(mat3(viewMatrix)*vW,1.0); ${FAR} if(uFade<0.003) gl_Position=${OFF};}`,`
+uniform sampler2D uSky; uniform vec3 uSun,uSunC; uniform float uFade,uGain,uHot,uWash; varying vec3 vD,vW;
+void main(){vec3 d=normalize(vD); vec3 t=texture2D(uSky,vec2(atan(d.x,d.z)*0.15915494+0.5,asin(clamp(d.y,-1.0,1.0))*0.31830989+0.5)).rgb;
+  float an=acos(clamp(dot(normalize(vW),uSun),-1.0,1.0));
+  vec3 c=t*t*uGain*(1.0-0.9*uWash*exp(-an*an*7.0));
+  c+=uSunC*(smoothstep(0.0072,0.0056,an)*uHot+exp(-an*55.0)*0.5+exp(-an*12.0)*0.06);
+  gl_FragColor=vec4(c*uFade,1.0);}`,{side:THREE.BackSide})),-6);
+  // the stars: brightness follows the real count (few bright, many faint), colour follows warmth
+  const NA=6500, N=SMALL?2600:NA, st=[], v=new THREE.Vector3(), TEMP=[[0.68,0.78,1],[0.86,0.91,1],[1,0.98,0.94],[1,0.92,0.76],[1,0.8,0.56],[1,0.64,0.44]];
+  while(st.length<NA){const z=rnd()*2-1,a=rnd()*6.2831853,r=Math.sqrt(1-z*z); v.set(r*Math.cos(a),z,r*Math.sin(a));
+    const b=Math.asin(v.dot(GP)); if(rnd()>0.3+0.7*Math.exp(-b*b/0.07)) continue;
+    st.push({v:v.clone(),s:Math.pow(10,-0.2*(6.5+2*Math.log10(rnd()*(1-1.8e-4)+1.8e-4))),t:rnd()*5,p:rnd()});}
+  st.sort((a,b)=>b.s-a.s);                                                  // phones keep the brightest, so it is the same sky
+  {const sp=new Float32Array(N*3), sa=new Float32Array(N*3), sc=new Float32Array(N*3);
+   for(let i=0;i<N;i++){const o=st[i], j=Math.min(4,Math.floor(o.t)), f=o.t-j, k=0.3+0.7*Math.min(1,o.s*1.6), A=TEMP[j], B=TEMP[j+1];
+     sp.set([o.v.x,o.v.y,o.v.z],i*3); sa.set([o.s,o.p,o.s>0.48?1:0],i*3);
+     for(let c=0;c<3;c++) sc[i*3+c]=[0.9,0.86,0.78][c]*(1-k)+(A[c]+(B[c]-A[c])*f)*k;}
+   const g=new THREE.BufferGeometry(); g.setAttribute("position",new THREE.BufferAttribute(sp,3)); g.setAttribute("aS",new THREE.BufferAttribute(sa,3)); g.setAttribute("aC",new THREE.BufferAttribute(sc,3));
+   add(new THREE.Points(g,mk(`
+attribute vec3 aS,aC; uniform mat3 uRot; uniform vec3 uSun; uniform float uPx,uTime,uMove,uStar,uHot,uWash; varying vec3 vC; varying float vG;
+void main(){vec3 w=uRot*position; vec4 p=projectionMatrix*vec4(mat3(viewMatrix)*w,1.0); ${FAR}
+  float s=aS.x, g=aS.z, t=uTime*uMove;
+  float a=min(1.0,0.24+1.7*s)*(1.0+uMove*(0.14+0.12*s)*(sin(t*(1.3+aS.y*2.1)+aS.y*40.0)*0.6+sin(t*(3.1+aS.y*1.7)+aS.y*17.0)*0.4));
+  float an=acos(clamp(dot(w,uSun),-1.0,1.0)); a*=1.0-0.92*uWash*exp(-an*an*7.0);
+  float px=(1.3+3.0*s)*(1.0+2.4*g)*uPx/900.0; if(px<1.6){a*=px*px/2.56; px=1.6;}
+  a*=uStar; gl_PointSize=px; if(a<0.004) gl_Position=${OFF};
+  vC=aC*a*(1.0+g*0.35*(uHot-1.0)); vG=g;}`,`
+varying vec3 vC; varying float vG;
+void main(){float d=length(gl_PointCoord-0.5)*2.0; if(d>1.0) discard;
+  float f=vG>0.5?exp(-d*d*40.0)+0.20*exp(-d*4.5)*(1.0-d):clamp(1.25-1.25*d*d,0.0,1.0);
+  gl_FragColor=vec4(vC*f,1.0);}`)),-5);}
+  // brass lines between the brightest stars, as in a star atlas (decoration only: they mean nothing)
+  {const top=st.slice(0,90), used=new Set(), seg=[];
+   for(let i=0;i<18;i++){if(used.has(i)) continue; used.add(i); let cur=i;
+     for(let j=0,n=2+Math.floor(rnd()*4);j<n;j++){let best=-1,bd=0.30;
+       for(let k=0;k<top.length;k++){if(used.has(k)) continue; const dd=top[cur].v.angleTo(top[k].v); if(dd<bd&&dd>0.05){bd=dd;best=k;}}
+       if(best<0) break; const A=top[cur].v,B=top[best].v,e=0.018/bd; seg.push(A.clone().lerp(B,e),B.clone().lerp(A,e)); used.add(best); cur=rnd()<0.25?i:best;}}
+   const g=new THREE.BufferGeometry().setFromPoints(seg);
+   add(new THREE.LineSegments(g,mk(`
+uniform mat3 uRot; uniform float uLines; void main(){vec4 p=projectionMatrix*vec4(mat3(viewMatrix)*(uRot*normalize(position)),1.0); ${FAR} if(uLines<0.004) gl_Position=${OFF};}`,`
+uniform float uLines; void main(){gl_FragColor=vec4(vec3(0.79,0.64,0.36)*uLines,1.0);}`)),-5);}
+  // the lights over the cold caps: three thin curtains round each pole, only where it is night
+  {const SEG=320, n=(SEG+1)*2*6, aA=new Float32Array(n*4), ix=[]; let i=0;
+   for(const sg of [1,-1]) for(let k=0;k<3;k++){const i0=i;
+     for(let j=0;j<=SEG;j++) for(let h=0;h<2;h++,i++) aA.set([(j/SEG-0.5)*6.2831853,h,k,sg],i*4);
+     for(let j=0;j<SEG;j++){const a=i0+j*2; ix.push(a,a+1,a+2,a+1,a+3,a+2);}}
+   const g=new THREE.BufferGeometry(); g.setAttribute("position",new THREE.BufferAttribute(new Float32Array(n*3),3)); g.setAttribute("aA",new THREE.BufferAttribute(aA,4)); g.setIndex(ix);
+   add(new THREE.Mesh(g,mk(`
+attribute vec4 aA; uniform float uTime,uMove,uAur; uniform vec3 uSun; varying vec3 vA; varying float vN;
+void main(){float lo=aA.x,h=aA.y,k=aA.z,t=uTime*uMove;
+  float la=radians(68.0+k*3.8)+0.045*sin(lo*3.0+t*0.05+k*2.1)+0.02*sin(lo*8.0-t*0.09+k)+0.012*sin(lo*19.0+t*0.21)-h*0.035;
+  vec3 n=vec3(cos(la)*sin(lo),sin(la)*aA.w,cos(la)*cos(lo));
+  vN=smoothstep(0.0,-0.24,dot(n,uSun)); vA=vec3(lo*0.15915494+0.5,h,k+aA.w*1.5+2.0);
+  gl_Position=uAur<0.004?${OFF}:projectionMatrix*viewMatrix*vec4(n*(1.046+h*(0.058+0.026*sin(lo*5.0+k*3.0+t*0.07))),1.0);}`,`
+uniform float uTime,uMove,uAur; varying vec3 vA; varying float vN;
+float h1(float x){return fract(sin(x*127.1)*43758.5453);}
+float np(float x,float F,float s){float i=floor(x),f=fract(x);f=f*f*(3.0-2.0*f);return mix(h1(mod(i,F)+s),h1(mod(i+1.0,F)+s),f);}
+void main(){float h=vA.y,t=uTime*uMove,s=vA.z*13.7;
+  float rays=0.4+0.6*np(vA.x*420.0+t*0.22,420.0,s)*(0.55+0.45*np(vA.x*1100.0-t*0.5,1100.0,s+3.0));
+  float act=smoothstep(0.30,0.72,np(vA.x*16.0+t*0.03,16.0,s+7.0));
+  float prof=smoothstep(0.0,0.06,h)*exp(-h*3.2)*(1.0-smoothstep(0.8,1.0,h));
+  vec3 c=mix(vec3(0.30,1.0,0.55),vec3(0.50,0.32,0.95),smoothstep(0.12,0.75,h));
+  gl_FragColor=vec4(c*rays*act*prof*vN*uAur,1.0);}`,{side:THREE.DoubleSide})),4);}
+  // the sun's glare spills a little over the edge of the world (drawn over everything, dimmed by how much of the sun shows)
+  add(new THREE.Mesh(new THREE.PlaneGeometry(1,1),mk(`
+uniform vec3 uSun; uniform float uVis,uAsp; varying vec2 vP;
+void main(){vec4 c=projectionMatrix*vec4(mat3(viewMatrix)*uSun,1.0); vP=position.xy*2.0;
+  gl_Position=(uVis<0.004||c.w<=0.0)?${OFF}:vec4(c.xy/c.w+position.xy*vec2(0.9/uAsp,0.9),0.0,1.0);}`,`
+uniform float uVis; uniform vec3 uSunC; varying vec2 vP;
+void main(){float r=length(vP); if(r>=1.0) discard;
+  float g=pow(1.0-r,3.0)*0.15+exp(-r*26.0)*0.45+exp(-abs(vP.y)*80.0)*exp(-abs(vP.x)*4.5)*0.08*(1.0-r);
+  gl_FragColor=vec4(uSunC*g*uVis,1.0);}`,{depthTest:false})),6);
+  const _b=new THREE.Vector2(), sm=(a,b,x)=>{x=Math.min(1,Math.max(0,(x-a)/(b-a)));return x*x*(3-2*x);};
+  dome.onBeforeRender=(r,s,c)=>{                                              // drawn first, so it sets this frame's numbers for the rest
+    const mm=ease(uniforms.uMorph.value), F=Math.max(0,1-mm*1.6), lens=uniforms.uGlow.value>1, sun=uniforms.uSun.value, o=c.position;
+    const a=Math.atan2(sun.x,sun.z), cs=Math.cos(a), sn=Math.sin(a); U.uRot.value.set(cs,0,sn, 0,1,0, -sn,0,cs);
+    const b=o.dot(sun), q=b<0?Math.sqrt(Math.max(0,o.lengthSq()-b*b)):9, vis=sm(0.985,1.06,q), low=sm(1,1.12,q);   // how far the sun's ray passes from the world
+    U.uSunC.value.set(1,0.56+0.38*low,0.26+0.54*low);
+    U.uFade.value=F; U.uStar.value=0.14+0.86*F; U.uHot.value=lens?4.5:1.15; U.uWash.value=vis; U.uVis.value=vis*F*(lens?0.5:1);
+    U.uPx.value=r.getDrawingBufferSize(_b).y; U.uAsp.value=c.aspect; U.uAur.value=Math.max(0,1-mm*3)*(lens?0.8:0.62);
+    U.uLines.value=0.3*F*sm(0.5,0.72,cam.zoom);};
+  return {U,rt,bake};
+})();
 // orrery rings
 const brass = new THREE.MeshBasicMaterial({color:0xc9a35c,transparent:true,opacity:.9});
 const rings = new THREE.Group(); scene.add(rings);
@@ -3400,9 +3535,9 @@ function thunder(delay){const n=SND.nodes; if(!n) return; const a=n.a, t=a.curre
 // a Kuwahara filter: each pixel takes the calmest of the four corners around it, so colour lies in strokes while edges stay sharp
 const PAINT={on:false,rt:null};
 {const g=new THREE.PlaneGeometry(2,2);
- PAINT.u={tMap:{value:null},uRes:{value:new THREE.Vector2(1,1)},uTime:uniforms.uTime,uK:{value:1}};
+ PAINT.u={tMap:{value:null},uRes:{value:new THREE.Vector2(1,1)},uTime:uniforms.uTime,uK:{value:1},uSky:{value:SKY3_ON?1:0}};
  PAINT.mat=new THREE.ShaderMaterial({uniforms:PAINT.u,depthTest:false,depthWrite:false,vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.0,1.0);}`,fragmentShader:`
-precision highp float; uniform sampler2D tMap; uniform vec2 uRes; uniform float uTime; uniform float uK; varying vec2 vUv;
+precision highp float; uniform sampler2D tMap; uniform vec2 uRes; uniform float uTime; uniform float uK; uniform float uSky; varying vec2 vUv;
 float hsh(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}
 void main(){
   vec2 px=1.25/uRes; vec3 m0=vec3(0.),m1=vec3(0.),m2=vec3(0.),m3=vec3(0.),s0=vec3(0.),s1=vec3(0.),s2=vec3(0.),s3=vec3(0.);
@@ -3416,6 +3551,7 @@ void main(){
   vec3 col=m0; float v=v0; if(v1<v){v=v1;col=m1;} if(v2<v){v=v2;col=m2;} if(v3<v){v=v3;col=m3;}
   // ink stays ink: where every corner is busy (a line, a route, a coast) keep the original pixel
   col=mix(col,texture2D(tMap,vUv).rgb,max(smoothstep(0.0003,0.003,v),1.0-uK));   // up close the brush lifts, so fields, rivers and hachures stay sharp
+  if(uSky>0.5){vec3 o=texture2D(tMap,vUv).rgb; float lc=max(col.r,max(col.g,col.b)); col=mix(col,o,smoothstep(0.015,0.06,max(o.r,max(o.g,o.b))-lc)*(1.0-smoothstep(0.06,0.2,lc)));}   // SKY3: the brush would wipe out the stars, so a bright point on dark sky keeps its own colour
   // paper: fine grain and long fibres, a little warmth in the light parts
   vec2 fc=gl_FragCoord.xy; float grain=hsh(floor(fc))-0.5, fib=hsh(floor(fc*vec2(0.05,0.9)))-0.5;
   col+=(grain*0.035+fib*0.02)*(0.4+0.6*dot(col,vec3(0.33)));
