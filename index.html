@@ -689,8 +689,8 @@ body.recap3 .r3-dots button::before{content:"";position:absolute;left:0;right:0;
 body.recap3 .r3-dots button.on::before{background:var(--brass)}
 body.recap3 .r3-dots button.cur::before{background:var(--steward);box-shadow:0 0 6px var(--steward)}
 body.recap3 .r3-dots button:hover::before,body.recap3 .r3-dots button:focus-visible::before{background:var(--brass-hi)}
-body.recap3 .r3-time{height:2px;border-radius:1px;background:#ffffff0f;overflow:hidden;flex:none}
-body.recap3 .r3-time i{display:block;height:100%;background:var(--brass);opacity:.75;transform-origin:0 50%}
+body.recap3 .r3-time{height:1px;border-radius:1px;background:#ffffff0f;overflow:hidden;flex:none}
+body.recap3 .r3-time i{display:block;height:100%;background:var(--parch-dim);opacity:.6;transform-origin:0 50%}
 body.recap3 .r3-time.paused i{opacity:.3}
 body.recap3 .r3-ch{display:none}
 body.recap3 #caption .r3-art{position:absolute;z-index:-1;left:0;top:0;width:100%;height:96px;object-fit:cover;border-radius:13px 13px 0 0;opacity:.5;pointer-events:none;-webkit-mask-image:linear-gradient(#000 25%,transparent);mask-image:linear-gradient(#000 25%,transparent)}
@@ -709,7 +709,7 @@ body.recap3 #chapter .ch-btns .btn{border-radius:24px;min-height:48px;padding:0 
   body.recap3 #caption.r3 .r3-ch{display:block;font:500 12px/1.3 var(--label);letter-spacing:.2em;color:var(--brass);padding-bottom:10px;border-bottom:1px solid var(--hairline)}
   body.recap3 #caption.r3 .r3-art{position:static;z-index:auto;display:block;flex:none;width:calc(100% + 52px);max-width:none;height:clamp(90px,19vh,160px);margin:-24px -26px -6px;opacity:.92;-webkit-mask-image:linear-gradient(#000 55%,transparent);mask-image:linear-gradient(#000 55%,transparent)}
   body.recap3 #caption.r3 .narr .hans-face{--hf-size:46px}
-  body.recap3 #caption.r3 .place{font-size:30px}
+  body.recap3 #caption.r3 .place{font-size:26px}
   body.recap3 #caption.r3 .txt{flex:1 1 auto;max-height:none;min-height:0;padding-right:4px}
   body.recap3 #caption.r3 p{font-size:18px;line-height:1.62}
   body.recap3 #caption.r3.steward p{font-size:14px;line-height:1.7}
@@ -3901,7 +3901,7 @@ function showStop3(){
   if(!st) setTimeout(()=>face.classList.remove("is-speaking"),2600);
   const place=h("div",{class:"place"}), para=h("p",{}), txt=h("div",{class:"txt in"},para), line=h("i",{}), time=h("div",{class:"r3-time","aria-hidden":"true"},line);
   txt.onclick=next;
-  cap.replaceChildren(
+  cap.replaceChildren(...[
     PLACE_ART[s.at]?h("img",{class:"r3-art",alt:"",loading:"lazy",decoding:"async",src:PLACE_ART[s.at],onerror:e=>e.currentTarget.remove()}):null, // no painting, or the file is gone: the panel simply starts with the words
     r3Dots(n,recapI,go,"Stop"),
     ses?h("div",{class:"r3-ch"},"CHAPTER "+ROMAN(AS_OF)+" · "+ses.t):null,
@@ -3912,7 +3912,7 @@ function showStop3(){
       h("span",{class:"jr"},h("button",{class:"btn ghost prev",type:"button","aria-label":"Back",disabled:recapI?null:"",onclick:back},"←"),
         last?h("button",{class:"btn",type:"button",onclick:()=>endRecap(true)},"Explore the map"):
              h("button",{class:"btn next",type:"button","aria-label":"Next",onclick:next},"→")))
-  );
+  ].filter(Boolean));
   cap.classList.toggle("steward",st); cap.classList.remove("journey"); cap.classList.add("r3"); cap.hidden=false; scramble(place,s.title);
   R3.nav={next,back};
   typing=null;
