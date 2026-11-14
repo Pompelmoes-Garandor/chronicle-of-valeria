@@ -104,7 +104,7 @@ Down at the far end, where the old man lies, somebody is standing in the water. 
 
 He's standing between you and the old man.
 
-You can't be frightened. Not since they marked you. The old hands had a word for a ship that came back empty, the kind they wouldn't sleep aboard. Haunted.
+You can't be frightened. Not since they marked you. So what you're feeling isn't fear but the thing the old hands meant when they wouldn't sleep aboard a ship that came back empty. Haunted.
 
 ~Count again.~
 
@@ -322,7 +322,7 @@ Your heel slips and you're falling.
 
 You don't hit rock. You hit water, deep and black and much too cold, and it shuts over your head. You kick for the light. Something takes hold of your ankle.
 
-A hand, big as yours, holding on with no idea in it of ever letting go. It could drag you down and it doesn't. You know that grip.
+A hand, big as yours. It isn't dragging you down, only holding on, with no idea in it of ever letting go. You know that grip.
 
 {sound: heartbeat-two}
 
@@ -382,7 +382,7 @@ Her arms are shaking. Her hands have gone clear as glass from the fingertips bac
 
 She's breathing with the water. In when it heaves up. Out when she pushes it down. Slow and long. You know that breath. Hers is getting thin.
 
-She looks up, straight at you, then at your arm.
+She looks up, and she doesn't look round the hall. She looks at you, at your arm.
 
 She doesn't speak. Maybe she can't any more. But her face, when she sees the mark on you, is a sailor's face at four in the morning when he hears the next man's boots on the ladder.
 
@@ -390,7 +390,7 @@ She doesn't speak. Maybe she can't any more. But her face, when she sees the mar
 
 "I know."
 
-Over at the edge of the hall the tall one is standing in the water, grey to the elbows. He's not looking at you. He's watching her hands. He's holding his own hands out flat in front of him and pushing down on nothing. Copying her.
+Over at the edge of the hall the tall one is standing in the water, grey to the elbows. He's not looking at you. He's watching her hands like an apprentice. He's holding his own hands out flat in front of him and pushing down on nothing. Copying her.
 
 → Continue (go to S2)
 
@@ -404,7 +404,7 @@ Then it turns.
 
 {sound: surf}
 
-You feel it in the sigil first, then in your shins. The pull's gone the other way. The water's coming back in, and what it's bringing hasn't happened yet. It rolls in out of the dark a wave at a time.
+You feel it in the sigil first, then in your shins. The pull's gone the other way. The water's coming back in, and this time it carries what hasn't happened yet, rolling in out of the dark a wave at a time.
 
 After every ebb comes a flood. You've said it at a lot of gravesides. You meant it kindly.
 
@@ -470,7 +470,7 @@ The boy's still with you, still holding on. He isn't getting any older. You are.
 
 ## Q1a. Slates {future}
 
-Low roof, big window, benches. Children on the benches, a dozen and more, all sizes, which is what you get when nobody's picking. Slates on their knees. Chalk dust hanging in the light.
+Low roof, big window, benches. Children on the benches, a dozen and more, all sizes, as you get them when nobody's picking. Slates on their knees. Chalk dust hanging in the light.
 
 Your school. You've never seen it and you'd know it anywhere. Fraas-Den, from the light; the sea's right out there, grey-green and close. You always pictured it by the sea.
 
@@ -606,7 +606,7 @@ You stand there with your feet braced, holding on, while the boards creak under 
 
 ## Q2d. Unanswered {future}
 
-You leave it. The line lies on the wet stones where it fell.
+You leave it. The line lies on the wet stones like a sleeping snake.
 
 They call your name again. *Astychon.* Both voices. Patient. Like they know you'll come down to this quay again someday, and again after that.
 
@@ -709,11 +709,11 @@ The flood's all the way in. The cave, the lamp, the old man at the far end: all 
 
 One pace left.
 
-Then the water isn't water any more. It's heat. The cave falls away and you're inside a mountain, black rock, dark as the inside of a fist. In the middle of it there's a door made of fire. Nothing is burning. There's only the fire, standing up in a black stone frame, roaring without moving, like a wave that's stopped at the top and can't come down. [SAM?: the door of fire, see DM notes]
+Then the water isn't water any more. It's heat. The cave falls away and you're inside a mountain, black rock, dark as the inside of a fist. In the middle of it there's a door made of fire. The door isn't burning, because the door is the fire itself, standing up in a black stone frame, roaring without moving, like a wave that's stopped at the top and can't come down. [SAM?: the door of fire, see DM notes]
 
 The crew are here. Katy with ash in her hair. Saphira with her back to the rock. Hans behind you, chest plate warm, humming low. Thorn at the edge of the light with his bow. And more faces than the light reaches.
 
-Nobody's told you how the door works. You know anyway. It opens one way. Somebody goes in and stays on the other side. Then it shuts behind them and everyone else gets to walk on.
+Nobody's told you how the door works. You know anyway, as you know things in dreams. It opens one way. Somebody goes in and stays on the other side. Then it shuts behind them and everyone else gets to walk on.
 
 The boy has hold of your hand. Hard.
 
@@ -779,7 +779,7 @@ He's shaking.
 
 @future: "I can't tell you which. I've had longer than anyone to think about it, and I still can't tell you."
 
-He reaches for you, to hold you back, as you'd have held Thorias.
+He reaches for you. He doesn't mean to hurt you, only to hold you back, as you'd have held Thorias.
 
 → Break his grip. (go to @undertow)
 
@@ -1057,7 +1057,7 @@ The sigil's gone quiet under your sleeve. Quiet, not done. The tide turns. It do
 - The boy grips your hand harder.
 - @future: Stop what you're doing.
 - @future: Stop. / Don't.
-- He reaches for you, to hold you back.
+- He reaches for you, to hold, not to hit.
 
 ## Cutscene: door 1
 

@@ -94,7 +94,7 @@ Your father doesn't move either. He's still looking at the strings.
 
 The ash in the air has stopped falling and hangs where it was.
 
-Down at the far end of the cave, past the Heart, a woman is walking away from you with a long case on her back. You can't see her face and she doesn't look round. She takes a dozen steps and gets no further off.
+Down at the far end of the cave, past the Heart, a woman is walking away from you with a long case on her back. You can't see her face and she doesn't look round. However long you watch, she gets no further off.
 
 ~Put it down.~
 
@@ -104,9 +104,9 @@ Down at the far end of the cave, past the Heart, a woman is walking away from yo
 
 A falcon lands on the neck of the ukulele, right beside your father's grey fingers.
 
-She's small, the size of your two hands together, and made of ash down to the hooks of her claws. A good sneeze would have the lot off. Only her legs are kingfisher blue.
+She's small, the size of your two hands together, and made of ash down to the hooks of her claws, grey and soft at the edges. It looks as if all of it might blow off. Only her legs are kingfisher blue.
 
-You've seen her once before. She was on a windowsill then, dying, with a letter tied to her leg.
+You've seen her once before. She was on a windowsill then, dying, with a letter on her leg.
 
 {sound: wings}
 
@@ -114,7 +114,7 @@ She looks at you with one eye and then with the other.
 
 Then she hops down onto your father's wrist. Under her feet his skin has gone brown and young, with a callus on the side of the thumb.
 
-She gives you the eye again. You don't speak falcon, but that one means hurry up.
+She looks at you again, as if to say: come on, then.
 
 → Put your hand on his wrist, next to her feet. (go to E0)
 
@@ -122,7 +122,7 @@ She gives you the eye again. You don't speak falcon, but that one means hurry up
 
 The cave goes dark, and you're standing in a great many other places at the same time. They're memories and none of them is yours.
 
-They're his. Every one smells of him, of wet wool and the tin he keeps his spare strings in. You have wanted these for twenty-six years.
+They're his. Every one smells a bit of him, of lamp oil and wet wool and the tin he keeps his spare strings in. You have wanted these for twenty-six years.
 
 Three of them come up clear enough to step into. Bluefoot walks up your arm to your shoulder, weighing nothing at all, and waits for you to pick.
 
@@ -138,7 +138,7 @@ Three of them come up clear enough to step into. Bluefoot walks up your arm to y
 
 It's raining properly, the sort that gets inside your boots.
 
-You're on a stone bridge over a brown river at dusk. The town at one end has too many chimneys to be an elf town. People are hurrying across with their collars up.
+You're on a stone bridge over a brown river at dusk. You don't know the town at one end. It has too many chimneys to be an elf town. People are hurrying across with their collars up.
 
 In the middle of the bridge a young man is playing a lute at them, and not one of them stops. He's nineteen or so. His wide hat has gone soft in the wet and the water runs off the brim in a string. He's playing well, far too well for a bridge in the rain. He knows it, and he's a bit cross about it.
 
@@ -161,9 +161,9 @@ The chick opens her beak at him. Her legs are blue.
 
 You have coins. A charlatan always has coins. You walk up through the rain and drop one into the hat beside the chick.
 
-It never lands. Halfway down it stops being there.
+It doesn't make a sound and it doesn't land. It just isn't there any more.
 
-He looks up all the same. His eyes go to the spot where you're standing and on past it. Rain runs off his hat.
+He looks up all the same. He looks at the place where you're standing without seeing you, as people look at a door when they think they heard a knock. Rain runs off his hat.
 
 "Huh," he says.
 
@@ -171,19 +171,19 @@ Then he grins at nobody and starts a new tune. It's a quick one, the drinking so
 
 The chick climbs out of the hat and sits on his boot. On your shoulder, Bluefoot digs her claws in a little.
 
-?flicker<=1: A long way behind all this, the woman with the case on her back has stopped walking. Then she walks on.
+?flicker<=1: A long way behind all this, the woman with the case on her back has stopped walking, just for a moment.
 
 → Back (go to E0)
 
 ## P1c. Listening {past}
 
-You stand in the rain and listen. People walk straight through you and you let them.
+You stand in the rain and listen, and you don't try to be seen. People walk straight through you and you let them.
 
 Next he plays a slow one that you don't know. There's a turn in the middle you'd never have thought of, where the tune goes down just when you're sure it's going up.
 
 You want to stop him and ask how he did that. You'd get about four lines into asking before he told you to shut up and listen. He has that sort of face.
 
-Ash starts coming down with the rain and turns it grey. The song gets thin, with gaps in it where notes should be.
+Ash starts coming down with the rain and turns it grey. The song goes thin, like a cup with a crack.
 
 You hang on to the tune. By the time he finishes you have the turn in the middle, or you think you have.
 
@@ -195,7 +195,7 @@ You hang on to the tune. By the time he finishes you have the turn in the middle
 
 {sound: river}
 
-It's summer. A shallow river runs through a big wood, brown in the pools and clear where it goes over stones. The bank is thick with foxgloves, purple ones and white ones, taller than a child. The air is loud with bees.
+It's summer. A shallow river runs through a big wood, its brown water going clear over the stones. The bank is thick with foxgloves, purple ones and white ones, taller than a child. The air hums.
 
 {sound: wind-trees}
 
@@ -234,15 +234,15 @@ Bluefoot, still young and fluffy, sits on the lute case on the far bank and watc
 
 You step out of the foxgloves onto the bank.
 
-Your mother turns her head and looks right at you. Her shoulders come up. She can't quite see you, but she has always known when somebody was in the trees.
+Your mother turns her head and looks right at you. For one breath she sees something, and you can tell by what her shoulders do. She knows when someone's in the trees.
 
 "Matthew," she says, very quietly. "There's somebody there."
 
-He looks. He looks straight through you at the foxgloves behind, shrugs, and turns back to his lute.
+He looks. He looks straight through you at the foxgloves behind, shrugs, and goes back to his stone.
 
 She goes on looking. Her hand has found the bow by itself.
 
-Then ash comes down over the river and lies grey on the water and on the flowers. She turns away from you and laughs at a thing he's just said. You didn't catch what.
+Then ash comes down over the river and lies grey on the water and on the flowers. She turns away from you and laughs at a thing he's just said. You didn't catch what, and you'd have liked to.
 
 → Back (go to E0)
 
@@ -266,7 +266,7 @@ Bluefoot pecks your ear, gently, and you go.
 
 It's autumn now. The same big trees have gone red and gold and the leaves are coming down by the handful. A narrow track runs in under them, where it's dark.
 
-He's a year older. He's walking fast up the track with the lute case on his back and his hat in his hand, grinning to himself, and he's rehearsing under his breath. You catch some of it.
+He's a year older. He's walking fast up the track with the lute case on his back and his hat in his hand, with a face on him like a boy on the first day of the holidays. He's rehearsing something under his breath. You catch some of it.
 
 "Elodie. I came back. I know. I know, I said I'd write. Elodie, I came back."
 
@@ -276,7 +276,7 @@ Somebody is standing where the track goes in under the trees, and he's in the wa
 
 You can see your father's face, so you watch that while the hooded one talks.
 
-The grin goes first. For a bit there's a look you have no name for. Then his face empties and turns polite, and that one you do know. You wear it at court when they tell you the queen is busy.
+The boy's face goes first. For a bit there's a look you have no name for. Then his face empties and turns polite, and that one you do know. You wear it at court when they tell you the queen is busy.
 
 He nods and says a few words. He puts his hat back on.
 
@@ -315,9 +315,9 @@ You walk up the track and in under the trees, to the one with the bow.
 
 He hasn't moved. He's watching your father go. You get close enough to study his hands, which are long in the finger and callused where a bowstring rubs. One thumb has a green stain down the side from working bark.
 
-The hands are shaking. It's slight, and you'd never spot it from the track.
+He's shaking. It's slight, and you'd never spot it from the track.
 
-His face is back inside the hood and you don't go looking for it. You stand beside him and the two of you watch your father walk away.
+You can't see his face inside the hood, and you don't try. You stand beside him and the two of you watch your father walk away.
 
 He stays on his feet until your father is out of sight. Then he lets out a long breath, sits down against the nearest tree and puts his face in his hands.
 
@@ -391,7 +391,7 @@ The notes are running backwards, and his fingers are coming up off the strings w
 
 The lamp is on the wrong side of the cave. Stig sits back down on his stone, stands up, and sits down again. Hans is humming his beat back to front, and it sounds like one very long breath in.
 
-You look at your hands. You haven't reached across to play the E yet. You're about to. Then you have, and the E is ringing and won't ever stop. Then you haven't again, and you're about to.
+You look at your hands. You haven't reached across him to play the E yet. You're about to, and in this loop you're always about to. Then you have, and the E is ringing and won't ever stop.
 
 ~Put it down. Put it down. Put it down.~
 
@@ -409,7 +409,7 @@ The ring comes back down, but it has changed. It's thin and cold now, a note hea
 
 Bluefoot has gone from your shoulder. You look round for her and there's only air. She doesn't come out this far.
 
-The ones out here are yours. None of them has happened, and they might never. They come up out of the ash one at a time, and each has the four notes in it somewhere.
+The ones out here are yours. None of them has happened, and they might never. They come in out of the ash like faces at a window, and each has the four notes in it somewhere.
 
 Three of them come up clear enough to step into.
 
@@ -425,7 +425,7 @@ Three of them come up clear enough to step into.
 
 You're in a narrow cobbled street you don't know, with washing strung across between the windows. It's morning and somebody is frying onions.
 
-Six or seven children are holding hands in a ring in the middle of the street, singing. It takes you two lines to place the tune.
+Six or seven children are holding hands in a ring in the middle of the street, singing. It takes you a moment to place the tune.
 
 It's yours. It's the song from the court square, the one you sang the day after your mother died, and everything since started with it. They have the tune nearly right and the words all wrong. Half of their version is about a goat.
 
@@ -462,7 +462,7 @@ The man says a few words to the boy and the boy answers. Then the boy runs, and 
 
 You stand there a while longer. Your hands are cold. You put them in your pockets and find ash in both, and you can't think where you picked it up.
 
-Up in a window somebody starts humming the song. They get halfway through and break off.
+Up in a window somebody starts humming the song. They get halfway through and stop, as if they'd remembered they weren't supposed to.
 
 ^^It's not your song any more.^^
 
@@ -478,7 +478,7 @@ The stage is two crates with a board across them. A woman is standing on it, tun
 
 It's you. You know from the back of the room, before you've seen her face, because she stands with one hip out and acts as though she doesn't care who's listening.
 
-She's older, though not old. There's a grey streak at the front of her hair where the ash got in and stayed. She looks well, and she looks tired.
+She's older, though not old. Her hair has a grey streak at the front, as if ash had got in and stayed. She looks well, and she looks tired.
 
 She plays the four notes. A, D, F, E.
 
@@ -494,9 +494,9 @@ She looks at the chair for some time. Then she starts the song.
 
 By the door at the back stands a girl of about fourteen with a cheap ukulele hung round her neck on a string. She's mouthing the words, all of them. Her left hand is finding the chords on her own strings, without a sound, one beat behind the stage.
 
-You don't know her. She has a split lip and boots too big for her, and she keeps close to the door in case somebody tells her to get out.
+You don't know her. She has a split lip and boots too big for her. She looks as if she's come in out of the cold and isn't sure she's allowed to be here.
 
-The you on the stage hasn't noticed her. She's singing to the empty chair.
+The you on the stage hasn't seen her. She's looking at the empty chair.
 
 → Make the you on the stage look up. (go to Q2c) +flicker
 → Leave it. Let her look at the chair. (go to Q2d) +dread -flicker
@@ -523,7 +523,7 @@ The girl nods.
 
 You leave her to it, and she sings the whole song to the empty chair.
 
-It's good. You'd pay to hear it. She gets every hard place right, including a turn in the middle where the tune goes down just when you expect it to go up.
+It's beautiful, and you know it is. You can hear every place she gets right, and the turn in the middle that goes down just when you think it's going up.
 
 When she's done the room stamps and bangs on the tables. She doesn't look at any of them. She picks up the cup that was set in front of the empty chair, drinks it, and climbs down off the crates.
 
@@ -539,7 +539,7 @@ A dirt track at dawn, with mist lying in the low fields. A cart with one horse i
 
 You're the one driving, older, with a grey streak at the front of your hair. Your hands on the reins are grey to the second knuckle.
 
-In the back, under a blanket, somebody small is asleep. A bit of hair sticks out at the top, and it's red.
+In the back, under a blanket, something small is asleep. A bit of hair sticks out at the top, and it's red.
 
 [SAM?: a maybe; whose child is never said]
 
@@ -560,7 +560,7 @@ She wakes up all at once, and cross about it. The first thing she looks at is yo
 
 So you tell her. You say where you're going, and that it's on account of what's in your hands, and that you'll come back if you can. You say you don't know whether you can. You don't dress any of it up.
 
-She hears you out and doesn't cry. She's furious. She punches you on the arm, hard, and through the grey you can't feel it.
+She hears you out and doesn't cry. She's furious. She punches you on the arm, hard, and because of the grey it doesn't hurt.
 
 "You could have just gone," she says. "You could have just left a note."
 
@@ -598,11 +598,11 @@ The cave comes back wrong. Everything is pale. The floor is ash, trodden flat li
 
 Your father is sitting where he was, by his stone, with the ukulele across his knees. His hand is still on the neck and he's still looking at the strings. He doesn't move.
 
-The ash around you is full of mouths. You can't see them. You can hear them under the ring, singing the lullaby, your song. They have every word wrong, and they drag it a beat behind where you'd be.
+The ash around you is full of mouths. You can't see them. You can hear them under the ring, singing the lullaby, your song. They get every word wrong, and they sing it slowly, one beat behind you.
 
-Between you and him stands the woman who has been walking away from you all night. She's close enough to touch now. Her back is to you, the case is on it, and her arms are grey to the elbows.
+Between you and him stands the woman who has been walking away from you all night. She's close enough to touch now. She has her back to you and the case on her back, and her arms are grey to the elbows.
 
-She stands with one hip out. You know that stance.
+She stands with one hip out, like someone waiting for a cart. You know that stance.
 
 ~Put it down.~
 
@@ -616,7 +616,7 @@ You put your hand on her shoulder and she turns round.
 
 She's you, some years on. The grey streak is there at the front of her hair. Her skin has gone the same grey as your father's hand, from the fingertips to above the elbow, and there's ash in the creases round her eyes. She has your mother's mouth. You've never caught that in a mirror, and on her it's plain.
 
-She looks past you first, at him, and her face crumples. You'd never let yours do that in front of people.
+She looks past you first, at him. Her face does a thing you'd never let yours do in front of people.
 
 @future: "Put it down."
 
@@ -640,7 +640,7 @@ She opens her mouth and two voices come out, and they give different answers.
 
 @future: "To hear it once more."
 
-She holds up her hands. The fingertips are grey and perfectly smooth. The strings have worn off the calluses, and then the lines under them.
+She holds up her hands. The fingertips are grey and smooth, with no calluses and no lines, as if strings had worn them down until nothing was left to wear.
 
 @future: "I can't tell you if it works. Playing. Holding it back. I never got to see the end of it."
 
@@ -710,7 +710,7 @@ You have the E for about one more breath. Whatever you spend it on, you won't ge
 
 The E stops.
 
-It doesn't die away. It's cut off, and every other sound goes with it, the voices and the hiss of the lamp included. You have never in your life heard nothing. Musicians don't. There's always a gutter dripping or somebody breathing.
+It doesn't die away. It's cut off, and every other sound goes with it, the voices and the hiss of the lamp included. You have never in your life heard nothing. Musicians don't. There's always something.
 
 You're on your knees in the ash and you don't remember going down.
 
@@ -740,7 +740,7 @@ You play it, all of it. The four notes and the line after them, and then the tur
 
 ?seen P1c: You learned it on a bridge in the rain.
 
-The mouths in the ash try to join in with their wrong words, and you play over the top of them. You've played over drunks, and over a queen's guard hammering on a door. Ash is no harder.
+The mouths in the ash try to join in with their wrong words, and you play over the top of them. You've played over drunks and courtiers, and over a queen's guard hammering on a door. Ash is no harder.
 
 She listens on her knees, and her lips move with the words.
 
@@ -750,7 +750,7 @@ She smiles. You didn't know your face could do that.
 
 @future: "That's it. That's how it goes."
 
-Then she gets up, swings the lute case onto her back and walks off into the ash without looking round. You don't think she's headed anywhere bad. She has the walk of someone who's expected.
+Then she gets up, swings the lute case onto her back and walks off into the ash without looking round. You don't think she's headed anywhere bad. She walks like someone with somewhere to be.
 
 A long way off, where she's going, there's a doorway with fire in it. The fire doesn't move.
 
@@ -796,7 +796,7 @@ You don't play anything. You set the ukulele down on the floor, out of the way, 
 
 {sound: silence}
 
-Then the pale floor is gone and you're back in the cave, sitting beside your father, playing nothing. You can't remember ever sitting next to somebody without being the music.
+The pale floor is gone and the cave is back. You're sitting beside your father and you aren't playing anything. You can't remember ever sitting next to somebody without being the music.
 
 He looks at you, a little surprised. Then he leans your way, just enough that his shoulder rests on yours.
 

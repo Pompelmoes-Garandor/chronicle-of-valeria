@@ -31,7 +31,7 @@ PLAY? ▮
 
 The static pulls together into a single round lens. It opens: teal.
 
-You are standing very still. You are good at it. You have been standing still for a very long time.
+You are standing very still. You are good at it. You have been standing still for a very long time, in one way or another.
 
 ```log
 MEMORY START · VESSEL ECHO · THE HILLS · DAWN
@@ -47,7 +47,7 @@ The Echo hangs low over a ledge, engines purring. A gangplank of stone slides ou
 
 The crew come past you one by one.
 
-Katy Berry passes with the ukulele on her back and taps your shield twice with her knuckles. It is for luck, she says.
+Katy Berry passes with the ukulele on her back and taps your shield twice, as people knock on a door for luck.
 
 "Bard," you say. "Your tree has been watered."
 
@@ -154,7 +154,7 @@ You straighten the frame.
 
 One tree fills the room. Its roots run across the floor like cables, and its canopy goes up through a hole in the ceiling into the sky. The berries are small and round and glow a faint gold.
 
-There is a brass can by the door. You water the roots. The tree leans toward you a little, and a few of the berries brighten.
+There is a brass can by the door. You water the roots. The tree seems to lean toward you a little, and a few of the berries brighten.
 
 You pick one and put it away carefully, behind your chest plate, where it is warm. For later. You don't know what later is for, yet.
 
@@ -179,7 +179,7 @@ There is nothing to do here. You stand a while anyway. It is the only room you d
 
 Hours pass. You are back on deck, and the snow is falling up.
 
-Inside the mountain there is one deep boom. It comes up through the hull and through your feet. Cracks of orange light run across the ice. Steam pours out of the peak. Whole slopes of snow slide away.
+Inside the mountain something bursts. You feel it more than you hear it, one deep boom through the hull and through your feet. Cracks of orange light run across the ice. Steam pours out of the peak. Whole slopes of snow slide away.
 
 ```log
 SEISMIC EVENT. SOURCE: INSIDE THE MOUNTAIN.
@@ -196,7 +196,7 @@ CREW: 3 OF 3. MOVING.
 
 ## M2. Contact
 
-The count is right. Your shield arm lowers half an inch.
+For a moment everything is fine. Your shield arm lowers half an inch.
 
 Then your lens swings to the west, on its own. A dark smudge on the horizon, moving against the wind.
 
@@ -206,11 +206,11 @@ SCAN: HELLBAT. MANY.
 AND ONE MORE.
 ```
 
-At the front of the swarm flies a bigger one, with a rider on its back. A long coat. A hat.
+At the front of the swarm something bigger flies, with a rider on its back. A long coat. A hat.
 
 "Captain," you say, very quietly.
 
-The swarm's course passes the ship. It ends at the Hills: at the camp, the paths, the three figures on the slope.
+The swarm is coming for the Hills, not for the ship: for the camp, the paths, the three figures on the slope.
 
 → Continue (go to E1)
 
@@ -232,13 +232,13 @@ CONFLICT. RESOLVING.
 RESOLVED.
 ```
 
-You take the second order.
+There was only ever one order.
 
 → Engage (go to E3)
 
 ## E3. Here
 
-You put your hand flat on the helm. The Echo groans and turns broadside to the swarm, every battlement facing it. You fire one rocket straight up. It bursts teal over the mountain, where the whole valley can see it.
+You put your hand flat on the helm. The Echo groans and turns broadside to the swarm, every battlement facing it. You fire one rocket straight up. It bursts teal over the mountain, and nobody could miss it.
 
 Your voice goes out through the ship's horn, over the whole valley: "Here."
 
@@ -255,7 +255,7 @@ GOOD.
 
 ## F1. The battlements
 
-The swarm arrives all at once. The hellbats are the size of a big dog, with a dull ember glow along the wing bones and mouths that open too far. They dive at the rigging and claw at the towers.
+The swarm arrives all at once. The hellbats are the size of a big dog, with leather wings, a dull ember glow along the bones and mouths that open too far. They scream past, dive at the rigging and claw at the towers.
 
 You are built for exactly this.
 
@@ -267,7 +267,7 @@ But they don't come for you. They fly around you. They go for the ship: the seam
 
 A shadow sweeps the deck. Captain Teenoog comes in low on the biggest hellbat of all, a scarred matriarch the size of a horse, close enough to touch. He doesn't attack. He tips his ruined hat.
 
-"Still keeping house, tin man?" He sounds friendly, and his voice carries without effort. "Who for? They've left you."
+"Still keeping house, tin man?" He is friendly and unhurried, and his voice carries without effort. "Who for? They've left you."
 
 "They are on shore leave," you say.
 
@@ -288,7 +288,7 @@ HOSTILES INSIDE THE VESSEL.
 
 ## R0. Below decks
 
-You can hear them in the walls: claws on stone, teeth on copper.
+The ship is the map now. You can hear them in the walls: claws on stone, teeth on copper.
 
 → The chart room (go to R1)
 → The galley (go to R2)
@@ -318,9 +318,9 @@ The map hums. Red marks wink on all over it, through every wall of the ship: in 
 
 ## R1b. No time
 
-You leave them where they fell. You have no log code for that.
+You leave them. It costs you something you have no word for.
 
-The map still hums, but it shows the ship in patches: red marks in the galley, in the grove, and one mark below that flickers and won't hold still.
+The map still hums, but it shows the ship in patches: red marks in the galley, in the grove, and something below that flickers and won't hold still.
 
 → Back to the stairs (go to R0)
 
@@ -391,7 +391,7 @@ The red marks on the map all go out at once, and the walls go quiet.
 
 Wind howls through a hole in the wall where a copper painting used to hang. The painting of the fleet lies in pieces on the floor.
 
-Teenoog stands at the helm with his hand on the plate where yours goes. The ship hummed for you. For him it growls. Outside the broken wall his matriarch hangs in the air, wings beating, eyes red.
+Teenoog stands at the helm with his hand on it, as if it's his. The ship hummed for you. For him it growls. Outside the broken wall his matriarch hangs in the air, wings beating, eyes like coals.
 
 "I always wondered what these looked like inside," he says. "Forty of them, once. I watched them fall one by one." He smiles at you. "You're the last, you know. The last of your kind that still flies."
 
@@ -423,15 +423,15 @@ HOSTILES: 19. LOCATION: ENGINE.
 POWER 38%... 31%... 22%...
 ```
 
-All this time the bats have been eating the engine.
+The bats were never fighting you. All this time they were eating the engine.
 
 → Down to the heart (go to Z1)
 
 ## Z1. The heart
 
-The copper ring is grinding, half its teeth gone. The blue core flickers. Hellbats cover it in a crust and gnaw.
+The copper ring is grinding, half its teeth gone. The blue core flickers. A crust of hellbats covers it, and they are gnawing at it.
 
-You burn them off in seconds with rockets and cannon. They burst and fall. You are magnificent, and it doesn't matter.
+You burn them off in seconds with rockets, cannon and shield. They burst and fall. You are magnificent, and it doesn't matter.
 
 ```log
 POWER 12%... 7%... 4%.
@@ -451,7 +451,7 @@ CREW: 3 OF 3. BELOW.
 
 Before you step back, you tap the edge of the socket twice with your shield. For luck. The bard would.
 
-You back into the socket. It fits you exactly. Clamps close over your arms and your shoulders. The teal of your lens floods out of you and into the core, and the core turns from pale blue to bright teal.
+You back into the socket. It fits you exactly, and it always did. Clamps close over your arms and your shoulders. The teal of your lens floods out of you and into the core, and the core turns from pale blue to bright teal.
 
 ```log
 REROUTING ALL ENERGY → THRUSTERS.
@@ -509,7 +509,7 @@ OPEN CHANNEL: CREW
 
 From far away, without a sound, the Echo comes in low over the snow, a dark castle trailing teal light and smoke. It touches the ground and ploughs a long furrow, throwing up a white wave. Towers fold. The keel breaks. It stops.
 
-Snow falls back down over it. Teal light pulses once in the wreck, then a second time. After that the wreck is dark.
+Snow falls back down over it. Teal light pulses once in the wreck, then twice. Then it's dark.
 
 → Continue (go to X2)
 

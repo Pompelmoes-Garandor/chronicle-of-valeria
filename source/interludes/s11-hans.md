@@ -201,7 +201,7 @@ Every seat is taken. The guests all wear grey travelling clothes and good boots,
 
 You are pouring the wine. You pour it well, and you remember being proud of that.
 
-The guests are louder than people usually are at dinner. They toast one another and sing, and they tell the old stories people tell when they will not meet again. Some of them are old and some are young. One man has a beard down to his belt. Two women are holding hands under the table.
+The guests are happy, and louder than people usually are at dinner. They toast one another and sing, and they tell the old stories people tell when they will not meet again. Some of them are old and some are young. One man has a beard down to his belt. Two women are holding hands under the table.
 
 Each guest stays for one night. You served this dinner every night for years.
 
@@ -242,7 +242,7 @@ You fill the bearded man's glass and lean down to him. Staff do not put question
 
 "Where are you all going?"
 
-He gives you the patient look that guests keep for children.
+He looks at you as if you were a child asking where the sun goes at night.
 
 "To keep the watch," he says. "Somebody has to." [SAM?]
 
@@ -303,7 +303,7 @@ By the end the house is lit from top to bottom. Anyone looking from the north wo
 
 Nobody comes.
 
-You stand in the doorway with the last lamp and wait, in case someone a long way off has seen the lights and is walking towards them.
+You stand in the doorway with the last lamp and wait, in case someone a long way off has seen the lights and is walking towards them. When you think about it, you have been doing this, more or less, ever since.
 
 ?seen P2c: While you wait you play the waltz on your stones at low volume, for the same reason.
 
@@ -319,7 +319,7 @@ It is night and snow is beginning to fall. The house is dark apart from the hall
 
 Someone is coming up the steps.
 
-The guest is taller than you. You are very tall, and you do not care for it. It wears a grey travelling cloak, the same as all the other guests wore, and it gives off heat like a stove. The snowflakes turn to water before they reach the cloak.
+You are very tall, and the guest is taller. You do not like that. It wears a grey travelling cloak, the same as all the other guests wore, and it gives off heat like a stove. The snowflakes turn to water before they reach the cloak.
 
 It stops on the step. "One night," it says. Its voice is low and very tired. "Then north."
 
@@ -391,7 +391,7 @@ The records run backwards too. Gerda puts the chisel back in her belt and walks 
 
 ~Room kept. Room kept.~
 
-If you allowed it, this would go round for ever. You find that you would like that, and you log the liking as a fault.
+You have an awful feeling that, if you allowed it, this could go round and round for ever, and that you would like it.
 
 → Let it play out to the end. (go to F0)
 
@@ -419,7 +419,7 @@ Three of the doors are near enough to walk through.
 
 {sound: steam}
 
-A small inn. It is yours. The sign is very well painted and has a pair of headphones on it, which settles the matter.
+A small inn. It is yours. You can tell, because the sign is very well painted and has a pair of headphones on it.
 
 The floors are spotless. You scrubbed them yourself.
 
@@ -440,7 +440,7 @@ Out by the back door, in the frost, a large figure is standing with one hand rai
 
 You go round the inn and open every window. It is market day outside. Someone is selling fish and shouting about it badly. Children run past, and a dog barks.
 
-The future you watches you do it. He does not approve.
+The future you watches you as if you have broken something.
 
 Then he turns up his stones and plays your beat, quietly.
 
@@ -458,7 +458,7 @@ You fetch a cloth and help him.
 
 You polish every glass. He polishes each one again after you. You take no offence, since you would do the same.
 
-There is a box under the counter. It holds four items: a bronze ukulele with no strings, a towel with blue stripes folded small, a dagger with a blunt edge, a falcon feather that is blue at the quill.
+There is a box under the counter. Inside it are a bronze ukulele with no strings, a towel with blue stripes folded small, a dagger with a blunt edge, and a falcon feather that is blue at the quill.
 
 He sees you looking. "I'm just keeping them," he says. "That's all."
 
@@ -484,7 +484,7 @@ People come up to him with requests. "Play the one from the bridge." "Play the o
 
 He has every song that anyone in this room ever asked him for.
 
-By the coats stands someone with frost on his shoulders. He is waiting to be asked for a song.
+By the coats someone with frost on his shoulders stands waiting, as if he hopes someone will ask him for a song.
 
 → Nod to him to play the song they are asking for. (go to Q2c) +flicker
 → Stop the music, and go and sit in the empty chair at the front. (go to Q2d) +dread
@@ -556,7 +556,7 @@ Behind you Katy laughs, and she is half crying. "Two of him," she says. "Help us
 
 Stig puts one hand on your shoulder and the other on his. He says nothing.
 
-The fire in the doorway has not moved.
+The fire in the doorway does not move. It will wait.
 
 → Back (go to F0)
 
@@ -570,7 +570,7 @@ He takes a step forward. The firelight goes into the empty space in his chest.
 
 Saphira says a few words that you cannot hear, and he takes another step.
 
-For one second you think he is right, and that it would be all right. Then you think of a room at an inn of your own, with Katy's name on the door and clean sheets on the bed, and the front door opening for nobody but the wind.
+For one second you think he is right, and that it would be all right. Then you think of a room at an inn of your own, with Katy's name on the door and clean sheets on the bed, and the wind.
 
 ~Don't. You'll miss them. You'll miss them for ever.~
 
@@ -582,13 +582,13 @@ For one second you think he is right, and that it would be all right. Then you t
 
 The doors go. The cave comes back, and it is white. Frost has spread across the floor and up the walls, and the lamp is burning blue.
 
-You are one degree above freezing. Your knees report it first.
+You are one degree above freezing. You feel it in your knees first.
 
 Someone is standing between you and the tunnel, on the spot where you were keeping guard.
 
 He has your height and your shoulders. He is covered in thick frost, the kind that forms on anything left out all night. One hand is raised and closed in the grip you use for a lamp. There is no lamp in it. He has his back to you.
 
-?flicker>=3: You can see the tunnel through him. There is very little of him.
+?flicker>=3: You can see the tunnel through him. He is as thin as breath on a window.
 
 ?flicker<=1: He is solid. The frost under his boots is packed hard.
 
@@ -626,7 +626,7 @@ He holds out his closed hand, the one with no lamp in it.
 
 @future: "Them going north."
 
-He looks at you for a long time, and kindly. Your own face has not looked at you kindly before. You have no entry to compare it with.
+He looks at you for a long time, and kindly. It is very strange to have your own face look at you like that.
 
 @future: "Go back to sleep," he says. Then he says it again, and two voices come out of him at once. Both are yours, and they say different things. "Go back to sleep. / Don't you dare."
 
@@ -670,9 +670,9 @@ He goes down on one knee, and the frost cracks under it.
 
 ?flicker>=3: There is very little of him left. He is an outline of frost in the air.
 
-?flicker<=1: He is as solid and as heavy as you are.
+?flicker<=1: He is solid and heavy. The ice under his knee has cracked.
 
-The guests have stopped. They stand about the cave and wait for the music to start again.
+The guests have stopped. They stand about the cave as if they are waiting for the music to start again.
 
 The box in your chest is warm again, by one degree. You have never been so pleased with one degree.
 
@@ -682,7 +682,7 @@ He looks up at you with your own face.
 
 The crew have not moved. Katy, Stig, Saphira and Thorn are where they stopped, with the ash hanging over them.
 
-You have one degree of warmth to spend. You are certain that whatever you spend it on cannot be undone.
+You have one degree of warmth to spend. You know, as you know things in dreams, that whatever you spend it on cannot be undone.
 
 → Keep every memory, every room and every guest, for as long as you last. (go to End 1)
 → Turn your stones off, and let the waltz stop. (go to End 2)
@@ -732,7 +732,7 @@ The older you watches from where he is kneeling.
 
 "Yes."
 
-He looks at you for a long time. Then he stands, with a creak you know very well, and walks away into the frost. As he goes he opens his closed hand. There is a lamp in it, and the lamp is lit.
+He looks at you for a long time. Then he stands, with a creak you know very well, and walks away into the frost. As he goes he opens his closed hand. There was a lamp in it after all, and it is lit.
 
 A long way off in the ash, in the direction he is walking, there is a doorway full of fire that does not move. He reaches it and stands beside it with the lamp held up.
 
@@ -740,7 +740,7 @@ A long way off in the ash, in the direction he is walking, there is a doorway fu
 
 Your internal temperature is back at eleven degrees. You are in the cave again, on guard by the tunnel, and the box in your chest is warm.
 
-Katy looks round at you. Nothing has prompted it.
+Katy looks round at you, for no reason.
 
 "You all right, Hans?"
 
@@ -748,7 +748,7 @@ Katy looks round at you. Nothing has prompted it.
 
 > **Echo: Room Kept.** Before you roll an Intelligence (History) or Intelligence (Investigation) check about something old, or about something a person has said before, you can spend this Echo to have advantage on it.
 
-**Sent to Sam:** [what the frost showed him, see below] At the end: he kept every memory on file, all three hundred years of them, and locked none away. Hans logged: I have put back everything I put away. I did not know there was so much. I have made room. There is always room. That was my job.
+**Sent to Sam:** [what the frost showed him, see below] At the end: he kept every memory on the shelf, all three hundred years of them. Hans logged: I have put back everything I put away. I did not know there was so much. I have made room. There is always room. That was my job.
 
 ## End 2. Quiet Room
 
@@ -774,9 +774,9 @@ He stands up and walks off into the cave. He does not look back. A long way behi
 
 Your internal temperature is back at eleven degrees. You are in the cave again.
 
-You are on guard by the tunnel with your stones switched off. You can hear Stig breathing, Katy's knee moving on the stone, water dripping further in, Thorn shifting his weight.
+You are on guard by the tunnel with your stones switched off. You can hear Stig breathing, Katy's knee moving on the stone, water dripping somewhere, Thorn shifting his weight.
 
-After four minutes you switch the stones back on, at low volume.
+After a while you switch the stones back on, quietly.
 
 > **Echo: Quiet Room.** Before you make a Wisdom saving throw, or a Wisdom (Perception) check to hear something, you can spend this Echo to have advantage on it.
 
@@ -812,7 +812,7 @@ Your internal temperature is back at eleven degrees. You are in the cave again.
 
 You are on guard by the tunnel, standing very still, with your stones on.
 
-Katy's foot is tapping. She is looking down at it. She does not appear to have asked it to.
+Katy's foot is tapping. She is looking down at it as if it belongs to someone else.
 
 "Hans," Stig says. "Were you humming?"
 
@@ -828,11 +828,11 @@ Katy's foot is tapping. She is looking down at it. She does not appear to have a
 - **The face, the bench (P1c):** Hans logged: there was a list on her bench. Steward class. Warden class. Host. She crossed two out. I am the third. [SAM?]
 - **The long table, a dance (P2c):** Hans logged: a guest asked me to dance, the night before she went north. I kept every step. [SAM?]
 - **The long table, north (P2d):** Hans logged: I asked a guest where they were all going. He said to keep the watch, and that I would be good at it, but I was built not to want to. [SAM?]
-- **Dust sheets, stay (P3c):** Hans logged: I asked her to stay. She said she would be back in the spring. She did not come back in the spring. [SAM?]
+- **Dust sheets, stay (P3c):** Hans logged: I asked her to stay. She said she would be back in the spring. It was not spring. [SAM?]
 - **Dust sheets, lamps (P3d):** Hans logged: I lit every lamp in the house for nobody, in case somebody saw them from a long way off. [SAM?]
 - **The last guest (S1):** Hans logged: the last guest was taller than me and as warm as a stove. It asked me to keep its room. That night the floors went cold and the frost came up. I kept the room. [SAM?]
 - **Thaw (S2):** Hans logged: Gerda chipped me out of the ice. I said "Welcome." She laughed. I filed it under good. [SAM?]
-- **The loop (L1):** Hans logged: the waltz played backwards and everything else ran backwards with it. I liked it. That worried me.
+- **The loop (L1):** Hans logged: for a moment the waltz went backwards, and I liked it, and that worried me.
 - **Your own house, noise (Q1c):** Hans logged: in a house that does not exist yet, I had my own inn, and a room for each of you, and nobody came. I opened the windows. A child came in because of the beat.
 - **Your own house, glasses (Q1d):** Hans logged: in a house that does not exist yet, I keep a box under the bar. I have not said what is in it. I know what is in it.
 - **A wake, the song (Q2c):** Hans logged: at a wake that has not happened, I played what they asked for, and told a child I was sad, and that it was allowed.
@@ -884,7 +884,7 @@ Katy's foot is tapping. She is looking down at it. She does not appear to have a
 - You put every record back where you can reach it.
 - The older you watches from one knee.
 - @future: That's a lot to carry.
-- He opens his hand. There is a lamp in it, and it is lit.
+- He opens his hand. There was a lamp in it after all.
 - He walks off toward a doorway of fire.
 - Hans: Filed.
 

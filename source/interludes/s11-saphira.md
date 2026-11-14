@@ -56,15 +56,15 @@
 
 ## H1. A flake
 
-You're sitting with your back to the wall, where you can see both ways out and everyone's hands.
+You're sitting with your back to the wall, as you always do. From here you can see the whole cave, both ways out and everyone's hands.
 
 Katy is kneeling by her father. Stig is getting up off his stone with the towel. Thorn is watching the tunnel. Hans is on guard and hasn't moved.
 
-Ash has been coming down through the lamplight all day, and you no longer brush it off your sleeves. One flake drops past your face and lands in the eye on your cloak, flat on the wet of it.
+Ash has been coming down through the lamplight all day, and you've stopped noticing it on your sleeves. One flake drops past your face and lands in the eye on your cloak, right on its wet surface.
 
 {sound: eye-open}
 
-The eye usually blinks slowly, when it bothers. Now it blinks twice, quick and hard. A black tear squeezes out of the corner and runs down the cloth.
+The eye has never blinked fast before. It usually blinks slowly, when it bothers. Now it blinks twice, quick and hard. A black tear squeezes out of the corner and runs down the cloth.
 
 Then a voice says one word, right inside your hood.
 
@@ -80,7 +80,7 @@ That was Draconic, older than the kind you were taught, and rough as a cat's ton
 
 The ash stops and hangs in the lamplight.
 
-You check hands. Katy's are halfway to her father's. Stig's are on the towel, and Hans's are at his sides, where he keeps them. Only you and the eye can still move.
+Every pair of hands has stopped where it was. Katy's are halfway to her father's. Stig's are on the towel, and Hans's are at his sides, where he keeps them. Only you and the eye can still move.
 
 {sound: dagger-hum}
 
@@ -102,7 +102,7 @@ Draconic again, from the hood. You're the only one in this cave who speaks both,
 
 The lamp is on its flat stone, so your shadow is on the wall behind you. You turn your head to look at it, and it has already turned its head.
 
-You lift your hand slowly. The shadow's hand goes up first, a heartbeat ahead of yours.
+You lift your hand slowly. The shadow's hand goes up a heartbeat before yours, about the time it takes you to decide to move.
 
 ~Too slow.~
 
@@ -140,7 +140,7 @@ A tall, narrow room of smooth white stone, cold enough to show your breath, with
 
 It's the Crow's Nest, the prison. You've been in it, and you got out.
 
-You're seeing it from a hook on the wall, and it looks smaller than you remember. The cloak hangs on the hook with the eye in it, and there is dust on the shoulders.
+You're seeing it from a hook on the wall, and it looks smaller than you remember. The cloak hangs on the hook with the eye in it, waiting. It has been waiting a long time, and there is dust on the shoulders.
 
 Someone is tapping on stone on the far side of the wall. Three, then two, then three. After a long gap it comes again. The eye is listening.
 
@@ -157,7 +157,7 @@ The eye is looking at you. That day you thought it was asleep.
 
 You leave yourself to it and listen to the wall.
 
-Three, two, three. It isn't cant or any knock code you were taught. It's slow. Whoever is tapping has plenty of time and doesn't expect an answer.
+Three, two, three. It isn't cant or any knock code you were taught. It's slow, like someone who has a lot of time and isn't sure anyone's there.
 
 You can't touch anything in here. You put your hand on the white stone anyway and tap back: three, two, three.
 
@@ -169,7 +169,7 @@ Then one tap comes back through the wall, so faint you couldn't swear to it.
 
 @patron: "Leave that wall alone."
 
-Everything she said before that was clever.
+That's the first time she's said anything that wasn't clever.
 
 → Back (go to E0)
 
@@ -195,7 +195,7 @@ Then it looks at you, close, for the first time: your ear, and the cut on your j
 
 {sound: rift}
 
-The sky is torn from one side to the other, and what shows through the split isn't sky. The ground is grey. Your ears hurt, as they do deep under water.
+The sky is torn from one side to the other, and something wrong shows through the split. The ground is grey. Your ears hurt, as they do deep under water.
 
 You've been here, and you didn't want to come back.
 
@@ -226,7 +226,7 @@ The eye saw it too. It turns and looks at you, close.
 
 You don't answer it.
 
-@patron: "He's dead. The dead say what they like."
+@patron: "He's dead," she says, in Elvish. "The dead say what they like."
 
 ?dread>=3: Your hand has gone to the dagger. You take it away.
 
@@ -238,7 +238,7 @@ You look at Katy.
 
 She's holding the contract out between you, and you have the other end. She has been crying and has stopped. Her hands are steady.
 
-You never saw how you looked that day. The eye did, and you looked terrified. You'd have put money against that.
+You never saw how you looked that day. The eye did, and you looked terrified. You'd have bet money that you didn't.
 
 {sound: paper-tear}
 
@@ -307,13 +307,13 @@ The eye looks at you for a long time.
 
 @patron: "No."
 
-The rooms go, and what's left is the dark at the bottom of a well, old enough to have a smell. One lamp burns, standing on nothing.
+The rooms go, and what's left is the dark at the bottom of a well, old enough to have a smell. One lamp burns, on nothing you can see.
 
 In front of the lamp, close enough to fill the view, a woman in a long robe is looking straight into the eye. Her hands are up by her face, covered in tattoos that move slowly over the skin. Her face is in the light. You have never had this chance before.
 
 The eye in the memory squeezes itself shut, and you see nothing. You hear her say a few words in Elvish, too low to catch.
 
-Then there's light again, and many hands in grey gloves, folding cloth. You smell hot wax. A seal comes down hard right beside you, close enough to feel the heat.
+Then there's light again, and many hands in grey gloves, folding cloth. There's hot wax. A seal comes down hard right beside you, close enough to feel the heat.
 
 {sound: seal}
 
@@ -399,7 +399,7 @@ A woman at the table is pressing a seal into hot wax on the collar of a cloak. S
 
 She is you, older. She is quiet, and she looks well paid and well rested.
 
-Under the wax, in the cloth, an eye is half open and watching her. She doesn't look at it. You've always been good at not looking at things.
+Under the wax there's something in the cloth, half open, watching her. She doesn't look at it. She's good at not looking at things.
 
 [SAM?: a maybe]
 
@@ -410,19 +410,19 @@ Under the wax, in the cloth, an eye is half open and watching her. She doesn't l
 
 You knock the seal out of her hand.
 
-You can't touch anything here, but it goes flying and clatters on the white floor. The wax is left half pressed, a smear with no mark in it.
+You can't touch anything here, and the seal goes anyway. It clatters on the white floor. The wax is left half pressed, a smear with no mark in it.
 
-The older you looks at her empty glove for a long time. Then she looks at the eye in the cloth, and it looks back.
+The older you looks at her empty glove for a long time. Then she looks at the cloth, at the thing in it, and it looks back.
 
 She takes off one glove, then the other. The hands under them are yours, a thief's hands, scarred across the knuckles. She hangs the cloak on the hook and leaves the door open on her way out.
 
-@eye: "Better."
+@eye: "Better," it says, from your shoulder.
 
 → Back (go to F0)
 
 ## Q1d. A job {future}
 
-You let her finish. The seal comes down clean and leaves a perfect mark in the wax, and the eye in the cloth shuts.
+You let her finish. The seal comes down clean and leaves a perfect mark in the wax, and the thing in the cloth shuts.
 
 She hangs the cloak on the hook, takes off her gloves and goes to get her dinner.
 
@@ -438,7 +438,7 @@ On your shoulder the eye has shut so hard that the cloth round it is creased.
 
 {sound: cards}
 
-A small table in a dark room, with two chairs and one lamp standing on nothing.
+A small table in a dark room, with two chairs and one lamp burning on nothing.
 
 You're in one chair, older. Your silver hair is long again and loose, with some grey in it. There's a glass of wine by your hand that you aren't drinking.
 
@@ -467,7 +467,7 @@ Your shoulder goes cold. The eye on your own cloak, the one that came here with 
 
 @eye: "Don't." Its voice is very small. "Please."
 
-It has never said please before.
+It has never said please. You didn't think it knew the word.
 
 You hear her deal another card.
 
@@ -493,7 +493,7 @@ A campfire at night, in the open, under stars. You don't know these low hills.
 
 The crew are all older. Stig has gone grey and wide, and he's arguing with Hans about how long the pot stays on. Katy has a streak of grey at the front of her hair. Thorn is at the edge of the firelight.
 
-The older you sits a little apart with her back to a rock. She is talking into her hood in Draconic, quietly and without a break.
+The older you sits a little apart with her back to a rock, as always. She is talking into her hood in Draconic, quietly and without a break.
 
 Katy has been watching her across the fire for some time.
 
@@ -508,11 +508,11 @@ The older you doesn't hear her, or hears and doesn't look up.
 
 ## Q3c. Common {future}
 
-You put your hand on the older you's shoulder and squeeze hard.
+You put your hand on your own shoulder and squeeze, hard.
 
-She stops in the middle of a word, blinks, and looks round at the fire and the faces.
+She stops in the middle of a word, blinks, and looks round at the fire and the faces as if she's been somewhere else.
 
-"Sorry," she says, in Common. It comes out stiff. She's out of practice. "Sorry. What?"
+"Sorry," she says, in Common. It comes out stiff, like a door that hasn't been opened in a while. "Sorry. What?"
 
 "Who were you talking to?"
 
@@ -556,7 +556,7 @@ Your shadow is standing upright in front of you, between you and the light, with
 
 @eye: "Turn it round."
 
-They have never both wanted a thing from you at once, or wanted it this much.
+Until now they have never both wanted something from you at the same time, and never this much.
 
 ~Too slow.~
 
@@ -568,7 +568,7 @@ They have never both wanted a thing from you at once, or wanted it this much.
 
 You put your hand on its shoulder, which is cold and solid, and it turns round.
 
-It's you, older. Her silver hair is loose, and the cut on your jaw has healed to a white line. She has your mouth and nose, and your right eye. The left eye is the one from your cloak, set in your face and wide open. It looks at you, and then a step past you, at a thing you can't see yet.
+It's you, older. Her silver hair is loose, and the cut on your jaw has healed to a white line. She has your mouth and nose, and your right eye. The left eye is the one from your cloak, set in your face and wide open. It looks at you, and through you, and a step past you, at a thing you can't see yet.
 
 On your shoulder, the eye in your hood has gone still.
 
@@ -622,7 +622,7 @@ Then the gloves come up out of the wax on the floor. They're grey and empty, eac
 
 ?seen P1b: One tap came back through the wall.
 
-?dread>=4: You stop counting the gloves. Every one of them is yours.
+?dread>=4: All of them are yours, every one.
 
 @future: "See? It's better shut."
 
@@ -646,7 +646,7 @@ She looks up at you with both eyes, yours and the other.
 
 @future: "It's yours. Not mine yet."
 
-On your shoulder the eye in your hood is open and looking at you, waiting for you to speak. It waited for you once before, in the dark, over the patron's offer, but not as hard as this.
+On your shoulder the eye in your hood is open and looking at you, waiting for you to speak. You have never felt it wait like this, even in the dark with the patron's offer.
 
 The dagger at your hip has gone quiet. It's listening too.
 
@@ -658,7 +658,7 @@ Whatever you say now will stay said. You know that as you know things in a dream
 
 ## W3x. Shut
 
-The eye shuts. The lid comes down on your shoulder and the world gets smaller. You had never noticed how much of what you saw came through the eye. You'd taken it all for your own.
+The eye shuts. The lid comes down on your shoulder and the world gets smaller. You had never noticed how much bigger the world was with the eye open. You'd taken that for your own.
 
 You're on your knees in the wax, and you don't remember going down. There's a glove on your hood, pressing. Your shadow kneels in front of you with her hand over the glove, over the eye, gently.
 
@@ -688,7 +688,7 @@ You unpin the cloak, take it off, and hold it out in both hands, eye up, toward 
 
 For a long while that's all she says. The eye doesn't look at the dark. It looks at you. It says nothing, and it doesn't ask you to stop.
 
-You hold the cloak out until your arms tire. Nothing takes it.
+You hold the cloak out until your arms start to ache. Nothing takes it.
 
 @patron: "Not like this." She is quieter than you've ever heard her. "Not out of a dream, with you half asleep. When you mean it, in the daylight, I'll come for it." Then, after a while: "Put it back on. You'll catch cold."
 
@@ -696,7 +696,7 @@ Your shadow, on one knee in the wax, closes both her eyes.
 
 {sound: silence}
 
-The eye blinks, slowly, and you're back in the cave with the ash falling.
+The eye blinks, slowly, and the cave is back, with the lamp, the ash and every pair of hands.
 
 You're standing with your back to the wall, holding your cloak out to nobody. No one saw. You put it back on.
 
@@ -716,13 +716,13 @@ The eye doesn't fight. It settles against the side of your head, warm.
 
 @patron: "Hm."
 
-That's all she says, from the dagger. She'll think about it later. She's good at waiting.
+That's all she says, from the dagger. You can hear she's put it away somewhere to think about later. She's good at waiting.
 
 Your shadow gets up off her knee and looks at you for a while. Then she pulls up her own hood, steps back onto the wall and lies flat against it. When you breathe in, she breathes in with you, and no longer a heartbeat early.
 
 {sound: silence}
 
-The eye blinks, slowly, and you're back in the cave with the ash falling.
+The eye blinks, slowly, and the cave is back, with the lamp, the ash and every pair of hands.
 
 Your hood is up and your back is to the wall.
 
@@ -752,19 +752,19 @@ It thinks. The cloth round it moves while it does.
 
 It looks past you at your shadow, at the dark where the dagger's voice is, and at the white light. Then it looks farther. A long way off there's a doorway full of fire that doesn't move, with people standing in front of it. The eye looks at that for a long time.
 
-@eye: "With you." It has only just found the word. "See with you. Not for you."
+@eye: "With you," it says, as if it had just found the word. "See with you. Not for you."
 
-Your shadow, on her knee, laughs. It's your laugh, which you don't use much.
+Your shadow, on her knee, laughs. It's your laugh, and you don't laugh much.
 
 @future: "I never asked it. Not once."
 
 @patron: "Clever."
 
-She says it in Elvish, from the dagger, and for once she isn't laughing at anybody.
+She says it in Elvish, from the dagger, and for once she doesn't sound as if she's laughing at anybody.
 
 {sound: silence}
 
-The eye blinks, slowly, and you're back in the cave with the ash falling.
+The eye blinks, slowly, and the cave is back, with the lamp, the ash and every pair of hands.
 
 The eye is open, though not wide. It's looking where you're looking, at Katy by her father and then at Stig with the towel. When you look away, so does it.
 
@@ -832,7 +832,7 @@ The eye is open, though not wide. It's looking where you're looking, at Katy by 
 ## Cutscene: end 1
 
 - You take the cloak off and hold it out to the dark, eye up.
-- Your arms tire. Nothing takes it.
+- Your arms ache. Nothing takes it.
 - @patron: Not like this.
 - Your shadow closes both her eyes.
 - You put the cloak back on.
