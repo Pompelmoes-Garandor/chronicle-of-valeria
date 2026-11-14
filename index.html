@@ -12965,7 +12965,7 @@ const IAI={
   // Court Shades go for the candle; Katy in their way, or her hands round the flame, gets the cold hand instead
   async shade(u){const S=B.sc,k=B.units.find(o=>o.key==="katy"),C={x:S.at[0],y:S.at[1],size:1},at=MON.shade.atk[0],byK=()=>k&&k.hp>0&&dist(u,k)<=1;
     if(S.flame<=0)return;
-    if(byK()&&(S.cup||dist(u,C)>1)&&Math.random()<.7){await attack(u,k,at);return;}
+    if(byK()&&(S.cup||dist(u,C)>1)&&iR(u,0)<.7){await attack(u,k,at);return;}
     if(dist(u,C)>1)await approach(u,C,1);if(!alive(u))return;
     if(dist(u,C)<=1&&!(S.cup&&byK())){await iDim(u,"candle");return;}
     if(byK())await attack(u,k,at);},
@@ -12983,20 +12983,50 @@ const IAI={
     if(los(u,s))await attack(u,s,rng);},
   // the drowned want the sleeper; Stig in the way gets grabbed
   async drowned(u){const sl=B.units.find(o=>o.key==="sleeper"),st=B.units.find(o=>o.key==="stig"),at=MON.drowned.atk[0],up=o=>o&&o.hp>0,adj=o=>up(o)&&dist(u,o)<=1;
-    if(adj(st)&&!adj(sl)&&Math.random()<.6){await attack(u,st,at);return;}
+    if(adj(st)&&!adj(sl)&&iR(u,0)<.6){await attack(u,st,at);return;}
     if(!adj(sl))await approach(u,up(sl)?sl:st,1);if(!alive(u))return;
-    if(adj(sl)&&(!adj(st)||Math.random()<.75)){await attack(u,sl,at);return;}
+    if(adj(sl)&&(!adj(st)||iR(u,1)<.75)){await attack(u,sl,at);return;}
     if(adj(st))await attack(u,st,at);},
   // husks drawn by the fire: they smother it, or hit Matthew beside it; the crew in the way gets hit first
   async ember(u){const S=B.sc,F={x:S.at[0],y:S.at[1],size:1},m=B.units.find(o=>o.key==="matthew"),at=MON[u.key].atk[0],rc=at.reach||1,
       near=()=>enemiesOf(u).filter(o=>o.crew&&o.hp>0&&dist(u,o)<=rc),mOk=()=>m&&m.hp>0&&dist(u,m)<=rc;
     if(S.flame<=0)return;
-    if(dist(u,F)>1){if(near().length&&Math.random()<.5){await attack(u,nearest(u,near()),at);return;}await approach(u,F,1);}
+    if(dist(u,F)>1){if(near().length&&iR(u,0)<.5){await attack(u,nearest(u,near()),at);return;}await approach(u,F,1);}
     if(!alive(u)||u.hp<=0)return;
-    if(dist(u,F)<=1){if(mOk()&&Math.random()<.4){await attack(u,m,at);return;}if(near().length&&Math.random()<.5){await attack(u,nearest(u,near()),at);return;}await iDim(u,"fire");return;}
+    if(dist(u,F)<=1){if(mOk()&&iR(u,1)<.4){await attack(u,m,at);return;}if(near().length&&iR(u,2)<.5){await attack(u,nearest(u,near()),at);return;}await iDim(u,"fire");return;}
     if(mOk()){await attack(u,m,at);return;}
     const c=near();if(c.length)await attack(u,nearest(u,c),at);}
 };
+/* ---- interludes 3.0: what a foe is about to do. Before a session 10 interlude foe acts, the turn panel and a word over its head say
+   what it goes for this turn, read from the same tests and the same dice its turn then uses (iR: the turn's dice, thrown ahead).
+   ?nointent: no line, the dice thrown as before. ---- */
+const I_AIM_ON=!/[?&]nointent(=|&|$)/.test(location.search);
+const iR=(u,i)=>u.__ir?u.__ir[i]:Math.random();
+const IAIM={
+  shade(u){const S=B.sc,k=B.units.find(o=>o.key==="katy"),C={x:S.at[0],y:S.at[1],size:1},byK=k&&k.hp>0&&dist(u,k)<=1;if(S.flame<=0)return null;
+    if(byK&&(S.cup||dist(u,C)>1)&&iR(u,0)<.7)return ["for Katy","turns its cold hand on Katy"];
+    return ["for the candle",S.cup?"goes for the candle in Katy's hands":"goes for the candle"];},
+  hand(u){const s=B.units.find(o=>o.key==="saphira");if(!s||s.hp<=0)return null;return ["for Saphira",s.cond.grappled?"tightens on Saphira":"reaches for Saphira"];},
+  shadowself(u){const S=B.sc,s=B.units.find(o=>o.key==="saphira");if(!s||s.hp<=0)return null;
+    if(dist(u,s)>1&&!S.stepped&&B.round>=2&&dist(u,s)>u.mv)return ["through the dark","goes down into the floor"];
+    return ["for Saphira","closes on Saphira"];},
+  drowned(u){const sl=B.units.find(o=>o.key==="sleeper"),st=B.units.find(o=>o.key==="stig"),up=o=>o&&o.hp>0,adj=o=>up(o)&&dist(u,o)<=1;
+    if(adj(st)&&!adj(sl)&&iR(u,0)<.6)return ["for Stig","grabs at Stig"];
+    if(!adj(sl))return up(sl)?["for the sleeper","wades toward the sleeper"]:["for Stig","wades toward Stig"];
+    if(!adj(st)||iR(u,1)<.75)return ["for the sleeper","reaches for the sleeper"];
+    return ["for Stig","grabs at Stig"];},
+  ember(u){const S=B.sc,F={x:S.at[0],y:S.at[1],size:1},m=B.units.find(o=>o.key==="matthew"),rc=MON[u.key].atk[0].reach||1,
+      near=enemiesOf(u).filter(o=>o.crew&&o.hp>0&&dist(u,o)<=rc),mOk=m&&m.hp>0&&dist(u,m)<=rc;if(S.flame<=0)return null;
+    if(dist(u,F)>1)return near.length&&iR(u,0)<.5?["for "+nameOf(nearest(u,near)),"swings at "+nameOf(nearest(u,near))]:["for the fire","makes for the fire"];
+    if(mOk&&iR(u,1)<.4)return ["for Matthew","turns on Matthew"];
+    if(near.length&&iR(u,2)<.5)return ["for "+nameOf(nearest(u,near)),"swings at "+nameOf(nearest(u,near))];
+    return ["for the fire","bends over the fire to smother it"];}};
+for(const k of Object.keys(IAIM)){const act=IAI[k];
+  IAI[k]=async u=>{if(!I_AIM_ON)return act(u);
+    u.__ir=[Math.random(),Math.random(),Math.random()];
+    try{let aim=null;try{aim=IAIM[k](u);}catch(e){console.error(e);}
+      if(aim){panelMsg(u,nameOf(u)+" "+aim[1]);floatTxt(u,aim[0]);await sleep(520);}
+      return await act(u);}finally{u.__ir=null;}};}
 
 /* ---- Katy: the room under the eaves ---- */
 IFIGHTS.katy={key:"i-katy",map:"imemory",dim:true,sc:{flame:3,at:[4,1],cup:false},
