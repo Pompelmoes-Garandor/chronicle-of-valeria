@@ -637,6 +637,9 @@ img.postcard{display:block;width:100%;max-width:420px;margin:4px auto 12px;borde
 body.rewound #restore span{color:var(--ember)}
 body.rewound #asof{color:var(--ember)}
 .pin.party.walking .lbl{opacity:.75}
+.pin.party.walking .seal{box-shadow:0 0 0 2px #000,0 0 12px #e8743baa}
+@media (prefers-reduced-motion:no-preference){.pin.party.walking .seal{animation:partyStep .9s ease-in-out infinite}}
+@keyframes partyStep{50%{transform:translateY(-2px)}}
 .progress i{flex:1;height:2px;border-radius:1px;background:#ffffff14}
 .progress i.on{background:var(--brass)}
 .progress i.cur{background:var(--steward);box-shadow:0 0 6px var(--steward)}
@@ -2788,27 +2791,124 @@ function tickCrash(now){
 }
 
 // route trail
+// ?oldroad in the address brings back the old one-pixel dashed lines and the old fly camera, exactly as they were
+const ROAD_OLD=MAP_OFF("oldroad"); let roadDirty=true;
 const trailMat = new THREE.LineDashedMaterial({color:0xc9a35c,dashSize:0.012,gapSize:0.01,transparent:true,opacity:.95});
 const trailNewMat = new THREE.LineDashedMaterial({color:0xe8743b,dashSize:0.012,gapSize:0.01,transparent:true,opacity:.95});
 const trailOld=new THREE.Line(new THREE.BufferGeometry(),trailMat), trailNew=new THREE.Line(new THREE.BufferGeometry(),trailNewMat);
 trailOld.frustumCulled=trailNew.frustumCulled=false; scene.add(trailOld,trailNew);
-function routePts(a,b){const out=[];for(let i=a;i<b;i++){const A=byId[ROUTE[i]],B=byId[ROUTE[i+1]];const tp=ROUTE[i]+">"+ROUTE[i+1]===TELEPORT,n=tp?60:Math.max(12,Math.ceil(Math.hypot(B.lon-A.lon,B.lat-A.lat)*3));for(let k=0;k<=n;k++){const t=k/n;out.push([A.lon+(B.lon-A.lon)*t,A.lat+(B.lat-A.lat)*t,tp?0.004+0.18*Math.sin(Math.PI*t):0.004])}}return out;}
+function routePts(a,b){if(!ROAD_OLD)return roadPts(a,b);const out=[];for(let i=a;i<b;i++){const A=byId[ROUTE[i]],B=byId[ROUTE[i+1]];const tp=ROUTE[i]+">"+ROUTE[i+1]===TELEPORT,n=tp?60:Math.max(12,Math.ceil(Math.hypot(B.lon-A.lon,B.lat-A.lat)*3));for(let k=0;k<=n;k++){const t=k/n;out.push([A.lon+(B.lon-A.lon)*t,A.lat+(B.lat-A.lat)*t,tp?0.004+0.18*Math.sin(Math.PI*t):0.004])}}return out;}
 // legs of the shown session are "new": they draw themselves as the fog lifts, and the party walks the tip
 function legRange(T){let a=0;while(a<ROUTE.length-1&&legS(a)<T)a++;let b=a;while(b<ROUTE.length-1&&legS(b)<=T)b++;return [a,b];}
 let RP_OLD, RP_NEW, partyHome=byId[PARTY_AT], walkTip=null;
-function setTrail(T){const [a,b]=legRange(T);RP_OLD=routePts(0,a);RP_NEW=routePts(a,b);partyHome=T>=AS_OF?byId[PARTY_AT]:byId[ROUTE[b]];}
+function setTrail(T){const [a,b]=legRange(T);RP_OLD=routePts(0,a);RP_NEW=routePts(a,b);partyHome=T>=AS_OF?byId[PARTY_AT]:byId[ROUTE[b]];roadDirty=true;}
 setTrail(AS_OF);
 function updateTrail(){
+  if(!ROAD_OLD) return roadTick();
   for(const [line,pts] of [[trailOld,RP_OLD],[trailNew,RP_NEW]]){line.geometry.setFromPoints(pts.map(([a,b,l])=>worldPos(a,b,l)));line.computeLineDistances();}
   const k=fly?fly.k:Math.max(0,Math.min(1,(uniforms.uReveal.value-0.12)/0.78)), n=Math.round(RP_NEW.length*k);
   trailNew.geometry.setDrawRange(0,n); trailNew.visible=n>1;
   walkTip = n>1&&n<RP_NEW.length ? RP_NEW[n-1] : null;
 }
 
+// THE ROAD (world map 3.0). The journey is a ribbon of ink with real width instead of a one-pixel line: brass for the legs already
+// walked, ember for the legs of the session on show, with small chevrons that point the way the crew went. The waystone jump is a
+// thin arc of teal light with a pulse running along it, so it reads as a jump and not as a walk.
+// Each leg bends a little to the left of the way it was walked: a road walked out and back shows as two lines, and the bend is the
+// same every time. A point is [lon, lat, lift, 1 on the jump, how far along its leg 0..1]; the first three are what the pins read
+function roadPts(a,b){const out=[];for(let i=a;i<b;i++){const A=byId[ROUTE[i]],B=byId[ROUTE[i+1]],tp=ROUTE[i]+">"+ROUTE[i+1]===TELEPORT;
+  const cl=Math.max(.3,Math.cos((A.lat+B.lat)*.5*D2R)),dx=(B.lon-A.lon)*cl,dy=B.lat-A.lat,len=Math.hypot(dx,dy)||1,n=tp?96:Math.max(16,Math.ceil(len*5));
+  const bend=tp?0:Math.min(.55,len*.07),wob=bend*.3*(i%2?1:-1),nx=-dy/len/cl,ny=dx/len;   // stays well inside the 2.2 degree corridor the fog opens along a leg
+  for(let k=0;k<=n;k++){const t=k/n,o=bend*Math.sin(Math.PI*t)+wob*Math.sin(2*Math.PI*t);out.push([A.lon+(B.lon-A.lon)*t+nx*o,A.lat+dy*t+ny*o,tp?0.004+0.18*Math.sin(Math.PI*t):0.0035,tp?1:0,t]);}}
+  return out;}
+// The ribbon: every point of the road is two corners, pushed apart on the screen by a fixed number of pixels (WebGL lines are always
+// one pixel wide), so the road keeps its width at every zoom. It is tested against the globe's depth, pulled a hair towards the eye
+// so a slope beside it can't swallow half its width. Dashes are measured along the ground and their length steps in doubles with the zoom
+const ROAD=ROAD_OLD?null:(()=>{
+  const VS=`attribute vec3 aTan; attribute vec4 aInfo; uniform vec2 uRes; uniform float uHalf;
+varying float vV; varying float vD; varying float vK; varying float vT; varying float vH;
+void main(){
+  vec4 mv=modelViewMatrix*vec4(position,1.0); vec4 c=projectionMatrix*mv;
+  vec4 c2=projectionMatrix*(mv+vec4(mat3(modelViewMatrix)*aTan*0.004,0.0));
+  vec2 d=(c2.xy/c2.w-c.xy/c.w)*uRes; float l=length(d); d=l>1e-6?d/l:vec2(1.0,0.0);
+  vH=uHalf*(aInfo.z>0.5?1.7:1.0);
+  c.xy+=vec2(-d.y,d.x)*aInfo.x*vH*2.0/uRes*c.w;
+  vec4 cz=projectionMatrix*vec4(mv.xyz*0.994,1.0); c.z=cz.z/cz.w*c.w;
+  vV=aInfo.x; vD=aInfo.y; vK=aInfo.z; vT=aInfo.w; gl_Position=c;
+}`;
+  const FS=`precision highp float;
+uniform vec3 uInk; uniform float uLine; uniform float uPer; uniform float uMix; uniform float uHead; uniform float uDir; uniform float uOld; uniform float uTime; uniform float uPulse;
+varying float vV; varying float vD; varying float vK; varying float vT; varying float vH;
+// one dash as a rounded stroke, in pixels; on the newest legs every fourth dash is a chevron and the others swell towards the front
+float dash(float per,float y,float wpp){
+  float L=per*0.58/wpp, x=fract(vD/per)*per/wpp, h=uLine;
+  if(uDir>0.5&&mod(floor(vD/per),4.0)>2.5){
+    vec2 q=vec2(x-L*0.5,abs(y)), A=vec2(h*1.7,0.0), ba=vec2(-h*2.8,h*2.4), pa=q-A;
+    return length(pa-ba*clamp(dot(pa,ba)/dot(ba,ba),0.0,1.0))-h*0.62; }
+  h*=mix(1.0,mix(0.6,1.0,clamp(x/L,0.0,1.0)),uDir);
+  return length(vec2(max(abs(x-L*0.5)-max(L*0.5-h,0.0),0.0),y))-h;
+}
+vec2 ink(float sd){return vec2(1.0-smoothstep(-0.7,0.7,sd),1.0-smoothstep(-0.7,0.7,sd-1.2));}
+void main(){
+  float wpp=length(vec2(dFdx(vD),dFdy(vD)))+1e-7, y=vV*vH;
+  if(vD>uHead) discard;
+  if(vK>0.5){                                  // the waystone jump: a thin line of light, a soft glow, a pulse that travels
+    float ph=fract(uTime*0.16)*1.3-0.15, p=exp(-pow((vT-ph)/0.045,2.0))*uPulse;
+    float core=1.0-smoothstep(-0.6,0.6,abs(y)-uLine*(0.42+0.55*p));
+    float g=exp(-y*y/(vH*vH*0.14))*(1.0-smoothstep(0.55,1.0,abs(vV)));
+    float a=(core*0.9+g*(0.2+0.7*p))*mix(1.0,0.72,uOld);
+    gl_FragColor=vec4(mix(vec3(0.561,0.827,0.784),vec3(0.92,1.0,0.97),clamp(core*0.45+p,0.0,1.0)),a); return; }
+  vec2 k=mix(ink(dash(uPer,y,wpp)),ink(dash(uPer*2.0,y,wpp)),uMix);
+  float a=k.x+(1.0-k.x)*k.y*0.6; if(a<0.01) discard;
+  gl_FragColor=vec4(mix(vec3(0.169,0.122,0.071),uInk,k.x/a),a*0.96);
+}`;
+  const mk=(r,g,b,dir)=>{
+    const u={uRes:{value:new THREE.Vector2(1,1)},uHalf:{value:5},uLine:{value:1.5},uPer:{value:.01},uMix:{value:0},uHead:{value:1e9},uDir:{value:dir},uOld:{value:1-dir},uTime:uniforms.uTime,uPulse:{value:reduced?0:1},uInk:{value:new THREE.Vector3(r,g,b)}};
+    const mesh=new THREE.Mesh(new THREE.BufferGeometry(),new THREE.ShaderMaterial({uniforms:u,vertexShader:VS,fragmentShader:FS,transparent:true,depthWrite:false,side:THREE.DoubleSide,extensions:{derivatives:true}}));
+    mesh.frustumCulled=false; mesh.visible=false; scene.add(mesh);
+    const o={mesh,u,pts:[],dist:new Float32Array(0),P:null,
+      // a new set of legs: the parts that don't depend on the shape of the land (which side, how far along, walk or jump)
+      set(pts){const n=pts.length,info=new Float32Array(n*8),idx=[],g=new THREE.BufferGeometry(); let d=0; o.pts=pts; o.dist=new Float32Array(n); o.P=new Float32Array(n*3);
+        for(let j=0;j<n;j++){const p=pts[j],q=pts[j-1];
+          if(j&&!(p[4]===0&&q[4]===1)){d+=Math.hypot((p[0]-q[0])*Math.cos(p[1]*D2R),p[1]-q[1])*D2R; idx.push(2*j-2,2*j-1,2*j,2*j,2*j-1,2*j+1);}
+          o.dist[j]=d; for(let s=0;s<2;s++){const w=(2*j+s)*4; info[w]=s?1:-1; info[w+1]=d; info[w+2]=p[3]; info[w+3]=p[4];}}
+        g.setAttribute("position",new THREE.BufferAttribute(new Float32Array(n*6),3)); g.setAttribute("aTan",new THREE.BufferAttribute(new Float32Array(n*6),3));
+        g.setAttribute("aInfo",new THREE.BufferAttribute(info,4)); g.setIndex(idx); mesh.geometry.dispose(); mesh.geometry=g;},
+      // where the points stand now: on the raised land, on the globe or on the table
+      fill(){const pts=o.pts,n=pts.length,P=o.P,pos=mesh.geometry.attributes.position,tan=mesh.geometry.attributes.aTan;
+        for(let j=0;j<n;j++){const p=pts[j],v=worldPos(p[0],p[1],p[2]); P[3*j]=v.x; P[3*j+1]=v.y; P[3*j+2]=v.z;}
+        for(let j=0;j<n;j++){const a=(j>0&&pts[j][4]!==0?j-1:j)*3,b=(j<n-1&&pts[j][4]!==1?j+1:j)*3; let x=P[b]-P[a],y=P[b+1]-P[a+1],z=P[b+2]-P[a+2]; const l=Math.hypot(x,y,z)||1; x/=l; y/=l; z/=l;
+          for(let s=0;s<2;s++){const w=(2*j+s)*3; pos.array[w]=P[3*j]; pos.array[w+1]=P[3*j+1]; pos.array[w+2]=P[3*j+2]; tan.array[w]=x; tan.array[w+1]=y; tan.array[w+2]=z;}}
+        pos.needsUpdate=tan.needsUpdate=true;}};
+    return o;};
+  trailOld.visible=trailNew.visible=false;        // trailNew stays as the carrier of the draw range the party pin reads
+  return {old:mk(.788,.639,.361,0),new:mk(.910,.455,.231,1)};})();
+// The points are only moved when the land under them moves: new legs, the globe unrolling to the table, the fog lifting (the hills
+// rise with it) or the high-res heights arriving. A few heights along the road are summed every frame to notice the last two
+let roadProbe=NaN; const walkAt=[0,0,0];
+function roadSum(RP){let s=0;for(let j=0;j<RP.length;j+=13)s+=TERR.elev(RP[j][0],RP[j][1]);return s;}
+function roadLook(u,line,per,mix){u.uRes.value.set(innerWidth,innerHeight);u.uLine.value=line;u.uHalf.value=line*3.3+2;u.uPer.value=per;u.uMix.value=mix;}
+function roadTick(){
+  if(roadDirty){ROAD.old.set(RP_OLD);ROAD.new.set(RP_NEW);}
+  const pr=morph*9+(TERR?roadSum(RP_OLD)+roadSum(RP_NEW):0);
+  if(roadDirty||pr!==roadProbe){roadDirty=false;roadProbe=pr;ROAD.old.fill();ROAD.new.fill();}
+  // the ink of the shown session draws itself as the fog lifts (or as the flight goes), and the party walks its tip
+  const L=RP_NEW.length, k=fly?fly.k:Math.max(0,Math.min(1,(uniforms.uReveal.value-0.12)/0.78)), n=Math.round(L*k);
+  trailNew.geometry.setDrawRange(0,n);
+  const h=Math.max(0,Math.min(L-1,L*k-1)), i0=Math.floor(h), i1=Math.min(L-1,i0+1), f=h-i0, D=ROAD.new.dist;
+  ROAD.new.u.uHead.value=n>=L?1e9:L?D[i0]+(D[i1]-D[i0])*f:0; ROAD.new.mesh.visible=n>1; ROAD.old.mesh.visible=RP_OLD.length>1;
+  if(n>1&&n<L){const A=RP_NEW[i0],B=RP_NEW[i1]; for(let c=0;c<3;c++)walkAt[c]=A[c]+(B[c]-A[c])*f; walkTip=walkAt;} else walkTip=null;
+  // thin from far away so the globe stays calm, a clear stroke close up; a dash is about six strokes long on the screen
+  const z=cam.zoom, mm=ease(morph), line=.85+.85*Math.min(1,Math.max(0,(.62-z)/.45));
+  const wpp=2*R*((.25+z*3.4)*(1-mm)+(.18+z*1.9)*mm)*Math.tan(20*D2R)/innerHeight, lg=Math.log2(12*line*wpp), fr=lg-Math.floor(lg), t=Math.min(1,Math.max(0,(fr-.4)/.2));
+  roadLook(ROAD.old.u,line,2**Math.floor(lg),t*t*(3-2*t)); roadLook(ROAD.new.u,line,2**Math.floor(lg),t*t*(3-2*t));
+}
+
 /* =================== FLY THE ROUTE: the camera follows a session's road while the ink draws it =================== */
 let fly=null;
 function flyRoute(T=viewS){
   const [a,b]=legRange(T); if(b<=a){toast("Session "+T+": no road travelled. They stayed put.");return;}
+  if(!ROAD_OLD) return flyRoad(a,b);
   const pts=routePts(a,b), seg=[0];
   for(let i=1;i<pts.length;i++){const [x0,y0]=pts[i-1],[x1,y1]=pts[i];seg.push(seg[i-1]+Math.hypot((x1-x0)*Math.cos(y0*D2R),y1-y0)+0.01);}
   const total=seg[seg.length-1]; if(journeyOn){journeyAuto=false;clearTimeout(journeyTimer);}
@@ -2819,12 +2919,48 @@ function flyRoute(T=viewS){
   const s0=pts[0]; flyTo(s0[0],s0[1],.3,700);
 }
 function tickFly(now){
+  if(fly&&fly.road) return tickRoad(now);
   if(!fly) return; const t=Math.max(0,Math.min(1,(now-fly.t0)/fly.ms)); if(now<fly.t0) return; tween=null;
   const e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2, d=e*fly.total, S=fly.seg; let i=1; while(i<S.length-1&&S[i]<d)i++;
   const f=(d-S[i-1])/Math.max(1e-6,S[i]-S[i-1]), A=fly.pts[i-1], B=fly.pts[i];
   const lon=A[0]+(B[0]-A[0])*f, lat=A[1]+(B[1]-A[1])*f, lift=A[2]+(B[2]-A[2])*f;
   cam.lon=lon; cam.lat=lat; cam.zoom=.3+lift*1.6; fly.k=Math.max(fly.k,(i-1+f)/(fly.pts.length-1)); idleT=now;
   if(t>=1) endFly();
+}
+// The flight 3.0: the camera eases in from wherever the viewer was, follows the road low and looks a little ahead of the party,
+// climbs high over the Fire Sea for the waystone jump so the whole arc is in view, and comes to rest on the place the road ends.
+// Walked legs take time by their length; the jump takes the time of a short leg, however far it is
+function flyRoad(a,b){
+  const pts=routePts(a,b), cost=[0], lo=innerWidth<=700?.3:.25; let mid=null;
+  for(let i=1;i<pts.length;i++){const p=pts[i],q=pts[i-1],tp=p[3]&&q[3]; if(tp&&q[4]<.5&&p[4]>=.5)mid=p;
+    cost.push(cost[i-1]+(tp?16/96:Math.hypot((p[0]-q[0])*Math.cos(q[1]*D2R),p[1]-q[1]))+1e-4);}
+  const total=cost[cost.length-1], s0=pts[0], end=pts[pts.length-1], now=performance.now(), inMs=reduced?1:1200;
+  if(journeyOn){journeyAuto=false;clearTimeout(journeyTimer);}
+  if(recapOn){clearTimeout(recapTimer);}
+  closeSheet(); reveal.v=reveal.goal=1; tween=null;
+  fly={road:true,pts,cost,total,mid,lo,k:0,i:1,last:now,inMs,t0:now+inMs,ms:reduced?1:Math.min(18500,Math.max(5500,total*230)),outMs:reduced?1:1500,
+    from:{lon:cam.lon,lat:cam.lat,zoom:cam.zoom},p0:{lon:cam.lon+(((s0[0]-cam.lon+540)%360)-180),lat:s0[1],zoom:lo},end:{lon:end[0],lat:end[1],zoom:.32},s0:null,capWas:!cap.hidden};
+  cap.hidden=true; document.body.classList.add("cinema","flying"); const sk=document.getElementById("cine-skip"); sk.hidden=false; sk.onclick=endFly;
+}
+function tickRoad(now){
+  const F=fly, dt=Math.min(.1,Math.max(0,(now-F.last)/1000)); F.last=now; idleT=now; tween=null;
+  if(now<F.t0){const e=ease(Math.max(0,1-(F.t0-now)/F.inMs)); for(const c of ["lon","lat","zoom"])cam[c]=F.from[c]+(F.p0[c]-F.from[c])*e; return;}
+  const t=Math.min(1,(now-F.t0)/F.ms), C=F.cost, P=F.pts;
+  if(t<1){
+    // steady pace with a soft start and stop
+    const q=.12, e=t<q?t*t/(2*q*(1-q)):t>1-q?1-(1-t)*(1-t)/(2*q*(1-q)):(t-q/2)/(1-q), d=e*F.total;
+    let i=F.i; while(i<C.length-1&&C[i]<d)i++; F.i=i;
+    const f=Math.min(1,Math.max(0,(d-C[i-1])/Math.max(1e-6,C[i]-C[i-1]))), A=P[i-1], B=P[i], tp=A[3]&&B[3];
+    const lon=A[0]+(B[0]-A[0])*f, lat=A[1]+(B[1]-A[1])*f; F.k=Math.max(F.k,(i-1+f)/(P.length-1));
+    let tl=lon, ta=lat, tz=F.lo;
+    if(tp){const u=A[4]+(B[4]-A[4])*f, s=Math.sin(Math.PI*u); tz=F.lo+(1-F.lo)*Math.pow(s,.6); if(F.mid){tl+=(F.mid[0]-lon)*.55*s; ta+=(F.mid[1]-lat)*.55*s;}}
+    else{let j=i; while(j<C.length-1&&C[j]<d+1.6)j++; if(!P[j][3]){tl+=(P[j][0]-lon)*.55; ta+=(P[j][1]-lat)*.55;}}   // look ahead along the road, but not out over the sea before the jump
+    const k=1-Math.exp(-dt*3.2), kz=1-Math.exp(-dt*2.2); cam.lon+=(tl-cam.lon)*k; cam.lat+=(ta-cam.lat)*k; cam.zoom+=(tz-cam.zoom)*kz;
+    return;}
+  // the road is drawn: settle on the place it ends
+  F.k=1; if(!F.s0){F.s0={lon:cam.lon,lat:cam.lat,zoom:cam.zoom}; F.ts=now;}
+  const s=Math.min(1,(now-F.ts)/F.outMs), e=1-Math.pow(1-s,3); for(const c of ["lon","lat","zoom"])cam[c]=F.s0[c]+(F.end[c]-F.s0[c])*e;
+  if(s>=1) endFly();
 }
 function endFly(){ if(!fly) return; const was=fly.capWas; fly=null; document.body.classList.remove("cinema","flying");
   const sk=document.getElementById("cine-skip"); sk.hidden=true; sk.onclick=finishCrash; if(was) cap.hidden=false; }
@@ -3513,7 +3649,7 @@ if(BENCH) window.__chron={
     if(q.lock!=null) res.lock=!!q.lock;
     return this.info();},
   crash(){playCrash(); return !!crash;},          // the last flight (with map Sound on, it is heard)
-  measure:ms=>new Promise(done=>{const f=[]; meter.rec=f; setTimeout(()=>{meter.rec=null; done(frameStats(f));},ms);}),
+  measure:ms=>new Promise(done=>{const f=[]; meter.rec=f; setTimeout(()=>{meter.rec=null; done(frameStats(f));},ms);}),  fly:T=>flyRoute(T),                            // the road: start Fly the route for a session
 };
 function frame(now){
   if(PLAY.on){last=now;requestAnimationFrame(frame);return;}  // the battle map has the screen
