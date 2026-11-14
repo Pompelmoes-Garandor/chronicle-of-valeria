@@ -10037,6 +10037,21 @@ function iaHaunt(kind){const K={"h-floor":["#120c07","#3a2614","#ffc070",.5,.25,
     const v=g.createRadialGradient(W/2,H/2,H*.3,W/2,H/2,H*.95);v.addColorStop(0,"rgba(0,0,0,0)");v.addColorStop(1,"rgba(0,0,0,.7)");g.fillStyle=v;g.fillRect(0,0,W,H);
     return (gg,t)=>{gg.drawImage(a,0,0);};};}
 for(const k of [...Object.keys(IPICT),"h-toast","h-watcher"])if(/^([hks]|hn)-/.test(k))IART[k]=iaHaunt(k); // h-toast, h-watcher: drawn in code until their paintings are in
+/* session 10: a painting for every scene (source/art/k10-*, s10-*, g10-*, t10-*.webp). Until a file has loaded, or without it, its key shows the interlude's
+   one older picture (the second column). ?oneart in the address turns the whole set off: one picture per interlude, as before. */
+const I10_ONE=/[?&]oneart\b/.test(location.search);
+const I10PIC=[["k10-cave","cave",.41,.31,"#ffc070",.3,1,.5],["k10-eaves","memory",.1,.55,"#ffc070",.4,0,.5],["k10-stair","memory",.7,.28,"#ffc070",.35,0,.4],["k10-song","memory",.19,.53,"#ffc070",.45,0,.4],
+  ["k10-candle","memory",.375,.44,"#ffc070",.4,0,.3],
+  ["s10-ash","cave",.1,.78,"#ffc070",.25,1,.5],["s10-patron","patron",.155,.26,"#ffb060",.3,1,.2],["s10-eye","patron",.94,.15,"#ffc070",.3,1,.2],
+  ["s10-blade","patron",.685,.47,"#ffc070",.3,1,.2],
+  ["g10-scales","prayer",.51,.04,"#f0ead8",.5,1,.3],["g10-surf","prayer",.725,.24,"#ffd090",.25,0,.4],
+  ["g10-towel","prayer",.865,.61,"#ffc070",.4,1,.6],
+  ["t10-after","cave",.61,.81,"#ffd890",.3,1,.8],["t10-circle","fire",.49,.6,"#ff9a40",.5,-1,1.4],["t10-lute","fire",.815,.57,"#ff9a40",.45,-1,1]];
+for(const [k,base,lx,ly,col,r,ash,sp] of I10PIC){IPICT[k]={src:`art/${k}.webp`,lx,ly,col,r,ash,sp};
+  IART[k]=(W,H,S)=>{if(base==="cave"){const a=ia_cv(W,H);paintArt(a,"cave");return g=>{g.drawImage(a,0,0);};} // the cave drawn in code, as it shows today
+    const im=iPic(base);if(im)return iaPainted(W,H,S,im,IPICT[base]);
+    IPIC[base].addEventListener("load",()=>document.querySelectorAll("canvas").forEach(c=>{if(c.__iak===k&&c.isConnected&&!iPic(k))try{paintInterludeArt(c,k);}catch(e){}}),{once:true});
+    return IART[base](W,H,S);};}
 const IPIC={};
 function iPic(kind){const P=IPICT[kind];if(!P)return null;let im=IPIC[kind];
   if(!im){im=IPIC[kind]=new Image();im.decoding="async";
@@ -10982,10 +10997,38 @@ function iAfter(p){if(!storyEl)return;
     if(para){const face=h("span",{html:hansFace({state:"is-speaking",label:"Hans"})}).firstElementChild;setTimeout(()=>face&&face.classList.remove("is-speaking"),2400);
       para.replaceWith(h("div",{class:"ic-say"},face,h("div",{},h("div",{class:"ic-who2"},"Hans"),h("p",{},p.tie))));}
     iSnd("tie");}}
-function iCine(S,p){if(!S||!S.I||!storyEl)return;const I=S.I;
+/* session 10, scene by scene: which painting each passage shows ("prayer" and "fire" are the interludes' first paintings: the lamp on the stone, the crew round the fire), and the mood that holds there (the moods and sounds themselves stay in ICUE).
+   Every passage is listed, so a reload in the middle of a scene comes back to that scene's picture and mood. */
+const I10SCENE={},I10END={"s10-katy":{"":"k10-cave"},"s10-saphira":{"":"s10-eye"},"s10-stig":{"3":"g10-towel"}}; // the picture on the Echo page
+for(const [id,L] of Object.entries({
+  "s10-katy":[["k10-cave","","K1"],["k10-eaves","memory","K2 K2b"],["k10-stair","memory","K3 K4a K4b K4c"],["k10-song","memory","K5 K6"],["k10-candle","memory","K7a K7b K7c K8a K8b K8c K9 K10a K10b"],["k10-cave","","K11 K11b"]],
+  "s10-saphira":[["s10-ash","","S1"],["s10-ash","thin","S2 S3a S3b S3c"],["s10-patron","thin","S4 S5 S6b S7a S7b S7c"],["s10-eye","thin","S6 S8 S9a S9b S10-1 S10-2 S10-3 S10-4 S10-5 S10-6"],["s10-blade","thin","S11 S12"],["s10-ash","","S13"]],
+  "s10-stig":[["prayer","grey","G1 G1b G2 G5 G7-4 G3c G3c2 G4c G6A-c"],["g10-scales","grey","G3a G3a2 G4a G6A-a"],["g10-surf","grey","G3b G3b2 G4b G6A-b"],["g10-god","grey","G7-1 G7-2"],["g10-towel","grey","G7-3"],["prayer","lamp","G8 G9"]],
+  "s10-together":[["t10-after","","T1"],["fire","fire","T2 T9"],["t10-circle","fire","T2b"],["t10-lute","fire","T3 T7"]]})){
+  I10SCENE[id]={};for(const [k,m,ps] of L)for(const q of ps.split(" "))I10SCENE[id][q]=[k,m];}
+const i10Key=(S,k)=>k==="g10-god"?((S.seen||[]).includes("G3b")?"g10-surf":(S.seen||[]).includes("G3c")?"prayer":"g10-scales"):k; // asking again: the picture of whatever he turned to
+/* the cue for this passage: ICUE's own, with the scene's painting put in. fresh: the first passage shown in this run (the start, or a bookmark) */
+function i10Cue(S,fresh){const I=S.I,base=(ICUE[I.id]||{})[S.at],sc=!I10_ONE&&I10SCENE[I.id]&&I10SCENE[I.id][S.at];if(!sc)return base;
+  const c=Object.assign({},base,{art:i10Key(S,sc[0]),i10:true});
+  if(fresh){if(!("mood" in c)){c.mood=sc[1];c.ms=0;}}else if(!c.ms&&c.art!==S.cine.art)c.ms=2200;
+  return c;}
+/* a painting's file is fetched only when its scene comes. While it loads the picture before it stays, then the two cross-fade;
+   a file that is missing or slow (4 s) gives the interlude's older picture instead */
+function i10Art(S,k,ms){S.cine.art=k;const now=()=>{S.cine.wait=null;iArtTo(k,ms);},im=iPic(k)||IPIC[k];
+  if(!ms||!im||im.complete)return now(); // loaded, failed before, or nothing to fade from (the first page of a run)
+  S.cine.wait=k;const done=()=>{if(S.cine.wait!==k)return;S.cine.wait=null;if(IST===S&&artCv&&artCv.isConnected&&S.cine.art===k&&artCv.__iak!==k)iArtTo(k,ms);};
+  im.addEventListener("load",done,{once:true});im.addEventListener("error",done,{once:true});setTimeout(done,4000);}
+/* a page that built a new picture box (the Echo, Hans's log) gets the scene's painting back; the Echo page shows the ending's own */
+function i10Keep(S,p){const I=S.I;if(I10_ONE||!I10SCENE[I.id]||!artCv)return;let want=S.cine.art;
+  if(p&&p.html&&p.html.includes("pl-echo")){const E=I10END[I.id]||{},ek=S.endKey||(Object.entries(I.endBy||{}).find(([k])=>(S.seen||[]).includes(k))||[])[1]||"";want=E[ek]||E[""]||want;}
+  if(!IPICT[want]||!/^[ksgt]10-/.test(want)||artCv.__iak===want||S.cine.wait===want)return;
+  S.cine.wait=null;S.cine.art=want;try{paintArt(artCv,want);}catch(e){console.error(e);}}
+function iCine(S,p){if(!S||!S.I||!storyEl)return;const I=S.I;let fresh=false;
   storyEl.classList.add("ic");
-  if(!S.cine){S.cine={art:I.art,last:null,mood:""};if(!S.noTitle)iTitle(I);} // a cutscene that ended on the title already showed it
-  if(S.at!==S.cine.last){S.cine.last=S.at;const c=(ICUE[I.id]||{})[S.at];if(c)iApply(S,c);}
+  if(!S.cine){S.cine={art:I.art,last:null,mood:""};fresh=true;if(!S.noTitle)iTitle(I);} // a cutscene that ended on the title already showed it
+  if(S.at!==S.cine.last){S.cine.last=S.at;const c=i10Cue(S,fresh);
+    if(c&&c.i10&&c.art!==S.cine.art){const k=c.art;iApply(S,Object.assign({},c,{art:""}));i10Art(S,k,reduced?0:(c.ms||0));}else if(c)iApply(S,c);}
+  i10Keep(S,p);
   if(I.haunt&&typeof hvCine==="function")try{hvCine(S,p);}catch(e){console.error(e);}
   if(typeof iFoley==="function")try{iFoley(I.id,S.at);}catch(e){console.error(e);}
   if(typeof iScore==="function")try{iScore(I.id,S.at);}catch(e){console.error(e);}
