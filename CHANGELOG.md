@@ -6,6 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **Fixed** Katy's interlude *The Song Before Sleep*: the title painting of her room at Valethorn is repainted, because the old one showed a full-size guitar on the bed and Katy carries her father's small bronze ukulele. The new room has the candle, the round window and her bow, and no instrument in sight. The cave scenes at the start and the end have their own painting again. (Claude, for Sam)
 - **Fixed** On a computer with the flat board: after you click a foe to attack it, Enter ends the turn again. It did nothing before, because the click left the foe selected. (Claude, for Sam)
 - **New** The list of interludes is a set of painted cards now: each interlude shows its own painting behind its name, two side by side on a computer. Add `?nohub` to the address for the plain list. (Claude, for Sam)
 - **Fixed** Close up, the crew's road was thin and pale on bright ground. It is now a firmer stroke with a darker edge when you zoom right in. (Claude, for Sam)
