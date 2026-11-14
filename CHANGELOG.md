@@ -6,6 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **Changed** The pins on the map now show what each place is: a town, an inn, a mountain, a ruin, a cave, a forest or old Valerian tech, each on its own small seal. Realms and seas are written across the map in wide capitals, rumours keep a dashed ring and a question mark, this session's places have an ember ring, and the place whose card is open sits in brass brackets. Seals are easier to hit with a thumb. (Claude, for Sam)
 - **Changed** Fights on the 3D table are lit more like a real miniature under a lamp: shadows are crisp where feet touch the floor and soften as they fall away, corners and the ground under each mini darken smoothly without crawling when the camera moves, and whatever is in focus is a little sharper. Computers only; phones are unchanged. Add `?oldlight` to the address for the old look. (Claude, for Sam)
 - **Changed** The map moves better under your hand: a swipe glides on and slows by itself, a pinch or the scroll wheel zooms in on the spot under your fingers or pointer, two fingers drag the map while they pinch, and a double tap zooms in. (Claude, for Sam)
 - **New** In a fight you can take a move back. Walk somewhere, change your mind, tap **Undo move**: it stays on offer until something comes of the move (a roll, an opportunity attack, an action). On a computer the number keys pick your actions in the order shown, Enter ends the turn, and U takes the move back. (Claude, for Sam)
