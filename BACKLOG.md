@@ -49,7 +49,6 @@ Top of the list is what to work on next.
 - [ ] **Play-test the interlude fights for balance** · Changed · either · The four fights are balanced on paper only. Watch Katy's candle (3 points) and Turn Undead in the shared fight. Stig's undertow fight was measured with simulated players on 2026-11-11 and eased at Sam's call ("winnable, but he fights smarter than the test crew").
 - [ ] **An interlude before every session** · New · Sam · Needs Sam. The session 10 set is the first; write the next set from the session script (a memory, a dream, a talk with a patron), same engine.
 
-- [ ] **Map beside the recap on desktop** · Changed · either · Put the recap text next to the globe instead of over it, as Craft does with its map.
 - [ ] **Live online storage** · New · Sam and Niels · Needs Sam. Shared tags, notes and trackers for everyone at once through a hosted database (Firebase or Supabase), with sign-in limited to the table. Breaks two house rules (no new libraries, player data stays on the device), so only if both agree.
 
 
@@ -65,6 +64,14 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Chronicle 3.0, map: Recap 3.0 (the map beside the recap on desktop, Back, keys and swipe, a closing card), landmarks at explored places, a new night sky, and the Thaw fight eased** · Changed · Sam · PRs #130, #133, #134 (this batch)
+- [x] **Map beside the recap on desktop** · Changed · either · PR #130
+- [x] **Chronicle 3.0, map: pins as seals with their own icon, new lettering, the road as an inked ribbon** · Changed · Sam · PR #135 (#130)
+- [x] **Chronicle 3.0, interludes: fifteen scene paintings for session 10 and the reading screen as a stage** · New · Sam · PR #135 (#128, #132)
+- [x] **A Hollower that fled into the walls could still be shot, and the tunnels fight then never ended; a fight simulator for balance checks (`tests/visual/fights.js`)** · Fixed · Sam · PR #135 (#131)
+- [x] **Chronicle 3.0: the map camera glides and zooms about your fingers, Undo move and keyboard keys in fights, every interlude text rewritten in the plainer voice** · Changed · Sam · PR #129 (#123, #124, #126, #127)
+- [x] **Chronicle 3.0: new light on the battle table** · Changed · Sam · PR #125
+- [x] **Fight rules pinned by tests, with seven small rule fixes** · Fixed · Sam · PR #122
 - [x] **Thaw: Hans's haunted interlude (the great house, the last guest, the frost fight)** · New · Sam · PR #120
 - [x] **Four Notes and Two Tongues, round 2: endings glimpse Stig's door of fire, Saphira's fight in a bare wax room** · Changed · Sam · PR #119
 - [x] **Katy's *Four Notes* and Saphira's *Two Tongues*: haunted interludes with visions, cutscenes, 18 paintings, their own sound and a balanced fight each (held back until Sam plays them)** · New · Sam · PR #118
