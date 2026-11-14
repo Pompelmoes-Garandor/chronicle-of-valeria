@@ -34,7 +34,7 @@ The eye in your cloak usually sits half shut and bored. Now it's wide open, and 
 The hum gets louder. Whoever wants the word is waiting.
 
 → Step into the dark side passage, alone. (go to S3a)
-→ Stay where you are, between the dagger and the crew. (go to S3b)
+→ Stay where you are, between the crew and whatever is coming. (go to S3b)
 → Sheathe it, hard. (go to S3c)
 
 ## S3a. The side passage
@@ -97,7 +97,7 @@ She doesn't say hello. She never has.
 
 She sits down on a fallen piece of the Heart's husk without brushing the ash off it.
 
-"Don't look at me like that," she says. "I won't try anything on you. Charm doesn't take, with you. You'd notice, and I'd have wasted my time. I prefer a bargain. A bargain is honest. Everybody knows what they're losing."
+"Don't look at me like that," she says. "I won't try anything on you. Charm doesn't take, with you. You'd notice, and I'd have wasted my time. I prefer a bargain. In a bargain you both know what you're losing."
 
 The ash between you has dropped a hand's width since she sat. Behind her, Katy's mouth is still open on the same word.
 
@@ -113,7 +113,7 @@ The eye narrows a little. It knows who is being talked about.
 
 "So. What stays, when the reason for staying is gone?"
 
-You wait for her to answer her own riddle. She doesn't. She sits there as if she has all the time there is. With the ash hanging in the air, maybe she does.
+You wait for her to answer her own riddle. She doesn't. She sits there in no hurry at all. The ash between you hangs in the air and hasn't dropped.
 
 → Continue (go to S6b)
 
@@ -121,9 +121,9 @@ You wait for her to answer her own riddle. She doesn't. She sits there as if she
 
 You don't answer. You've never been able to leave a lock alone, though, and you start on this one.
 
-The eye stayed. So did Hans, after he walked out of the hotel that owned him. The old man stayed inside the Heart, playing in the dark with nobody to hear. Katy is kneeling by him now. No contract ties you to Katy any more. You are still standing where you can see her, and that is as far as you take it.
+The eye stayed. So did Hans, after he walked out of the hotel that owned him. The old man stayed inside the Heart, playing in the dark with nobody to hear. Katy is kneeling by him now. No contract ties you to Katy any more. You're still standing where you can see her. You stop there.
 
-"Think about it later," the patron says. She watched you do it. "Now. You get one question. Everyone has one. Ask it, and I'll answer it as I answer everything."
+"Think about it later," the patron says. She watched you do it. "Now. You get one question. Ask it, and I'll answer it the way I answer everything."
 
 → "What's your name?" (go to S7a)
 → "What did they take from me?" (go to S7b)
@@ -234,7 +234,7 @@ She laughs, low, and for longer than you'd have guessed.
 
 "Good," she says. "Never take the first price. You turned mine down before I could tell you to." It comes out close to fond, and you know better than to trust that.
 
-The eye is as it was, half lidded. You looked, and it was watching you when you said no.
+The eye is as it was, half lidded. But it was watching you when you said no. You checked.
 
 → Continue (go to S11)
 
@@ -306,7 +306,7 @@ She opens her hand.
 
 The blade doesn't drop. It thins and runs back down into your shadow, and then there's only ash at your feet with your outline on it.
 
-"That's the lesson," she says. "It has always been in there. You haven't asked it for anything."
+"That's the lesson," she says. "It was in your shadow the whole time. You never asked it for anything."
 
 You look up. She's farther off than she was, and you didn't see her take a step. The lamp is an ordinary lamp. The dagger's edge shows you the cave.
 
