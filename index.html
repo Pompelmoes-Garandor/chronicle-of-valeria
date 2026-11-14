@@ -9878,7 +9878,7 @@ for(const k of [...Object.keys(IPICT),"h-toast","h-watcher"])if(/^([hks]|hn)-/.t
    one older picture (the second column). ?oneart in the address turns the whole set off: one picture per interlude, as before. */
 const I10_ONE=/[?&]oneart\b/.test(location.search);
 const I10PIC=[["k10-cave","cave",.41,.31,"#ffc070",.3,1,.5],["k10-eaves","memory",.1,.55,"#ffc070",.4,0,.5],["k10-stair","memory",.7,.28,"#ffc070",.35,0,.4],["k10-song","memory",.19,.53,"#ffc070",.45,0,.4],
-  ["k10-candle","memory",.375,.44,"#ffc070",.4,0,.3],["k10-back","cave",.35,.16,"#ffd070",.35,1,.5],
+  ["k10-candle","memory",.375,.44,"#ffc070",.4,0,.3],
   ["s10-ash","cave",.1,.78,"#ffc070",.25,1,.5],["s10-patron","patron",.155,.26,"#ffb060",.3,1,.2],["s10-eye","patron",.94,.15,"#ffc070",.3,1,.2],
   ["s10-blade","patron",.685,.47,"#ffc070",.3,1,.2],
   ["g10-scales","prayer",.51,.04,"#f0ead8",.5,1,.3],["g10-surf","prayer",.725,.24,"#ffd090",.25,0,.4],
@@ -10836,9 +10836,9 @@ function iAfter(p){if(!storyEl)return;
     iSnd("tie");}}
 /* session 10, scene by scene: which painting each passage shows ("prayer" and "fire" are the interludes' first paintings: the lamp on the stone, the crew round the fire), and the mood that holds there (the moods and sounds themselves stay in ICUE).
    Every passage is listed, so a reload in the middle of a scene comes back to that scene's picture and mood. */
-const I10SCENE={},I10END={"s10-katy":{"":"k10-back"},"s10-saphira":{"":"s10-eye"},"s10-stig":{"3":"g10-towel"}}; // the picture on the Echo page
+const I10SCENE={},I10END={"s10-katy":{"":"k10-cave"},"s10-saphira":{"":"s10-eye"},"s10-stig":{"3":"g10-towel"}}; // the picture on the Echo page
 for(const [id,L] of Object.entries({
-  "s10-katy":[["k10-cave","","K1"],["k10-eaves","memory","K2 K2b"],["k10-stair","memory","K3 K4a K4b K4c"],["k10-song","memory","K5 K6"],["k10-candle","memory","K7a K7b K7c K8a K8b K8c K9 K10a K10b"],["k10-back","","K11 K11b"]],
+  "s10-katy":[["k10-cave","","K1"],["k10-eaves","memory","K2 K2b"],["k10-stair","memory","K3 K4a K4b K4c"],["k10-song","memory","K5 K6"],["k10-candle","memory","K7a K7b K7c K8a K8b K8c K9 K10a K10b"],["k10-cave","","K11 K11b"]],
   "s10-saphira":[["s10-ash","","S1"],["s10-ash","thin","S2 S3a S3b S3c"],["s10-patron","thin","S4 S5 S6b S7a S7b S7c"],["s10-eye","thin","S6 S8 S9a S9b S10-1 S10-2 S10-3 S10-4 S10-5 S10-6"],["s10-blade","thin","S11 S12"],["s10-ash","","S13"]],
   "s10-stig":[["prayer","grey","G1 G1b G2 G5 G7-4 G3c G3c2 G4c G6A-c"],["g10-scales","grey","G3a G3a2 G4a G6A-a"],["g10-surf","grey","G3b G3b2 G4b G6A-b"],["g10-god","grey","G7-1 G7-2"],["g10-towel","grey","G7-3"],["prayer","lamp","G8 G9"]],
   "s10-together":[["t10-after","","T1"],["fire","fire","T2 T9"],["t10-circle","fire","T2b"],["t10-lute","fire","T3 T7"]]})){
