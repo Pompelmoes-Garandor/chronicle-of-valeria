@@ -15,7 +15,7 @@
 
 *Figures.* Two, each with a voice style:
 - **The last guest** (a very tall guest in a travelling cloak, warm as a stove, from three hundred years ago): never speaks after S1. Seen at the edges of the past visions, always walking north.
-- **The last Hans** (Hans, three hundred years on; frost on his face plate, sound stones silent, one hand frozen in a lamp-holding grip): lines written `@future: "..."`. Low, flat, a voice that has said "Welcome" to an empty room too many times. Sometimes two voices at once. Never seen from the front before W2.
+- **The last Hans** (Hans, three hundred years on; frost on his face plate, sound stones silent, one hand frozen in a lamp-holding grip): lines written `@future: "..."`. Low, flat, a voice that has said "Welcome" to an empty room too many times. Sometimes he reads his own log entry out loud. Never seen from the front before W2.
 
 *Whispers.* `~text~` is the last Hans's voice bleeding into the passage.
 
@@ -228,9 +228,9 @@ The music box on the mantelpiece is playing the waltz, and you dance it with her
 
 She laughs. The whole table claps in time.
 
-"There," she says. "Now you've got something to keep."
+"There," she says. "You do dance."
 
-You kept it, each step and each clap. You have played that waltz to yourself in the dark more often than any other piece of music.
+You kept it, each step and each clap. You played that waltz to yourself in the dark more often than any other piece of music. Later you locked the record away with the others.
 
 In the morning she went north with the others.
 
@@ -303,11 +303,11 @@ By the end the house is lit from top to bottom. Anyone looking from the north wo
 
 Nobody comes.
 
-You stand in the doorway with the last lamp and wait, in case someone a long way off has seen the lights and is walking towards them. When you think about it, you have been doing this, more or less, ever since.
+You stand in the doorway with the last lamp and wait, in case someone a long way off has seen the lights and is walking towards them.
 
 ?seen P2c: While you wait you play the waltz on your stones at low volume, for the same reason.
 
-At the far window someone of your height is holding up a lamp as well. You lower yours. He keeps his up.
+At the far window someone of your height is holding up a lamp as well. You take him for your reflection in the glass. Then you lower your lamp, and he keeps his up.
 
 → Back (go to E0)
 
@@ -405,7 +405,7 @@ There are doors again. You have not stood in any of these rooms. Each door is co
 
 Behind them are things that have not happened and may never happen. If they do, you will most likely be present for the greater part, since you do not age.
 
-~Don't get attached.~
+~Don't go in. Those rooms are not made up yet.~
 
 Three of the doors are near enough to walk through.
 
@@ -423,15 +423,15 @@ A small inn. It is yours. You can tell, because the sign is very well painted an
 
 The floors are spotless. You scrubbed them yourself.
 
-Each room has a name on its door in brass letters: Katy, Stig, Saphira, Thorn. One door has a small bird on it and no name.
+Each room has a name on its door in brass letters: Katy, Stig, Saphira, Thorn. One door has a small bird on it and no name. All the keys are on their hooks behind the bar.
 
-The beds are made up with clean sheets, and every jug has fresh water in it. The house is very quiet.
+The beds are made up with clean sheets, and every jug has fresh water in it. The register lies open on the bar at its first page. The page is ruled and has no entries. The house is very quiet.
 
 A future you is behind the bar, polishing a glass that is already clean. He is older than you, and his face does not show it. The one difference you can find is more frost on the backs of his hands.
 
 The door opens. He looks up so quickly that he nearly drops the glass. It is the wind.
 
-Out by the back door a large figure is standing in the frost, with one hand raised.
+Through the glass of the back door you can see someone of your size in the yard, with his back to the house and frost on his shoulders. He has one hand raised to the height at which you hold a lamp.
 
 → Open all the windows and let some noise in. (go to Q1c) +flicker
 → Help him polish the glasses. (go to Q1d) +dread -flicker
@@ -448,7 +448,7 @@ A small girl puts her head round the door. She has heard the music.
 
 "Are you open?"
 
-"Yes," says the future you, and his voice cracks on it. "Yes. Come in. Welcome."
+"Yes," says the future you. He has the register turned round and the pen uncapped before she is through the door. "Come in. Welcome."
 
 → Back (go to F0)
 
@@ -458,11 +458,11 @@ You fetch a cloth and help him.
 
 You polish every glass. He polishes each one again after you. You take no offence, since you would do the same.
 
-There is a box under the counter. Inside it are a bronze ukulele with no strings, a towel with blue stripes folded small, a dagger with a blunt edge, and a falcon feather that is blue at the quill.
+There is a lost-property box under the counter. The usual rule is that an item left behind is kept for a year and a day. This box holds four items, each with a label: a bronze ukulele with no strings, a towel with blue stripes, folded small, a dagger with a blunt edge, and a falcon feather that is blue at the quill. The dates on the labels are long past a year and a day.
 
-He sees you looking. "I'm just keeping them," he says. "That's all."
+He sees you looking. "Lost property," he says. "They may yet be collected."
 
-~Room kept.~
+~Room kept. No forwarding address.~
 
 → Back (go to F0)
 
@@ -470,7 +470,7 @@ He sees you looking. "I'm just keeping them," he says. "That's all."
 
 {sound: hearth}
 
-A tavern, full and warm. This is a wake, which is a gathering held for someone who has died. Everyone has come in their best clothes, and the best clothes are old.
+A tavern, full and warm. This is a wake. You have the definition on file: a gathering held for someone who has died, with drink. Everyone has come in their best clothes, and the best clothes are old.
 
 The people are old as well, with grey hair and walking sticks. A great many grandchildren are running about under the tables.
 
@@ -478,13 +478,13 @@ A future you is in the corner behind a small table. He has his stones on and two
 
 He has provided the music at every party these people ever held, at their weddings and their children's name-days, and now at this.
 
-Nobody says whose wake it is. At the front one place has been laid, a chair with a cup set in front of it. Nobody is sitting there.
+You have not been told whose wake it is. At the front table one place is being held. The chair is tipped forward against the table, which is how a house keeps a seat for a guest who has not come down yet, and a cup has been filled at it. The chair is empty.
 
 People come up to him with requests. "Play the one from the bridge." "Play the one she used to hum."
 
 He has every song that anyone in this room ever asked him for.
 
-By the coats someone with frost on his shoulders stands waiting, as if he hopes someone will ask him for a song.
+By the coat pegs someone of your size is standing with his back to the room and frost on his shoulders. No one brings him a request.
 
 → Nod to him to play the song they are asking for. (go to Q2c) +flicker
 → Stop the music, and go and sit in the empty chair at the front. (go to Q2d) +dread
@@ -513,15 +513,15 @@ He does not answer at once. You can see him running the check.
 
 The future you stops the music. The room goes on talking.
 
-You walk to the front and sit down in the empty chair.
+You walk to the front, set the tipped chair back on its four legs, and sit down in it.
 
 It is the wrong height for you. It was someone else's chair, and the cushion still has the dip their body made.
 
 The cup in front of it is warm. Someone filled it this morning out of habit.
 
-Nobody has noticed that the music stopped. As far as they are concerned, there has always been music in that corner.
+No one in the room has noticed that the music stopped. As far as they are concerned, there has always been music in that corner.
 
-~Don't get attached. They go north. They always go north.~
+~Don't sit. Staff do not sit in the guests' chairs.~
 
 → Back (go to F0)
 
@@ -531,7 +531,7 @@ Nobody has noticed that the music stopped. As far as they are concerned, there h
 
 It is dark and ash is falling, as it is in the cave.
 
-There is a stone doorway full of fire. The fire does not move.
+There is a stone doorway, and fire stands in it from sill to lintel. You watch it for ten seconds. No flame in it changes position.
 
 Katy, Stig and Saphira are standing in front of it, all of them older. They have the faces of guests who have been handed a bill they cannot pay.
 
@@ -564,15 +564,15 @@ The fire in the doorway does not move. It will wait.
 
 You let him talk.
 
-"I was built to stand in a doorway," he says. "Look at me. It's the only thing I've ever been for."
+"I was built to stand in a doorway," he says. "That is a doorway."
 
 He takes a step forward. The firelight goes into the empty space in his chest.
 
 Saphira says a few words that you cannot hear, and he takes another step.
 
-For one second you think he is right, and that it would be all right. Then you think of a room at an inn of your own, with Katy's name on the door and clean sheets on the bed, and the wind.
+For one second you think he is right, and that it would be all right. Then you go through the duty list. If you were standing in that doorway, there would be no one down for the luggage, the lamps or the night watch at the tunnel. The second is over.
 
-~Don't. You'll miss them. You'll miss them for ever.~
+~Don't. A guest is speaking. Staff stop and listen.~
 
 → Back (go to F0)
 
@@ -608,27 +608,27 @@ It is much older. There is frost in the seams and the paint has worn off the lip
 
 His stones are on. No sound is coming out of them.
 
-@future: "Welcome," he says. Then he hears himself and stops.
+@future: "Welcome," he says. Then he hears himself and stops. "Excuse me. It's the only line I have kept in practice."
 
 "Who are you?"
 
-@future: "The last one still awake." He looks round the cave at the crew, who are held where they stopped. "They all go, every one of them. You know that. It's happened to you before."
+@future: "Night staff. Same house as you, three hundred years further on the clock." He looks round the cave at the crew, who are held where they stopped, and counts them with one finger. "Four. I had four as well. They all went, every one of them."
 
-"I do not remember that."
+"That has not happened."
 
-@future: "You will."
+@future: "Not on your clock."
 
 He holds out his closed hand, the one with no lamp in it.
 
-@future: "It doesn't hurt in the ice. I've checked. You stand there and it's quiet. You don't have to watch."
+@future: "I want one thing and then I'll go. Let me put you back in the ice now, before the first of them goes north. It doesn't hurt in the ice. I've checked. The clock stops and you stand at your post."
 
-"Watch what?"
+"And the crew?"
 
-@future: "Them going north."
+@future: "They'll manage. Guests do. It's the staff who are left with the rooms."
 
-He looks at you for a long time, and kindly. It is very strange to have your own face look at you like that.
+He brushes the ash off your left sleeve with the back of his frozen hand. He does it properly, from cuff to shoulder, all four thousand and eleven flakes.
 
-@future: "Go back to sleep," he says. Then he says it again, and two voices come out of him at once. Both are yours, and they say different things. "Go back to sleep. / Don't you dare."
+@future: "Go back to sleep," he says. Then he makes the log entry, and he makes it out loud. You suppose that after three hundred years with no one in the house you would do the same. "Entry. Told him to go back to sleep. Note to self: don't you dare."
 
 He lays his cold hand flat on your chest plate, over the box, and the frost starts to come through.
 
@@ -654,9 +654,9 @@ Then the guests come up out of the frost on the floor. They are in their grey tr
 
 ?seen Q2d: One of them is carrying a chair.
 
-?dread>=4: There are more of them now. Every guest you ever waved off from the step is here, and they want you to come and stand with them.
+?dread>=4: There are more of them now, in rows that reach the cave wall. You begin a count and pass two hundred. A space has been left in the front row. It is your width.
 
-@future: "See? We're all here. It's quiet."
+@future: "We're full tonight, as you see. I have kept you the place by the door."
 
 He puts his hand on your chest. The guests put theirs on your arms.
 
@@ -672,17 +672,17 @@ He goes down on one knee, and the frost cracks under it.
 
 ?flicker<=1: He is solid and heavy. The ice under his knee has cracked.
 
-The guests have stopped. They stand about the cave as if they are waiting for the music to start again.
+The guests have stopped. They stand about the cave in twos, as guests stand between dances.
 
 The box in your chest is warm again, by one degree. You have never been so pleased with one degree.
 
 He looks up at you with your own face.
 
-@future: "You always were stubborn about the door."
+@future: "That was my good knee," he says. "All right. It's your door."
 
 The crew have not moved. Katy, Stig, Saphira and Thorn are where they stopped, with the ash hanging over them.
 
-You have one degree of warmth to spend. Nothing on your file says so, but you are certain that whatever you spend it on cannot be undone.
+You have one degree of warmth to spend, and it can be spent once. There is no entry on your file that says so. You are certain of it all the same.
 
 → Lock nothing away again. Keep every memory, every room and every guest on file, for as long as you last. (go to End 1)
 → Turn your stones off, and let the waltz stop. (go to End 2)
@@ -706,7 +706,7 @@ The frost comes off your face in one sheet.
 
 The older you is kneeling in front of you with his hand still on your chest.
 
-@future: "Huh," he says. "That's not ours."
+@future: "Huh," he says. "A, D, F, E." He is checking it against his file. "No entry. That's not ours."
 
 You have one degree of warmth left.
 
@@ -728,19 +728,19 @@ The older you watches from where he is kneeling.
 
 "I know."
 
-@future: "And you'll keep them too." He nods at the crew. "Every one of them. Every word they say."
+@future: "And those four." He nods at the crew. "You'll be opening a page for each of them. They talk a great deal. Katy is a volume a year."
 
-"Yes."
+"I have started one."
 
-He looks at you for a long time. Then he stands, with a creak you know very well, and walks away into the frost. As he goes he opens his closed hand. There was a lamp in it after all, and it is lit.
+He stands, with a creak you have on file, and walks away into the frost. As he goes he opens his closed hand, and you hear the fingers give. There is a lamp in it, and it is lit.
 
-A long way off in the ash, in the direction he is walking, there is a stone doorway. It is full of fire, and not one flame in it is moving. He reaches it and takes up his post beside it with the lamp held up.
+A long way off in the ash, in the direction he is walking, there is a stone doorway. Fire stands in it from sill to lintel, and no flame in it is moving. He reaches it and takes up his post beside it with the lamp held up.
 
 {sound: waltz}
 
 Your internal temperature is back at eleven degrees. You are in the cave again, on guard by the tunnel, and the box in your chest is warm.
 
-Katy looks round at you, for no reason.
+Katy looks round at you.
 
 "You all right, Hans?"
 
@@ -766,7 +766,7 @@ He laughs. It is the first laugh you have on file from that face, and from the o
 
 The frost comes off him in flakes, like old paint. Under it his face is clean. The crack is still there, and he touches it.
 
-@future: "Keep that," he says. "The quiet. When it all gets too much, turn the stones off for a bit. Then turn them back on. That's all. Nobody ever told me."
+@future: "Enter that as a standing order," he says. "Stones: there is an off. Staff may use it without asking, and may turn them on again after. I'd like it written down before you forget. I went three hundred years without finding the switch."
 
 He stands up and walks off into the cave. He does not look back. A long way behind him fire is standing still in a stone doorway, and he keeps his back to it.
 
@@ -784,27 +784,27 @@ After a while you switch the stones back on, quietly.
 
 ## End 3. Open House
 
-You turn your stones up as far as they go. Then you do a thing you have never done. You play the waltz out loud, through your chest plate and the box, so that the whole cave can hear it.
+You turn your stones up as far as they go. You play the waltz out loud, through your chest plate and the box, so that the whole cave can hear it.
 
 The frozen guests turn round.
 
-The ash is still hanging and the crew have still not moved. In the dream, though, Katy's foot begins to tap, very faintly. Then Stig's head goes a little from side to side, in time, three beats to the bar. Saphira keeps still, apart from one boot.
+The ash is still hanging and the crew have still not moved, with three exceptions, which you log. Katy's left foot is tapping, faintly. Stig's head is going from side to side, three beats to the bar. One of Saphira's boots is moving. The rest of Saphira is not taking part.
 
 The older you stares up at you.
 
 @future: "They can hear it?"
 
-"I do not know," you say. "I never asked them."
+"I do not know," you say. "It has not been played to anyone before."
 
 The young woman in the ice holds out her hand and you take it. You have every step on file.
 
-You dance her once round the cave. The guests clap in time. As they clap the ice falls off them, and they are people in grey travelling clothes, smiling. Then they are gone.
+You dance her once round the cave. The guests clap in time, and the clapping breaks the ice on them. It comes off in plates and lies on the floor. Under it they are people in grey travelling clothes, smiling. As each guest comes clear of the ice, that guest is gone. You see them out, as you used to from the step.
 
-The older you gets up and offers his closed hand to the next guest, who is the bearded man. They dance together, badly.
+The older you gets up and offers his closed hand to one who is still there, who is the bearded man. They dance together, badly.
 
-@future: "I never asked anyone to dance," he says as he passes. "They always asked me."
+@future: "He's leading," he says as they pass you. "I have put it in the log."
 
-Then he is gone as well. A long way ahead of him in the ash, fire is standing still in a stone doorway. Someone big is standing beside it with a towel over one knee, tapping his foot.
+Then they are gone as well. A long way off in the ash, fire is standing still in a stone doorway. Someone big is standing beside it with a towel over one knee, tapping his foot.
 
 {sound: waltz}
 
@@ -847,15 +847,15 @@ Katy's foot is tapping. She is looking down at it as if it belongs to someone el
 
 - Welcome.
 - Room kept.
-- Don't get attached.
+- Don't go in. Those rooms are not made up yet.
 - They go north. They always go north.
 - It doesn't hurt in the ice.
 - Go back to sleep.
 - Don't you dare.
 - Spring.
 - Keep the place warm.
-- You'll miss them for ever.
-- The last one still awake.
+- Staff do not sit in the guests' chairs.
+- No forwarding address.
 - Welcome.
 
 ## Cutscene: frost
@@ -876,7 +876,7 @@ Katy's foot is tapping. She is looking down at it as if it belongs to someone el
 - He turns round.
 - It is your face, much older, with a crack full of ice.
 - @future: Go back to sleep.
-- @future: Go back to sleep. / Don't you dare.
+- @future: Entry. Told him to go back to sleep. Note to self: don't you dare.
 - He lays his cold hand on your chest, over the box.
 
 ## Cutscene: end 1
@@ -902,6 +902,6 @@ Katy's foot is tapping. She is looking down at it as if it belongs to someone el
 - The frozen guests turn round.
 - You take the young woman's hand. You have every step on file.
 - The guests clap in time, and the ice falls off them.
-- @future: I never asked anyone to dance.
+- @future: He's leading. I have put it in the log.
 - Far ahead, by a doorway of fire, somebody is tapping his foot.
 - Hans: Welcome.
