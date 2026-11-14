@@ -2972,7 +2972,7 @@ function flyRoad(a,b){
   if(journeyOn){journeyAuto=false;clearTimeout(journeyTimer);}
   if(recapOn){clearTimeout(recapTimer);}
   closeSheet(); reveal.v=reveal.goal=1; tween=null;
-  fly={road:true,pts,cost,total,mid,lo,k:0,i:1,last:now,inMs,t0:now+inMs,ms:reduced?1:Math.min(18500,Math.max(5500,total*230)),outMs:reduced?1:1500,
+  fly={road:true,pts,cost,total,mid,lo,k:0,i:1,last:now,inMs,t0:now+inMs,ms:reduced?1:Math.min(18500,Math.max(6500,total*230)),outMs:reduced?1:1500,
     from:{lon:cam.lon,lat:cam.lat,zoom:cam.zoom},p0:{lon:cam.lon+(((s0[0]-cam.lon+540)%360)-180),lat:s0[1],zoom:lo},end:{lon:end[0],lat:end[1],zoom:.32},s0:null,capWas:!cap.hidden};
   cap.hidden=true; document.body.classList.add("cinema","flying"); const sk=document.getElementById("cine-skip"); sk.hidden=false; sk.onclick=endFly;
 }
