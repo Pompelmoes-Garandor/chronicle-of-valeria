@@ -1229,6 +1229,12 @@ body.playing header.top,body.playing nav.dock,body.playing .eggs,body.playing #p
 @keyframes plWarn{0%{transform:translateX(0)}25%{transform:translateX(-4px)}50%{transform:translateX(3px)}75%{transform:translateX(-2px)}100%{transform:translateX(0)}}
 @media (prefers-reduced-motion:reduce){.pl-end.warn{animation:none}}
 .pl-end:focus-visible{outline:2px solid var(--steward);outline-offset:2px}
+/* taking a move back: beside End turn on a computer, at the right end of the turn ribbon on a phone (never over the board). Key hints only where there is a mouse */
+.pl-endw{display:flex;gap:8px}.pl-endw .pl-undo{flex:none;min-height:50px;border-radius:12px}
+.pl-side{position:relative}
+.pl-undo.fb{position:absolute;right:11px;top:11px;z-index:2;background:var(--brk),#14171df5;border-color:#c9a35c88;color:var(--brass-hi);box-shadow:0 6px 18px #000c}
+@media (min-width:900px){.pl-undo.fb{display:none}}
+@media (hover:hover) and (pointer:fine){.pl-act[data-k]::after{content:attr(data-k);position:absolute;right:6px;top:5px;font:500 9px/1 var(--mono);color:var(--parch-dim);opacity:.75;pointer-events:none}}
 .pl-say{margin:0;font:italic 16px/1.45 var(--body);color:var(--parch-dim)}
 .pl-say::after{content:"…";margin-left:1px}
 .pl-say.still::after{content:none}
@@ -5594,7 +5600,7 @@ addEventListener("unhandledrejection",e=>{if(e.reason===ABORT)e.preventDefault()
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const pick=a=>a[rnd(a.length)-1];
 const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
-function dice(expr){ // "2d6+4" -> {t,rolls,flat,sides}
+function dice(expr){PLAY.rolls=(PLAY.rolls|0)+1; // "2d6+4" -> {t,rolls,flat,sides}
   const rolls=[];let flat=0;const sides=[];
   for(const m of String(expr).replace(/\s/g,"").matchAll(/([+-]?)(\d*)d(\d+)|([+-]?)(\d+)/g)){
     if(m[3]){const n=parseInt(m[2]||"1",10),s=parseInt(m[3],10),sg=m[1]==="-"?-1:1;for(let i=0;i<n;i++){const v=rnd(s);rolls.push(v*sg);sides.push(s);}}
@@ -5904,7 +5910,7 @@ root.append(h("div",{class:"pl-top"},h("div",{class:"pl-t"},topEye,topH),menuBtn
 document.body.append(root);
 function chip(t,bad){const c=h("div",{class:"pl-chip"+(bad?" bad":""),role:"status"},t);stage.append(c);setTimeout(()=>c.remove(),3200);}
 function setTitle(eye,t){topEye.textContent=eye;topH.textContent=t;}
-function log(t,c=""){const rd=/^— Round (\d+) —$/.exec(t);logEl.append(rd?h("p",{class:"rd"},"Round "+rd[1]):h("p",{class:c},t));while(logEl.children.length>160)logEl.firstChild.remove();logEl.scrollTop=logEl.scrollHeight;}
+function log(t,c=""){PLAY.logs=(PLAY.logs|0)+1;const rd=/^— Round (\d+) —$/.exec(t);logEl.append(rd?h("p",{class:"rd"},"Round "+rd[1]):h("p",{class:c},t));while(logEl.children.length>160)logEl.firstChild.remove();logEl.scrollTop=logEl.scrollHeight;}
 logEl.addEventListener("click",()=>{if(!matchMedia("(max-width:899px)").matches)return;logEl.classList.toggle("open");setTimeout(()=>{logEl.scrollTop=logEl.scrollHeight;},280);}); // phones: a short log, tap for more
 function clearLog(){logEl.replaceChildren();}
 function sideMode(on){side.hidden=!on;main.style.gridTemplateColumns=on?"":"1fr";}
@@ -5943,7 +5949,7 @@ addEventListener("pointerdown",e=>{if(menuEl&&!e.target.closest(".pl-menu")&&e.t
 async function show3d(list){if(opt.dice&&list.length)await throwDice(list.slice(0,10));}
 DICE.au=()=>{const a=pAc();return a?{a,out:pOut}:null;};   // the dice clatter through the play sound while it is on
 function hide3d(){const el=document.getElementById("dice");el.hidden=true;el.querySelectorAll(".dn").forEach(n=>n.remove());}
-function d20(adv,dis,lucky){let a=rnd(20),b=rnd(20);if(lucky){if(a===1)a=rnd(20);if(b===1)b=rnd(20);}const mode=adv&&!dis?1:dis&&!adv?-1:0;return {v:mode===1?Math.max(a,b):mode===-1?Math.min(a,b):a,a,b,mode};}
+function d20(adv,dis,lucky){PLAY.rolls=(PLAY.rolls|0)+1;let a=rnd(20),b=rnd(20);if(lucky){if(a===1)a=rnd(20);if(b===1)b=rnd(20);}const mode=adv&&!dis?1:dis&&!adv?-1:0;return {v:mode===1?Math.max(a,b):mode===-1?Math.min(a,b):a,a,b,mode};}
 const modeTxt=r=>r.mode===1?` (adv ${r.a}/${r.b})`:r.mode===-1?` (dis ${r.a}/${r.b})`:"";
 
 /* a check or save for one of the crew, outside battle or in it. Returns {tot,v,ok} */
@@ -9230,12 +9236,12 @@ document.addEventListener("pointermove",e=>{if(!B||!B.cellPick||!B.areaFn||!mapE
 
 /* ---- the crew's turn ---- */
 function playerTurn(u){if(PLAY.auto)return autoTurn(u);return new Promise(done=>{
-  let busy=false;
-  const fin=()=>{closeActs();done();};
-  const run=async fn=>{if(busy)return;busy=true;closeActs();B.reach=null;drawHi();try{await fn();}finally{busy=false;}await checkEnd();if(B.over||u.hp<=0||u.cond.ko){fin();return;}draw();};
-  B.onMove=(x,y)=>run(async()=>{const path=pathTo(B.reach0,x,y);if(!path)return;const c=B.reach0.d.get(x+","+y).c;
+  let busy=false;const tk=PLAY.turn={u,busy:()=>busy};
+  const fin=()=>{closeActs();turnOff(tk);done();};
+  const run=async fn=>{if(busy)return;busy=true;closeActs();undoHide();B.reach=null;drawHi();try{await fn();}finally{busy=false;}await checkEnd();if(B.over||u.hp<=0||u.cond.ko){fin();return;}draw();};
+  B.onMove=(x,y)=>run(async()=>{const path=pathTo(B.reach0,x,y);if(!path)return;const c=B.reach0.d.get(x+","+y).c,sn=undoSnap(tk,path);
     if(u.cond.prone){delete u.cond.prone;u.mv=Math.max(0,u.mv-Math.ceil(speedOf(u)/2));log(`${u.short} gets up.`);}
-    u.mv-=c;u.moved+=c;if(B.def.onMoveStart)B.def.onMoveStart(u);await moveAlong(u,path);});
+    if(sn)sn.fp=undoFp(u);u.mv-=c;u.moved+=c;if(B.def.onMoveStart)B.def.onMoveStart(u);if(await moveAlong(u,path)&&sn)tk.pend=undoEnd(u,sn);});
   const act=a=>run(async()=>{actCtx={u,a};try{await a.run();}finally{actCtx=null;oddsBadges(false);}});
   // ending with the action unused asks once: the button turns to "tap again" for a few seconds
   let warned=0;const unused=()=>{if(u.act<=0||u.cond.ko)return "";const ok=crewActions(u).filter(a=>a.ok&&!/^(Dash|Dodge|Disengage|Help|Hide|Ready|Search)$/.test(a.n));
@@ -9249,8 +9255,8 @@ function playerTurn(u){if(PLAY.auto)return autoTurn(u);return new Promise(done=>
     B.reach0=reachable(u,Math.max(0,u.cond.prone?u.mv-Math.ceil(speedOf(u)/2):u.mv));B.reach=u.mv>0?B.reach0:null;drawHi();renderTokens();
     initEl=initEl||h("div",{class:"pl-init"});renderInit();
     const acts=crewActions(u);
-    setPanel("turn",u,[initEl,whoRow(u,{eco:true}),quickBar(u,acts,act,()=>openActs(u,acts,act,end),end),h("div",{class:"pl-grps"},...actGroups(u,acts,act)),h("div",{class:"pl-endw"},endBtn(end))]);};
-  refreshPanel=draw;draw();panel.scrollTop=0;});}
+    setPanel("turn",u,[initEl,whoRow(u,{eco:true}),quickBar(u,acts,act,()=>openActs(u,acts,act,end),end),h("div",{class:"pl-grps"},...actGroups(u,acts,act)),h("div",{class:"pl-endw"},endBtn(end))]);turnUi(tk);};
+  refreshPanel=tk.draw=draw;tk.end=end;draw();panel.scrollTop=0;});}
 
 async function autoTurn(u){
   // fights with something to protect (B.def.guard: the candle, the sleeper): the test player stays by it, uses the scene's own moves, and hits whatever is closest to it
@@ -9377,6 +9383,52 @@ async function turnUndead(u){log("Stig raises his holy symbol: Turn Undead!","b"
       log(`  ${nameOf(o)} burns, but doesn't run. Nothing frightens it.`,"r");continue;}
     if(alive(o)){o.ghost=true;o.back=B.round+2;o.hidden=false;log(`  ${o.name} ${B.sc&&B.sc.flee||"flees into the root walls"}.`,"g");o.el&&o.el.classList.add("gone");}}
   renderTokens();}
+
+/* ---- taking a move back, and keys on a computer. Off switches: ?noundo, ?nokeys.
+   A move can be taken back only while nothing came of it: no roll, no line in the log, nobody else changed, the fight's own state (B.sc) the same.
+   The check is made again at every redraw and at the tap itself, so an action that was picked and cancelled keeps the offer, and anything else ends it. ---- */
+const UNDO_ON=!/[?&]noundo(=|&|$)/.test(location.search),KEYS_ON=!/[?&]nokeys(=|&|$)/.test(location.search);
+function undoFp(u){try{const unit=(k,v)=>v&&typeof v==="object"&&v.cond&&v.id!=null&&"hp" in v?"#"+v.id:v; // a unit inside B.sc counts by its id; anything that can't be written out counts as changed
+  return JSON.stringify([PLAY.rolls|0,PLAY.logs|0,B.round,B.over,B.units.length,
+    B.units.map(o=>[o.id,o===u?0:[o.x,o.y,o.mv,o.moved],o.hp,o.temp,o.max,o.dead,o.gone,o.ghost,o.hidden,o.act,o.bonus,o.react,o.cond,o.ds]),
+    JSON.stringify(B.sc,unit),ST&&ST.party,ST&&ST.flags,IST?[IST.dread,IST.flicker,IST.mid,IST.done]:0],unit);}catch(e){return null;}}
+function undoSnap(tk,path){tk.undo=tk.pend=null;if(!UNDO_ON||path.some(st=>st.jump))return null;const u=tk.u;return {x:u.x,y:u.y,mv:u.mv,moved:u.moved,pr:"prone" in u.cond,prone:u.cond.prone};}
+function undoEnd(u,sn){sn.x1=u.x;sn.y1=u.y;sn.mv1=u.mv;sn.moved1=u.moved;return sn;}
+function undoOk(u,sn){return !!sn&&!!sn.fp&&u.x===sn.x1&&u.y===sn.y1&&u.mv===sn.mv1&&u.moved===sn.moved1&&sn.fp===undoFp(u);}
+function undoHide(){side.querySelectorAll(":scope>.pl-undo").forEach(b=>b.remove());}
+function undoMove(){const tk=PLAY.turn,sn=tk&&tk.undo;if(!sn||!B||B.over||!B.units.includes(tk.u)||tk.busy()||B.tgt||B.cellPick)return false;const u=tk.u;
+  if(!undoOk(u,sn)){tk.undo=null;tk.draw();return false;}
+  tk.undo=null;u.x=sn.x;u.y=sn.y;u.mv=sn.mv;u.moved=sn.moved;if(sn.pr)u.cond.prone=sn.prone;closeActs();log(`${u.short} takes the move back.`);tk.draw();return true;}
+const undoBtn=fl=>h("button",{type:"button",class:"pl-btn pl-undo"+(fl?" fb":""),title:"Take the last move back",onclick:undoMove},"Undo move");
+function turnOff(tk){if(PLAY.turn===tk)PLAY.turn=null;undoHide();}
+/* after every redraw of the turn panel: is the move still free to take back, then the button (beside End turn on a computer, over the end of the turn ribbon on a phone) and the key hints */
+function turnUi(tk){const sn=tk.pend||tk.undo;tk.pend=null;tk.undo=undoOk(tk.u,sn)?sn:null;undoHide();
+  if(tk.undo){const w=panel.querySelector(".pl-endw");if(w)w.prepend(undoBtn());side.append(undoBtn(true));}
+  keyTag();}
+/* keys, during the crew's turn: 1-9 the actions in the order shown, Enter ends the turn (the same double-check; E is taken, it turns the 3D table), U or Ctrl/Cmd+Z takes the move back.
+   A question at the foot of the board: Enter is its marked answer, Escape the other one when there are two. */
+const keyActs=()=>[...panel.querySelectorAll(".pl-act:not(:disabled)")].filter(b=>b.offsetParent).slice(0,9);
+function keyTag(){if(!KEYS_ON)return;panel.querySelectorAll(".pl-act[data-k]").forEach(b=>b.removeAttribute("data-k"));if(PLAY.turn&&panel.dataset.mode==="turn")keyActs().forEach((b,i)=>b.dataset.k=i+1);}
+let keyAt=0;
+if(KEYS_ON){addEventListener("resize",()=>{if(PLAY.on&&PLAY.turn)keyTag();});
+addEventListener("keydown",e=>{if(!PLAY.on||root.hidden||e.defaultPrevented||e.repeat||e.isComposing)return;
+  const k=e.key.length===1?e.key.toLowerCase():e.key,z=k==="z"&&(e.ctrlKey||e.metaKey)&&!e.altKey&&!e.shiftKey;
+  if((e.ctrlKey||e.metaKey||e.altKey||e.shiftKey)&&!z)return;
+  const t=e.target instanceof Element?e.target:null;if(t&&t.closest("input,textarea,select,[contenteditable]"))return;
+  if(T3C||menuEl)return;
+  const onBtn=k==="Enter"&&t&&t.closest("button,a,summary"),now=performance.now(); // Enter on a button that has the focus already presses it
+  const m=stage.querySelector(".pl-modal");
+  if(m){if(now-keyAt<500||onBtn)return;const bs=[...m.querySelectorAll(".row .pl-btn")]; // not within half a second of the key before: a second Enter for "end?" must not answer the question that follows
+    const b=k==="Enter"?bs.find(x=>x.classList.contains("pri")):k==="Escape"&&bs.length===2&&!drawerEl&&!(B&&(B.tgt||B.cellPick))?bs.find(x=>!x.classList.contains("pri")):null;
+    if(b){e.preventDefault();keyAt=now;b.click();}return;}
+  const tk=PLAY.turn;if(!tk||!B||B.over||!B.units.includes(tk.u)||tk.busy()||drawerEl||B.tgt||B.cellPick||panel.dataset.mode!=="turn")return;
+  if(z||k==="u"){if(undoMove())e.preventDefault();return;}
+  if(k==="Enter"){if(onBtn)return;e.preventDefault();keyAt=now;tk.end();return;}
+  if(/^[1-9]$/.test(k)){const b=keyActs()[+k-1];if(b){e.preventDefault();b.click();}}},true);} // capture: the play overlay stops Escape for the map behind it further down
+if(/[?&]playtest/.test(location.search))window.__turn={fp:()=>PLAY.turn&&undoFp(PLAY.turn.u),busy:()=>!!PLAY.turn&&PLAY.turn.busy(),b:()=>B,u:()=>PLAY.turn&&PLAY.turn.u,who:()=>PLAY.turn?PLAY.turn.u.key:null,canUndo:()=>!!(PLAY.turn&&undoOk(PLAY.turn.u,PLAY.turn.undo)),undo:undoMove,keys:()=>keyActs().map(b=>b.title),
+  unit:()=>{const u=PLAY.turn&&PLAY.turn.u;return u?{key:u.key,x:u.x,y:u.y,mv:u.mv,moved:u.moved,prone:!!u.cond.prone,act:u.act,bonus:u.bonus,hp:u.hp}:null;},
+  units:()=>B?B.units.map(o=>({key:o.key,side:o.side,x:o.x,y:o.y,hp:o.hp,react:!!o.react,gone:!!o.gone,ghost:!!o.ghost})):[],
+  reach:()=>B&&B.reach?[...B.reach.d].filter(([k,n])=>!n.occ&&k!==B.reach.start).map(([k,n])=>[k,n.c]):[],move:(x,y)=>{if(B&&B.onMove)B.onMove(x,y);},counts:()=>[PLAY.rolls|0,PLAY.logs|0]};
 
 
 /* =================== THE MONSTERS' TURN: tactics from the session 10 script =================== */
