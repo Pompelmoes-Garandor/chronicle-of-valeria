@@ -41,7 +41,7 @@ On most watches that settles it. You fold your hands and count them again. It co
 
 You knew how long he has when you put your hand on his arm. His blood told you.
 
-It's a stone in your boot. You can walk on it for as long as you have to.
+What his blood told you is a stone in your boot. You can walk on it for as long as you have to.
 
 You sit very still, hands on your knees. The booklet the girl's mother gave you, *Control over Water*, is in your pack. Your holy symbol is cold against your chest.
 
@@ -53,7 +53,7 @@ He's waiting for an answer, and you're not ready to give it. You need to take th
 
 ## G3a. The judge
 
-You put your hand over the tattoo. Kelemvor's Blessing. You've never been sure you like the Lord of the Dead. You've never caught him judging anybody unfairly.
+You put your hand over the tattoo. Kelemvor's Blessing. The Lord of the Dead, the honest judge. You've never been sure you like him. You've always been sure he's fair.
 
 The priests at the Monastery of the Great Winds taught you the proper words and when to kneel, and you use none of it. You close your eyes and tell him straight. There's an old man in this cave, his daughter has only just found him, and you know how long he has. You add nothing to that, and then you wait.
 
@@ -77,9 +77,11 @@ Nobody answers in words, and you didn't think anybody would. The skin under the 
 
 What you feel next is a pair of scales coming to rest: two or three swings, each one shorter, and then level.
 
-Every soul in its time. The words are your own, since nobody speaks, but they arrive with the scales. Somebody is keeping the count, and keeping it honestly.
+*Every soul in its time.*
 
-The old man has exactly as long as he had before you asked.
+Nobody says it. You know it as you know the tide has turned before the water moves. It promises you nothing and it threatens nothing. Somebody is keeping the count, and keeping it honestly.
+
+The stone in your boot weighs what it did. But it's fair.
 
 → Continue (go to G5)
 
@@ -137,7 +139,7 @@ It was her mother's, she said, and her grandmother's before that, and by now nob
 
 You went red and held it back out to her. She wouldn't take it. It's a long time since anybody gave you something of theirs to look after.
 
-You've been at it since, a line at a time, about as fast as you once learned your letters. You've got as far as the third page.
+You've been at it since, a line at a time, about as fast as you once learned your letters.
 
 → Continue (go to G4c)
 
@@ -149,9 +151,7 @@ The tide says: "I only go out so I can come back in." [SAM?: invented line from 
 
 You read it twice. Then you sit with the booklet open on your knees, grinning in the half dark where nobody can see.
 
-After every ebb, a flood. You've gone by that all your life and never knew anyone had written it down. Somebody's great-grandmother wrote it for a child, and here it is in your hands at the bottom of a cave.
-
-You read the line once more, out loud, under your breath.
+After every ebb, a flood. You've gone by that all your life and never knew anyone had written it down. Somebody's great-grandmother wrote it for a child, and here it is in your hands at the bottom of the world.
 
 → Continue (go to G5)
 
@@ -159,7 +159,7 @@ You read the line once more, out loud, under your breath.
 
 That's all the answer there is going to be. Now you can ask for something.
 
-The old man is grey to the elbow. His daughter came all this way to find her father. She has found him, and she doesn't know yet how ill he is.
+The old man is grey to the elbow. His daughter came all this way to find her father. She has found him, and she doesn't know yet what she has found.
 
 You go through what your hands know how to do. Hardly any of it is any use to him.
 
@@ -177,7 +177,7 @@ You say it under your breath. You were saying it before the monastery and before
 
 The cold doesn't change. The scales stay level. You lean on your side with all your weight and the pan doesn't drop by a hair.
 
-Nobody is angry with you. The weight is the old man's, and it stays in his pan.
+Nobody is angry with you. The weight isn't yours, and it won't be made yours.
 
 → Ask again, louder. (go to G7-1)
 → Let it go. (go to G7-2)
@@ -190,7 +190,7 @@ You say it under your breath. You were saying it before the monastery and before
 
 The surf comes back. The wave runs up the beach and drags down again, at the same pace as before.
 
-You offer it a plain swap, you for him. The next wave comes in on time, and so does the one after. The tide has taken men and it has given men back, and you never once saw it take one man in place of another.
+You offer it a plain swap, you for him. The next wave comes in on time, and so does the one after. The tide won't trade your water for his. It isn't angry about it. It goes on being the tide.
 
 → Ask again, louder. (go to G7-1)
 → Let it go. (go to G7-2)
@@ -203,7 +203,7 @@ You say it to nobody, under your breath, with your thumb on the page. You've bee
 
 You turn the page in case the tale has an answer. The child fills its bucket and holds it out to the tide. If the tide takes this water, the child says, it won't need to go out any more.
 
-On the next line the tide says thank you, and goes out all the same. It carries no one's water but its own.
+On the next line the tide thanks the child, and carries no one's water but its own.
 
 → Ask again, louder. (go to G7-1)
 → Let it go. (go to G7-2)
@@ -218,7 +218,7 @@ For a few seconds you've got his arms. They're heavy, and cold right up to the e
 
 Then you've got your own arms back. Your hands hurt with the cold, and they will for a good while. [SAM?: nothing changes for Matthew; the ache in Stig's hands is flavour only]
 
-You'd ask a third time if you thought it would give another inch.
+You'd do it again.
 
 → Continue (go to G8)
 
@@ -230,7 +230,7 @@ You let out a long breath, longer than you thought you had air for. Your shoulde
 
 This was never yours to mend. It's the old man's and his daughter's, and it belongs to whoever keeps the count. What's left for you is the sitting up. The fight was easier.
 
-Then somebody takes the other end. You feel the load shift, and you don't turn round to see who it is.
+Then something has hold of the other end. You feel the load shift. You don't know what took it up, and you don't need to.
 
 → Continue (go to G8)
 
@@ -312,7 +312,7 @@ The towel is in your hands already, wrung out and folded. You kneel and take his
 
 ## End 4. Today
 
-You sit down beside him and say nothing yet. Across the cave Katy is still talking low. You asked for her to have today, so you leave her to it. You'll carry what you know a while longer.
+You sit down beside him and say nothing yet. Across the cave Katy is still talking low. Let her have today. You'll hold the rest.
 
 > **Echo: Not Tomorrow.** When an ally you can see within 30 feet of you is about to make an ability check, you can use your reaction and spend this Echo to give them advantage on it. Decide before they roll.
 

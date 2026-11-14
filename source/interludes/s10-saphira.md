@@ -15,7 +15,7 @@ Writer's rules kept (for Sam): the patron says nothing true about Saphira's past
 
 Ash comes down through the lamplight and stays on your sleeves.
 
-Katy is kneeling by her father, talking low. Stig has the towel. Thorn has the tunnel, so you don't have to. Hans hasn't moved in a while. Nobody is looking at you.
+Katy is kneeling by her father, talking low. Stig has the towel. Thorn is watching the tunnel. Hans hasn't moved in a while. Nobody is looking at you.
 
 In the middle of the cavern the dead Heart ticks as it cools.
 
@@ -61,7 +61,7 @@ Behind a pillar of dead wood the shadows collect and stand up. A woman walks out
 
 "Relax," she says. "I'm not here for them."
 
-You keep your hand on the grip. She nods at it, satisfied.
+You keep your hand on the grip. She seems to like that.
 
 → Continue (go to S4)
 
@@ -83,7 +83,7 @@ The dark in the hood gets heavier. It runs over your shoulder and down onto the 
 
 You know her. You've never had a proper look at her, and you won't get one now.
 
-She wears the old shadow robe, too black to show its folds. Her face stays out of the light. You move half a step for a better angle and the lamplight falls somewhere else.
+She wears the ancient shadow robe, too black to show its folds. Her face stays out of the light. You move half a step for a better angle and the lamplight falls somewhere else.
 
 Her hands you can see. Tattoos cover them, and while she isn't talking the tattoos move slowly across the skin.
 
@@ -113,7 +113,7 @@ The eye narrows a little. It knows who is being talked about.
 
 "So. What stays, when the reason for staying is gone?"
 
-You wait for her to answer her own riddle. She doesn't. With the ash hanging as it is, she can afford to sit there.
+You wait for her to answer her own riddle. She doesn't. She sits there as if she has all the time there is. With the ash hanging in the air, maybe she does.
 
 → Continue (go to S6b)
 
@@ -123,7 +123,7 @@ You don't answer. You've never been able to leave a lock alone, though, and you 
 
 The eye stayed. So did Hans, after he walked out of the hotel that owned him. The old man stayed inside the Heart, playing in the dark with nobody to hear. Katy is kneeling by him now. No contract ties you to Katy any more. You are still standing where you can see her, and that is as far as you take it.
 
-"Think about it later," the patron says. She watched you do it. "Now. You get one question. Everyone has one. Ask it and I'll answer. I don't promise you'll like the answer."
+"Think about it later," the patron says. She watched you do it. "Now. You get one question. Everyone has one. Ask it, and I'll answer it as I answer everything."
 
 → "What's your name?" (go to S7a)
 → "What did they take from me?" (go to S7b)
@@ -137,7 +137,7 @@ The eye stayed. So did Hans, after he walked out of the hotel that owned him. Th
 
 "How much is enough?"
 
-"That's a second question." She sounds as though she had money on your trying. "You get one. You've had it."
+"That's a second question." She sounds delighted that you tried. "You get one. You've had it."
 
 The tattoos on her hands move, then stop.
 
@@ -147,9 +147,11 @@ The tattoos on her hands move, then stop.
 
 "What did they take from me?"
 
-She takes a while to answer. The tattoos keep moving on her hands.
+For the first time she doesn't answer at once. The tattoos keep moving on her hands.
 
-"Ask the people who took it," she says. "I deal in what you still have."
+"Ask the people who took it," she says. "I only deal in what you still have."
+
+That isn't an answer, and she knows it.
 
 She looks down at your hand. It has closed hard on the Ashblade's grip.
 
@@ -161,11 +163,11 @@ She looks down at your hand. It has closed hard on the Ashblade's grip.
 
 "Why me?"
 
-"Because you refuse things," she says. "I find that interesting."
+"Because you're interesting when you refuse things," she says.
 
 "That's it?"
 
-"That's a great deal. Most people I meet want something from me. You say no." She leans forward. The lamplight still misses her face. "I like to see what you do after."
+"That's a great deal. Most people are only interesting when they want something, and wanting is dull. Everybody wants." She leans forward. The lamplight still misses her face. "You say no. I like to see what you do after."
 
 → Continue (go to S8)
 
@@ -250,7 +252,7 @@ The patron has her head on one side.
 
 ## S10-4. Draconic
 
-You speak to it in Draconic, which is a language for oaths and orders, and it comes out harder than you meant. You tell it to wake up. You tell it that it's the eye in your cloak, and that the curse is gone.
+You speak to it in Draconic, which is a language for oaths and orders, and it comes out harder than you meant. You tell it to wake up. You tell it what it is.
 
 The eye widens. Against your arms the lining of the cloak prickles, and thin dark marks come up in the cloth, angled and set in lines. It's script, in a very old hand. Then the marks sink back.
 
@@ -336,7 +338,7 @@ The eye is wide open. It goes from face to face round the cave and reads each on
 
 ## End 2. No Debts
 
-The eye is half lidded. It's looking at you, and when you look back it doesn't look away. You paid her nothing for that, and you owe her nothing for what the eye does next.
+The eye is half lidded. It's looking at you, and when you look back it doesn't look away. You owe nobody for anything it does next.
 
 > **Echo: Owe Nothing.** Before you roll a Charisma (Persuasion) check to strike a bargain or set its terms, you can spend this Echo to have advantage on it.
 

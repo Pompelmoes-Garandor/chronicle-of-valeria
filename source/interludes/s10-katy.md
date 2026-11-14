@@ -19,7 +19,7 @@ Your fingers go to the four notes without being asked. A, D, F, E, the start of 
 
 You've played it a hundred times since you left court, always too quick. Tonight you play it at her speed, and it sounds like her.
 
-The cave goes quiet. Then there's no cave, and you can smell a candle.
+The cave goes quiet. Then there's no cave.
 
 → Continue (go to K2)
 
@@ -51,7 +51,7 @@ You're on your third time round, in Elvish by now, with the words coming slower 
 
 You'd know her footsteps anywhere. The servants' stair has eleven steps and the ninth one creaks. She steps over it, unless she's tired. Tonight it creaks.
 
-The latch lifts. The candle flame leans toward the door and stands up again. Her perfume reaches you before she does, and under it floor polish and other people's candles.
+The latch lifts. The candle flame leans toward the door and stands up again. Her perfume reaches you before she does, and under it floor polish, cold stone and other people's candles.
 
 She sits on the edge of the bed and the mattress tips you toward her. She lays the back of her hand on your cheek to see if you're warm. Her hand is as cold as a spoon.
 
@@ -75,7 +75,7 @@ You nod. She nods back and doesn't smile.
 
 "Then I owe you a song. One. After that you shut your eyes properly, and I check."
 
-She has never once checked. Most nights you get the song twice.
+You know she won't check. You know she'll sing it twice.
 
 → Continue (go to K5)
 
@@ -89,7 +89,7 @@ Then she finds your hand on top of the blanket. Your fingers are tapping, and yo
 
 "You have his hands, you know," she says quietly, to a child who's asleep. "Always drumming."
 
-She closes her hand over your fingers and lets them go on tapping inside it.
+She closes her hand over your fingers and they stop. She isn't telling you off. She only wants to hold them.
 
 The grown you wants to open your eyes and ask whose hands. The seven-year-old is busy being asleep, so nobody asks.
 
@@ -99,7 +99,7 @@ The grown you wants to open your eyes and ask whose hands. The seven-year-old is
 
 "Where's my father?"
 
-You hadn't planned to ask. Some nights the question is sitting in your mouth, and tonight it got out.
+You hadn't planned to ask. Some nights the question is just there in your mouth, and tonight you said it.
 
 She goes still. The candle gets a long breath of draught from under the door, and you count while she says nothing. One, two, three, four.
 
@@ -136,7 +136,7 @@ The verse ends and she keeps going.
 
 She takes the tune round again with her mouth closed, slower, holding notes that the verse hurried through. The child has heard this part before, on nights when her mother thought she'd dropped off. Nobody taught her words for it. She decided long ago that it had none.
 
-After today you'd bet money that it does.
+You're not so sure now.
 
 Her hand is on your hair. The candle is down to a puddle the size of a coin. The palace has gone to bed at last, and her humming is the only sound on the top floor.
 
@@ -153,7 +153,7 @@ So you sing them, inside the memory, in the child's voice.
 *Foxglove bells over the sleeping roots,*
 *hush now, my heart, and do not weep…*
 
-Your mother stops humming. She takes her hand off your hair. There's enough candle left to see her face, close to yours. She's left off the face she wears in the princess's wing. This one is younger, and scared.
+Your mother stops humming. She takes her hand off your hair. There's enough candle left to see her face, close to yours. It isn't the face she wears in the princess's wing. This one is younger, and frightened, and there's more in it than fright.
 
 "Who taught you that?" she says, barely aloud. "I never…"
 
@@ -261,7 +261,7 @@ She could pull free without trying. She stays, half turned to the door, and give
 
 The bell rings again. Down the passage somebody's slippers are already hurrying.
 
-She lifts your hand and kisses the knuckles, all four, one after the other. "I'll be back before the snow," she says. There's no tune in it this time, and she's looking straight at you.
+She lifts your hand and kisses the knuckles, all four, one after the other. "I'll be back before the snow," she says. There's no tune in it this time. It's a promise, and she's looking straight at you.
 
 Then she takes her hand back, gently, and goes. The ninth step creaks. The door doesn't quite close.
 
@@ -285,7 +285,7 @@ The room smells of her for a long time. You fall asleep with your wrist against 
 
 You can't find the join where it ends. The candle on the sill turns out to be the last green light, going out in a crack in the cave wall. The blanket turns out to be the ukulele across your knees. Your fingers have stopped playing and you couldn't say when.
 
-There's ash on your boots. The dead Heart ticking as it cools can't keep time. Voices behind you, still low. Thorn stands at the edge of the lamplight, taking great care to look somewhere else.
+There's ash on your boots. The dead Heart ticking as it cools. Voices behind you, still low. Thorn stands at the edge of the lamplight, taking great care to look somewhere else.
 
 Nobody saw you go anywhere, because you didn't. You're twenty-six, sitting on a rock in a cave in Summerwood. Your face is wet. You leave it.
 
@@ -307,7 +307,7 @@ Nobody behind you has noticed that the playing stopped, which suits you. You'll 
 
 You play the four notes again, and this time you keep going after the first verse. You play the second one too, singing it under your breath as you sang it with her.
 
-She knew it. She stopped and stared, and then she came in on the last line without having to think. Somebody had brought those words to Valethorn years before you heard them. She never once sang them to you while you were awake.
+She knew it. She stopped and stared, and then she came in on the last line without having to think. Somebody had brought those words to Valethorn years before you heard them. She kept them, and she never once sang them to you while you were awake.
 
 You lay your hand flat on the strings and the last note stops.
 
@@ -319,7 +319,7 @@ You lay your hand flat on the strings and the last note stops.
 
 You don't play. You sit with your hands resting on the strings and go through her four lines in your head. Then you go through them again, to be sure they're all still there.
 
-It's your mother's verse. She never wrote it down. Since she died nobody alive has known it, and now you do.
+It's your mother's verse. She never wrote it down. The one person who knew it is dead. Now two people know it, and one of them is you.
 
 You'll put it on paper later. Tonight you just say it over once more.
 
@@ -331,9 +331,9 @@ You'll put it on paper later. Tonight you just say it over once more.
 
 You look up, across the cave, at the people you came here with. You skip the faces and go to the hands.
 
-Thorn's are on his bow and haven't moved in far too long. Stig's are busy. Your father's are lying on his lute, grey to the elbow, and the fingers won't keep still on the strings. He drums too.
+Thorn's are on his bow and haven't moved in far too long. Stig's are busy. Your father's are lying on his lute, grey to the elbow, and the fingers won't keep still on the strings. They're drumming.
 
-You come very close to laughing out loud.
+Always drumming. You come very close to laughing out loud.
 
 > **Echo: Court Eyes.** Before you roll a Wisdom (Insight) check, you can spend this Echo to have advantage on it.
 
