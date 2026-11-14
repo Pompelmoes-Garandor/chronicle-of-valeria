@@ -679,6 +679,43 @@ body.rewound #asof{color:var(--ember)}
   #caption p{font-size:16px} #caption .txt{max-height:calc(16px*1.5*5)}
   #caption.steward p{font-size:13px}
 }
+/* Recap 3.0 (off with ?oldrecap): a reading column beside the globe on wide screens, a tighter sheet on phones, Back, dots you can tap, a line for the time left */
+body.recap3 #caption{touch-action:pan-y}
+body.recap3 #caption .prev{width:48px;height:48px;border-radius:50%;padding:0;display:grid;place-items:center;font-size:20px}
+body.recap3 #caption .prev[disabled]{opacity:.35;cursor:default}
+body.recap3 .r3-dots{top:0;gap:3px}
+body.recap3 .r3-dots button{flex:1;height:22px;padding:0;border:0;background:none;cursor:pointer;position:relative;-webkit-tap-highlight-color:transparent}
+body.recap3 .r3-dots button::before{content:"";position:absolute;left:0;right:0;top:8px;height:2px;border-radius:1px;background:#ffffff14;transition:background .2s}
+body.recap3 .r3-dots button.on::before{background:var(--brass)}
+body.recap3 .r3-dots button.cur::before{background:var(--steward);box-shadow:0 0 6px var(--steward)}
+body.recap3 .r3-dots button:hover::before,body.recap3 .r3-dots button:focus-visible::before{background:var(--brass-hi)}
+body.recap3 .r3-time{height:2px;border-radius:1px;background:#ffffff0f;overflow:hidden;flex:none}
+body.recap3 .r3-time i{display:block;height:100%;background:var(--brass);opacity:.75;transform-origin:0 50%}
+body.recap3 .r3-time.paused i{opacity:.3}
+body.recap3 .r3-ch{display:none}
+body.recap3 #caption .r3-art{position:absolute;z-index:-1;left:0;top:0;width:100%;height:96px;object-fit:cover;border-radius:13px 13px 0 0;opacity:.5;pointer-events:none;-webkit-mask-image:linear-gradient(#000 25%,transparent);mask-image:linear-gradient(#000 25%,transparent)}
+body.recap3 #chapter.end{cursor:default}
+body.recap3 #chapter .ch-btns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:22px}
+body.recap3 #chapter .ch-btns .btn{border-radius:24px;min-height:48px;padding:0 20px}
+@media (max-width:700px){
+  body.recap3 #caption{max-height:42vh;max-height:42dvh;padding:20px 14px 10px}
+  body.recap3 #caption .txt{max-height:none;flex:1 1 auto;min-height:calc(16px*1.5*2)}
+  body.recap3 #caption .narr,body.recap3 #caption .ctl{flex:none}
+  body.recap3 #caption .skip{padding:16px 8px}
+  body.recap3 #chapter .ch-btns{flex-direction:column;align-items:stretch;max-width:280px;margin-left:auto;margin-right:auto}
+}
+@media (min-width:900px) and (min-height:501px){
+  body.recap3 #caption.r3{left:20px;top:calc(var(--top) + 108px);bottom:calc(var(--bot) + 92px);width:min(400px,36vw);padding:24px 26px 14px;gap:12px}
+  body.recap3 #caption.r3 .r3-ch{display:block;font:500 12px/1.3 var(--label);letter-spacing:.2em;color:var(--brass);padding-bottom:10px;border-bottom:1px solid var(--hairline)}
+  body.recap3 #caption.r3 .r3-art{position:static;z-index:auto;display:block;flex:none;width:calc(100% + 52px);max-width:none;height:clamp(90px,19vh,160px);margin:-24px -26px -6px;opacity:.92;-webkit-mask-image:linear-gradient(#000 55%,transparent);mask-image:linear-gradient(#000 55%,transparent)}
+  body.recap3 #caption.r3 .narr .hans-face{--hf-size:46px}
+  body.recap3 #caption.r3 .place{font-size:30px}
+  body.recap3 #caption.r3 .txt{flex:1 1 auto;max-height:none;min-height:0;padding-right:4px}
+  body.recap3 #caption.r3 p{font-size:18px;line-height:1.62}
+  body.recap3 #caption.r3.steward p{font-size:14px;line-height:1.7}
+  body.recap3 #caption.r3 .r3-dots{position:static;order:1;flex:none;margin:-6px 0 -8px}
+  body.recap3 #caption.r3 .ctl{order:2;flex:none}
+}
 #placing{position:fixed;z-index:7;top:calc(var(--top) + 84px);left:50%;transform:translateX(-50%);background:var(--ember);color:#1b0a02;font:500 14px/1 var(--label);letter-spacing:.08em;padding:10px 14px;border-radius:999px;display:flex;gap:10px;align-items:center}
 #placing button{background:#1b0a02;color:var(--parch);border:0;border-radius:999px;padding:6px 10px;font:inherit;cursor:pointer}
 #toast{position:fixed;z-index:8;left:50%;transform:translateX(-50%);top:calc(var(--top) + 84px);background:var(--parch);color:#1a1307;font:500 14px/1 var(--label);letter-spacing:.06em;padding:10px 14px;border-radius:999px}
@@ -3801,6 +3838,7 @@ function chapterCard(then){
   const t=setTimeout(go,4200); el.onclick=go;
 }
 function showStop(){
+  if(RECAP3){showStop3();return;}
   const s=RECAP[recapI]; clearTimeout(recapTimer);
   if(!s){endRecap();return;}   // a quick double tap on the last arrow
   flyToPlace(s.at,s.zoom);
@@ -3830,10 +3868,108 @@ function showStop(){
   txt.addEventListener("scroll",cue,{passive:true}); requestAnimationFrame(cue); if(st&&!reduced) setTimeout(cue,s.text.length*12+200);
 }
 let typing=null;
-function endRecap(){recapOn=false;clearTimeout(recapTimer);hush();cap.hidden=true;reveal.goal=1;setTab(null);store.set("chron-seen",SKEY);
-  document.querySelector('[data-tab="recap"] .dot')?.remove();}
+function endRecap(fin){const card=RECAP3&&fin===true&&recapOn&&!reduced; // fin: the reader reached the end, so the chapter closes with a card; Skip and Escape just stop
+  recapOn=false;clearTimeout(recapTimer);hush();cap.hidden=true;reveal.goal=1;setTab(null);store.set("chron-seen",SKEY);
+  document.querySelector('[data-tab="recap"] .dot')?.remove(); cap.classList.remove("r3"); R3.nav=null; R3.auto=R3.drift=false; if(card) closingCard();}
 addEventListener("keydown",e=>{if(e.key==="Escape"&&e.target.closest&&e.target.closest("input,textarea,[contenteditable=true]"))return; // Escape in an editor leaves the editor, not the sheet
   if(e.key==="Escape"){if(recapOn)endRecap();else if(journeyOn)endJourney();else if(placing)stopPlacing();else closeSheet();}});
+
+/* ---- Recap 3.0: each stop is a film shot beside a page of Hans's book. ?oldrecap brings back the old card ---- */
+const RECAP3=!MAP_OFF("oldrecap"); document.body.classList.toggle("recap3",RECAP3);
+// R3: what the tick below needs to know about the stop that is up (drift = the slow camera move, auto = the clock to the next stop)
+const R3={nav:null,card:null,drift:false,idle:0,tw:null,age:0,dir:1,rate:0,auto:false,left:0,total:1,hold:0,last:0,spoke:false,line:null,shown:-1,paused:false};
+const r3Col=()=>innerWidth>=900&&innerHeight>500;
+// the frame loop does not move the view aside for the caption on a wide screen, so the shot itself aims a little west: the place then sits in the middle of the part of the globe the column leaves free
+function r3Side(z,lat){ if(!r3Col()) return 0; const flat=morph>.5, px=(20+Math.min(400,innerWidth*.36))/2;
+  return Math.min(22,px*2*Math.tan(camera.fov*D2R/2)*(flat?.18+z*1.9:.25+z*3.4)/innerHeight/D2R/(flat?1:Math.max(.3,Math.cos(lat*D2R)))); }
+function r3Dots(n,cur,jump,word){return h("div",{class:"progress r3-dots",role:"group","aria-label":word+"s"},Array.from({length:n},(_,k)=>
+  h("button",{type:"button",class:k<cur?"on":k===cur?"cur":"","aria-label":word+" "+(k+1)+" of "+n,"aria-current":k===cur?"step":null,onclick:e=>{e.stopPropagation();jump(k);}})));}
+function showStop3(){
+  const s=RECAP[recapI]; clearTimeout(recapTimer);
+  if(!s){endRecap(true);return;}
+  const n=RECAP.length, last=recapI===n-1, st=s.voice==="steward", p=byId[s.at], z=s.zoom??.4;
+  // the shot: fly in, and when the last stop stood at the same place, come at it from another side so the picture changes (run = how many stops in a row have been here)
+  let run=0; for(let k=recapI;k>0&&RECAP[k-1].at===s.at;k--) run++;
+  if(p){const c=Math.max(.3,Math.cos(p.lat*D2R)), r=run?(.25+z*3.4)*2.4:0, a=run*2.4;
+    flyTo(p.lon+Math.cos(a)*r/c-r3Side(z,p.lat),p.lat+Math.sin(a)*r*.6,z);
+    R3.drift=!reduced; R3.tw=tween; R3.idle=idleT; R3.age=0; R3.dir=recapI%2?-1:1; R3.rate=.3*(.25+z*3.4)/1.27/c;}
+  if(s.reveal) setTimeout(()=>{reveal.goal=1},reduced?0:1300);
+  const go=k=>{if(k<0||k===recapI)return; if(k>=n){endRecap(true);return;} recapI=k; showStop();};
+  const next=()=>{if(typing){typing();return;} go(recapI+1);}, back=()=>go(recapI-1);
+  const ses=SESSIONS.find(x=>x.n===AS_OF);
+  const face=h("span",{html:hansFace({state:st?"is-steward":"is-speaking",label:st?"The black box, speaking through Hans":bird?"Hans, a talking bird":"Hans"})}).firstElementChild;
+  if(!st) setTimeout(()=>face.classList.remove("is-speaking"),2600);
+  const place=h("div",{class:"place"}), para=h("p",{}), txt=h("div",{class:"txt in"},para), line=h("i",{}), time=h("div",{class:"r3-time","aria-hidden":"true"},line);
+  txt.onclick=next;
+  cap.replaceChildren(
+    PLACE_ART[s.at]?h("img",{class:"r3-art",alt:"",loading:"lazy",decoding:"async",src:PLACE_ART[s.at],onerror:e=>e.currentTarget.remove()}):null, // no painting, or the file is gone: the panel simply starts with the words
+    r3Dots(n,recapI,go,"Stop"),
+    ses?h("div",{class:"r3-ch"},"CHAPTER "+ROMAN(AS_OF)+" · "+ses.t):null,
+    h("div",{class:"narr"},face,h("div",{},h("div",{class:"who2"},st?(bird?"BLACK BOX · INSIDE A BIRD":"BLACK BOX · INSIDE HANS"):`S${String(AS_OF).padStart(2,"0")} · ${recapI+1}/${n} · ${bird?"HANS (A BIRD NOW) SQUAWKS":"HANS DECODES"}`),place),sayBtn(s.title+". "+s.text,s.voice)),
+    txt, time,
+    h("div",{class:"ctl"},
+      last?h("button",{class:"skip fly",type:"button",onclick:()=>flyRoute(AS_OF)},"Fly the route"):h("button",{class:"skip",type:"button",onclick:()=>endRecap()},"Skip"),
+      h("span",{class:"jr"},h("button",{class:"btn ghost prev",type:"button","aria-label":"Back",disabled:recapI?null:"",onclick:back},"←"),
+        last?h("button",{class:"btn",type:"button",onclick:()=>endRecap(true)},"Explore the map"):
+             h("button",{class:"btn next",type:"button","aria-label":"Next",onclick:next},"→")))
+  );
+  cap.classList.toggle("steward",st); cap.classList.remove("journey"); cap.classList.add("r3"); cap.hidden=false; scramble(place,s.title);
+  R3.nav={next,back};
+  typing=null;
+  if(st&&!reduced){let i=0;const iv=setInterval(()=>{i+=2;para.textContent=s.text.slice(0,i);if(i>=s.text.length){clearInterval(iv);typing=null;}},24);
+    typing=()=>{clearInterval(iv);para.textContent=s.text;typing=null;};}
+  else para.textContent=st?s.text:squawk(s.text);
+  // the clock to the next stop runs in the tick, so it can wait while the reader scrolls or Hans reads aloud; the last stop waits for the reader
+  R3.auto=!last&&!reduced; R3.total=R3.left=Math.max(9000,readMs(s.text)*1.2); R3.hold=0; R3.spoke=false; R3.line=line; R3.shown=-1; R3.paused=false; R3.last=performance.now(); time.hidden=!R3.auto;
+  const cue=()=>txt.classList.toggle("more",txt.scrollTop+txt.clientHeight<txt.scrollHeight-2);
+  txt.addEventListener("scroll",()=>{cue();R3.hold=performance.now()+5000;},{passive:true}); requestAnimationFrame(cue); if(st&&!reduced) setTimeout(cue,s.text.length*12+200);
+}
+MAP_TICKS.push((now,dt)=>{
+  if(!RECAP3||!recapOn) return;
+  // the slow move while a stop is up: a few degrees along the land and a slight push in, fading out; it stops for good the moment the reader touches the map or anything else moves the camera
+  if(R3.drift){
+    if(ptrs.size>0||idleT!==R3.idle||fly) R3.drift=false;
+    else if(tween){ if(tween!==R3.tw) R3.drift=false; }
+    else { const k=Math.exp(-R3.age/14); R3.age+=dt; cam.lon+=R3.dir*R3.rate*k*dt; cam.zoom=Math.max(0,cam.zoom-.0011*k*dt); }
+  }
+  if(R3.auto){
+    if(fly){ R3.auto=false; if(R3.line) R3.line.parentNode.hidden=true; } // the reader went off to fly the route: from here they turn the pages themselves
+    else { const el=Math.min(250,now-R3.last), talk=SAY.on&&!!window.speechSynthesis&&speechSynthesis.speaking;
+      if(talk) R3.spoke=true; else if(R3.spoke){ R3.spoke=false; R3.left=Math.min(R3.left,2500); } // Hans finished reading: a short breath, then on
+      const wait=talk||!!typing||now<R3.hold||cap.hidden||!sheet.hidden||document.hidden;
+      if(!wait){ R3.left-=el; if(R3.left<=0){ R3.auto=false; R3.last=now; recapI++; showStop(); return; } }
+      const f=Math.max(0,R3.left/R3.total); if(Math.abs(f-R3.shown)>.004){ R3.shown=f; R3.line.style.transform="scaleX("+f.toFixed(3)+")"; }
+      if(wait!==R3.paused){ R3.paused=wait; R3.line.parentNode.classList.toggle("paused",wait); } }
+  }
+  R3.last=now;
+});
+// the end of the chapter: the same card that opened it, with the three things a reader does next. It goes away by itself after a few seconds
+function closingCard(){
+  const s=SESSIONS.find(x=>x.n===AS_OF), el=document.getElementById("chapter"); if(!s) return;
+  const shut=now=>{ if(R3.card!==shut) return; clearTimeout(t); if(now){R3.card=null;el.hidden=true;el.classList.remove("end");return;}
+    el.classList.add("out"); setTimeout(()=>{if(R3.card===shut){R3.card=null;el.hidden=true;el.classList.remove("end");}},500); };
+  const b=(cls,word,fn)=>h("button",{class:cls,type:"button",onclick:e=>{e.stopPropagation();fn();}},word);
+  el.replaceChildren(h("div",{class:"ch-in"},h("div",{class:"ch-n"},"END OF CHAPTER "+ROMAN(AS_OF)),h("div",{class:"ch-t"},s.t),h("div",{class:"ch-rule"}),
+    h("div",{class:"ch-btns"},b("btn ghost","Fly the route",()=>{shut(true);flyRoute(AS_OF);}),b("btn ghost","Replay",()=>{shut(true);startRecap();}),b("btn","Explore the map",()=>shut()))));
+  el.classList.remove("out"); el.classList.add("end"); el.hidden=false; R3.card=shut; el.onclick=()=>shut();
+  const t=setTimeout(shut,9000);
+}
+if(RECAP3){
+  // left and right turn the page, space goes on; keys typed into a field or pressed on a button keep their own meaning
+  addEventListener("keydown",e=>{ const k=e.key, t=e.target;
+    if(k==="Escape"&&R3.card){R3.card();return;}
+    if((k!=="ArrowLeft"&&k!=="ArrowRight"&&k!==" ")||e.altKey||e.ctrlKey||e.metaKey) return;
+    if(t&&t.closest&&(t.closest("input,textarea,select,[contenteditable=true]")||(k===" "&&t.closest("button,a,summary")))) return;
+    const ch=document.getElementById("chapter"); if(!ch.hidden){ if(k!=="ArrowLeft"&&!R3.card){e.preventDefault();ch.click();} return; }
+    if(!R3.nav||cap.hidden||!sheet.hidden) return;
+    e.preventDefault(); if(k==="ArrowLeft") R3.nav.back(); else R3.nav.next(); });
+  // a sideways swipe on the panel turns the page; up and down still scroll the words
+  let sx=0, sy=0, s0=0;
+  cap.addEventListener("touchstart",e=>{const t=e.touches[0]; sx=t.clientX; sy=t.clientY; s0=e.touches.length===1?performance.now():0;},{passive:true});
+  cap.addEventListener("touchend",e=>{const t=e.changedTouches[0], dx=t.clientX-sx, dy=t.clientY-sy;
+    if(!s0||!R3.nav||performance.now()-s0>800||Math.abs(dx)<56||Math.abs(dx)<Math.abs(dy)*1.6) return; s0=0;
+    if(dx<0) R3.nav.next(); else R3.nav.back();},{passive:true});
+}
 
 /* =================== REWIND: replay the journey, one session at a time =================== */
 const asofEl=document.getElementById("asof"), restoreS=document.querySelector("#restore span");
@@ -3857,11 +3993,12 @@ function showJourney(T){
   clearTimeout(journeyTimer); setView(T);
   const s=SESSIONS.find(x=>x.n===viewS)||SESSIONS[SESSIONS.length-1], st=s.v==="steward", i=JOURNEY.indexOf(viewS), last=viewS>=AS_OF;
   flyToPlace(s.at,.5);
-  const prog=h("div",{class:"progress","aria-hidden":"true"},JOURNEY.map((_,k)=>h("i",{class:k<i?"on":k===i?"cur":""})));
+  const go=d=>{journeyAuto=false;showJourney(JOURNEY[Math.max(0,Math.min(JOURNEY.length-1,i+d))]);};
+  const prog=RECAP3?r3Dots(JOURNEY.length,i,k=>{if(k!==i)go(k-i);},"Session"):h("div",{class:"progress","aria-hidden":"true"},JOURNEY.map((_,k)=>h("i",{class:k<i?"on":k===i?"cur":""})));
+  if(RECAP3) R3.nav={next:()=>{if(!last)go(1);},back:()=>{if(i>0)go(-1);}};
   const face=h("span",{html:hansFace({state:st?"is-steward":"is-speaking",label:st?"The black box, speaking through Hans":bird?"Hans, a talking bird":"Hans"})}).firstElementChild;
   if(!st) setTimeout(()=>face.classList.remove("is-speaking"),2600);
   const place=h("div",{class:"place"}), txt=h("div",{class:"txt in"},h("p",{},bird&&!st?squawk(s.s):s.s));
-  const go=d=>{journeyAuto=false;showJourney(JOURNEY[Math.max(0,Math.min(JOURNEY.length-1,i+d))]);};
   txt.onclick=()=>{if(!last)go(1);};
   cap.replaceChildren(prog,
     h("div",{class:"narr"},face,h("div",{},h("div",{class:"who2"},`REPLAY · S${s2(viewS)} · ${i+1}/${JOURNEY.length} · ${st?"THE STEWARD, AS TOLD TO HANS":bird?"HANS (A BIRD NOW) REMEMBERS":"HANS REMEMBERS"}`),place),sayBtn("Session "+viewS+". "+s.t+". "+s.s,s.v)),
@@ -3874,13 +4011,13 @@ function showJourney(T){
         last?h("button",{class:"btn",type:"button",onclick:()=>{endJourney(false);startRecap();}},"Play the recap"):
              h("button",{class:"btn next",type:"button","aria-label":"Next session",onclick:()=>go(1)},"→")))
   );
-  cap.classList.remove("steward"); cap.classList.add("journey"); cap.hidden=false; scramble(place,"Session "+viewS+" · "+s.t);
+  cap.classList.remove("steward","r3"); cap.classList.add("journey"); cap.hidden=false; scramble(place,"Session "+viewS+" · "+s.t);
   if(journeyAuto&&!last) journeyTimer=setTimeout(()=>{if(journeyOn&&journeyAuto)showJourney(JOURNEY[i+1]);},Math.max(8000,s.s.length*60));
   const cue=()=>txt.classList.toggle("more",txt.scrollTop+txt.clientHeight<txt.scrollHeight-2);
   txt.addEventListener("scroll",cue,{passive:true}); requestAnimationFrame(cue);
 }
 function endJourney(toNow=true){
-  journeyOn=false; journeyAuto=false; clearTimeout(journeyTimer); cap.hidden=true; hush(); cap.classList.remove("journey");
+  journeyOn=false; journeyAuto=false; clearTimeout(journeyTimer); cap.hidden=true; hush(); cap.classList.remove("journey"); R3.nav=null;
   if(toNow&&viewS!==AS_OF){setView(AS_OF,{play:false}); toast("Back to now. Session "+AS_OF+".");}
 }
 
