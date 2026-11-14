@@ -2988,19 +2988,49 @@ function flyTo(lon,lat,zoom,ms=1600){
 }
 function flyToPlace(id,zoom){const p=byId[id];if(p)flyTo(p.lon,p.lat-(morph>.5?0:0),zoom??.4);}
 
+// world map 3.0, how the map moves under a hand (?oldcam turns all of it off):
+// - a swipe keeps gliding after the finger lifts and slows down by itself, like a real globe that was given a push;
+// - a pinch or the scroll wheel zooms about the fingers or the pointer, so the place you aim at stays where it is;
+// - two fingers also drag the map while they pinch; a double tap (or double click) zooms in on that spot.
+const CAM3=!MAP_OFF("oldcam");
+const glide={on:false,vl:0,va:0,t:0};   // degrees per millisecond, east and north
+const camDist=z=>0.25+z*3.4;           // how far the camera stands off the ground at a zoom (see camPose)
+function panBy(dx,dy){const k=(morph>.5?0.09:0.16)*(0.25+cam.zoom)*(900/Math.max(500,innerHeight));
+  cam.lon-=dx*k*(morph>.5?1:1/Math.max(.3,Math.cos(cam.lat*D2R))); cam.lat=Math.max(-70,Math.min(70,cam.lat+dy*k));}
+function zoomAt(z,x,y){z=Math.min(1,Math.max(0,z)); const z0=cam.zoom; if(z===z0) return;
+  const ll=screenToLonLat(x,y); cam.zoom=z; if(!ll) return;
+  const s=camDist(z)/camDist(z0), dl=((ll.lon-cam.lon+540)%360)-180;   // the spot's offset from the middle of the view shrinks or grows with the camera's distance
+  if(Math.abs(dl)>60||Math.abs(ll.lat-cam.lat)>60) return;
+  cam.lon=cam.lon+dl*(1-s); cam.lat=Math.max(-70,Math.min(70,cam.lat+(ll.lat-cam.lat)*(1-s)));}
+let lastTap=null;
+function tapZoom(x,y){if(!CAM3||placing||fly||recapOn||document.body.classList.contains("cinema")) {lastTap=null;return;}
+  const t=performance.now(); if(lastTap&&t-lastTap.t<320&&Math.hypot(x-lastTap.x,y-lastTap.y)<28){lastTap=null;
+    const ll=screenToLonLat(x,y); if(!ll||cam.zoom<=0.03) return; const z=Math.max(0.02,cam.zoom*.5), s=camDist(z)/camDist(cam.zoom), dl=((ll.lon-cam.lon+540)%360)-180;
+    flyTo(cam.lon+dl*(1-s*.4),Math.max(-70,Math.min(70,cam.lat+(ll.lat-cam.lat)*(1-s*.4))),z,520); return;}
+  lastTap={t,x,y};}
+if(CAM3) MAP_TICKS.push((now,dt)=>{if(!glide.on) return; if(tween||fly||ptrs.size){glide.on=false;return;}
+  const ms=dt*1000; cam.lon+=glide.vl*ms; cam.lat=Math.max(-70,Math.min(70,cam.lat+glide.va*ms)); idleT=now;
+  const f=Math.exp(-dt*4.2); glide.vl*=f; glide.va*=f; if(Math.hypot(glide.vl,glide.va)<.0006||Math.abs(cam.lat)>=70&&Math.abs(glide.vl)<.0006) glide.on=false;});
 // pointer controls
 const ptrs=new Map(); let drag=null, pinch0=null, moved=0, idleT=performance.now();
 const cvs=renderer.domElement;
 // labels sit on top of the canvas, so gestures that start on one are handled here too (they bubble up to #pins)
 const pinsLayer=document.getElementById("pins");
-const onDown=e=>{if(fly)endFly();const pin=e.target.closest?.(".pin");try{(pin||cvs).setPointerCapture(e.pointerId);}catch(err){}ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY,pin:!!pin});moved=0;tween=null;idleT=performance.now();
-  if(ptrs.size===2){const [a,b]=[...ptrs.values()];pinch0={d:Math.hypot(a.x-b.x,a.y-b.y),z:cam.zoom};}};
+const onDown=e=>{if(fly)endFly();const pin=e.target.closest?.(".pin");try{(pin||cvs).setPointerCapture(e.pointerId);}catch(err){}ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY,pin:!!pin});moved=0;tween=null;idleT=performance.now();glide.on=false;glide.vl=glide.va=0;
+  if(ptrs.size===2){const [a,b]=[...ptrs.values()];pinch0={d:Math.hypot(a.x-b.x,a.y-b.y),z:cam.zoom,mx:(a.x+b.x)/2,my:(a.y+b.y)/2};}};
 const onMove=e=>{if(!ptrs.has(e.pointerId))return;const p=ptrs.get(e.pointerId);const dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;moved+=Math.abs(dx)+Math.abs(dy);idleT=performance.now();
-  if(ptrs.size===2&&pinch0){const [a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);cam.zoom=Math.min(1,Math.max(0,pinch0.z*pinch0.d/d));return;}
+  if(ptrs.size===2&&pinch0){const [a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);
+    if(CAM3){const mx=(a.x+b.x)/2,my=(a.y+b.y)/2;panBy(mx-pinch0.mx,my-pinch0.my);pinch0.mx=mx;pinch0.my=my;zoomAt(pinch0.z*pinch0.d/d,mx,my);return;}   // the land under the fingers stays under them
+    cam.zoom=Math.min(1,Math.max(0,pinch0.z*pinch0.d/d));return;}
   const k=(morph>.5?0.09:0.16)*(0.25+cam.zoom)*(900/Math.max(500,innerHeight));
-  cam.lon-=dx*k*(morph>.5?1:1/Math.max(.3,Math.cos(cam.lat*D2R))); cam.lat=Math.max(-70,Math.min(70,cam.lat+dy*k));};
-const endPtr=e=>{const was=ptrs.get(e.pointerId);ptrs.delete(e.pointerId);if(ptrs.size<2)pinch0=null;if(was&&!was.pin&&moved<6&&e.type==="pointerup")onTap(e.clientX,e.clientY);};
-const onWheel=e=>{e.preventDefault();tween=null;idleT=performance.now();cam.zoom=Math.min(1,Math.max(0,cam.zoom+e.deltaY*0.0012));};
+  const l0=cam.lon,a0=cam.lat;
+  cam.lon-=dx*k*(morph>.5?1:1/Math.max(.3,Math.cos(cam.lat*D2R))); cam.lat=Math.max(-70,Math.min(70,cam.lat+dy*k));
+  if(CAM3&&ptrs.size===1){const t=performance.now(),ms=Math.max(4,Math.min(60,t-glide.t));glide.t=t;   // remember how fast the map is moving, for the glide after the finger lifts
+    glide.vl+=((cam.lon-l0)/ms-glide.vl)*.5; glide.va+=((cam.lat-a0)/ms-glide.va)*.5;
+    const v=Math.hypot(glide.vl,glide.va), top=.02+.1*cam.zoom; if(v>top){glide.vl*=top/v;glide.va*=top/v;}}};   // a hard flick never spins the globe further than about a third of the view
+const endPtr=e=>{const was=ptrs.get(e.pointerId);ptrs.delete(e.pointerId);if(ptrs.size<2)pinch0=null;if(was&&!was.pin&&moved<6&&e.type==="pointerup"){onTap(e.clientX,e.clientY);tapZoom(e.clientX,e.clientY);}
+  if(CAM3&&was&&!ptrs.size&&e.type==="pointerup"&&moved>=6&&!reduced&&performance.now()-glide.t<90&&Math.hypot(glide.vl,glide.va)>.004) glide.on=true; else if(!ptrs.size) glide.on=false;};
+const onWheel=e=>{e.preventDefault();tween=null;idleT=performance.now();glide.on=false;if(CAM3){zoomAt(cam.zoom+e.deltaY*0.0012,e.clientX,e.clientY);return;}cam.zoom=Math.min(1,Math.max(0,cam.zoom+e.deltaY*0.0012));};
 for(const el of [cvs,pinsLayer]){for(const [t,f] of [["pointerdown",onDown],["pointermove",onMove],["pointerup",endPtr],["pointercancel",endPtr]])el.addEventListener(t,f);
   el.addEventListener("wheel",onWheel,{passive:false});}
 
@@ -6062,7 +6092,7 @@ async function crewRoll(id,label,mod,dc,{adv=false,dis=false,u=null,quiet=false}
   log(`${CREW[id].short} · ${label}: d20 ${r.v}${modeTxt(r)} ${sgn(mod)} = ${tot}`+(dc!=null?` vs DC ${dc}`:""),"b");
   if(dc!=null&&tot<dc){
     const insp=u?u.cond.insp:null;
-    if(insp&&tot+insp>=dc&&await ask(`${CREW[id].short}: add Bardic Inspiration?`,`${tot} misses DC ${dc}. Roll the d${insp} and add it.`,"Add it","Keep it")){const b=rnd(insp);delete u.cond.insp;tot+=b;log(`  + Bardic Inspiration d${insp}: ${b} → ${tot}`,"g");}
+    if(insp&&tot+insp>=dc&&await ask(`${CREW[id].short}: add Bardic Inspiration?`,`${tot} misses DC ${dc}. Roll the d${insp} and add it.`,"Add it","Keep it")){const b=rnd(insp);delete u.cond.insp;tot+=b;mod+=b;log(`  + Bardic Inspiration d${insp}: ${b} → ${tot}`,"g");}
   }
   if(dc!=null&&tot<dc&&pp.insp&&await ask(`${CREW[id].short}: use Heroic Inspiration?`,`${tot} misses DC ${dc}. Reroll the d20.`,"Reroll","Keep it")){pp.insp=0;r=d20(adv,dis);await show3d([{sides:20,value:r.v}]);tot=r.v+mod;log(`  Reroll: d20 ${r.v} ${sgn(mod)} = ${tot}`,"g");}
   hide3d();const ok=dc==null?true:tot>=dc;chip(`${CREW[id].short} · ${label}: ${tot}`+(dc!=null?` vs DC ${dc} · ${ok?"success":"fail"}`:""),dc!=null&&!ok);
@@ -8710,7 +8740,8 @@ function attackMode(a,t,at){let adv=[],dis=[];const melee=!at.range,d=dist(a,t);
   return {adv:adv.length>0,dis:dis.length>0,why:[...adv.map(x=>"+"+x),...dis.map(x=>"−"+x)].join(", ")};}
 
 /* one attack roll, reactions included. Returns {hit,crit} */
-async function attack(a,t,at,o={}){if(typeof swOnAtk==="function")swOnAtk(a,at);fsWind(a,t,at);
+async function attack(a,t,at,o={}){if(a.gone||a.hp<=0)return {hit:false}; // dropped mid-move (an opportunity attack, a hazard): no blow
+  if(typeof swOnAtk==="function")swOnAtk(a,at);fsWind(a,t,at);
   const m=attackMode(a,t,at);let r=d20(m.adv,m.dis,a.crew&&CREW[a.key].lucky);const critOn=(t.cond.cursed&&t.cond.cursed.by===a.id)?19:20;
   let bonus=at.hit;if(a.crew&&P(a.key).ex)bonus-=2*P(a.key).ex;if(a.cond.bane){const b=rnd(4);bonus-=b;}
   if(a.cond.mocked)delete a.cond.mocked;if(t.cond.guided&&!at.noGuide)delete t.cond.guided;
@@ -8726,7 +8757,7 @@ async function attack(a,t,at,o={}){if(typeof swOnAtk==="function")swOnAtk(a,at);
   if(crewSide&&!res.hit){const pp=P(a.key);
     if(a.cond.insp&&res.tot+a.cond.insp>=acOf(t)&&r.v!==1&&await ask(`${a.short}: add Bardic Inspiration?`,`${res.tot} misses AC ${acOf(t)} by ${acOf(t)-res.tot}. Add the d${a.cond.insp}.`,"Add it","Keep it")){const b=rnd(a.cond.insp);delete a.cond.insp;bonus+=b;res=roll();log(`  + Bardic Inspiration ${b} → ${res.tot}${res.hit?" · hit":" · miss"}`,"g");}
     if(!res.hit&&(pp.insp||(a.key==="hans"&&B.sc.overclocked))&&await ask(`${a.short}: reroll?`,a.key==="hans"&&B.sc.overclocked?"Hans is Overclocked: one reroll in this fight.":"Spend Heroic Inspiration to reroll the d20.","Reroll","Keep it")){
-      if(a.key==="hans"&&B.sc.overclocked)B.sc.overclocked=false;else pp.insp=0;r=d20(m.adv,m.dis);await show3d([{sides:20,value:r.v}]);res=roll();log(`  Reroll: d20 ${r.v} ${sgn(bonus)} = ${res.tot}${res.hit?" · hit":" · miss"}`,"g");}}
+      if(a.key==="hans"&&B.sc.overclocked)B.sc.overclocked=false;else pp.insp=0;r=d20(m.adv,m.dis,a.crew&&CREW[a.key].lucky);await show3d([{sides:20,value:r.v}]);res=roll();log(`  Reroll: d20 ${r.v} ${sgn(bonus)} = ${res.tot}${res.hit?" · hit":" · miss"}`,"g");}}
   // the target's reactions
   if(res.hit&&!res.crit&&t.crew&&t.react&&!incap(t)&&res.tot<acOf(t)+5){
     if(t.key==="saphira"&&P("saphira").pact>0&&await ask("Saphira: cast Shield?",`${res.tot} hits AC ${acOf(t)}. Shield gives +5 AC until her next turn (one pact slot, ${P("saphira").pact} left).`,"Shield","Take it")){P("saphira").pact--;t.react=false;addC(t,"shield",{exp:{u:t.id,at:"start"}});res=roll();log("  Saphira raises Shield: "+(res.hit?"still hits":"miss"),"g");}
@@ -8778,16 +8809,16 @@ async function hurt(t,amt,type,src,o={}){
   else if(o.halve===undefined&&t.key==="grey"&&t.react&&!incap(t)&&n>0&&!o.aoe&&src&&!(src.key==="saphira"&&B.sc.cantResisted)){t.react=false;n=Math.floor(n/2);note+=" (Uncanny Dodge: halved)";}
   if(n<=0){floatTxt(t,"0"+note.trim(),"miss");log(`  ${nameOf(t)} takes 0${note}`);return;}
   if(t.cond.turned&&n>0){delete t.cond.turned;log(`  The light lets go of ${nameOf(t)}.`,"r");}
-  if(t.temp>0){const s=Math.min(t.temp,n);t.temp-=s;n-=s;}
+  const n0=n;if(t.temp>0){const s=Math.min(t.temp,n);t.temp-=s;n-=s;}
   if(t.key==="heart")B.sc.turnDmg=(B.sc.turnDmg||0)+n;
   const was=t.hp;t.hp-=n;shake(t,type);fsHit(t,type,n,o);floatTxt(t,"−"+n);log(`  ${nameOf(t)} takes ${n} ${type}${note} → ${Math.max(0,t.hp)}/${t.max}`,t.crew?"r":"");
   if(t.crew&&was<=0&&!t.dead){t.hp=0;if(t.key==="hans"||t.cond.ko){renderTokens();return;}delete t.cond.stable;t.ds[1]+=o.crit?2:1;log(`  ${t.short} fails a death save from the hit (${t.ds[1]}/3).`,"r");if(t.ds[1]>=3)die(t);renderTokens();return;}
-  if(t.conc&&t.hp>0&&!o.noConc){const dc=Math.max(10,Math.floor(n/2));if(!(await save(t,"con",dc,"Concentration")))dropConc(t);}
+  if(t.conc&&t.hp>0&&!o.noConc){const dc=Math.max(10,Math.floor(n0/2));if(!(await save(t,"con",dc,"Concentration")))dropConc(t);}
   if(t.hp<=0)await zero(t,src,type,Object.assign({},o,{lastDmg:n}));
   if(t.key==="heart"&&B.sc.engulfed&&B.sc.turnDmg>=20&&alive(t)){log("Twenty damage in one turn: the Heart spits out "+nameOf(B.sc.engulfed)+".","g");spit();}
   if(B.def.onHurt)await B.def.onHurt(t,src);
   renderTokens();}
-function dropConc(u){const c=u.conc;if(!c)return;u.conc=null;for(const o of B.units)for(const k of c.conds||[])if(o.cond[k]&&o.cond[k].by===u.id)delete o.cond[k];log(`  ${nameOf(u)} loses concentration on ${c.n}.`,"r");}
+function dropConc(u){const c=u.conc;if(!c)return;u.conc=null;if(c.n==="Shadow Blade"&&u.key==="saphira")B.sc.blade=false;for(const o of B.units)for(const k of c.conds||[])if(o.cond[k]&&o.cond[k].by===u.id)delete o.cond[k];log(`  ${nameOf(u)} loses concentration on ${c.n}.`,"r");}
 async function zero(t,src,type,o){for(const g of B.units)if(g.cond.grappled&&g.cond.grappled.by===t.id){delete g.cond.grappled;log(`  ${nameOf(g)} is free of the grip.`,"g");} // a grapple ends when the grappler goes down
   
   t.hp=0;if(t.conc)dropConc(t);
@@ -8822,6 +8853,9 @@ async function oppAttack(e,u){if(e.crew){const a=crewMelee(e);if(a)await attack(
 function crewMelee(u){if(u.key==="hans")return {n:"Slam",hit:6,dmg:"2d6+4",type:"bludgeoning"};if(u.key==="saphira")return B.sc.blade?{n:"Shadow Blade",hit:7,dmg:"2d8+4",type:"psychic",magic:true,sneak:true,shadow:true}:{n:"Magical dagger",hit:8,dmg:"1d4+5",type:"piercing",magic:true,sneak:true};if(u.key==="stig")return {n:"Shovel",hit:3,dmg:"1d6",type:"bludgeoning"};return {n:"Dagger",hit:5,dmg:"1d4+2",type:"piercing"};}
 async function fall(u,x,y){let ny=y,drop=0;while(ny<B.mp.H-1&&cost(B.mp,x,ny+1)===0){ny++;drop++;}ny=Math.min(B.mp.H-1,ny+1);drop++;
   const c=occupant(x,ny,u)?freeNear(x,ny):[x,ny];u.x=c[0];u.y=c[1];renderTokens();const n=Math.max(1,Math.floor(drop/2));log(`  ${nameOf(u)} falls ${drop*5} ft.`,"r");await hurt(u,dice(n+"d6").t,"bludgeoning",null,{aoe:true});if(alive(u))addC(u,"prone");}
+/* a push in a straight line, one square at a time: it stops at a wall, an edge or anyone in the way, and a grip it drags out of reach lets go */
+function shove(t,dx,dy,n){for(let i=0;i<n;i++){const x=t.x+dx,y=t.y+dy;if(cost(B.mp,x,y)<=0||occupant(x,y,t))break;t.x=x;t.y=y;}
+  const reach=Math.max(1,...((MON[t.key]||{}).atk||[]).map(a=>a.reach||0));for(const g of B.units)if(g.cond.grappled&&g.cond.grappled.by===t.id&&dist(g,t)>reach)delete g.cond.grappled;}
 
 
 /* =================== OWNER: pace. The rhythm of a fight, so every blow and spell has weight ===================
@@ -9318,7 +9352,7 @@ function crewActions(u){
     await paceArea(u,cx,cy,radius,n,type); // the area shows on the floor before it lands
     const hitList=B.units.filter(o=>alive(o)&&o!==u&&!o.untarget&&!o.ghost&&Math.max(gap(o.x,o.x+o.size-1,cx,cx),gap(o.y,o.y+o.size-1,cy,cy))<=radius&&(friendly||o.side==="foe"));
     if(!hitList.length)log("  It hits nobody.");const n2=dice(dmg).t;
-    for(const o of hitList){const ok=await save(o,ab,dc,n);await hurt(o,ok?Math.floor(n2/2):n2,type,u,{magic:true,aoe:true});if(!ok&&after&&alive(o))await after(o);await beat(110);}
+    for(const o of hitList){const ok=await save(o,ab,dc,n);if(n2>0)await hurt(o,ok?Math.floor(n2/2):n2,type,u,{magic:true,aoe:true});else if(ok)floatTxt(o,"saved","miss");if(!ok&&after&&alive(o))await after(o);await beat(110);}
     await paceSettle(u,null,hitList.length>0);};
   const healAct=(n,r,expr,{kind="action",cost=null,multi=1,max=false}={})=>async()=>{let list=friends(r).filter(o=>o.hp<o.max&&!o.dead&&o.key!=="hans"||o.key==="hans"&&o.hp<o.max);
     const picked=[];for(let i=0;i<multi;i++){const t=await pickTarget(list.filter(o=>!picked.includes(o)),`${n}: pick ${multi>1?"who (Cancel when done)":"who"}`);if(!t)break;picked.push(t);if(list.length<=picked.length)break;}
@@ -9341,7 +9375,7 @@ function crewActions(u){
     A("Dagger","+5 · 1d4+2",inRange(1).length>0,atkAct({n:"Dagger",hit:5,dmg:"1d4+2",type:"piercing"},1));}
     A("Vicious Mockery","Wis DC 15 · 2d6 psychic",inRange(12).length>0,saveAct("Vicious Mockery",12,"wis",15,"2d6","psychic",{after:t=>{addC(t,"mocked",{exp:{u:t.id,at:"end"}});}}));
     A("Dissonant Whispers","1st · Wis DC 15 · 3d6, flees",!!slot(1)&&inRange(12).length>0,saveAct("Dissonant Whispers",12,"wis",15,"3d6","psychic",{half:true,cost:()=>spend(1),after:async t=>{if(speedOf(t)>0&&!t.cond.engulfed){const away=reachable(t,speedOf(t));let best=null,bd=-1;for(const [kk,v] of away.d){if(v.occ)continue;const [x,y]=kk.split(",").map(Number);const dd=distXY(u,x,y);if(dd>bd){bd=dd;best=[x,y];}}if(best){t.x=best[0];t.y=best[1];renderTokens();log(`  ${nameOf(t)} flees from the whispers.`);}}}}));
-    A("Thunderwave","1st · Con DC 15 · 2d8, next to her",!!slot(1),area("Thunderwave",true,1,"con",15,"2d8","thunder",{cost:()=>spend(1),after:async t=>{if(t.size===1&&!t.crew){t.x=clamp(t.x+Math.sign(t.x-u.x)*2,0,B.mp.W-1);t.y=clamp(t.y+Math.sign(t.y-u.y)*2,0,B.mp.H-1);if(cost(B.mp,t.x,t.y)===0){const c=freeNear(t.x,t.y);t.x=c[0];t.y=c[1];}renderTokens();}}}));
+    A("Thunderwave","1st · Con DC 15 · 2d8, next to her",!!slot(1),area("Thunderwave",true,1,"con",15,"2d8","thunder",{cost:()=>spend(1),after:async t=>{if(t.size===1&&!t.crew){shove(t,Math.sign(t.x-u.x),Math.sign(t.y-u.y),2);renderTokens();}}}));
     A("Shatter","2nd · Con DC 15 · 3d8, 10 ft",!!slot(2),area("Shatter",false,2,"con",15,"3d8","thunder",{range:12,cost:()=>spend(2)}));
     A("Cure Wounds","1st · touch · 2d8+4",!!slot(1)&&friends(1).some(o=>o.hp<o.max),healAct("Cure Wounds",1,"2d8+4",{cost:()=>spend(1)}));
     A("Slow","3rd · Wis DC 15 · up to 6",!!slot(3)&&!u.conc,area("Slow",false,2,"wis",15,"0","psychic",{range:24,friendly:false,cost:()=>{spend(3);u.conc={n:"Slow",conds:["slowed"]};},after:t=>{addC(t,"slowed",{by:u.id});}}));
