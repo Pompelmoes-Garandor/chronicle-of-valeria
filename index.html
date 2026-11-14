@@ -793,6 +793,43 @@ body.cinema.flying #pins{opacity:1}   /* the party is seen walking the road whil
   #caption p{font-size:16px} #caption .txt{max-height:calc(16px*1.5*5)}
   #caption.steward p{font-size:13px}
 }
+/* Recap 3.0 (off with ?oldrecap): a reading column beside the globe on wide screens, a tighter sheet on phones, Back, dots you can tap, a line for the time left */
+body.recap3 #caption{touch-action:pan-y}
+body.recap3 #caption .prev{width:48px;height:48px;border-radius:50%;padding:0;display:grid;place-items:center;font-size:20px}
+body.recap3 #caption .prev[disabled]{opacity:.35;cursor:default}
+body.recap3 .r3-dots{top:0;gap:3px}
+body.recap3 .r3-dots button{flex:1;height:22px;padding:0;border:0;background:none;cursor:pointer;position:relative;-webkit-tap-highlight-color:transparent}
+body.recap3 .r3-dots button::before{content:"";position:absolute;left:0;right:0;top:8px;height:2px;border-radius:1px;background:#ffffff14;transition:background .2s}
+body.recap3 .r3-dots button.on::before{background:var(--brass)}
+body.recap3 .r3-dots button.cur::before{background:var(--steward);box-shadow:0 0 6px var(--steward)}
+body.recap3 .r3-dots button:hover::before,body.recap3 .r3-dots button:focus-visible::before{background:var(--brass-hi)}
+body.recap3 .r3-time{height:1px;border-radius:1px;background:#ffffff0f;overflow:hidden;flex:none}
+body.recap3 .r3-time i{display:block;height:100%;background:var(--parch-dim);opacity:.6;transform-origin:0 50%}
+body.recap3 .r3-time.paused i{opacity:.3}
+body.recap3 .r3-ch{display:none}
+body.recap3 #caption .r3-art{position:absolute;z-index:-1;left:0;top:0;width:100%;height:96px;object-fit:cover;border-radius:13px 13px 0 0;opacity:.5;pointer-events:none;-webkit-mask-image:linear-gradient(#000 25%,transparent);mask-image:linear-gradient(#000 25%,transparent)}
+body.recap3 #chapter.end{cursor:default}
+body.recap3 #chapter .ch-btns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:22px}
+body.recap3 #chapter .ch-btns .btn{border-radius:24px;min-height:48px;padding:0 20px}
+@media (max-width:700px){
+  body.recap3 #caption{max-height:42vh;max-height:42dvh;padding:20px 14px 10px}
+  body.recap3 #caption .txt{max-height:none;flex:1 1 auto;min-height:calc(16px*1.5*2)}
+  body.recap3 #caption .narr,body.recap3 #caption .ctl{flex:none}
+  body.recap3 #caption .skip{padding:16px 8px}
+  body.recap3 #chapter .ch-btns{flex-direction:column;align-items:stretch;max-width:280px;margin-left:auto;margin-right:auto}
+}
+@media (min-width:900px) and (min-height:501px){
+  body.recap3 #caption.r3{left:20px;top:calc(var(--top) + 108px);bottom:calc(var(--bot) + 92px);width:min(400px,36vw);padding:24px 26px 14px;gap:12px}
+  body.recap3 #caption.r3 .r3-ch{display:block;font:500 12px/1.3 var(--label);letter-spacing:.2em;color:var(--brass);padding-bottom:10px;border-bottom:1px solid var(--hairline)}
+  body.recap3 #caption.r3 .r3-art{position:static;z-index:auto;display:block;flex:none;width:calc(100% + 52px);max-width:none;height:clamp(90px,19vh,160px);margin:-24px -26px -6px;opacity:.92;-webkit-mask-image:linear-gradient(#000 55%,transparent);mask-image:linear-gradient(#000 55%,transparent)}
+  body.recap3 #caption.r3 .narr .hans-face{--hf-size:46px}
+  body.recap3 #caption.r3 .place{font-size:26px}
+  body.recap3 #caption.r3 .txt{flex:1 1 auto;max-height:none;min-height:0;padding-right:4px}
+  body.recap3 #caption.r3 p{font-size:18px;line-height:1.62}
+  body.recap3 #caption.r3.steward p{font-size:14px;line-height:1.7}
+  body.recap3 #caption.r3 .r3-dots{position:static;order:1;flex:none;margin:-6px 0 -8px}
+  body.recap3 #caption.r3 .ctl{order:2;flex:none}
+}
 #placing{position:fixed;z-index:7;top:calc(var(--top) + 84px);left:50%;transform:translateX(-50%);background:var(--ember);color:#1b0a02;font:500 14px/1 var(--label);letter-spacing:.08em;padding:10px 14px;border-radius:999px;display:flex;gap:10px;align-items:center}
 #placing button{background:#1b0a02;color:var(--parch);border:0;border-radius:999px;padding:6px 10px;font:inherit;cursor:pointer}
 #toast{position:fixed;z-index:8;left:50%;transform:translateX(-50%);top:calc(var(--top) + 84px);background:var(--parch);color:#1a1307;font:500 14px/1 var(--label);letter-spacing:.06em;padding:10px 14px;border-radius:999px}
@@ -2695,6 +2732,141 @@ void main(){float d=length(gl_PointCoord-0.5); float a=smoothstep(0.5,0.1,d)*vA;
 {const n=1400,pos=new Float32Array(n*3);for(let i=0;i<n;i++){const v=new THREE.Vector3().randomDirection().multiplyScalar(30+Math.random()*20);pos.set([v.x,v.y,v.z],i*3)}
  const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.BufferAttribute(pos,3));
  scene.add(new THREE.Points(g,new THREE.PointsMaterial({color:0xd9cfb8,size:0.06,sizeAttenuation:true,transparent:true,opacity:.7})));}
+// SKY3: the sky behind the world, like an old star atlas come alive. A Milky Way with dust lanes and a breath of nebula
+// colour is painted once at load into one picture and wrapped round the view; a few thousand stars of every brightness and
+// warmth sit on top as points (the bright ones glow, all of them twinkle a little); the sun is a real disc where uSun points,
+// hidden by the world and flaring softly at its edge; thin northern and southern lights hang over the night side of the cold
+// caps; and from far out, faint brass lines join the brightest stars. The whole sky turns with the sun, as it does for a
+// turning world. In table mode it fades away, so the flat map stays a chart on a table. ?nosky3 brings back the plain stars.
+const SKY3_ON=!/[?&]nosky3/.test(location.search);
+const SKY3=SKY3_ON&&(()=>{
+  const old=scene.children.find(o=>o.isPoints&&o.material.isPointsMaterial); if(old) old.visible=false;
+  let seed=20261113; const rnd=()=>{seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};   // the same sky on every visit
+  const V=sphDir(110,-20), GP=new THREE.Vector3().crossVectors(V,new THREE.Vector3(0.3,0.8,0.52).normalize()).normalize(), GC=V.clone().applyAxisAngle(GP,0.6);   // the band's pole and its bright heart
+  const U={uSky:{value:null},uSun:uniforms.uSun,uTime:uniforms.uTime,uRot:{value:new THREE.Matrix3()},uFade:{value:1},uStar:{value:1},uGain:{value:1.8},uHot:{value:1},uWash:{value:1},
+    uSunC:{value:new THREE.Vector3(1,0.94,0.8)},uPx:{value:900},uMove:{value:reduced?0:1},uLines:{value:0},uVis:{value:0},uAsp:{value:1},uAur:{value:0}};
+  // the painted part, baked once (smaller on phones)
+  const W=SMALL?1024:2048, rt=new THREE.WebGLRenderTarget(W,W/2,{depthBuffer:false,minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,wrapS:THREE.RepeatWrapping,generateMipmaps:false});
+  U.uSky.value=rt.texture;
+  const bs=new THREE.Scene(), bc=new THREE.Camera(), bq=new THREE.Mesh(new THREE.PlaneGeometry(2,2),new THREE.ShaderMaterial({uniforms:{uGP:{value:GP},uGC:{value:GC}},depthTest:false,depthWrite:false,
+    vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.0,1.0);}`,fragmentShader:`
+precision highp float; varying vec2 vUv; uniform vec3 uGP,uGC;
+float h3(vec3 p){p=fract(p*0.3183099+vec3(0.1,0.2,0.3));p*=17.0;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}
+float n3(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.0-2.0*f);
+  return mix(mix(mix(h3(i),h3(i+vec3(1,0,0)),f.x),mix(h3(i+vec3(0,1,0)),h3(i+vec3(1,1,0)),f.x),f.y),mix(mix(h3(i+vec3(0,0,1)),h3(i+vec3(1,0,1)),f.x),mix(h3(i+vec3(0,1,1)),h3(i+vec3(1,1,1)),f.x),f.y),f.z);}
+float fb(vec3 p){float a=0.5,s=0.0;for(int i=0;i<6;i++){s+=a*n3(p);p=p*2.03+vec3(1.7,9.2,3.1);a*=0.5;}return s;}
+void main(){
+  float lo=(vUv.x-0.5)*6.2831853, la=(vUv.y-0.5)*3.14159265;
+  vec3 d=vec3(cos(la)*sin(lo),sin(la),cos(la)*cos(lo));
+  float sb=dot(d,uGP), b=asin(clamp(sb,-1.0,1.0));
+  float cl=dot(normalize(d-uGP*sb+1e-5),uGC), core=smoothstep(-0.3,1.0,cl);
+  vec3 w=d+0.3*(vec3(fb(d*2.3+4.0),fb(d*2.3+11.0),fb(d*2.3+23.0))-0.5);
+  float wid=mix(0.09,0.20,core*core), band=exp(-pow(b/wid,2.0)), wide=exp(-pow(b/(wid*2.6),2.0));
+  float cloud=fb(w*5.0), fine=fb(w*17.0+3.0);
+  float mw=(band*(0.3+1.0*cloud)*(0.4+0.8*core)+wide*0.14*(0.5+core))*(0.7+0.6*fine);
+  float lane=smoothstep(0.40,0.66,fb(w*7.0+31.0))*exp(-pow((b+0.03*sin(cl*7.0))/(wid*0.6),2.0));
+  float lane2=smoothstep(0.48,0.70,fb(w*13.0+57.0))*band;
+  mw*=(1.0-0.88*lane)*(1.0-0.5*lane2);
+  vec3 col=mix(vec3(0.58,0.66,0.84),vec3(1.0,0.85,0.60),core*band)*mw*0.30;
+  col+=vec3(0.34,0.15,0.08)*lane*(1.0-lane)*band*0.22;                       // dust glows a dull red at its edges
+  float n1=smoothstep(0.52,0.82,fb(d*3.1+71.0)), n2=smoothstep(0.55,0.85,fb(d*2.7+113.0));
+  col+=vec3(0.62,0.22,0.27)*n1*(0.22+0.78*wide)*0.16*fb(w*9.0+5.0);         // madder rose
+  col+=vec3(0.16,0.42,0.44)*n2*(0.22+0.78*wide)*0.14*fb(w*8.0+15.0);        // verdigris
+  col+=vec3(0.9,0.88,0.8)*pow(h3(floor(d*340.0)),36.0)*0.22*(0.15+mw*2.0); // star dust too fine to count
+  col=sqrt(clamp(col,0.0,1.0))+(h3(vec3(gl_FragCoord.xy,7.0))-0.5)/255.0;
+  gl_FragColor=vec4(col,1.0);
+}`})); bq.frustumCulled=false; bs.add(bq);
+  const bake=()=>{const t=renderer.getRenderTarget(); renderer.setRenderTarget(rt); renderer.render(bs,bc); renderer.setRenderTarget(t);};
+  bake(); renderer.domElement.addEventListener("webglcontextrestored",bake);
+  const FAR=`gl_Position=vec4(p.xy,p.w*0.9999,p.w);`, OFF=`vec4(2.0,2.0,2.0,1.0)`;
+  const mk=(vs,fs,o)=>new THREE.ShaderMaterial(Object.assign({uniforms:U,vertexShader:vs,fragmentShader:"precision highp float;\n"+fs,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending},o));
+  const add=(m,ro)=>{m.frustumCulled=false; m.renderOrder=ro; scene.add(m); return m;};
+  // the dome: the baked picture and the sun's disc, behind everything
+  const dome=add(new THREE.Mesh(new THREE.SphereGeometry(1,32,20),mk(`
+uniform mat3 uRot; uniform float uFade; varying vec3 vD,vW;
+void main(){vD=position; vW=uRot*position; vec4 p=projectionMatrix*vec4(mat3(viewMatrix)*vW,1.0); ${FAR} if(uFade<0.003) gl_Position=${OFF};}`,`
+uniform sampler2D uSky; uniform vec3 uSun,uSunC; uniform float uFade,uGain,uHot,uWash; varying vec3 vD,vW;
+void main(){vec3 d=normalize(vD); vec3 t=texture2D(uSky,vec2(atan(d.x,d.z)*0.15915494+0.5,asin(clamp(d.y,-1.0,1.0))*0.31830989+0.5)).rgb;
+  float an=acos(clamp(dot(normalize(vW),uSun),-1.0,1.0));
+  vec3 c=t*t*uGain*(1.0-0.9*uWash*exp(-an*an*7.0));
+  c+=uSunC*(smoothstep(0.0072,0.0056,an)*uHot+exp(-an*55.0)*0.5+exp(-an*12.0)*0.06);
+  gl_FragColor=vec4(c*uFade,1.0);}`,{side:THREE.BackSide})),-6);
+  // the stars: brightness follows the real count (few bright, many faint), colour follows warmth
+  const NA=6500, N=SMALL?2600:NA, st=[], v=new THREE.Vector3(), TEMP=[[0.68,0.78,1],[0.86,0.91,1],[1,0.98,0.94],[1,0.92,0.76],[1,0.8,0.56],[1,0.64,0.44]];
+  while(st.length<NA){const z=rnd()*2-1,a=rnd()*6.2831853,r=Math.sqrt(1-z*z); v.set(r*Math.cos(a),z,r*Math.sin(a));
+    const b=Math.asin(v.dot(GP)); if(rnd()>0.3+0.7*Math.exp(-b*b/0.07)) continue;
+    st.push({v:v.clone(),s:Math.pow(10,-0.2*(6.5+2*Math.log10(rnd()*(1-1.8e-4)+1.8e-4))),t:rnd()*5,p:rnd()});}
+  st.sort((a,b)=>b.s-a.s);                                                  // phones keep the brightest, so it is the same sky
+  {const sp=new Float32Array(N*3), sa=new Float32Array(N*3), sc=new Float32Array(N*3);
+   for(let i=0;i<N;i++){const o=st[i], j=Math.min(4,Math.floor(o.t)), f=o.t-j, k=0.3+0.7*Math.min(1,o.s*1.6), A=TEMP[j], B=TEMP[j+1];
+     sp.set([o.v.x,o.v.y,o.v.z],i*3); sa.set([o.s,o.p,o.s>0.48?1:0],i*3);
+     for(let c=0;c<3;c++) sc[i*3+c]=[0.9,0.86,0.78][c]*(1-k)+(A[c]+(B[c]-A[c])*f)*k;}
+   const g=new THREE.BufferGeometry(); g.setAttribute("position",new THREE.BufferAttribute(sp,3)); g.setAttribute("aS",new THREE.BufferAttribute(sa,3)); g.setAttribute("aC",new THREE.BufferAttribute(sc,3));
+   add(new THREE.Points(g,mk(`
+attribute vec3 aS,aC; uniform mat3 uRot; uniform vec3 uSun; uniform float uPx,uTime,uMove,uStar,uHot,uWash; varying vec3 vC; varying float vG;
+void main(){vec3 w=uRot*position; vec4 p=projectionMatrix*vec4(mat3(viewMatrix)*w,1.0); ${FAR}
+  float s=aS.x, g=aS.z, t=uTime*uMove;
+  float a=min(1.0,0.24+1.7*s)*(1.0+uMove*(0.14+0.12*s)*(sin(t*(1.3+aS.y*2.1)+aS.y*40.0)*0.6+sin(t*(3.1+aS.y*1.7)+aS.y*17.0)*0.4));
+  float an=acos(clamp(dot(w,uSun),-1.0,1.0)); a*=1.0-0.92*uWash*exp(-an*an*7.0);
+  float px=(1.3+3.0*s)*(1.0+2.4*g)*uPx/900.0; if(px<1.6){a*=px*px/2.56; px=1.6;}
+  a*=uStar; gl_PointSize=px; if(a<0.004) gl_Position=${OFF};
+  vC=aC*a*(1.0+g*0.35*(uHot-1.0)); vG=g;}`,`
+varying vec3 vC; varying float vG;
+void main(){float d=length(gl_PointCoord-0.5)*2.0; if(d>1.0) discard;
+  float f=vG>0.5?exp(-d*d*40.0)+0.20*exp(-d*4.5)*(1.0-d):clamp(1.25-1.25*d*d,0.0,1.0);
+  gl_FragColor=vec4(vC*f,1.0);}`)),-5);}
+  // brass lines between the brightest stars, as in a star atlas (decoration only: they mean nothing)
+  {const top=st.slice(0,90), used=new Set(), seg=[];
+   for(let i=0;i<18;i++){if(used.has(i)) continue; used.add(i); let cur=i;
+     for(let j=0,n=2+Math.floor(rnd()*4);j<n;j++){let best=-1,bd=0.30;
+       for(let k=0;k<top.length;k++){if(used.has(k)) continue; const dd=top[cur].v.angleTo(top[k].v); if(dd<bd&&dd>0.05){bd=dd;best=k;}}
+       if(best<0) break; const A=top[cur].v,B=top[best].v,e=0.018/bd; seg.push(A.clone().lerp(B,e),B.clone().lerp(A,e)); used.add(best); cur=rnd()<0.25?i:best;}}
+   const g=new THREE.BufferGeometry().setFromPoints(seg);
+   add(new THREE.LineSegments(g,mk(`
+uniform mat3 uRot; uniform float uLines; void main(){vec4 p=projectionMatrix*vec4(mat3(viewMatrix)*(uRot*normalize(position)),1.0); ${FAR} if(uLines<0.004) gl_Position=${OFF};}`,`
+uniform float uLines; void main(){gl_FragColor=vec4(vec3(0.79,0.64,0.36)*uLines,1.0);}`)),-5);}
+  // the lights over the cold caps: three thin curtains round each pole, only where it is night
+  {const SEG=320, n=(SEG+1)*2*6, aA=new Float32Array(n*4), ix=[]; let i=0;
+   for(const sg of [1,-1]) for(let k=0;k<3;k++){const i0=i;
+     for(let j=0;j<=SEG;j++) for(let h=0;h<2;h++,i++) aA.set([(j/SEG-0.5)*6.2831853,h,k,sg],i*4);
+     for(let j=0;j<SEG;j++){const a=i0+j*2; ix.push(a,a+1,a+2,a+1,a+3,a+2);}}
+   const g=new THREE.BufferGeometry(); g.setAttribute("position",new THREE.BufferAttribute(new Float32Array(n*3),3)); g.setAttribute("aA",new THREE.BufferAttribute(aA,4)); g.setIndex(ix);
+   add(new THREE.Mesh(g,mk(`
+attribute vec4 aA; uniform float uTime,uMove,uAur; uniform vec3 uSun; varying vec3 vA; varying float vN;
+void main(){float lo=aA.x,h=aA.y,k=aA.z,t=uTime*uMove;
+  float la=radians(68.0+k*3.8)+0.045*sin(lo*3.0+t*0.05+k*2.1)+0.02*sin(lo*8.0-t*0.09+k)+0.012*sin(lo*19.0+t*0.21)-h*0.035;
+  vec3 n=vec3(cos(la)*sin(lo),sin(la)*aA.w,cos(la)*cos(lo));
+  vN=smoothstep(0.0,-0.24,dot(n,uSun)); vA=vec3(lo*0.15915494+0.5,h,k+aA.w*1.5+2.0);
+  gl_Position=uAur<0.004?${OFF}:projectionMatrix*viewMatrix*vec4(n*(1.046+h*(0.058+0.026*sin(lo*5.0+k*3.0+t*0.07))),1.0);}`,`
+uniform float uTime,uMove,uAur; varying vec3 vA; varying float vN;
+float h1(float x){return fract(sin(x*127.1)*43758.5453);}
+float np(float x,float F,float s){float i=floor(x),f=fract(x);f=f*f*(3.0-2.0*f);return mix(h1(mod(i,F)+s),h1(mod(i+1.0,F)+s),f);}
+void main(){float h=vA.y,t=uTime*uMove,s=vA.z*13.7;
+  float rays=0.4+0.6*np(vA.x*420.0+t*0.22,420.0,s)*(0.55+0.45*np(vA.x*1100.0-t*0.5,1100.0,s+3.0));
+  float act=smoothstep(0.30,0.72,np(vA.x*16.0+t*0.03,16.0,s+7.0));
+  float prof=smoothstep(0.0,0.06,h)*exp(-h*3.2)*(1.0-smoothstep(0.8,1.0,h));
+  vec3 c=mix(vec3(0.30,1.0,0.55),vec3(0.50,0.32,0.95),smoothstep(0.12,0.75,h));
+  gl_FragColor=vec4(c*rays*act*prof*vN*uAur,1.0);}`,{side:THREE.DoubleSide})),4);}
+  // the sun's glare spills a little over the edge of the world (drawn over everything, dimmed by how much of the sun shows)
+  add(new THREE.Mesh(new THREE.PlaneGeometry(1,1),mk(`
+uniform vec3 uSun; uniform float uVis,uAsp; varying vec2 vP;
+void main(){vec4 c=projectionMatrix*vec4(mat3(viewMatrix)*uSun,1.0); vP=position.xy*2.0;
+  gl_Position=(uVis<0.004||c.w<=0.0)?${OFF}:vec4(c.xy/c.w+position.xy*vec2(0.9/uAsp,0.9),0.0,1.0);}`,`
+uniform float uVis; uniform vec3 uSunC; varying vec2 vP;
+void main(){float r=length(vP); if(r>=1.0) discard;
+  float g=pow(1.0-r,3.0)*0.15+exp(-r*26.0)*0.45+exp(-abs(vP.y)*80.0)*exp(-abs(vP.x)*4.5)*0.08*(1.0-r);
+  gl_FragColor=vec4(uSunC*g*uVis,1.0);}`,{depthTest:false})),6);
+  const _b=new THREE.Vector2(), sm=(a,b,x)=>{x=Math.min(1,Math.max(0,(x-a)/(b-a)));return x*x*(3-2*x);};
+  dome.onBeforeRender=(r,s,c)=>{                                              // drawn first, so it sets this frame's numbers for the rest
+    const mm=ease(uniforms.uMorph.value), F=Math.max(0,1-mm*1.6), lens=uniforms.uGlow.value>1, sun=uniforms.uSun.value, o=c.position;
+    const a=Math.atan2(sun.x,sun.z), cs=Math.cos(a), sn=Math.sin(a); U.uRot.value.set(cs,0,sn, 0,1,0, -sn,0,cs);
+    const b=o.dot(sun), q=b<0?Math.sqrt(Math.max(0,o.lengthSq()-b*b)):9, vis=sm(0.985,1.06,q), low=sm(1,1.12,q);   // how far the sun's ray passes from the world
+    U.uSunC.value.set(1,0.56+0.38*low,0.26+0.54*low);
+    U.uFade.value=F; U.uStar.value=0.14+0.86*F; U.uHot.value=lens?4.5:1.15; U.uWash.value=vis; U.uVis.value=vis*F*(lens?0.5:1);
+    U.uPx.value=r.getDrawingBufferSize(_b).y; U.uAsp.value=c.aspect; U.uAur.value=Math.max(0,1-mm*3)*(lens?0.8:0.62);
+    U.uLines.value=0.3*F*sm(0.5,0.72,cam.zoom);};
+  return {U,rt,bake};
+})();
 // orrery rings
 const brass = new THREE.MeshBasicMaterial({color:0xc9a35c,transparent:true,opacity:.9});
 const rings = new THREE.Group(); scene.add(rings);
@@ -2806,6 +2978,265 @@ function cityTick(now,dt,up){
   CITY.flags.forEach((f,i)=>{f.rotation.y=Math.sin(now/420+i*1.3)*0.45; f.scale.y=1+Math.sin(now/180+i)*0.08;});
   CITY.falls.forEach(F=>{F.m.material.map.offset.y=(now/900+F.ph)%1; F.mist.material.opacity=.28+.1*Math.sin(now/700+F.ph);});
   CITY.rocks.forEach(r=>{r.position.y=r.userData.y+Math.sin(now/1300+r.userData.ph)*0.003; r.rotation.y+=dt*0.15;});
+}
+/* ---- landmarks: small painted miniatures standing on the land at the places the crew has explored, so that zooming in shows
+   a place instead of a dot. Shapes come from what the place texts and the place paintings already say; rumoured places get
+   nothing, and the Wind Vault keeps its flying city. Everything is built once and merged into ONE mesh (one draw call): every
+   vertex knows which place it belongs to, and the shader gets one matrix and one sun direction per place. A handful of soft
+   points on top is the smoke and the glow (a second draw call). Hidden from far away, so the globe stays calm.
+   ?nolandmarks turns all of it off. ---- */
+if(!MAP_OFF("nolandmarks")){
+ // models are drawn in units of about a thousandth of the globe's radius: x east, y up, z south (towards you, since the camera looks north)
+ const U=0.0018, F=3.5, TAU=Math.PI*2, LM=[], PT=[], parts=[]; let cur=0, seed=11, G=null;
+ const rnd=()=>{seed=(seed+0x6D2B79F5)|0;let t=Math.imul(seed^(seed>>>15),1|seed);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296;};
+ const few=n=>SMALL?Math.ceil(n*.45):n;   // phones get fewer houses, trees and stakes
+ const M4=new THREE.Matrix4(), Q=new THREE.Quaternion(), E=new THREE.Euler(), V=new THREE.Vector3(), Sc=new THREE.Vector3(1,1,1);
+ // add a piece to the merged mesh. col: a colour, or a function of the finished vertex (x,y,z) that returns one. glow 1: a window,
+ // lit at night; glow 2: glows always. The colours are written as they should look on screen (the map's own shaders do the same).
+ const put=(g,col,x=0,y=0,z=0,ry=0,rx=0,rz=0,glow=0)=>{ if(g.index){const t=g.toNonIndexed(); g.dispose(); g=t;}
+   M4.compose(V.set(x,y,z),Q.setFromEuler(E.set(rx,ry,rz,"YXZ")),Sc); if(G) M4.premultiply(G); g.applyMatrix4(M4); g.computeVertexNormals();
+   const p=g.attributes.position, n=p.count, c=new Float32Array(n*3), k=new Float32Array(n*2), j=glow?1:0.95+rnd()*0.1;
+   for(let i=0;i<n;i++){const h=typeof col==="function"?col(p.getX(i),p.getY(i),p.getZ(i)):col;
+     c[i*3]=(h>>16&255)/255*j; c[i*3+1]=(h>>8&255)/255*j; c[i*3+2]=(h&255)/255*j; k[i*2]=cur; k[i*2+1]=glow;}
+   g.setAttribute("aC",new THREE.BufferAttribute(c,3)); g.setAttribute("aK",new THREE.BufferAttribute(k,2)); parts.push(g); };
+ const box=(w,h,d,col,x,y,z,ry=0,glow=0,rx=0,rz=0)=>put(new THREE.BoxGeometry(w,h,d).translate(0,h/2,0),col,x,y,z,ry,rx,rz,glow);
+ const cyl=(rt,rb,h,n,col,x,y,z,rx=0,rz=0,ry=0,glow=0)=>put(new THREE.CylinderGeometry(rt,rb,h,n,1).translate(0,h/2,0),col,x,y,z,ry,rx,rz,glow);
+ const cone=(r,h,n,col,x,y,z,rx=0,rz=0,ry=0)=>put(new THREE.ConeGeometry(r,h,n,1).translate(0,h/2,0),col,x,y,z,ry,rx,rz);
+ // things that stand on the ground go F below it too, so a slope never shows a gap under them
+ const gbox=(w,h,d,col,x,z,ry=0)=>box(w,h+F,d,col,x,-F,z,ry), gcyl=(rt,rb,h,n,col,x,z)=>cyl(rt,rb,h+F,n,col,x,-F,z);
+ // a gabled roof: ridge along x, w long, d deep, h high
+ const gable=(w,d,h,col,x,y,z,ry=0)=>{const a=w/2,b=d/2, g=new THREE.BufferGeometry();
+   g.setAttribute("position",new THREE.BufferAttribute(new Float32Array([-a,0,b, a,0,b, a,h,0,  -a,0,b, a,h,0, -a,h,0,  a,0,-b, -a,0,-b, -a,h,0,  a,0,-b, -a,h,0, a,h,0,  -a,0,-b, -a,0,b, -a,h,0,  a,0,b, a,0,-b, a,h,0]),3));
+   put(g,col,x,y,z,ry);};
+ // a rough stone: a low-poly ball with every corner pushed in or out a little (the same corner always the same way, so it stays closed)
+ const rock=(r,col,x,y,z,sy=1,ry=0)=>{const g=new THREE.IcosahedronGeometry(r,0), p=g.attributes.position;
+   for(let i=0;i<p.count;i++){const a=p.getX(i),b=p.getY(i),c=p.getZ(i), s=Math.sin(a*91.7+b*37.3+c*53.1+r*7)*43758.5453, k=0.8+0.4*(s-Math.floor(s)); p.setXYZ(i,a*k,b*k*sy,c*k);}
+   put(g,col,x,y,z,ry);};
+ // the ground a place stands on: a low ragged mound whose rim dips under the land, so the miniature sits in the relief
+ const mound=(r,h,col,x=0,z=0,seg=SMALL?9:13,ph=0)=>{const g=new THREE.LatheGeometry([[r*1.3,-F],[r,0],[r*.86,h*.42],[r*.5,h*.88],[0,h]].map(([a,b])=>new THREE.Vector2(a,b)),seg), p=g.attributes.position;
+   for(let i=0;i<p.count;i++){const a=Math.atan2(p.getZ(i),p.getX(i)), k=1+0.1*Math.sin(a*3+ph)+0.06*Math.sin(a*7+ph*2.3); p.setX(i,p.getX(i)*k); p.setZ(i,p.getZ(i)*k);}
+   put(g,col,x,0,z);};
+ // pieces made inside tilt() share one lean, turn, size and place (the wreck, the waystone, the vault doors)
+ const tilt=(rx,ry,rz,x,y,z,s,fn)=>{G=new THREE.Matrix4().compose(new THREE.Vector3(x,y,z),new THREE.Quaternion().setFromEuler(new THREE.Euler(rx,ry,rz,"YXZ")),new THREE.Vector3(s,s,s)); fn(); G=null;};
+ const turn=(ox,oz,ry)=>[ox*Math.cos(ry)+oz*Math.sin(ry),-ox*Math.sin(ry)+oz*Math.cos(ry)];
+ // smoke (puffs that rise and thin out) and halos (a soft glow that stays put); both are points, moved by the tick
+ const smoke=(x,y,z,n,size,rise,col,a)=>{for(let i=0;i<n;i++)PT.push({i:cur,x,y,z,s:size,rise,col,a,ph:i/n,sm:1});};
+ const halo=(x,y,z,size,col,a,night=0)=>PT.push({i:cur,x,y,z,s:size,rise:0,col,a,ph:rnd()*6,sm:0,night});
+ // one place: its id, how far north of the pin it stands (degrees, so the seal sits at its foot and hides nothing), and its model
+ const lm=(id,north,fn)=>{const p=byId[id]; if(!p||p.state==="rumour") return; cur=LM.length;
+   const lon=p.lon, lat=p.lat+north, n=sphDir(lon,lat), e=new THREE.Vector3(Math.cos(lon*D2R),0,-Math.sin(lon*D2R));
+   LM.push({p,f:firstS(p),lon,lat,n,e,s:new THREE.Vector3().crossVectors(e,n),a:0,pos:new THREE.Vector3(),X:new THREE.Vector3(),Y:new THREE.Vector3(),Z:new THREE.Vector3(),day:1,k:0,on:false}); fn(p);};
+ const SNOW=0xeef3f6, ICE=0xbfe0ee, WOOD=0x7a5a3a, WOODD=0x4f3a26, LIT=0xffc66a, TEAL=0x8fd3c8, EMBER=0xe8743b;
+ // a dead grey tree: a leaning trunk and a few bare branches
+ const tree=(x,z,h)=>{const c=rnd()<.5?0x7b7a7c:0x5f5d63, lx=(rnd()-.5)*.3, lz=(rnd()-.5)*.3;
+   cyl(0.14,0.5,h+F,5,c,x,-F,z,lx,lz);
+   for(let b=0,nb=SMALL?2:3;b<nb;b++){const t=0.45+0.4*b/nb+rnd()*0.1, bl=h*(0.5-0.25*b/nb);
+     cyl(0.06,0.2,bl,4,c,x-lz*(h*t+F),h*t,z+lx*(h*t+F),0,(b%2?1:-1)*(0.7+rnd()*0.45),rnd()*TAU);}};
+
+ // Valarius: an old ruin of a city, frozen for ages, thawed for a week and lived in again. Broken pale walls and towers, a dome,
+ // snow still on some roofs, a few lit windows, and meltwater running out through a gap in the wall
+ lm("valeria",1.1,()=>{const st=0xd8ccb0, stD=0xa99a7c, rf=0x7c6652, wa=0x86cfe0, WR=10.5, NW=10;
+   mound(13.5,0.5,(x,y,z)=>y<0.2?0x9a946c:(Math.sin(x*1.7)+Math.sin(z*2.3+x)>1.25?SNOW:0xa8a078));
+   const stream=[[0.6,2.5],[-0.9,6.5],[-2.2,10.4],[-3.4,14.6]];
+   for(let i=0;i<3;i++){const [x1,z1]=stream[i],[x2,z2]=stream[i+1]; box(Math.hypot(x2-x1,z2-z1)+0.8,0.5+F,1.5-i*0.2,wa,(x1+x2)/2,-F+0.25-i*0.25,(z1+z2)/2,-Math.atan2(z2-z1,x2-x1));}
+   cyl(2,2,0.75+F,8,wa,0.9,-F,1.6);
+   for(let i=0;i<NW;i++){const a=i/NW*TAU+0.21, a2=(i+1)/NW*TAU+0.21, x1=Math.cos(a)*WR, z1=Math.sin(a)*WR, x2=Math.cos(a2)*WR, z2=Math.sin(a2)*WR, len=Math.hypot(x2-x1,z2-z1), ry=-Math.atan2(z2-z1,x2-x1);
+     const gap=i===2||i===7, low=i===3||i===8||i===5;
+     if(gap){rock(0.8,stD,x1*.8+x2*.2,0.2,z1*.8+z2*.2,.7); rock(0.6,stD,x1*.25+x2*.75,0.1,z1*.25+z2*.75,.7);}
+     else if(low){gbox(len*0.55,1.1,1,stD,x1*.7+x2*.3,z1*.7+z2*.3,ry); gbox(len*0.3,2.2,1,stD,x1*.18+x2*.82,z1*.18+z2*.82,ry);}
+     else gbox(len,2.6,1,stD,(x1+x2)/2,(z1+z2)/2,ry);
+     if(i%2===0||i===3){const brk=i===2||i===8, h=brk?2.6+rnd():4.4+rnd()*1.8;
+       gcyl(1.15,1.35,h,6,st,x1,z1); if(brk) box(1.3,1.1,0.9,st,x1+0.3,h-0.3,z1,0.6,0,0,0.5); else cone(1.6,2.2,6,i===4?SNOW:rf,x1,h,z1);}}
+   // the domed hall and the two tall towers (one lost its top)
+   gcyl(3,3.2,3.2,8,st,-2,-2.6); put(new THREE.SphereGeometry(3,8,3,0,TAU,0,Math.PI/2),0x8c9a94,-2,3.2,-2.6); cyl(0.5,0.5,1,5,st,-2,6,-2.6); cone(0.75,1.2,5,rf,-2,7,-2.6);
+   [-2.9,-1.1].forEach(x=>box(0.5,1.2,0.3,LIT,x,1,0.02,0,1));
+   gcyl(0.95,1.15,9.5,6,st,4,-5); cone(1.35,2.8,6,rf,4,9.5,-5); box(0.4,0.7,0.1,LIT,4,6.8,-3.98,0,1);
+   gcyl(0.9,1.15,5.6,6,stD,6.6,-0.8); box(1.1,1.5,0.8,stD,6.9,5.2,-0.8,0.4,0,0,0.45);
+   // houses packed inside the wall: some roofed and lived in, some only walls
+   const hs=[[-2,-2.6,4.3],[4,-5,2.2],[6.6,-0.8,2.2]]; let tries=0;
+   for(let i=0,n=few(15);i<n&&tries<400;){tries++; const a=rnd()*TAU, r=2.5+rnd()*5.6, x=Math.cos(a)*r, z=Math.sin(a)*r;
+     if(hs.some(([hx,hz,hr])=>Math.hypot(x-hx,z-hz)<hr)) continue;
+     if(stream.some(([sx,sz])=>Math.hypot(x-sx,z-sz)<2.3)||Math.hypot(x+0.2,z-4.5)<2.2||Math.hypot(x+1.6,z-8.5)<2.2) continue;
+     const w=1.9+rnd()*1.1, d=1.5+rnd()*0.6, h=1.3+rnd()*1.1, ry=(rnd()-.5)*0.9, ruin=rnd()<.27; hs.push([x,z,2.5]); i++;
+     gbox(w,ruin?h*0.6:h,d,ruin?stD:st,x,z,ry);
+     if(ruin){const [dx,dz]=turn(w*0.3,0,ry); box(w*0.35,h*0.5,d,stD,x+dx,h*0.5,z+dz,ry); continue;}
+     gable(w*1.08,d*1.12,d*0.6,rnd()<.4?SNOW:rf,x,h,z,ry);
+     if(rnd()<.7){const [dx,dz]=turn((rnd()-.5)*w*0.5,d/2+0.03,ry); box(0.45,0.55,0.1,LIT,x+dx,h*0.3,z+dz,ry,1);}}
+   smoke(-4.5,2.6,3.5,3,2.2,5,0xcfc8bc,.38); smoke(2.5,2.6,5.2,3,2,4.5,0xcfc8bc,.34);});
+
+ // Gerda's inn, inside Valarius: one building a little apart, a lit sign by the door and smoke from the chimney
+ lm("inn",0.55,()=>{const pl=0xe0d0ac, rf=0x9a4a34;
+   mound(4.6,0.35,0xa8a078);
+   gbox(5,2.5,3.4,pl,0,0); gable(5.6,4,2.2,rf,0,2.5,0); box(0.9,2.6,0.9,0x6e6258,1.5,2.9,-0.7);
+   box(0.9,1.5,0.12,WOODD,-0.3,0,1.7); box(0.7,0.8,0.12,LIT,1.4,0.9,1.7,0,1); box(0.7,0.8,0.12,LIT,-1.8,0.9,1.7,0,1); box(0.12,0.8,0.7,LIT,2.5,0.9,0.3,0,1);
+   cyl(0.12,0.12,2.6,4,WOODD,-3.6,-0.2,2.2); box(1.3,0.8,0.16,LIT,-3.6,1.7,2.2,0,1);
+   smoke(1.5,5.6,-0.7,3,1.7,4.5,0xd6cfc4,.42); halo(-3.6,2.1,2.4,3.2,0xffc66a,.3,1);});
+
+ // Orda: a city of white marble with sky-piercing towers. The square keep in front is the Crow's Nest
+ lm("orda",1.1,()=>{const mb=0xf4f1e8, mbD=0xd5d0c2, rf=0x8ea4bd, red=0xc8412b, sand=0xb59c74, sp=SMALL?5:7;
+   mound(14.5,0.4,0xb8b49f);
+   gbox(23,1.3,14.5,mbD,0,0); box(21.8,0.5,13.3,mb,0,1.3,0);
+   const y0=1.8, spire=(x,z,r,h,hr)=>{cyl(r*0.82,r,h,sp,mb,x,y0,z); cyl(r*1.15,r*1.15,0.35,sp,mbD,x,y0+h,z); cone(r*1.12,hr,sp,rf,x,y0+h+0.35,z);};
+   box(10,5,4.6,mb,-3,y0,-1.6); gable(10.4,5,3,rf,-3,y0+5,-1.6); box(4.4,4,3.6,mb,-3,y0,-5.2); gable(3.8,4.8,2.4,rf,-3,y0+4,-5.2,Math.PI/2);
+   spire(-6.1,1.5,1.05,10,9.5); spire(0.1,1.5,1.05,10,9.5); spire(-3,-1.6,0.8,11.5,8);
+   spire(-9.8,-5.6,0.75,6.5,5.5); spire(3.4,-5.6,0.75,7.5,6.5); spire(-9.8,5.2,0.7,4.8,4.4); spire(9.6,-5.6,0.75,8.5,7); spire(-8.2,-1.6,0.6,7.5,6);
+   for(let i=0;i<4;i++) box(0.55,1.8,0.12,LIT,-5+i*1.34-0.27,y0+1.6,0.72,0,1);
+   box(1.1,2,0.12,WOODD,-3,y0,0.74); box(0.5,1,0.12,LIT,-6.1,y0+6,2.42,0,1); box(0.5,1,0.12,LIT,0.1,y0+6,2.42,0,1);
+   // the Crow's Nest: sandstone, battlements, a red banner
+   box(4.6,6.2,4.6,sand,6.6,y0,3.6); for(const [dx,dz] of [[-1,-1],[1,-1],[-1,1],[1,1],[0,1],[1,0],[-1,0],[0,-1]]) box(0.9,0.8,0.9,sand,6.6+dx*1.85,y0+6.2,3.6+dz*1.85);
+   box(1.3,3,0.14,red,6.6,y0+2.4,5.95); box(0.5,0.8,0.12,LIT,5.3,y0+3.4,5.93,0,1);
+   cyl(0.1,0.1,3,4,WOODD,6.6,y0+6.2,3.6); box(1.5,0.9,0.1,red,7.4,y0+8.2,3.6);
+   cyl(0.08,0.08,1.6,4,WOODD,-6.1,y0+19.6,1.5); box(1.2,0.7,0.08,red,-5.5,y0+20.4,1.5);});
+
+ // the Hills: the rebels' camp on a mountain whose ice has melted. They left for Valarius: one tent is down, the fire is out
+ lm("hills",1.0,()=>{const tent=0xe9dfc4, red=0xb8412e, green=0x4f8a55;
+   mound(11,0.8,(x,y,z)=>y<0.25?0x8f8672:(Math.sin(x*1.3+1)+Math.sin(z*1.9-x*0.7)>0.5?SNOW:0x9a917c));
+   for(let i=0,n=few(22);i<n;i++){const a=(-0.72+1.44*i/(n-1))*Math.PI-Math.PI/2; if(i%7===3) continue;
+     cone(0.42,2.2+rnd()*0.8,4,i%5?WOOD:WOODD,Math.cos(a)*9.2,-0.3,Math.sin(a)*9.2,(rnd()-.5)*.3,(rnd()-.5)*.3);}
+   [[-4,-3.4,1],[1.2,-4.6,1.15],[4.8,-1,0.95],[-2,1.4,1.05]].forEach(([x,z,s],i)=>{cone(2.3*s,2.7*s,4,tent,x,-0.2,z,0,0,0.5+i);});
+   cone(2.6,0.7,4,0xd3c8ab,3.6,0.1,3.6,0.1,0.12,0.3); cyl(0.1,0.1,2.6,4,WOODD,4.6,0.2,3.2,0,1.2);
+   cyl(1,1.1,0.35,6,0x4a433c,0.6,0.5,0.4); cyl(0.6,0.6,0.42,5,0x1c1815,0.6,0.5,0.4);
+   [[-6.4,0.6,red],[0,-7.2,green],[6.6,-4.4,red]].forEach(([x,z,c])=>{cyl(0.12,0.14,6,4,WOODD,x,-0.3,z); box(2.1,1.3,0.1,c,x+1.1,4.3,z); box(0.5,0.5,0.12,0xf3ead6,x+1.1,4.7,z);});
+   rock(1.2,0x7d7f85,-7.6,0.2,-5,0.8); rock(0.9,0x7d7f85,7.8,0.2,2.6,0.8,1); rock(0.7,0x8a8c90,-5.4,0.3,4.6,0.7,2);});
+
+ // the icy pass: an icy mountain and a long wooden bridge
+ lm("icy",1.0,()=>{const rk=0x74808c, top=(lim)=>(x,y,z)=>y>lim+Math.sin(x*2.1+z*1.7)*0.9?SNOW:(y>lim-1.6?ICE:rk);
+   const crag=(x,z,r,h,n,ry)=>{const g=new THREE.ConeGeometry(r,h+F,n,SMALL?2:3).translate(0,(h+F)/2,0), p=g.attributes.position;
+     for(let i=0;i<p.count;i++){const a=p.getX(i),b=p.getY(i),c=p.getZ(i); if(b>h+F-0.01||b<0.01) continue; const s=Math.sin(Math.round(a*7)*12.9+Math.round(b*7)*78.2+Math.round(c*7)*37.7)*43758.5; const k=0.82+0.36*(s-Math.floor(s)); p.setXYZ(i,a*k,b,c*k);}
+     put(g,top(h*0.42),x,-F,z,ry);};
+   crag(-8.2,-1.5,6.2,11.5,7,0.3); crag(-11.5,2,3.6,5.5,6,1); crag(8.6,-1.8,5.4,9,7,0.8); crag(11.6,1.6,3.2,4.6,6,2); crag(-4.5,-5.5,3.4,5,6,1.4); crag(5,-5.8,3,4.2,6,0.4);
+   box(4.2,0.3+F,9,ICE,0.2,-F,0.5,0.15);
+   // the bridge: a sagging deck on trestles between the two crags
+   const B=[[-5.4,4.9],[-2.7,4.35],[0,4.15],[2.7,4.3],[5.4,4.75]];
+   for(let i=0;i<4;i++){const [x1,y1]=B[i],[x2,y2]=B[i+1], len=Math.hypot(x2-x1,y2-y1), rz=Math.atan2(y2-y1,x2-x1);
+     box(len+0.1,0.28,1.5,WOOD,(x1+x2)/2,(y1+y2)/2,1.2,0,0,0,rz); box(len+0.1,0.14,0.12,WOODD,(x1+x2)/2,(y1+y2)/2+0.85,1.95,0,0,0,rz); box(len+0.1,0.14,0.12,WOODD,(x1+x2)/2,(y1+y2)/2+0.85,0.45,0,0,0,rz);}
+   B.forEach(([x,y],i)=>{box(0.16,0.95,0.16,WOODD,x,y,1.95); box(0.16,0.95,0.16,WOODD,x,y,0.45); if(i>0&&i<4){cyl(0.14,0.2,y+0.6,4,WOODD,x,-0.6,1.85,0.07); cyl(0.14,0.2,y+0.6,4,WOODD,x,-0.6,0.55,-0.07); box(0.12,0.12,1.5,WOODD,x,y*0.5,1.2);}});});
+
+ // where the ship was found: it looked like rubble. The ship is gone; its six-sided bed and some rubble are left
+ lm("ship",0.8,()=>{const stn=0xcbb98f;
+   mound(8.5,0.45,0x97896c); cyl(5.4,5.8,0.5,6,0x4a3f33,0,0.2,0.4); cyl(4.3,4.6,0.56,6,0x352d25,0,0.2,0.4);
+   for(let i=0,n=few(11);i<n;i++){const a=i/n*TAU+rnd()*0.4, r=6.2+rnd()*1.4, s=0.7+rnd()*0.9; box(s*1.2,s*0.8,s,i%3?stn:0xa8976f,Math.cos(a)*r,0,Math.sin(a)*r+0.4,rnd()*3,0,(rnd()-.5)*.5,(rnd()-.5)*.5);}});
+
+ // the crash site: the wreck of the flying castle ship, the same pieces as the ship in its last flight, down and broken.
+ // (while the last flight plays, the wreck is hidden: the real ship is still on its way down)
+ lm("crash",1.0,()=>{const stn=0xcbb98f, dk=0x5a4a34, rk=0x4a3f33;
+   mound(10.5,0.5,(x,y,z)=>Math.hypot(x,z)<7.5+Math.sin(x*2+z)*1.2?0x3a322b:0x6f6353);
+   box(3,0.35+F,10,0x332b25,-7.5,-F,-7.5,Math.PI/4);
+   tilt(0.12,0.5,-0.3,0.5,1.8,0,0.62,()=>{
+     put(new THREE.ConeGeometry(15,22,6).rotateX(Math.PI).translate(0,-11,0),rk);
+     cyl(16,14.5,3.6,6,stn,0,0,0); cyl(5.2,6.2,13,6,stn,0,3.6,2); cone(4.4,3.4,5,stn,1,16.6,2.6,0.3,0.4);
+     cyl(3.3,3.3,14,6,stn,9.4,3.6,-5.6); cone(4.7,6.6,6,dk,9.4,17.6,-5.6);
+     cyl(2.8,2.8,4.4,6,stn,-8.9,3.6,5.6);
+     put(new THREE.TorusGeometry(14.6,0.75,4,SMALL?10:16,Math.PI*1.25).rotateX(Math.PI/2).rotateY(0.4),0xc9a35c,0,-1.8,0);});
+   // the top of the tower and its roof lie where they fell
+   cyl(3,3.4,6.5,6,stn,8.2,1.3,6,0,-1.35,0.3); cone(4.2,6,6,dk,14.2,0.9,8,0,-1.2,0.3);
+   for(let i=0,n=few(9);i<n;i++){const a=rnd()*TAU, r=6+rnd()*4.5, s=0.6+rnd()*0.8; box(s*1.3,s*0.8,s,i%3?stn:rk,Math.cos(a)*r,0,Math.sin(a)*r,rnd()*3,0,(rnd()-.5)*.6,(rnd()-.5)*.6);}
+   smoke(0.4,7,1.2,3,2.4,7,0x8d8780,.32);});
+
+ // the ravine: two lips of rock and the dark between them
+ lm("ravine",0.6,()=>{const rk=0x8b7c69, rkD=0x6b5e50, R0=[[-10,-2.8],[-4.6,-0.4],[0.6,0.9],[5.6,-0.5],[10,-3.2]];
+   for(let i=0;i<4;i++){const [x1,z1]=R0[i],[x2,z2]=R0[i+1], len=Math.hypot(x2-x1,z2-z1), ry=-Math.atan2(z2-z1,x2-x1), mx=(x1+x2)/2, mz=(z1+z2)/2, w=i===0||i===3?2.2:3.2;
+     box(len+1.2,0.25+F,w,0x120e0c,mx,-F,mz,ry);
+     const [nx,nz]=turn(0,w/2+1.2,ry); gable(len+1.6,3.2,1.6+rnd()*0.7,rk,mx-nx,-0.15,mz-nz,ry); gable(len+1.6,3,1.1+rnd()*0.5,rkD,mx+nx,-0.15,mz+nz,ry);}
+   rock(1.3,rk,-6.6,0.3,-4.8,0.8); rock(1,rkD,3.4,0.2,3.6,0.8,1); rock(0.9,rk,8,0.3,-5,0.8,2); rock(0.7,rkD,-2,0.2,3.2,0.7,3);});
+
+ // the waystone: old Valerian tech, a carved standing stone. The disc near the top glows teal
+ lm("waystone",0.6,()=>{const sl=0x4d4943, gold=0xc9a35c;
+   mound(5.4,0.6,0x7f8a5c); rock(0.9,0x6d6a64,-2.8,0.5,1.4,0.7); rock(0.7,0x6d6a64,2.9,0.4,0.6,0.7,1);
+   tilt(-0.1,-0.12,0.07,0,0,0,1,()=>{
+     box(4.6,11,1.8,sl,0,-1,0); box(3.8,0.9,1.5,sl,-0.1,9.9,0,0,0,0,0.12);
+     cyl(1.6,1.6,0.14,SMALL?8:12,gold,0,7.7,0.9,Math.PI/2); cyl(1.2,1.2,0.22,SMALL?8:12,TEAL,0,7.7,0.9,Math.PI/2,0,0,2);
+     for(let r=0;r<4;r++){let x=-1.7; while(x<1.4){const w=0.4+rnd()*0.7; box(Math.min(w,1.7-x),0.3,0.1,gold,x+Math.min(w,1.7-x)/2,1.4+r*1.05,0.9); x+=w+0.25;}}});
+   halo(0,7.9,1.6,6.5,TEAL,.34);});
+
+ // the blighted forest: a forest gone grey
+ const stand=(n,R0,skip)=>{const ts=[]; let tries=0; while(ts.length<n&&tries++<300){const a=rnd()*TAU, r=Math.sqrt(rnd())*R0, x=Math.cos(a)*r, z=Math.sin(a)*r;
+   if(ts.some(([tx,tz])=>Math.hypot(x-tx,z-tz)<2.6)||(skip&&skip(x,z))) continue; ts.push([x,z]); tree(x,z,5+rnd()*3.5);}};
+ lm("forest",1.1,()=>{mound(12.5,0.5,(x,y,z)=>Math.sin(x*1.1)+Math.sin(z*1.6+x*0.5)>0.6?0x6c6a66:0x85827c); stand(few(17),11);
+   rock(1,0x5c5a58,-5,0.2,6,0.7); rock(0.8,0x5c5a58,6.5,0.2,4,0.7,1);});
+
+ // the Heart's cave: a dark mouth in a mound held together by black roots, under the grey trees. The floor is ash
+ lm("cave",1.0,()=>{const root=0x2b2420, earth=0x5e574e;
+   mound(11,0.4,0x8b8882); mound(6.6,5,(x,y,z)=>y>3.4?0x6b655c:earth,0,-1.5,SMALL?9:11,1.3);
+   box(3.4,3,2.2,0x0c0a09,0,-0.2,3.1); cyl(0.5,0.75,3.9,5,root,-2,-0.3,4.5,0,-0.22); cyl(0.5,0.75,3.9,5,root,2,-0.3,4.5,0,0.22); cyl(0.5,0.55,4.6,5,root,-2.3,3.3,4.4,0,-Math.PI/2+0.06);
+   for(let i=0,n=few(7);i<n;i++){const a=(i/n-0.5)*4.4+Math.PI/2+(rnd()-.5)*.3; if(Math.abs(a-Math.PI/2)<0.4) continue;
+     cyl(0.22,0.5,6.4,4,root,Math.cos(a)*1.2,4.6,-1.5+Math.sin(a)*1.2,0,-(2.1+rnd()*0.15),-a);}
+   stand(few(6),10.5,(x,z)=>Math.hypot(x,z+1.5)<8||(Math.abs(x)<3.5&&z>0));});
+
+ // the vaults: a round stone door in a rock, in the vault's colour. The Fire Vault broke open: its door lies in pieces and it glows
+ const vault=(id,col,open)=>lm(id,0.7,()=>{const stn=0x8f8a80, rk=open?0x6a6460:0x7b7f78;
+   rock(6,rk,0,0.6,-2.4,0.95,id.length); rock(3.4,rk,-5.4,0,-0.6,0.8,1); rock(3,rk,5.2,0,-1,0.8,2);
+   tilt(-0.16,0,0,0,0,2.2,1,()=>{const n=SMALL?10:14;
+     cyl(4,4,1.1,n,stn,0,3.4,0,Math.PI/2);
+     if(open){cyl(3,3,0.3,n,0xff8a3a,0,3.4,0.95,Math.PI/2,0,0,2); cyl(1.7,1.7,0.2,n,0xffc27a,0,2.9,1.2,Math.PI/2,0,0,2);}
+     else{cyl(3,3,0.5,n,col,0,3.4,1,Math.PI/2); cyl(1.9,1.9,0.2,n,stn,0,3.4,1.42,Math.PI/2); cyl(1.1,1.1,0.2,6,col,0,3.4,1.56,Math.PI/2,0,0,1);}});
+   if(open){box(3.2,0.6,2.2,stn,-2.6,0,5.2,0.5,0,0.2,0.1); box(2.4,0.6,1.9,stn,2.4,0,5.8,-0.7,0,-0.1,0.25); rock(0.7,stn,0.4,0.2,6.6,0.7); halo(0,3.2,3.6,8,0xff8a3a,.3);}});
+ for(const id of ["v-earth","v-water","v-fire"]){const p=byId[id]; if(p) vault(id,p.color?parseInt(p.color.slice(1),16):EMBER,id==="v-fire");}
+
+ // merge every piece into one mesh
+ let nv=0; parts.forEach(g=>nv+=g.attributes.position.count);
+ const pos=new Float32Array(nv*3), nor=new Float32Array(nv*3), col=new Float32Array(nv*3), key=new Float32Array(nv*2); let o=0;
+ parts.forEach(g=>{pos.set(g.attributes.position.array,o*3); nor.set(g.attributes.normal.array,o*3); col.set(g.attributes.aC.array,o*3); key.set(g.attributes.aK.array,o*2); o+=g.attributes.position.count; g.dispose();});
+ const geo=new THREE.BufferGeometry(); geo.setAttribute("position",new THREE.BufferAttribute(pos,3)); geo.setAttribute("normal",new THREE.BufferAttribute(nor,3));
+ geo.setAttribute("aC",new THREE.BufferAttribute(col,3)); geo.setAttribute("aK",new THREE.BufferAttribute(key,2));
+ const NL=LM.length, lu={uM:{value:LM.map(()=>new THREE.Matrix4())},uL:{value:LM.map(()=>new THREE.Vector3(0,1,0))},uGlow:uniforms.uGlow};
+ // lit per corner, so every face is flat: the globe's sun as it stands over that place, a little sky from above, the same blue
+ // night as the land around it. Windows (glow 1) come on as the sun goes. A glow is never brighter than its colour, except with the lens on (uGlow above 1), where it blooms a little
+ const mesh=new THREE.Mesh(geo,new THREE.ShaderMaterial({uniforms:lu,defines:{NL},vertexShader:`attribute vec3 aC; attribute vec2 aK; uniform mat4 uM[NL]; uniform vec3 uL[NL]; uniform float uGlow; varying vec3 vC;
+void main(){ int i=int(aK.x+0.5); vec3 L=uL[i]; float day=smoothstep(-0.42,0.02,L.y), up=smoothstep(-0.1,0.16,L.y);
+  float dif=max(dot(normal,L),0.0)*up, sky=0.5+0.5*normal.y;
+  vec3 c=aC*(0.46+0.22*sky+0.5*dif);
+  c*=mix(vec3(1.0),vec3(1.12,0.94,0.76),(1.0-smoothstep(0.0,0.3,abs(L.y-0.07)))*0.5);
+  c*=mix(vec3(0.36,0.41,0.58),vec3(1.0),day);
+  float g=aK.y>1.5?1.0:aK.y*(1.0-day);
+  vC=mix(c,aC*(1.0+0.55*(uGlow-1.0)),g);
+  gl_Position=projectionMatrix*viewMatrix*uM[i]*vec4(position,1.0); }`,fragmentShader:`varying vec3 vC; void main(){ gl_FragColor=vec4(vC,1.0); }`}));
+ mesh.frustumCulled=false; mesh.visible=false; scene.add(mesh);
+ // the smoke and the glow: soft round points
+ const NP=PT.length, pp=new Float32Array(NP*3), pc=new Float32Array(NP*4), ps=new Float32Array(NP), pg=new THREE.BufferGeometry();
+ pg.setAttribute("position",new THREE.BufferAttribute(pp,3)); pg.setAttribute("aC",new THREE.BufferAttribute(pc,4)); pg.setAttribute("aS",new THREE.BufferAttribute(ps,1));
+ const pu={uPx:{value:800}}, pts=new THREE.Points(pg,new THREE.ShaderMaterial({uniforms:pu,transparent:true,depthWrite:false,
+   vertexShader:`attribute vec4 aC; attribute float aS; uniform float uPx; varying vec4 vC; void main(){ vC=aC; vec4 mv=viewMatrix*vec4(position,1.0); gl_PointSize=aS*uPx/-mv.z; gl_Position=projectionMatrix*mv; }`,
+   fragmentShader:`varying vec4 vC; void main(){ float d=1.0-min(1.0,length(gl_PointCoord-0.5)*2.0); gl_FragColor=vec4(vC.rgb,vC.a*d*d); }`}));
+ pts.frustumCulled=false; pts.visible=false; pts.renderOrder=3; scene.add(pts);
+ const _b=new THREE.Vector2(), sm=(a,b,x)=>{x=Math.min(1,Math.max(0,(x-a)/(b-a))); return x*x*(3-2*x);};
+ let wasOn=false, lastM=-1, tickN=0;
+ // where a place stands and which way is up there: on the relief, upright on the globe, flat on the table (as the flying city does)
+ const seat=(L,mm)=>{L.pos.copy(worldPos(L.lon,L.lat,0)); L.Y.copy(L.n); L.X.copy(L.e);
+   if(mm>0){L.Y.lerp(V.set(0,0,1),mm).normalize(); L.X.lerp(V.set(1,0,0),mm); L.X.addScaledVector(L.Y,-L.X.dot(L.Y)).normalize();}
+   L.Z.crossVectors(L.X,L.Y);};
+ MAP_TICKS.push((now,dt,mm)=>{
+   // far away nothing shows; from zoom 0.5 inwards the miniatures grow out of the land, and they are all there by 0.3
+   const z=cam.zoom, kz=sm(0.5,0.3,z), rv=uniforms.uReveal.value;
+   if(kz<=0){ if(wasOn){mesh.visible=pts.visible=false; wasOn=false;} return; }
+   const sun=uniforms.uSun.value, cp=camera.position, grow=1.15+0.35*sm(0.1,0.34,z), reseat=mm!==lastM||!wasOn; lastM=mm; tickN++;
+   let any=false;
+   for(let i=0;i<NL;i++){const L=LM[i], p=L.p;
+     // the fog and the rewind: only what the chart has decoded in the session on show, and a place new in that session only
+     // once the fog has drawn back from it (the same rule the seals follow); not on the far side of the globe
+     let want=L.f<=viewS&&!((viewS<AS_OF?L.f===viewS:!!p.isNew)&&rv<0.55)&&(mm>=0.5||L.n.dot(cp)>R*1.02);
+     if(p.id==="crash"&&crash) want=false;
+     const ki=p.id==="inn"?sm(0.3,0.2,z):1;   // the inn's seal only shows close up; so does the inn
+     if(!wasOn||reduced) L.a=want?1:0; else L.a+=((want?1:0)-L.a)*Math.min(1,dt*3.5);
+     if(L.a<0.004&&!want) L.a=0;
+     const s=U*grow*kz*ki*L.a*(2-L.a); L.k=s; const m=lu.uM.value[i].elements;
+     if(s<=0){m[0]=m[5]=m[10]=0; m[1]=m[2]=m[4]=m[6]=m[8]=m[9]=0; L.on=false; continue;}
+     if(reseat||!L.on||(tickN+i*5)%60===0) seat(L,mm); L.on=true;   // the relief under a place only changes when the fog moves: look again about once a second
+     any=true; const X=L.X,Y=L.Y,Z=L.Z,P=L.pos;
+     m[0]=X.x*s;m[1]=X.y*s;m[2]=X.z*s; m[4]=Y.x*s;m[5]=Y.y*s;m[6]=Y.z*s; m[8]=Z.x*s;m[9]=Z.y*s;m[10]=Z.z*s; m[12]=P.x;m[13]=P.y;m[14]=P.z;
+     lu.uL.value[i].set(sun.dot(L.e),sun.dot(L.n),sun.dot(L.s)); L.day=sm(-0.42,0.02,sun.dot(L.n));
+   }
+   mesh.visible=any; pts.visible=any&&NP>0; wasOn=true; if(!any) return;
+   renderer.getDrawingBufferSize(_b); pu.uPx.value=_b.y*0.5*camera.projectionMatrix.elements[5];
+   const T=reduced?0:now;
+   for(let j=0;j<NP;j++){const q=PT[j], L=LM[q.i], s=L.k; let x=q.x,y=q.y,a=q.a,sz=q.s, dim=0.45+0.55*L.day;
+     if(q.sm){const t=(T/5200+q.ph)%1; y+=t*q.rise; x+=Math.sin(t*5+q.ph*9)*0.9*t+t*t*2; sz*=0.55+t*1.1; a*=Math.sin(Math.PI*Math.min(1,t*1.15))*(1-t*0.6);}
+     else{a*=(q.night?1-L.day:1)*(0.85+0.15*Math.sin(T/900+q.ph)); dim=1;}
+     if(s<=0) a=0;
+     pp[j*3]=L.pos.x+(L.X.x*x+L.Y.x*y+L.Z.x*q.z)*s; pp[j*3+1]=L.pos.y+(L.X.y*x+L.Y.y*y+L.Z.y*q.z)*s; pp[j*3+2]=L.pos.z+(L.X.z*x+L.Y.z*y+L.Z.z*q.z)*s;
+     pc[j*4]=(q.col>>16&255)/255*dim; pc[j*4+1]=(q.col>>8&255)/255*dim; pc[j*4+2]=(q.col&255)/255*dim; pc[j*4+3]=a; ps[j]=sz*s;}
+   pg.attributes.position.needsUpdate=pg.attributes.aC.needsUpdate=pg.attributes.aS.needsUpdate=true;
+ });
 }
 // the flying castle ship and its last flight (plays when the crash site is opened)
 const ship = new THREE.Group(); ship.visible=false; scene.add(ship);
@@ -3658,9 +4089,9 @@ function thunder(delay){const n=SND.nodes; if(!n) return; const a=n.a, t=a.curre
 // a Kuwahara filter: each pixel takes the calmest of the four corners around it, so colour lies in strokes while edges stay sharp
 const PAINT={on:false,rt:null};
 {const g=new THREE.PlaneGeometry(2,2);
- PAINT.u={tMap:{value:null},uRes:{value:new THREE.Vector2(1,1)},uTime:uniforms.uTime,uK:{value:1}};
+ PAINT.u={tMap:{value:null},uRes:{value:new THREE.Vector2(1,1)},uTime:uniforms.uTime,uK:{value:1},uSky:{value:SKY3_ON?1:0}};
  PAINT.mat=new THREE.ShaderMaterial({uniforms:PAINT.u,depthTest:false,depthWrite:false,vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.0,1.0);}`,fragmentShader:`
-precision highp float; uniform sampler2D tMap; uniform vec2 uRes; uniform float uTime; uniform float uK; varying vec2 vUv;
+precision highp float; uniform sampler2D tMap; uniform vec2 uRes; uniform float uTime; uniform float uK; uniform float uSky; varying vec2 vUv;
 float hsh(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}
 void main(){
   vec2 px=1.25/uRes; vec3 m0=vec3(0.),m1=vec3(0.),m2=vec3(0.),m3=vec3(0.),s0=vec3(0.),s1=vec3(0.),s2=vec3(0.),s3=vec3(0.);
@@ -3674,6 +4105,7 @@ void main(){
   vec3 col=m0; float v=v0; if(v1<v){v=v1;col=m1;} if(v2<v){v=v2;col=m2;} if(v3<v){v=v3;col=m3;}
   // ink stays ink: where every corner is busy (a line, a route, a coast) keep the original pixel
   col=mix(col,texture2D(tMap,vUv).rgb,max(smoothstep(0.0003,0.003,v),1.0-uK));   // up close the brush lifts, so fields, rivers and hachures stay sharp
+  if(uSky>0.5){vec3 o=texture2D(tMap,vUv).rgb; float lc=max(col.r,max(col.g,col.b)); col=mix(col,o,smoothstep(0.015,0.06,max(o.r,max(o.g,o.b))-lc)*(1.0-smoothstep(0.06,0.2,lc)));}   // SKY3: the brush would wipe out the stars, so a bright point on dark sky keeps its own colour
   // paper: fine grain and long fibres, a little warmth in the light parts
   vec2 fc=gl_FragCoord.xy; float grain=hsh(floor(fc))-0.5, fib=hsh(floor(fc*vec2(0.05,0.9)))-0.5;
   col+=(grain*0.035+fib*0.02)*(0.4+0.6*dot(col,vec3(0.33)));
@@ -4095,6 +4527,7 @@ function chapterCard(then){
   const t=setTimeout(go,4200); el.onclick=go;
 }
 function showStop(){
+  if(RECAP3){showStop3();return;}
   const s=RECAP[recapI]; clearTimeout(recapTimer);
   if(!s){endRecap();return;}   // a quick double tap on the last arrow
   flyToPlace(s.at,s.zoom);
@@ -4124,10 +4557,108 @@ function showStop(){
   txt.addEventListener("scroll",cue,{passive:true}); requestAnimationFrame(cue); if(st&&!reduced) setTimeout(cue,s.text.length*12+200);
 }
 let typing=null;
-function endRecap(){recapOn=false;clearTimeout(recapTimer);hush();cap.hidden=true;reveal.goal=1;setTab(null);store.set("chron-seen",SKEY);
-  document.querySelector('[data-tab="recap"] .dot')?.remove();}
+function endRecap(fin){const card=RECAP3&&fin===true&&recapOn&&!reduced; // fin: the reader reached the end, so the chapter closes with a card; Skip and Escape just stop
+  recapOn=false;clearTimeout(recapTimer);hush();cap.hidden=true;reveal.goal=1;setTab(null);store.set("chron-seen",SKEY);
+  document.querySelector('[data-tab="recap"] .dot')?.remove(); cap.classList.remove("r3"); R3.nav=null; R3.auto=R3.drift=false; if(card) closingCard();}
 addEventListener("keydown",e=>{if(e.key==="Escape"&&e.target.closest&&e.target.closest("input,textarea,[contenteditable=true]"))return; // Escape in an editor leaves the editor, not the sheet
   if(e.key==="Escape"){if(recapOn)endRecap();else if(journeyOn)endJourney();else if(placing)stopPlacing();else closeSheet();}});
+
+/* ---- Recap 3.0: each stop is a film shot beside a page of Hans's book. ?oldrecap brings back the old card ---- */
+const RECAP3=!MAP_OFF("oldrecap"); document.body.classList.toggle("recap3",RECAP3);
+// R3: what the tick below needs to know about the stop that is up (drift = the slow camera move, auto = the clock to the next stop)
+const R3={nav:null,card:null,drift:false,idle:0,tw:null,age:0,dir:1,rate:0,auto:false,left:0,total:1,hold:0,last:0,spoke:false,line:null,shown:-1,paused:false};
+const r3Col=()=>innerWidth>=900&&innerHeight>500;
+// the frame loop does not move the view aside for the caption on a wide screen, so the shot itself aims a little west: the place then sits in the middle of the part of the globe the column leaves free
+function r3Side(z,lat){ if(!r3Col()) return 0; const flat=morph>.5, px=(20+Math.min(400,innerWidth*.36))/2;
+  return Math.min(22,px*2*Math.tan(camera.fov*D2R/2)*(flat?.18+z*1.9:.25+z*3.4)/innerHeight/D2R/(flat?1:Math.max(.3,Math.cos(lat*D2R)))); }
+function r3Dots(n,cur,jump,word){return h("div",{class:"progress r3-dots",role:"group","aria-label":word+"s"},Array.from({length:n},(_,k)=>
+  h("button",{type:"button",class:k<cur?"on":k===cur?"cur":"","aria-label":word+" "+(k+1)+" of "+n,"aria-current":k===cur?"step":null,onclick:e=>{e.stopPropagation();jump(k);}})));}
+function showStop3(){
+  const s=RECAP[recapI]; clearTimeout(recapTimer);
+  if(!s){endRecap(true);return;}
+  const n=RECAP.length, last=recapI===n-1, st=s.voice==="steward", p=byId[s.at], z=s.zoom??.4;
+  // the shot: fly in, and when the last stop stood at the same place, come at it from another side so the picture changes (run = how many stops in a row have been here)
+  let run=0; for(let k=recapI;k>0&&RECAP[k-1].at===s.at;k--) run++;
+  if(p){const c=Math.max(.3,Math.cos(p.lat*D2R)), r=run?(.25+z*3.4)*2.4:0, a=run*2.4;
+    flyTo(p.lon+Math.cos(a)*r/c-r3Side(z,p.lat),p.lat+Math.sin(a)*r*.6,z);
+    R3.drift=!reduced; R3.tw=tween; R3.idle=idleT; R3.age=0; R3.dir=recapI%2?-1:1; R3.rate=.3*(.25+z*3.4)/1.27/c;}
+  if(s.reveal) setTimeout(()=>{reveal.goal=1},reduced?0:1300);
+  const go=k=>{if(k<0||k===recapI)return; if(k>=n){endRecap(true);return;} recapI=k; showStop();};
+  const next=()=>{if(typing){typing();return;} go(recapI+1);}, back=()=>go(recapI-1);
+  const ses=SESSIONS.find(x=>x.n===AS_OF);
+  const face=h("span",{html:hansFace({state:st?"is-steward":"is-speaking",label:st?"The black box, speaking through Hans":bird?"Hans, a talking bird":"Hans"})}).firstElementChild;
+  if(!st) setTimeout(()=>face.classList.remove("is-speaking"),2600);
+  const place=h("div",{class:"place"}), para=h("p",{}), txt=h("div",{class:"txt in"},para), line=h("i",{}), time=h("div",{class:"r3-time","aria-hidden":"true"},line);
+  txt.onclick=next;
+  cap.replaceChildren(...[
+    PLACE_ART[s.at]?h("img",{class:"r3-art",alt:"",loading:"lazy",decoding:"async",src:PLACE_ART[s.at],onerror:e=>e.currentTarget.remove()}):null, // no painting, or the file is gone: the panel simply starts with the words
+    r3Dots(n,recapI,go,"Stop"),
+    ses?h("div",{class:"r3-ch"},"CHAPTER "+ROMAN(AS_OF)+" · "+ses.t):null,
+    h("div",{class:"narr"},face,h("div",{},h("div",{class:"who2"},st?(bird?"BLACK BOX · INSIDE A BIRD":"BLACK BOX · INSIDE HANS"):`S${String(AS_OF).padStart(2,"0")} · ${recapI+1}/${n} · ${bird?"HANS (A BIRD NOW) SQUAWKS":"HANS DECODES"}`),place),sayBtn(s.title+". "+s.text,s.voice)),
+    txt, time,
+    h("div",{class:"ctl"},
+      last?h("button",{class:"skip fly",type:"button",onclick:()=>flyRoute(AS_OF)},"Fly the route"):h("button",{class:"skip",type:"button",onclick:()=>endRecap()},"Skip"),
+      h("span",{class:"jr"},h("button",{class:"btn ghost prev",type:"button","aria-label":"Back",disabled:recapI?null:"",onclick:back},"←"),
+        last?h("button",{class:"btn",type:"button",onclick:()=>endRecap(true)},"Explore the map"):
+             h("button",{class:"btn next",type:"button","aria-label":"Next",onclick:next},"→")))
+  ].filter(Boolean));
+  cap.classList.toggle("steward",st); cap.classList.remove("journey"); cap.classList.add("r3"); cap.hidden=false; scramble(place,s.title);
+  R3.nav={next,back};
+  typing=null;
+  if(st&&!reduced){let i=0;const iv=setInterval(()=>{i+=2;para.textContent=s.text.slice(0,i);if(i>=s.text.length){clearInterval(iv);typing=null;}},24);
+    typing=()=>{clearInterval(iv);para.textContent=s.text;typing=null;};}
+  else para.textContent=st?s.text:squawk(s.text);
+  // the clock to the next stop runs in the tick, so it can wait while the reader scrolls or Hans reads aloud; the last stop waits for the reader
+  R3.auto=!last&&!reduced; R3.total=R3.left=Math.max(9000,readMs(s.text)*1.2); R3.hold=0; R3.spoke=false; R3.line=line; R3.shown=-1; R3.paused=false; R3.last=performance.now(); time.hidden=!R3.auto;
+  const cue=()=>txt.classList.toggle("more",txt.scrollTop+txt.clientHeight<txt.scrollHeight-2);
+  txt.addEventListener("scroll",()=>{cue();R3.hold=performance.now()+5000;},{passive:true}); requestAnimationFrame(cue); if(st&&!reduced) setTimeout(cue,s.text.length*12+200);
+}
+MAP_TICKS.push((now,dt)=>{
+  if(!RECAP3||!recapOn) return;
+  // the slow move while a stop is up: a few degrees along the land and a slight push in, fading out; it stops for good the moment the reader touches the map or anything else moves the camera
+  if(R3.drift){
+    if(ptrs.size>0||idleT!==R3.idle||fly) R3.drift=false;
+    else if(tween){ if(tween!==R3.tw) R3.drift=false; }
+    else { const k=Math.exp(-R3.age/14); R3.age+=dt; cam.lon+=R3.dir*R3.rate*k*dt; cam.zoom=Math.max(0,cam.zoom-.0011*k*dt); }
+  }
+  if(R3.auto){
+    if(fly){ R3.auto=false; if(R3.line) R3.line.parentNode.hidden=true; } // the reader went off to fly the route: from here they turn the pages themselves
+    else { const el=Math.min(250,now-R3.last), talk=SAY.on&&!!window.speechSynthesis&&speechSynthesis.speaking;
+      if(talk) R3.spoke=true; else if(R3.spoke){ R3.spoke=false; R3.left=Math.min(R3.left,2500); } // Hans finished reading: a short breath, then on
+      const wait=talk||!!typing||now<R3.hold||cap.hidden||!sheet.hidden||document.hidden;
+      if(!wait){ R3.left-=el; if(R3.left<=0){ R3.auto=false; R3.last=now; recapI++; showStop(); return; } }
+      const f=Math.max(0,R3.left/R3.total); if(Math.abs(f-R3.shown)>.004){ R3.shown=f; R3.line.style.transform="scaleX("+f.toFixed(3)+")"; }
+      if(wait!==R3.paused){ R3.paused=wait; R3.line.parentNode.classList.toggle("paused",wait); } }
+  }
+  R3.last=now;
+});
+// the end of the chapter: the same card that opened it, with the three things a reader does next. It goes away by itself after a few seconds
+function closingCard(){
+  const s=SESSIONS.find(x=>x.n===AS_OF), el=document.getElementById("chapter"); if(!s) return;
+  const shut=now=>{ if(R3.card!==shut) return; clearTimeout(t); if(now){R3.card=null;el.hidden=true;el.classList.remove("end");return;}
+    el.classList.add("out"); setTimeout(()=>{if(R3.card===shut){R3.card=null;el.hidden=true;el.classList.remove("end");}},500); };
+  const b=(cls,word,fn)=>h("button",{class:cls,type:"button",onclick:e=>{e.stopPropagation();fn();}},word);
+  el.replaceChildren(h("div",{class:"ch-in"},h("div",{class:"ch-n"},"END OF CHAPTER "+ROMAN(AS_OF)),h("div",{class:"ch-t"},s.t),h("div",{class:"ch-rule"}),
+    h("div",{class:"ch-btns"},b("btn ghost","Fly the route",()=>{shut(true);flyRoute(AS_OF);}),b("btn ghost","Replay",()=>{shut(true);startRecap();}),b("btn","Explore the map",()=>shut()))));
+  el.classList.remove("out"); el.classList.add("end"); el.hidden=false; R3.card=shut; el.onclick=()=>shut();
+  const t=setTimeout(shut,12000);
+}
+if(RECAP3){
+  // left and right turn the page, space goes on; keys typed into a field or pressed on a button keep their own meaning
+  addEventListener("keydown",e=>{ const k=e.key, t=e.target;
+    if(k==="Escape"&&R3.card){R3.card();return;}
+    if((k!=="ArrowLeft"&&k!=="ArrowRight"&&k!==" ")||e.altKey||e.ctrlKey||e.metaKey) return;
+    if(t&&t.closest&&(t.closest("input,textarea,select,[contenteditable=true]")||(k===" "&&t.closest("button,a,summary")))) return;
+    const ch=document.getElementById("chapter"); if(!ch.hidden){ if(k!=="ArrowLeft"&&!R3.card){e.preventDefault();ch.click();} return; }
+    if(!R3.nav||cap.hidden||!sheet.hidden) return;
+    e.preventDefault(); if(k==="ArrowLeft") R3.nav.back(); else R3.nav.next(); });
+  // a sideways swipe on the panel turns the page; up and down still scroll the words
+  let sx=0, sy=0, s0=0;
+  cap.addEventListener("touchstart",e=>{const t=e.touches[0]; sx=t.clientX; sy=t.clientY; s0=e.touches.length===1?performance.now():0;},{passive:true});
+  cap.addEventListener("touchend",e=>{const t=e.changedTouches[0], dx=t.clientX-sx, dy=t.clientY-sy;
+    if(!s0||!R3.nav||performance.now()-s0>800||Math.abs(dx)<56||Math.abs(dx)<Math.abs(dy)*1.6) return; s0=0;
+    if(dx<0) R3.nav.next(); else R3.nav.back();},{passive:true});
+}
 
 /* =================== REWIND: replay the journey, one session at a time =================== */
 const asofEl=document.getElementById("asof"), restoreS=document.querySelector("#restore span");
@@ -4151,11 +4682,12 @@ function showJourney(T){
   clearTimeout(journeyTimer); setView(T);
   const s=SESSIONS.find(x=>x.n===viewS)||SESSIONS[SESSIONS.length-1], st=s.v==="steward", i=JOURNEY.indexOf(viewS), last=viewS>=AS_OF;
   flyToPlace(s.at,.5);
-  const prog=h("div",{class:"progress","aria-hidden":"true"},JOURNEY.map((_,k)=>h("i",{class:k<i?"on":k===i?"cur":""})));
+  const go=d=>{journeyAuto=false;showJourney(JOURNEY[Math.max(0,Math.min(JOURNEY.length-1,i+d))]);};
+  const prog=RECAP3?r3Dots(JOURNEY.length,i,k=>{if(k!==i)go(k-i);},"Session"):h("div",{class:"progress","aria-hidden":"true"},JOURNEY.map((_,k)=>h("i",{class:k<i?"on":k===i?"cur":""})));
+  if(RECAP3) R3.nav={next:()=>{if(!last)go(1);},back:()=>{if(i>0)go(-1);}};
   const face=h("span",{html:hansFace({state:st?"is-steward":"is-speaking",label:st?"The black box, speaking through Hans":bird?"Hans, a talking bird":"Hans"})}).firstElementChild;
   if(!st) setTimeout(()=>face.classList.remove("is-speaking"),2600);
   const place=h("div",{class:"place"}), txt=h("div",{class:"txt in"},h("p",{},bird&&!st?squawk(s.s):s.s));
-  const go=d=>{journeyAuto=false;showJourney(JOURNEY[Math.max(0,Math.min(JOURNEY.length-1,i+d))]);};
   txt.onclick=()=>{if(!last)go(1);};
   cap.replaceChildren(prog,
     h("div",{class:"narr"},face,h("div",{},h("div",{class:"who2"},`REPLAY · S${s2(viewS)} · ${i+1}/${JOURNEY.length} · ${st?"THE STEWARD, AS TOLD TO HANS":bird?"HANS (A BIRD NOW) REMEMBERS":"HANS REMEMBERS"}`),place),sayBtn("Session "+viewS+". "+s.t+". "+s.s,s.v)),
@@ -4168,13 +4700,13 @@ function showJourney(T){
         last?h("button",{class:"btn",type:"button",onclick:()=>{endJourney(false);startRecap();}},"Play the recap"):
              h("button",{class:"btn next",type:"button","aria-label":"Next session",onclick:()=>go(1)},"→")))
   );
-  cap.classList.remove("steward"); cap.classList.add("journey"); cap.hidden=false; scramble(place,"Session "+viewS+" · "+s.t);
+  cap.classList.remove("steward","r3"); cap.classList.add("journey"); cap.hidden=false; scramble(place,"Session "+viewS+" · "+s.t);
   if(journeyAuto&&!last) journeyTimer=setTimeout(()=>{if(journeyOn&&journeyAuto)showJourney(JOURNEY[i+1]);},Math.max(8000,s.s.length*60));
   const cue=()=>txt.classList.toggle("more",txt.scrollTop+txt.clientHeight<txt.scrollHeight-2);
   txt.addEventListener("scroll",cue,{passive:true}); requestAnimationFrame(cue);
 }
 function endJourney(toNow=true){
-  journeyOn=false; journeyAuto=false; clearTimeout(journeyTimer); cap.hidden=true; hush(); cap.classList.remove("journey");
+  journeyOn=false; journeyAuto=false; clearTimeout(journeyTimer); cap.hidden=true; hush(); cap.classList.remove("journey"); R3.nav=null;
   if(toNow&&viewS!==AS_OF){setView(AS_OF,{play:false}); toast("Back to now. Session "+AS_OF+".");}
 }
 
@@ -13303,12 +13835,12 @@ const k11Warmth=(d,why)=>{const S=B.sc,h=B.units.find(o=>o.key==="hans");const w
 IFIGHTS.frost={key:"i-frost",map:"ifrost",dim:true,undead:true,sc:{warm:4,flee:"sinks back into the frost"},noRetry:true,
   intro:"The cave floor has gone white. The lamp burns blue. He stands between you and the tunnel, and he wants you asleep again. Guests come up out of the frost in skins of ice. The box in your chest keeps you warm (4): every guest next to you at the end of a round takes a degree. Turn it up (bonus action) and your beat warms it a degree, once a round. At 0 you freeze.",
   setup(){const S=B.sc,d=IST&&IST.dread||0;S.dread=d;
-    B.units.push(mkCrew("hans",6,10),mkMon("lasth",6,6,0));iSpawn("fguest",d>=3?[[3,5],[9,5],[6,4]]:[[3,5],[9,5]]);
-    if(d>=3)log("The frost has got further in: a third guest comes up.","r");},
+    B.units.push(mkCrew("hans",6,10),mkMon("lasth",6,6,0));iSpawn("fguest",[[3,5],[9,5]]);},
   async onRound(r){
     if(r===1&&!B.t3cScratch&&typeof k11Face==="function"&&t3cWant(K11_CUT.hans.face)){t3cMark(K11_CUT.hans.face);await k11Face("hans");}
     if(r===1){log("He stands between you and the tunnel, one hand closed round a lamp that isn't there. The frost creaks under him.","b");k11Bark("lasth",k11Flick()>=4?"faint":"start",B.units.find(o=>o.key==="lasth"));}
-    iGhosts(r,[[3,5],[9,5],[6,4]],"comes up out of the frost again.");},
+    iGhosts(r,[[3,5],[9,5],[6,4]],"comes up out of the frost again.");
+    if(r===2&&B.sc.dread>=3){log("The frost has got further in: a third guest comes up.","r");iSpawn("fguest",[[6,4]]);}},
   async onRoundEnd(){const S=B.sc;if(B.over)return;const h=B.units.find(o=>o.key==="hans");if(!h||h.hp<=0)return;
     const n=B.units.filter(o=>o.key==="fguest"&&alive(o)&&o.hp>0&&!o.ghost&&dist(o,h)<=1).length;
     if(n)k11Warmth(-n,n>1?`${n} guests stand close round you.`:"A guest stands close.");},
