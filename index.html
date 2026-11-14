@@ -1854,6 +1854,9 @@ const legS=i=>i>=ROUTE_NEW_FROM?AS_OF:Math.min(LEG_S[i],AS_OF-1);
 const blobS=(e,fresh)=>fresh?AS_OF:Math.min(AS_OF-1,typeof e[0]==="string"?firstS(byId[e[0]]):nearS(e[0],e[1]));
 const MIN_S=Math.max(1,Math.min(...LEG_S.filter(n=>n>0),...PLACES.map(firstS).filter(n=>n>0)));
 let viewS=AS_OF;   // the session the chart is showing; below AS_OF = rewound
+// world map 3.0: each new map system (place seals, landmarks, the journey, the recap camera) adds one function here; the loop calls them every frame.
+// MAP_OFF("nolandmarks") is true when the address carries that switch, so one system can be turned off without a new build
+const MAP_TICKS=[], MAP_OFF=k=>new RegExp("[?&]"+k+"(=|&|$)").test(location.search);
 
 /* fog mask: R = known before this session, G = revealed this session */
 const maskCv = document.createElement("canvas"); maskCv.width=1024; maskCv.height=512;
@@ -3577,7 +3580,9 @@ function frame(now){
   city.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),up); city.rotateY(now/6000);
   city.scale.setScalar(0.5*(1-0.3*mm)); cityTick(now,dt,up);
   cityShadow(sphDir(w.lon,w.lat),0.06+bob,0.026*(1-0.3*mm));
-  camPose(); updateTrail(); tickCrash(now); renderWorld(); updatePins(); soundMix();
+  camPose(); updateTrail(); tickCrash(now);
+  for(const f of MAP_TICKS) f(now,dt,mm);
+  renderWorld(); updatePins(); soundMix();
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(t=>{document.getElementById("loading").remove();last=t;frame(t)});
