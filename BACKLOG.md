@@ -25,6 +25,8 @@ Things that are wrong on the live site today. Check this list before **Now**: a 
 - [ ] **The map may slow to a crawl in Safari after a few minutes** · annoying, unconfirmed · Map, Safari and iPhone (WebKit) · Found in the 2026-11-10 play-test on Sam's Mac: in Playwright's WebKit the globe falls from ~60 to ~2 fps after jumping between a dozen views (night, wind, sea), even with the lens and paint off, while each view alone holds 40-60 fps. Chromium stays at 40-77. Not yet seen in the real Safari app: open `?fps`, move around for two minutes and compare the numbers at the start and end.
 - [ ] **Saphira's Passive Perception doesn't add up** · cosmetic · Characters, Saphira · Her paper says Passive Perception 15, but her Perception skill is +4, which gives 14. The sheet shows the paper's 15. Lore question for Sam: which number is right?
 
+- [ ] **Katy's title painting shows a full-size guitar, not her ukulele** · cosmetic · Interludes list and the title card of *The Song Before Sleep* · open Interludes; a repaint is being made
+
 ## Now
 
 Top of the list is what to work on next.
@@ -46,7 +48,7 @@ Top of the list is what to work on next.
 ## Later
 
 - [ ] **More in-engine cinematics** · New · either · Needs Sam for lines. The cinematic director's plan ranks the next ones: a dip to black on every story-to-board change, Elara's voice through Lúmeneth, the night ambush opening, a fight-intro for every battle, chapter cards, Overclock. The system (`t3cine`) is in; each one is a small PR.
-- [ ] **Play-test the interlude fights for balance** · Changed · either · The four fights are balanced on paper only. Watch Katy's candle (3 points) and Turn Undead in the shared fight. Stig's undertow fight was measured with simulated players on 2026-11-11 and eased at Sam's call ("winnable, but he fights smarter than the test crew").
+- [ ] **Play-test the interlude fights for balance** · Changed · either · The four fights are balanced on paper only. Watch Katy's candle (3 points) and Turn Undead in the shared fight. Stig's undertow fight was measured with simulated players on 2026-11-11 and eased at Sam's call ("winnable, but he fights smarter than the test crew"). Since 3.0 there is a fight simulator: `node tests/visual/fights.js --site .` prints win rates for three kinds of player.
 - [ ] **An interlude before every session** · New · Sam · Needs Sam. The session 10 set is the first; write the next set from the session script (a memory, a dream, a talk with a patron), same engine.
 
 - [ ] **Live online storage** · New · Sam and Niels · Needs Sam. Shared tags, notes and trackers for everyone at once through a hosted database (Firebase or Supabase), with sign-in limited to the table. Breaks two house rules (no new libraries, player data stays on the device), so only if both agree.
@@ -64,7 +66,10 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
-- [x] **Chronicle 3.0, map: Recap 3.0 (the map beside the recap on desktop, Back, keys and swipe, a closing card), landmarks at explored places, a new night sky, and the Thaw fight eased** · Changed · Sam · PRs #130, #133, #134 (this batch)
+- [x] **Enter ends the turn again after clicking a target with the mouse on the flat board** · Fixed · Sam · PR #144
+- [x] **Chronicle 3.0: the map draws faster on computers, a firmer road close up, the interlude list as painted cards** · Changed · Sam · PR #143 (#139, #140, #142)
+- [x] **Chronicle 3.0, interludes: foes show what they go for; the guitar picture out of Katy's cave scenes, choices hidden under the title card** · Changed · Sam · PR #141 (#136, #137)
+- [x] **Chronicle 3.0, map: Recap 3.0 (the map beside the recap on desktop, Back, keys and swipe, a closing card), landmarks at explored places, a new night sky, and the Thaw fight eased** · Changed · Sam · PR #138 (#130, #133, #134)
 - [x] **Map beside the recap on desktop** · Changed · either · PR #130
 - [x] **Chronicle 3.0, map: pins as seals with their own icon, new lettering, the road as an inked ribbon** · Changed · Sam · PR #135 (#130)
 - [x] **Chronicle 3.0, interludes: fifteen scene paintings for session 10 and the reading screen as a stage** · New · Sam · PR #135 (#128, #132)
