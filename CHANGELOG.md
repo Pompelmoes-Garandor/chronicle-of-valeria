@@ -6,6 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **New** Four new interludes and a bonus level are out. Stig has *The Eleven Paces*, Katy has *Four Notes*, Saphira has *Two Tongues* and Hans has *Thaw*; each shows up in your own list of interludes. *Protocol Zero*, the Steward's last stand, is in everyone's list as a bonus. (Claude, for Sam)
 - **Changed** The interludes that are not out yet (the second ones for Stig, Katy, Saphira and Hans, and the Steward's level) had their speeches, whisper lines and endings rewritten, so the people in them say plain things in their own voice. Nothing about the session 10 interludes changes. (Claude, for Sam)
 - **Changed** The four session 10 interludes had a second read-through of the writing. About thirty lines that still tried too hard now say plainly what happens: the answers Stig gets to his prayer, a few of the patron's lines to Saphira, the end of Katy's memory, the fire in the cave. Nothing that happens in them has changed, and your saved place and choices are kept. The interludes that are not out yet got the same read-through. (Claude, for Sam)
 - **Fixed** Katy's interlude *The Song Before Sleep*: the title painting of her room at Valethorn is repainted, because the old one showed a full-size guitar on the bed and Katy carries her father's small bronze ukulele. The new room has the candle, the round window and her bow, and no instrument in sight. The cave scenes at the start and the end have their own painting again. (Claude, for Sam)
