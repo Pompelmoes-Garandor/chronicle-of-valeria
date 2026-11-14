@@ -2564,7 +2564,7 @@ world.frustumCulled=false; scene.add(world);
 const CULL3=FAST3&&!/[?&]nocull3/.test(location.search), LOD3=FAST3&&!SMALL&&!/[?&]nolod3/.test(location.search), wgeoFar=LOD3?new THREE.PlaneGeometry(1,1,512,256):null;
 world.onBeforeRender=()=>{
   if(CULL3) world.material.side=morph===0||morph===1?THREE.FrontSide:THREE.DoubleSide;
-  if(LOD3){const far=world.geometry===wgeoFar, want=far?cam.zoom>0.2:cam.zoom>0.26; if(want!==far) world.geometry=want?wgeoFar:wgeo;
+  if(LOD3){const far=world.geometry===wgeoFar, want=far?cam.zoom>0.27:cam.zoom>0.32; if(want!==far) world.geometry=want?wgeoFar:wgeo;
     const rel=uniforms.uRel.value; if(uniforms.uWorld.value>0.5&&rel&&rel.image) uniforms.uRelLod.value=Math.max(0,Math.log2(rel.image.width/(far?512:1024)));}
 };
 // bake the land once: the world shader reads its height, forest and moisture from this texture instead of working them out every frame
