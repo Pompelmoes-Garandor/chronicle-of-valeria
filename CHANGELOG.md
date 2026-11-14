@@ -6,6 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **Fixed** In the root tunnels, a Hollower that fled into the walls can no longer be shot or burned while it is away. Before, that could leave the fight with nobody to fight and no way to end. Behind the scenes there is now a fight simulator that plays every fight hundreds of times in a few seconds, to check the balance with numbers. (Claude, for Sam)
 - **Changed** Fights on the 3D table are lit more like a real miniature under a lamp: shadows are crisp where feet touch the floor and soften as they fall away, corners and the ground under each mini darken smoothly without crawling when the camera moves, and whatever is in focus is a little sharper. Computers only; phones are unchanged. Add `?oldlight` to the address for the old look. (Claude, for Sam)
 - **Changed** The map moves better under your hand: a swipe glides on and slows by itself, a pinch or the scroll wheel zooms in on the spot under your fingers or pointer, two fingers drag the map while they pinch, and a double tap zooms in. (Claude, for Sam)
 - **New** In a fight you can take a move back. Walk somewhere, change your mind, tap **Undo move**: it stays on offer until something comes of the move (a roll, an opportunity attack, an action). On a computer the number keys pick your actions in the order shown, Enter ends the turn, and U takes the move back. (Claude, for Sam)

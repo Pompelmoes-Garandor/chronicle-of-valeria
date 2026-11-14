@@ -8635,7 +8635,7 @@ function los(a,b){const ax=a.x+(a.size-1)/2,ay=a.y+(a.size-1)/2,bx=b.x+(b.size-1
   for(let i=1;i<n;i++){const x=Math.round(ax+(bx-ax)*i/n),y=Math.round(ay+(by-ay)*i/n);if(blocksLos(B.mp,x,y))return false;}return true;}
 const alive=u=>!u.gone&&u.hp>0;
 const live=side=>B.units.filter(u=>alive(u)&&(side==="foe"?u.side==="foe":u.side!=="foe"));
-const enemiesOf=u=>B.units.filter(o=>alive(o)&&!o.untarget&&(u.side==="foe"?o.side!=="foe":o.side==="foe"));
+const enemiesOf=u=>B.units.filter(o=>alive(o)&&!o.untarget&&!o.ghost&&(u.side==="foe"?o.side!=="foe":o.side==="foe"));
 const occupant=(x,y,except)=>B.units.find(o=>o!==except&&!o.gone&&!o.ghost&&x>=o.x&&x<o.x+o.size&&y>=o.y&&y<o.y+o.size);
 const incap=u=>u.hp<=0||u.cond.engulfed||u.cond.ko||u.cond.turned||u.cond.stunned;
 
@@ -9373,7 +9373,7 @@ function teleport(u,r,cost){return async()=>{const cs=[];for(let y=0;y<B.mp.H;y+
   const c=await pickCell(cs,"Misty Step: tap where to appear");if(!c)return;u.bonus--;cost();delete u.cond.grappled;u.x=c[0];u.y=c[1];renderTokens();log(`${nameOf(u)} steps through silver mist.`,"b");};}
 const cost_=(x,y)=>cost(B.mp,x,y)>0;
 async function turnUndead(u){log("Stig raises his holy symbol: Turn Undead!","b");await paceArea(u,u.x,u.y,6,"Turn Undead","radiant");
-  for(const o of B.units.filter(o=>alive(o)&&o.side==="foe"&&MON[o.key].undead&&dist(o,u)<=6)){
+  for(const o of B.units.filter(o=>alive(o)&&!o.ghost&&o.side==="foe"&&MON[o.key].undead&&dist(o,u)<=6)){
     if(o.key==="husk"){o.hp=0;o.gone=true;log(`  ${o.name} crumbles to ash.`,"g");floatTxt(o,"crumbles","heal");continue;}
     const ok=await save(o,"wis",17,"Turn Undead");if(ok){floatTxt(o,"resists","miss");continue;}
     await hurt(o,dice("4d8").t,"radiant",u,{magic:true,aoe:true});
@@ -10136,7 +10136,7 @@ const TUNNELS={key:"tunnels",map:"tunnel",dim:true,undead:true,
     for(const u of U)if(u.crew&&P(u.key).vein>=2)addC(u,"poisoned");},
   async onRound(r){for(const u of B.units)if(u.ghost&&u.back<=r&&u.hp>0){u.ghost=false;const c=freeNear(4,13);u.x=c[0];u.y=c[1];u.hidden=true;log(`${u.name} slides out of the wall behind the back line.`,"r");if(!B.order.some(e=>e.u===u))B.order.push({u});}renderTokens();},
   async onRoundEnd(r){if(r>=4&&live("foe").length){log("The four notes start again, deeper in. The rest of them melt into the walls.","h");fourNotes(false);for(const u of live("foe")){u.gone=true;}renderTokens();B.over="win";}},
-  async check(){if(!B.units.some(u=>u.side==="foe"&&(alive(u)||u.ghost)))return "win";if(B.units.filter(u=>u.crew).every(u=>u.hp<=0))return "lose";return null;}};
+  async check(){if(!B.units.some(u=>u.side==="foe"&&alive(u)))return "win";if(B.units.filter(u=>u.crew).every(u=>u.hp<=0))return "lose";return null;}};
 
 /* ---- 4. The Blight Heart ---- */
 async function sHeart(){
