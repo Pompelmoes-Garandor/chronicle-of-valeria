@@ -24,6 +24,7 @@ Things that are wrong on the live site today. Check this list before **Now**: a 
 
 - [ ] **The map may slow to a crawl in Safari after a few minutes** · annoying, unconfirmed · Map, Safari and iPhone (WebKit) · Found in the 2026-11-10 play-test on Sam's Mac: in Playwright's WebKit the globe falls from ~60 to ~2 fps after jumping between a dozen views (night, wind, sea), even with the lens and paint off, while each view alone holds 40-60 fps. Chromium stays at 40-77. Not yet seen in the real Safari app: open `?fps`, move around for two minutes and compare the numbers at the start and end.
 - [ ] **Saphira's Passive Perception doesn't add up** · cosmetic · Characters, Saphira · Her paper says Passive Perception 15, but her Perception skill is +4, which gives 14. The sheet shows the paper's 15. Lore question for Sam: which number is right?
+- [ ] **A small stepped white patch on the wooden floor edge beside Katy during Thunderwave** · cosmetic · 3D fight board, computer · cast Thunderwave in Katy's interlude fight and look at the floor edge
 
 ## Now
 
@@ -64,6 +65,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Chronicle 3.0: new spell and hit effects in the fights, better shading on the minis, the black ring on pillars of light gone** · Changed · Sam · PR #148
 - [x] **Katy's title painting and cave painting showed a guitar, not her ukulele: both repainted** · Fixed · Sam · PR #146
 - [x] **Enter ends the turn again after clicking a target with the mouse on the flat board** · Fixed · Sam · PR #144
 - [x] **Chronicle 3.0: the map draws faster on computers, a firmer road close up, the interlude list as painted cards** · Changed · Sam · PR #143 (#139, #140, #142)
