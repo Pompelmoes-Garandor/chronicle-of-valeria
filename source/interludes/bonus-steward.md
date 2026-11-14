@@ -63,7 +63,7 @@ Stig stops in front of you, a big man with a big pack, and puts a tea towel in y
 
 Saphira passes last, hood up. She doesn't stop. She says it without looking at you: if something comes, don't wait for us.
 
-You watch them go down the plank and into the snow. Your lens keeps them in focus for longer than it needs to. She doesn't look back. You keep her in focus anyway, until the hood is a dot.
+You watch them go down the plank and into the snow. She doesn't look back. You keep her in focus until the hood is a dot.
 
 "Acknowledged," you say. She is too far away to hear it.
 
@@ -138,7 +138,6 @@ It is signed with a small berry. Somebody has screwed a brass plate under it: *U
 
 ```log
 SCAN: PORTRAIT. SUBJECT: UNIT #34. PLATING: MOSTLY ABSENT.
-I DID NOT POSE FOR THIS.
 I HAVE NO RECORD OF POSING FOR THIS.
 QUERY: WHY THE TOWEL. I HAVE NOTHING TO COVER.
 REMOVAL ATTEMPTED: 3 TIMES. THE COOK PUTS IT BACK.
@@ -156,7 +155,7 @@ One tree fills the room. Its roots run across the floor like cables, and its can
 
 There is a brass can by the door. You water the roots. The tree seems to lean toward you a little, and a few of the berries brighten.
 
-You pick one and put it away carefully, behind your chest plate, where it is warm. For later. You don't know yet what for.
+You pick one and put it away carefully, behind your chest plate, where it is warm. For later.
 
 → Back to the stairs (go to W0)
 
@@ -203,7 +202,7 @@ Then your lens swings to the west, on its own. A dark smudge on the horizon, mov
 ```log
 CONTACT. BEARING WEST. COUNT: 12... 30... 51.
 SCAN: HELLBAT. MANY.
-AND ONE MORE.
+SCAN: ONE LARGER. RIDER: 1.
 ```
 
 At the front of the swarm something bigger flies, with a rider on its back. A long coat. A hat.
@@ -228,8 +227,8 @@ You hold. For one long second you stay exactly where you were told to stay, whil
 ```log
 STANDING ORDER: HOLD STATION. KEEP THE VESSEL.
 PRIORITY ORDER: PROTECT THE CREW.
-CONFLICT. RESOLVING.
-RESOLVED.
+QUERY: KEEP THE VESSEL FOR WHOM.
+ANSWER: SEE PRIORITY ORDER.
 ```
 
 There was only ever one order.
@@ -267,11 +266,11 @@ But they don't come for you. They fly around you. They go for the ship: the seam
 
 A shadow sweeps the deck. Captain Teenoog comes in low on the biggest hellbat of all, a scarred matriarch the size of a horse, close enough to touch. He doesn't attack. He tips his ruined hat.
 
-"Still keeping house, tin man?" he calls. He sounds friendly and in no hurry. "Who for? They've left you."
+"Still keeping house?" he calls. He sounds friendly. "Who for? I counted three, and all three are down there in the snow."
 
 "They are on shore leave," you say.
 
-He laughs. "Then let's see the house."
+"Shore leave," he says, and laughs. "Then I'll have a look round while they're out."
 
 → Continue (go to F3)
 
@@ -280,7 +279,7 @@ He laughs. "Then let's see the house."
 The matriarch screams. Every bat left on the deck dives at once, past you, for the hatches. They pour inside the ship.
 
 ```log
-BREACH. BREACH. BREACH.
+BREACH. ALL HATCHES.
 HOSTILES INSIDE THE VESSEL.
 ```
 
@@ -318,7 +317,7 @@ The map hums. Red marks wink on all over it, through every wall of the ship: in 
 
 ## R1b. No time
 
-You leave them where they fell.
+You leave them where they fell. On the way out you don't step on a single one.
 
 The map still hums, but it shows the ship in patches: red marks in the galley, in the grove, and something below that flickers and won't hold still.
 
@@ -362,7 +361,7 @@ You straighten the frame. Then you wipe the flour off it with the towel, the rea
 
 ## R3. The grove
 
-The biggest fight inside the ship. A dozen bats are in the branches and the roots, shredding leaves. The berries dim one by one as they're torn off.
+A dozen bats are in the branches and the roots, shredding leaves. The berries dim one by one as they're torn off.
 
 Where the berries still glow, the bats keep their distance.
 
@@ -393,7 +392,7 @@ Wind howls through a hole in the wall where a copper painting used to hang. The 
 
 Teenoog stands at the helm with his hand on it, as if it's his. The ship used to hum for you. Under his hand it growls. Outside the broken wall his matriarch hangs in the air, wings beating, eyes like coals.
 
-"I always wondered what these looked like inside," he says. "There were forty, once. I watched them come down one by one." He smiles at you. "You're the last one still flying."
+"I always wondered what these looked like inside," he says. He is looking at the ceiling, not at you. "It's warmer than I thought. There were forty of them. I watched them come down, one at a time." He pats the helm. "This is the last one flying."
 
 ```log
 SCAN: SUBJECT "TEENOOG".
@@ -404,26 +403,24 @@ AGE: ▒▒▒ ERR.
 
 "Step away from the helm," you say.
 
-"Or what?" He draws a curved blade. "Go on."
+"In a minute," he says. He draws a curved blade, and he takes his time over it.
 
 → Fight (go to @bridge)
 
 ## T2. I never came for you
 
-Teenoog stops fighting. He steps back toward the hole in the wall, bleeding, and smiles.
+Teenoog lowers his blade. He steps back toward the hole in the wall, bleeding, and he is still smiling.
 
-"You're good," he says. "You've won." He glances down at the floor, at what is under it. "But I never came for you."
+"That one's yours," he says. "Fairly, too. But I never came for you." He taps the floor with his heel. "The vents go straight down."
 
 He falls backwards out of the hole. The matriarch catches him in mid-air, and they are gone into the dark.
 
-The map flares red. The marks that went out were never gone. They are all in one place: the heart of the ship.
+The map flares red. The marks that went out are back, all of them in one place.
 
 ```log
 HOSTILES: 19. LOCATION: ENGINE.
 POWER 38%... 31%... 22%...
 ```
-
-The bats were never fighting you. All this time they were eating the engine.
 
 → Down to the heart (go to Z1)
 
@@ -524,9 +521,9 @@ INTEGRITY 61%.
 
 Hans doesn't say anything for a long time.
 
-"It kept the painting," he says at last. It is nearly a laugh. "And the bread. It let go of everything it was before them, and it kept the bread."
+"It kept the painting," he says at last. It is nearly a laugh. "And the bread."
 
-"That's all of it," he says. "That's all it'll give me." He waits. "It moved the whole ship. With its own core. I didn't know we could do that."
+"That's all it'll give me," he says. He waits. "It ran the ship off its own core. I didn't know we could do that."
 
 "I'm not going to try it. In case you were wondering."
 

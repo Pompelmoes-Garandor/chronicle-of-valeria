@@ -65,6 +65,7 @@ Not planned. Kept so nobody re-proposes them without a reason.
 
 Newest first, with the PR that shipped it.
 
+- [x] **Third writing pass, held interludes only: the older selves' speeches, whisper lines and endings say better things (Sam allowed changes to what lines say; plot, choices and lore unchanged)** · Changed · Sam · PR #152
 - [x] **Second writing pass over all nine interlude scripts: about 240 lines made plainer, facts checked old against new** · Changed · Sam · PR #150
 - [x] **Chronicle 3.0: new spell and hit effects in the fights, better shading on the minis, the black ring on pillars of light gone** · Changed · Sam · PR #148
 - [x] **Katy's title painting and cave painting showed a guitar, not her ukulele: both repainted** · Fixed · Sam · PR #146

@@ -6,6 +6,7 @@ Tag each line: **New**, **Changed**, **Fixed** or **Lore**. Add the author in br
 
 ## Unreleased
 
+- **Changed** The interludes that are not out yet (the second ones for Stig, Katy, Saphira and Hans, and the Steward's level) had their speeches, whisper lines and endings rewritten, so the people in them say plain things in their own voice. Nothing about the session 10 interludes changes. (Claude, for Sam)
 - **Changed** The four session 10 interludes had a second read-through of the writing. About thirty lines that still tried too hard now say plainly what happens: the answers Stig gets to his prayer, a few of the patron's lines to Saphira, the end of Katy's memory, the fire in the cave. Nothing that happens in them has changed, and your saved place and choices are kept. The interludes that are not out yet got the same read-through. (Claude, for Sam)
 - **Fixed** Katy's interlude *The Song Before Sleep*: the title painting of her room at Valethorn is repainted, because the old one showed a full-size guitar on the bed and Katy carries her father's small bronze ukulele. The new room has the candle, the round window and her bow, and no instrument in sight. The cave scenes at the start and the end have their own painting again. (Claude, for Sam)
 - **Fixed** On a computer with the flat board: after you click a foe to attack it, Enter ends the turn again. It did nothing before, because the click left the foe selected. (Claude, for Sam)
