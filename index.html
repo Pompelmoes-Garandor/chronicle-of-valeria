@@ -9190,10 +9190,10 @@ else if(uK<6.5){float w=sin(r*26.-n*7.-uG*8.);g=smoothstep(.55,1.,w)*smoothstep(
 else if(uK<7.5){float pt=.62+.2*cos(an*6.+uS);g=smoothstep(pt+.08,pt-.25,r)*.3+rg(r,pt,.03)*.7+rg(r,.9,.012)*.5;}
 else{float e=r+(n-.5)*.6;a=smoothstep(.9,.25,e)*.62*(.75+.5*n2(p*18.));g=smoothstep(.06,0.,abs(fb(p*8.+uS)-.5))*smoothstep(.6,.1,e)*.7;}
 float ed=smoothstep(1.,.92,r);a*=uA*ed;gl_FragColor=vec4(uD*a+uC*g*uG*ed,a);`+T3X_OUT;
-const T3X3_SHF=`uniform vec3 uC;uniform float uI;uniform float uT;varying vec3 vN;varying vec3 vV;varying float vY;void main(){float f=1.-abs(dot(normalize(vN),normalize(vV)));
-float a=pow(f,2.6)*(.75+.25*sin(vY*40.+uT*20.))*smoothstep(0.,.06,vY);gl_FragColor=vec4((uC*a+vec3(pow(f,9.)*.6))*uI,1.);`+T3X_OUT;
+const T3X3_SHF=`uniform vec3 uC;uniform float uI;uniform float uT;varying vec3 vN;varying vec3 vV;varying float vY;void main(){float f=clamp(1.-abs(dot(normalize(vN),normalize(vV))),0.,1.);
+float a=pow(f,2.6)*(.75+.25*sin(vY*40.+uT*20.))*smoothstep(0.,.06,vY);gl_FragColor=vec4((uC*a+vec3(pow(f,9.)*.2))*uI,1.);`+T3X_OUT;
 const T3X3_RV=`attribute float aU;attribute float aV;varying vec2 vU;void main(){vU=vec2(aU,aV);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
-const T3X3_RF=`uniform vec3 uC;uniform float uI;uniform float uT;varying vec2 vU;void main(){float y=abs(vU.y),u=vU.x;float fl=.72+.28*sin(u*31.-uT*26.)*sin(u*13.+uT*9.+vU.y*3.);
+const T3X3_RF=`uniform vec3 uC;uniform float uI;uniform float uT;varying vec2 vU;void main(){float y=min(abs(vU.y),1.),u=clamp(vU.x,0.,1.);float fl=.72+.28*sin(u*31.-uT*26.)*sin(u*13.+uT*9.+vU.y*3.);
 float g=exp(-y*y*3.5)*(1.-y),c=exp(-y*y*40.)*(1.-u);float a=pow(1.-u,1.7)*smoothstep(0.,.04,u)*fl;gl_FragColor=vec4((uC*g*1.5+vec3(c)*.9)*a*uI,1.);`+T3X_OUT;
 const t3X3_v=new THREE.Vector3(),t3X3_a=new THREE.Vector3(),t3X3_b=new THREE.Vector3(),t3X3_wind=new THREE.Vector3(.85,.15,.4);
 /* the mini's paint. One patch, compiled once per kind of material; each mini has its own five uniforms (U) */
@@ -9216,7 +9216,7 @@ function t3X3_dress(mats,col,sculpt){const U={t3X3h:{value:new THREE.Vector4(1,1
 // every frame, per mini: who acts is lit up, the hit flash fades, the dissolve follows the fade t3animMini already runs
 function t3X3_mini(X,m,u){const S=m.t3X3;if(!S)return;const U=S.U,dt=X.x3dt,now=X.x3now,gone=!!(u.gone||u.ghost),down=u.hp<=0&&!gone;
   S.li+=((B&&B.cur===u&&!down&&!gone?1:0)-S.li)*Math.min(1,dt*4);const rk=(.2+.5*S.li)*(down?.35:1);U.t3X3l.value.set(S.c.r*rk,S.c.g*rk,S.c.b*rk,.03+.06*S.li);U.t3X3o.value.copy(m.g.position);
-  let h=0;if(S.hT&&m.hitT){const t=now-m.hitT,k=t/(S.hb?400:290);if(k<1){h=(1-k)*(1-k)*(S.hb?1.5:1)*(X.still?.3:1);if(t<260)for(const o of m.mats)o.m.emissive.copy(S.hc);}else S.hT=0;}U.t3X3h.value.w=h;
+  let h=0;if(S.hT&&m.hitT){const t=now-m.hitT,k=t/(S.hb?400:290);if(k<1){h=(1-k)*(1-k)*(S.hb?.8:.55)*(X.still?.3:1);if(t<260)for(const o of m.mats)o.m.emissive.copy(S.hc);}else S.hT=0;}U.t3X3h.value.w=h;
   if(m.gone&&S.dz){U.t3X3d.value.x=Math.min(1.1,(1-m.fade)*1.14);for(const o of m.mats)if(o.m.userData.t3X3)o.m.opacity=1;}else if(U.t3X3d.value.x)U.t3X3d.value.x=0;}
 function t3X3_init(Vb,X){const hi=X.hi;X.x3dt=0;X.x3now=0;X.x3mf=(m,u)=>t3X3_mini(X,m,u);
   if(T3X3_FX){const mk=(n,f)=>{const a=[];for(let i=0;i<n;i++){const o=f(i);o.visible=false;o.frustumCulled=false;o.userData.tok=0;o.userData.ix=i;Vb.root.add(o);a.push(o);}return a;};
@@ -9230,7 +9230,7 @@ function t3X3_init(Vb,X){const hi=X.hi;X.x3dt=0;X.x3now=0;X.x3mf=(m,u)=>t3X3_min
       g.setAttribute("position",P);g.setAttribute("aU",new THREE.BufferAttribute(aU,1));g.setAttribute("aV",new THREE.BufferAttribute(aV,1));g.setIndex(I);
       const m=new THREE.Mesh(g,new THREE.ShaderMaterial({uniforms:{uC:{value:new THREE.Color()},uI:{value:1},uT:{value:0}},vertexShader:T3X3_RV,fragmentShader:T3X3_RF,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide}));
       m.renderOrder=7;Object.assign(m.userData,{N,h:new Float32Array(N*3),n:0,acc:0,on:0,left:0,w:.1,p:new THREE.Vector3()});return m;});
-    if(hi){X.x3l=new THREE.PointLight(0xffffff,0,6,1.8);X.x3lr=3;Vb.scene.add(X.x3l);}}
+    if(hi){X.x3l=new THREE.PointLight(0xffffff,0,4,2);X.x3lr=3;Vb.scene.add(X.x3l);}}
   Vb.ticks.push((dt,tt,now)=>{X.x3dt=dt;X.x3now=now;if(T3X3_MINI&&Vb.minis)Vb.minis.forEach(X.x3mf);if(!T3X3_FX)return;
     if(X.x3l&&X.x3l.intensity>.01)X.x3l.intensity*=Math.exp(-dt*X.x3lr);for(const o of X.x3r)if(o.userData.busy)t3X3_rtick(Vb,o,dt,tt);});}
 // a mark on the floor at f that lingers and fades. kind: 0 scorch 1 rime 2 ring of light 3 stain 4 puddle 5 cracks 6 ripples 7 bloom 8 ash
@@ -9239,9 +9239,9 @@ function t3X3_decal(X,f,kind,col,dark,R,dur,gl=1){if(!X.x3d||V.tree)return;const
   t3x_fx(dur,k=>{if(o.userData.tok!==tok)return;U.uA.value=Math.min(1,k*22)*(k<.6?1:1-(k-.6)/.4);U.uG.value=gl*Math.min(1,k*30)*Math.pow(1-k,2.2);o.scale.setScalar(R*(.82+.18*Math.min(1,k*14)));},()=>t3x_done(o,tok));}
 // a dome of pressure or light that swells from p and thins out
 function t3X3_shell(X,p,col,R,dur,i=1,delay=0){if(!X.x3s||X.still)return;const o=t3x_take(X.x3s),tok=o.userData.tok,U=o.material.uniforms;o.visible=false;o.position.copy(p);U.uC.value.set(col);U.uI.value=0;
-  t3x_fx(dur,k=>{if(o.userData.tok!==tok)return;o.visible=true;const e=1-Math.pow(1-k,3);o.scale.setScalar(R*(.15+.85*e));U.uI.value=i*Math.pow(1-k,1.6);U.uT.value=k;},()=>t3x_done(o,tok),delay);}
+  t3x_fx(dur,k=>{if(o.userData.tok!==tok)return;o.visible=true;const e=1-Math.pow(1-k,3);o.scale.setScalar(R*(.15+.85*e));U.uI.value=.4*i*Math.pow(1-k,1.6);U.uT.value=k;},()=>t3x_done(o,tok),delay);}
 // the second light: it lingers (fire on the floor, a blessing) where the first one only flashes
-function t3X3_glow(X,col,p,i,rate){if(!X.x3l||X.still)return;X.x3l.color.set(col);X.x3l.position.copy(p);X.x3l.position.y+=.25;X.x3l.intensity=Math.max(X.x3l.intensity,i);X.x3lr=rate;}
+function t3X3_glow(X,col,p,i,rate){if(!X.x3l||X.still)return;X.x3l.color.set(col);X.x3l.position.copy(p);X.x3l.position.y+=.25;X.x3l.intensity=Math.max(X.x3l.intensity,i*.16);X.x3lr=rate;}
 // a ribbon that trails behind a moving point: the caller moves o.userData.p every frame and sets .on=0 when it lands; the tail then runs out
 function t3X3_ribbon(X,col,w,i,at){if(!X.x3r)return null;const o=t3x_take(X.x3r),D=o.userData;o.visible=false;D.n=0;D.acc=1;D.on=1;D.w=w;D.left=D.N;D.p.copy(at);o.material.uniforms.uC.value.set(col);o.material.uniforms.uI.value=i;return o;}
 function t3X3_rtick(Vb,o,dt,tt){const D=o.userData,N=D.N,H=D.h,p=D.p;D.acc+=dt*60;
