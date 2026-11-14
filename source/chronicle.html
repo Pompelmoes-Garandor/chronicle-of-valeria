@@ -3385,7 +3385,7 @@ float dash(float per,float y,float wpp){
   h*=mix(1.0,mix(0.6,1.0,clamp(x/L,0.0,1.0)),uDir);
   return length(vec2(max(abs(x-L*0.5)-max(L*0.5-h,0.0),0.0),y))-h;
 }
-vec2 ink(float sd){return vec2(1.0-smoothstep(-0.7,0.7,sd),1.0-smoothstep(-0.7,0.7,sd-1.2));}
+vec2 ink(float sd){return vec2(1.0-smoothstep(-0.7,0.7,sd),1.0-smoothstep(-0.7,0.7,sd-1.2-0.5*smoothstep(1.7,2.4,uLine)));}
 void main(){
   float wpp=length(vec2(dFdx(vD),dFdy(vD)))+1e-7, y=vV*vH;
   if(vD>uHead) discard;
@@ -3396,7 +3396,7 @@ void main(){
     float a=(core*0.92+g*(0.32+0.6*p))*mix(1.0,0.78,uOld);
     gl_FragColor=vec4(mix(vec3(0.561,0.827,0.784),vec3(0.92,1.0,0.97),clamp(core*0.45+p,0.0,1.0)),a); return; }
   vec2 k=mix(ink(dash(uPer,y,wpp)),ink(dash(uPer*2.0,y,wpp)),uMix);
-  float a=k.x+(1.0-k.x)*k.y*0.6; if(a<0.01) discard;
+  float a=k.x+(1.0-k.x)*k.y*mix(0.6,0.9,smoothstep(0.9,1.7,uLine)); if(a<0.01) discard;   // the dark edge is firmer close up, where the land is bright
   gl_FragColor=vec4(mix(vec3(0.169,0.122,0.071),uInk,k.x/a),a*0.96);
 }`;
   const mk=(r,g,b,dir)=>{
@@ -3436,7 +3436,7 @@ function roadTick(){
   ROAD.new.u.uHead.value=n>=L?1e9:L?D[i0]+(D[i1]-D[i0])*f:0; ROAD.new.mesh.visible=n>1; ROAD.old.mesh.visible=RP_OLD.length>1;
   if(n>1&&n<L){const A=RP_NEW[i0],B=RP_NEW[i1]; for(let c=0;c<3;c++)walkAt[c]=A[c]+(B[c]-A[c])*f; walkTip=walkAt;} else walkTip=null;
   // thin from far away so the globe stays calm, a clear stroke close up; a dash is about six strokes long on the screen
-  const z=cam.zoom, mm=ease(morph), line=.85+.85*Math.min(1,Math.max(0,(.62-z)/.45));
+  const z=cam.zoom, mm=ease(morph), line=.85+.85*Math.min(1,Math.max(0,(.62-z)/.45))+.7*Math.min(1,Math.max(0,(.2-z)/.12)); // right down at the land the stroke grows once more, so it holds against bright ground
   const wpp=2*R*((.25+z*3.4)*(1-mm)+(.18+z*1.9)*mm)*Math.tan(20*D2R)/innerHeight, lg=Math.log2(12*line*wpp), fr=lg-Math.floor(lg), t=Math.min(1,Math.max(0,(fr-.4)/.2));
   roadLook(ROAD.old.u,line,2**Math.floor(lg),t*t*(3-2*t)); roadLook(ROAD.new.u,line,2**Math.floor(lg),t*t*(3-2*t));
 }
