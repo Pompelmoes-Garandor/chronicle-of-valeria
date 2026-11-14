@@ -307,6 +307,53 @@ table.ans td,table.ans th{border-bottom:1px solid #c9a35c22;padding:6px 4px;text
 .pl-story.ic-m-memory .art::after{opacity:1;background:radial-gradient(ellipse at 50% 50%,transparent 55%,#3a240f66 100%)}
 .pl-story.ic-m-fire .art::after{opacity:1;background:radial-gradient(ellipse at 50% 92%,#ff9a4a40,transparent 62%);mix-blend-mode:screen}
 .pl-story.ic-m-thin .art::after{opacity:1;background:radial-gradient(ellipse at 50% 50%,transparent 50%,#000a 100%)}
+/* ---- interludes 3.0: the stage ---- */
+/* iStage adds .i3 to an interlude's reading screen (not with ?nostage). A phone gets the picture across the top, edge to edge, fading into
+   the page; a wide screen gets the picture on the left and the words beside it. The picture is cropped round its light (iStageFit sets
+   --i3-x/-y/-cw/-ch), a slow camera moves over it (iStageCam, a transition on the canvas), the paragraphs come in one after another
+   (--i3-d, set by iStageText; a tap or a scroll shows them all), and .i3-more says there is more below. */
+@media (max-width:699px){.pl-stage:has(>.pl-story.ic.i3){margin-left:-10px;margin-right:-10px;border-radius:0}}
+.pl-story.ic.i3{--i3-h:clamp(150px,40vh,440px);padding-top:0;gap:12px;background:linear-gradient(180deg,var(--ic-a) 0,var(--ic-a) var(--i3-h),#0b0d12 calc(var(--i3-h) + 46%))}
+.pl-story.ic.i3>:not(.art){z-index:1}
+.pl-story.ic.i3 .art{align-self:stretch;width:auto;height:var(--i3-h);aspect-ratio:auto;margin:0 -14px;border-radius:0;box-shadow:none;background:#07080b}
+.pl-story.ic.i3:not(.hv) .art{margin-bottom:-18px}
+#play.vfx-on .pl-story.ic.i3 .art{margin-bottom:0;background:transparent}
+.pl-story.ic.i3 .art canvas{position:absolute;left:var(--i3-x,0px);top:var(--i3-y,0px);width:var(--i3-cw,100%);height:var(--i3-ch,100%);max-width:none}
+.pl-story.ic.i3 .art .i3-fade{position:absolute;left:0;right:0;bottom:-1px;height:52%;pointer-events:none;background:var(--ic-a);transition:opacity .35s ease;
+  -webkit-mask-image:linear-gradient(180deg,#0000 0,#0003 28%,#0009 52%,#000d 70%,#000 86%);mask-image:linear-gradient(180deg,#0000 0,#0003 28%,#0009 52%,#000d 70%,#000 86%)}
+.pl-story.ic.i3.hv .art .i3-fade{height:30%}
+.pl-story.ic.i3.hv-pin .art .i3-fade,#play.vfx-on .pl-story.ic.i3 .art .i3-fade{opacity:0}
+.pl-story.ic.i3 .pl-inter.i3-lead>p:first-child::first-letter{font:400 2.05em/.8 var(--display);color:var(--brass-hi)}
+.pl-story.ic.i3 .pl-choices{gap:10px;margin-top:6px}
+.pl-story.ic.i3 .pl-choices.i3-picked .pl-btn{pointer-events:none}
+.pl-story.ic.i3 .pl-choices.i3-picked .pl-btn.i3-pick{border-color:var(--brass-hi);background:#c9a35c24}
+.pl-story.ic.i3 .pl-choices.i3-picked .pl-btn:not(.i3-pick){opacity:.3;transition:opacity .15s}
+.pl-story.ic.i3 .i3-more{position:sticky;bottom:-24px;z-index:2;align-self:stretch;flex:none;height:0;margin:0 -14px;pointer-events:none;opacity:0;transition:opacity .3s ease}
+.pl-story.ic.i3 .i3-more.on{opacity:1}
+.pl-story.ic.i3 .i3-more::before{content:"";position:absolute;left:0;right:0;bottom:0;height:76px;background:linear-gradient(180deg,#0b0d1200,#0b0d12cc 55%,#0b0d12)}
+.pl-story.ic.i3 .i3-more::after{content:"";position:absolute;left:50%;bottom:15px;width:9px;height:9px;margin-left:-5px;border-right:1.5px solid var(--brass);border-bottom:1.5px solid var(--brass);transform:rotate(45deg);opacity:.85}
+@media (min-width:900px) and (min-aspect-ratio:5/4){
+  .pl-story.ic.i3{display:grid;grid-template-columns:minmax(0,58fr) minmax(0,42fr);grid-template-rows:repeat(8,auto) 1fr;column-gap:44px;row-gap:0;align-items:start;justify-items:start;padding:28px 40px 28px 28px;
+    background:radial-gradient(ellipse 80% 90% at 30% 40%,var(--ic-a) 0%,#0b0d12 75%)}
+  .pl-story.ic.i3>:not(.art){grid-column:2;width:min(600px,100%);margin-bottom:16px}
+  .pl-story.ic.i3>.pl-spk:first-of-type,.pl-story.ic.i3>.art+.pl-read{margin-top:10px}
+  .pl-story.ic.i3 .art,.pl-story.ic.i3:not(.hv) .art{grid-column:1;grid-row:1/-1;position:sticky;top:28px;justify-self:stretch;height:auto;aspect-ratio:4/3;max-height:calc(100vh - 150px);margin:0;border-radius:12px;
+    box-shadow:0 0 0 1px var(--hairline),0 26px 60px -24px #000}
+  #play.vfx-on .pl-story.ic.i3 .art{box-shadow:none}
+  .pl-story.ic.i3 .art .i3-fade{display:none}
+  .pl-story.ic.i3 .pl-read{font-size:19px}
+  .pl-story.ic.i3 .i3-more{margin:0 0 0 -8px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .pl-story.ic.i3:not(.sw) .art canvas{animation:none;transition:filter var(--ic-ms,1.2s) ease,transform var(--i3-cam,26s) cubic-bezier(.22,.5,.25,1)}
+  .pl-story.ic.i3:not(.hv-again):not(.hv-d5) .pl-inter:not(.i3-all)>:not(:first-child):not(.pl-echo):not(.pl-lore):not(.ic-say):not(.ic-intr):not(.hv-say){animation:i3In .55s cubic-bezier(.2,.7,.2,1) var(--i3-d,0s) both}
+  .pl-story.ic.i3:not(.hv) .pl-choices:not(.i3-all){animation:i3In .5s cubic-bezier(.2,.7,.2,1) var(--i3-d,.3s) both}
+  .pl-story.ic.i3 .pl-inter.i3-out{animation:i3Out .17s ease-in both}
+  .pl-story.ic.i3 .i3-more.on::after{animation:i3Bob 2.4s ease-in-out infinite}
+}
+@keyframes i3In{from{opacity:0;transform:translateY(8px)}}
+@keyframes i3Out{to{opacity:0;transform:translateY(-6px)}}
+@keyframes i3Bob{50%{transform:translateY(3px) rotate(45deg)}}
 /* the vision layer (VISION FX): over the play screen, under its words and buttons */
 #play>canvas.vfx{position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:2}
 #play.vfx-on>.pl-top,#play.vfx-on .pl-side,#play.vfx-on .pl-story>:not(.art){z-index:3}
@@ -10567,8 +10614,8 @@ function iPassage(p,opts,{spk=""}={}){return new Promise(res=>{clearStory();
   const rd=h("div",{class:"pl-read pl-inter",tabindex:"-1",html:iFill(p.html)});storyEl.append(rd);
   storyEl.append(h("div",{class:"pl-choices"},...opts.map((o,i)=>h("button",{type:"button",class:"pl-btn"+(opts.length===1?" pri":""),disabled:!!o.off,onclick:e=>{if(typeof hush==="function")hush();const b=e.currentTarget,box=b.parentNode;
     if(box.classList.contains("hv-picked"))return;
-    if(storyEl.classList.contains("hv")&&!reduced&&!b.classList.contains("pri")){box.classList.add("hv-picked");b.classList.add("hv-pick");setTimeout(()=>res(i),720);}else res(i);}},o.t,o.sub?h("small",{},o.sub):null))));
-  sayIt(iIf(p.html));storyEl.scrollTop=0;iFocus(rd);if(PLAY.auto){const ok=opts.map((o,i)=>o.off?-1:i).filter(i=>i>=0);setTimeout(()=>res(pick(ok)),IPACE);}});}
+    if(storyEl.classList.contains("hv")&&!reduced&&!b.classList.contains("pri")){box.classList.add("hv-picked");b.classList.add("hv-pick");setTimeout(()=>res(i),720);}else if(!iStageTurn(b,()=>res(i)))res(i);}},o.t,o.sub?h("small",{},o.sub):null))));
+  sayIt(iIf(p.html));storyEl.scrollTop=0;iStageText(rd);iFocus(rd);if(PLAY.auto){const ok=opts.map((o,i)=>o.off?-1:i).filter(i=>i>=0);setTimeout(()=>res(pick(ok)),IPACE);}});}
 const IPACE=+((location.search.match(/[?&]pace=(\d+)/)||[])[1]||0); // playtest=auto&pace=ms: linger on each passage (for screenshots)
 /* a screen reader starts at the new passage, not at the button that was just pressed (which is gone) */
 function iFocus(el){try{el.focus({preventScroll:true});}catch(e){}}
@@ -10758,9 +10805,53 @@ function iSnd(k){if(!opt.sound)return;const N=NOTE;if(typeof iScoreSnd==="functi
 function iArtTo(key,ms){if(!artCv)return;SW_CUR=key;const box=artCv.parentNode;
   if(ms&&!reduced&&box){const old=h("canvas",{width:artCv.width,height:artCv.height,class:"ic-old","aria-hidden":"true"});
     try{old.getContext("2d").drawImage(artCv,0,0);}catch(e){}
-    old.style.transition=`opacity ${ms}ms ease-in-out`;box.append(old);requestAnimationFrame(()=>requestAnimationFrame(()=>{old.style.opacity="0";}));setTimeout(()=>old.remove(),ms+100);}
+    iStageOld(old);old.style.transition=`opacity ${ms}ms ease-in-out`;box.append(old);requestAnimationFrame(()=>requestAnimationFrame(()=>{old.style.opacity="0";}));setTimeout(()=>old.remove(),ms+100);}
   try{paintArt(artCv,key);}catch(e){console.error(e);}}
 function iFlash(k){const box=artCv&&artCv.parentNode;if(!box||reduced)return;const f=h("i",{class:"ic-flash ic-"+k,"aria-hidden":"true"});box.append(f);setTimeout(()=>f.remove(),2400);}
+/* ---- interludes 3.0: the stage. The reading screen as a staged scene: the picture big and cropped round its light, a slow camera
+   on it, the words arriving paragraph by paragraph, a turn between passages. CSS: "interludes 3.0: the stage". ?nostage: the old screen. ---- */
+const I3_ON=!/[?&]nostage(=|&|$)/.test(location.search);
+const I3_FR=[[1.035,-1.2,-.8],[1.09,1.5,-1.6],[1.06,-2.2,.9],[1.1,.6,2],[1.045,1.6,.4],[1.085,-2.4,-1.8],[1.07,2.4,1.2],[1.1,-.8,-2.2]]; // framings: scale, x %, y % (never far enough to show an edge)
+const i3On=()=>I3_ON&&!!storyEl&&storyEl.classList.contains("i3");
+/* the picture is 16:9; the box is whatever the layout gives it. The canvas covers the box, placed so its light (IPICT lx, ly) stays in view */
+function iStageFit(key){const box=artCv&&artCv.parentNode;if(!box||!i3On())return;if(key)box.__i3key=key;
+  const W=box.clientWidth,H=box.clientHeight;if(W<2||H<2)return;
+  const ch=Math.max(H,W*9/16),cw=ch*16/9,P=IPICT[box.__i3key]||IPICT[artCv.__iak]||{},fx=.5+((P.lx??.5)-.5)*.4,fy=.5+((P.ly??.5)-.5)*.4;
+  const x=Math.min(0,Math.max(W-cw,W/2-fx*cw)),y=Math.min(0,Math.max(H-ch,H/2-fy*ch)),st=box.style;
+  st.setProperty("--i3-cw",cw.toFixed(1)+"px");st.setProperty("--i3-ch",ch.toFixed(1)+"px");st.setProperty("--i3-x",x.toFixed(1)+"px");st.setProperty("--i3-y",y.toFixed(1)+"px");}
+/* from iCine, before the look is applied: the layout, the fade under the picture, the listeners (once per story view) */
+function iStage(S){if(!I3_ON||!storyEl||!artCv)return;const se=storyEl,box=artCv.parentNode;se.classList.add("i3");if(!box)return;
+  if(!box.querySelector(".i3-fade")){box.append(h("i",{class:"i3-fade","aria-hidden":"true"}));
+    if(typeof ResizeObserver==="function")try{new ResizeObserver(()=>{iStageFit();if(se.i3More)se.i3More();}).observe(box);}catch(e){}}
+  if(!se.i3L){se.i3L=1;const all=()=>{if(se.i3All)se.i3All();};
+    se.addEventListener("scroll",()=>{if(se.i3More)se.i3More();if(se.scrollTop>24)all();},{passive:true});
+    for(const ev of["pointerdown","wheel","keydown"])se.addEventListener(ev,all,{passive:true});}
+  iStageFit(S.cine&&S.cine.art||S.I.art);}
+/* from iCine, after the look: the camera finds a new framing for this passage, chosen by its id; when it gets there it drifts on to the next */
+function iStageCam(S){if(!i3On())return;const cv=artCv,se=storyEl,key=S.cine.art+"/"+S.at,fresh=!cv.__i3at,scene=fresh||cv.__i3art!==S.cine.art;
+  iStageFit(S.cine.art);if(cv.__i3at===key)return;cv.__i3at=key;cv.__i3art=S.cine.art;se.i3Lead=scene;
+  if(reduced||se.classList.contains("sw"))return; // Protocol Zero has its own camera (iCam)
+  let n=0;for(const c of key)n=(n*31+c.charCodeAt(0))>>>0;const N=I3_FR.length;
+  const to=k=>{const [s,x,y]=I3_FR[k%N];cv.__i3k=k%N;cv.style.transform=`translate(${x}%,${y}%) scale(${s})`;};
+  if(fresh){cv.style.transition="none";to(n+3);void cv.offsetWidth;cv.style.transition="";
+    cv.addEventListener("transitionend",e=>{if(e.propertyName!=="transform"||!cv.isConnected||se.dataset.mood==="thin")return;cv.style.setProperty("--i3-cam","34s");to(cv.__i3k+3);});}
+  if(se.dataset.mood==="thin")return; // the memory gone thin: the picture holds still, as before
+  cv.style.setProperty("--i3-cam",(se.dataset.mood==="grey"?40:24+n%7)+"s");to(n%N===cv.__i3k?n+1:n);}
+/* a cross-fade keeps the old picture where the camera had it */
+function iStageOld(old){if(!i3On())return;try{const cs=getComputedStyle(artCv);Object.assign(old.style,{left:cs.left,top:cs.top,width:cs.width,height:cs.height,transform:cs.transform==="none"?"":cs.transform});}catch(e){}}
+/* from iPassage, with the words on the page: they come in one after another (about 1.3 s at most, the choices last); a tap, a key or a
+   scroll shows everything. A screen reader has the whole passage from the start. */
+function iStageText(rd){if(!i3On())return;const se=storyEl,ch=se.querySelector(".pl-choices"),kids=[...rd.children],n=kids.length;
+  const more=h("i",{class:"i3-more","aria-hidden":"true"});se.append(more);
+  se.i3More=()=>{if(more.isConnected)more.classList.toggle("on",se.scrollHeight-se.clientHeight-se.scrollTop>56);};requestAnimationFrame(se.i3More);setTimeout(se.i3More,700);
+  if(se.i3Lead){se.i3Lead=false;const p=kids[0];if(p&&p.tagName==="P"&&!p.className&&p.textContent.length>70&&/^["“‘']?[A-Za-z]/.test(p.textContent)&&!se.classList.contains("sw"))rd.classList.add("i3-lead");}
+  if(reduced){se.i3All=null;return;}
+  const step=Math.min(.16,1.1/Math.max(1,n-1));kids.forEach((el,i)=>{if(i)el.style.setProperty("--i3-d",(i*step).toFixed(2)+"s");});
+  if(ch)ch.style.setProperty("--i3-d",(Math.min(1.1,(n-1)*step)+.2).toFixed(2)+"s");
+  se.i3All=()=>{se.i3All=null;rd.classList.add("i3-all");if(ch)ch.classList.add("i3-all");};}
+/* a choice is taken: it lights, the others dim, the words leave; then the next passage (false: no turn here, go on at once) */
+function iStageTurn(b,go){if(!i3On()||reduced||PLAY.auto)return false;const box=b.parentNode,rd=storyEl.querySelector(".pl-inter");
+  if(box.classList.contains("i3-picked"))return true;box.classList.add("i3-picked","i3-all");b.classList.add("i3-pick");if(rd)rd.classList.add("i3-out");setTimeout(go,180);return true;}
 function iApply(S,c){const ms=reduced?0:(c.ms||0);storyEl.style.setProperty("--ic-ms",(ms||1)+"ms");
   if("mood" in c){[...storyEl.classList].filter(k=>k.startsWith("ic-m-")).forEach(k=>storyEl.classList.remove(k));if(c.mood)storyEl.classList.add("ic-m-"+c.mood);S.cine.mood=c.mood;storyEl.dataset.mood=c.mood||"";}
   if(c.art&&c.art!==S.cine.art){iArtTo(c.art,ms);S.cine.art=c.art;}
@@ -10786,9 +10877,9 @@ function iAfter(p){if(!storyEl)return;
       para.replaceWith(h("div",{class:"ic-say"},face,h("div",{},h("div",{class:"ic-who2"},"Hans"),h("p",{},p.tie))));}
     iSnd("tie");}}
 function iCine(S,p){if(!S||!S.I||!storyEl)return;const I=S.I;
-  storyEl.classList.add("ic");
+  storyEl.classList.add("ic");iStage(S);
   if(!S.cine){S.cine={art:I.art,last:null,mood:""};if(!S.noTitle)iTitle(I);} // a cutscene that ended on the title already showed it
-  if(S.at!==S.cine.last){S.cine.last=S.at;const c=(ICUE[I.id]||{})[S.at];if(c)iApply(S,c);}
+  if(S.at!==S.cine.last){S.cine.last=S.at;const c=(ICUE[I.id]||{})[S.at];if(c)iApply(S,c);}iStageCam(S);
   if(I.haunt&&typeof hvCine==="function")try{hvCine(S,p);}catch(e){console.error(e);}
   if(typeof iFoley==="function")try{iFoley(I.id,S.at);}catch(e){console.error(e);}
   if(typeof iScore==="function")try{iScore(I.id,S.at);}catch(e){console.error(e);}
@@ -14828,7 +14919,7 @@ void main(){
         vR=se&&se.contains(src.box)?se.getBoundingClientRect():sR;
       // pinned: the picture stuck at the top as a strip with the words scrolling under it. The words sit above this layer,
       // so the page's own picture (and its paces bar) takes over until the picture is free again; the veil goes on round it
-      if(se)for(const el of se.children){if(el===src.box||el.contains(src.box))continue;const q=el.getBoundingClientRect();if(q.height>=1&&q.top<bR.bottom-2&&q.bottom>bR.top+2){show=0;break;}}
+      if(se)for(const el of se.children){if(el===src.box||el.contains(src.box))continue;const q=el.getBoundingClientRect();if(q.height>=1&&q.top<bR.bottom-2&&q.bottom>bR.top+2&&q.left<bR.right-2&&q.right>bR.left+2){show=0;break;}}
       if(r.width>4&&r.bottom>vR.top&&r.top<Math.min(innerHeight,vR.bottom)){has=1;gl.uniform4f(U.uRect,...box2(r));
         const cs=getComputedStyle(src.hide[0]),mm=/^matrix(?:3d)?\(\s*(-?[\d.e-]+)/.exec(cs.transform||""),sc=parseFloat(cs.scale);
         gl.uniform1f(U.uFlip,!!(mm&&+mm[1]<0)!==(sc<0)?1:0); // a mirrored picture (the loop) stays mirrored
