@@ -39,13 +39,13 @@ On most watches that settles it. You fold your hands and count them again. It co
 
 ## G2. The stone in the boot
 
-You've known since you put your hand on his arm.
+You knew how long he has when you put your hand on his arm. His blood told you.
 
-What his blood told you is a stone in your boot. You can walk on it for as long as you have to, and you'll know about it at every step.
+It's a stone in your boot. You can walk on it for as long as you have to.
 
 You sit very still, hands on your knees. The booklet the girl's mother gave you, *Control over Water*, is in your pack. Your holy symbol is cold against your chest.
 
-He's waiting for an answer. First you need somewhere to put this down for a minute, before you drop it.
+He's waiting for an answer, and you're not ready to give it. You need to take this to somebody first.
 
 → Put your hand on the tattoo: Kelemvor's Blessing. (go to G3a)
 → Take hold of Thalmir's Anchor, and the tide you believe in. (go to G3b)
@@ -53,11 +53,9 @@ He's waiting for an answer. First you need somewhere to put this down for a minu
 
 ## G3a. The judge
 
-You put your hand over the tattoo. Kelemvor's Blessing. He's the Lord of the Dead, and their judge. You've never been sure you like him. You've never caught him being unfair.
+You put your hand over the tattoo. Kelemvor's Blessing. You've never been sure you like the Lord of the Dead. You've never caught him judging anybody unfairly.
 
-You don't kneel. The priests at the Monastery of the Great Winds taught you the proper words, and you use none of them. You close your eyes and report, as you'd tell a quartermaster that a cargo has spoiled.
-
-There's an old man. His daughter has only just found him. Then what his blood told you. Then you wait.
+The priests at the Monastery of the Great Winds taught you the proper words and when to kneel, and you use none of it. You close your eyes and tell him straight. There's an old man in this cave, his daughter has only just found him, and you know how long he has. You add nothing to that, and then you wait.
 
 → Continue (go to G3a2)
 
@@ -75,25 +73,23 @@ You've never asked him why. You tell him the old man is to get what she got, a p
 
 ## G4a. Stillness
 
-No voice comes. You weren't expecting one.
+Nobody answers in words, and you didn't think anybody would. The skin under the tattoo goes cold, and the cold spreads up your arm and across your chest. You don't mind it. The ticking of the Heart goes very far away.
 
-The skin under the tattoo goes cold, and the cold spreads up your arm and across your chest. You don't mind it. The ticking of the Heart goes very far away.
+What you feel next is a pair of scales coming to rest: two or three swings, each one shorter, and then level.
 
-Everything in you stops swinging and comes level, as a pair of scales does.
+Every soul in its time. The words are your own, since nobody speaks, but they arrive with the scales. Somebody is keeping the count, and keeping it honestly.
 
-Every soul in its time. Nobody says it. You know it anyway. It's neither a promise nor a threat. A count is being kept, and it's an honest one.
-
-What his blood told you weighs exactly what it did.
+The old man has exactly as long as he had before you asked.
 
 → Continue (go to G5)
 
 ## G3b. The tide
 
-Your hand closes on Thalmir's Anchor, as it would on a rail in a blow.
+Your hand closes on Thalmir's Anchor and holds on.
 
-Thalmir is the god of tides and community. Deep in the monastery vault the crew once heard a voice say that the vaults delay the end but do not prevent it. You've thought about that more than you've let on. [SAM?: Thalmir as the god Stig prays to, linked to Talmir's Anchor]
+Thalmir looks after tides and communities. The crew heard a voice once, down in the monastery vault. It said the vaults delay the end but do not prevent it. You haven't told the others how often you think about that. [SAM?: Thalmir as the god Stig prays to, linked to Talmir's Anchor]
 
-You can't say he's your god. But after every ebb there's a flood. You've watched it all your life and it hasn't failed yet, whoever is in charge of it.
+You can't say he's your god. But the tide has come back in after every ebb you ever watched, whoever is in charge of it.
 
 So you pray to the tide and hope he's the one who gets it.
 
@@ -135,13 +131,13 @@ You read slowly, with your lips moving. Anyone who wants to watch can watch.
 
 ## G3c2. The girl's mother
 
-She gave it to you at Gerda's inn, with her daughter hanging on to her skirt. It had been her mother's and her grandmother's, and it had been handed down so long that nobody in the family could really read it. She thought you could, and that a book belongs with someone who reads it. She held it out in both hands.
+The girl's mother gave it to you at Gerda's inn. Her daughter was hanging on to her skirt, and she held the booklet out to you in both hands.
 
-You went red and tried to give it back. She wouldn't have it.
+It was her mother's, she said, and her grandmother's before that, and by now nobody in the family could read more than a few words of it. She thought you could. A book nobody reads is no use to anyone, so you had better have it.
 
-Nobody had trusted you with anything of theirs in a long while.
+You went red and held it back out to her. She wouldn't take it. It's a long time since anybody gave you something of theirs to look after.
 
-Since then you've done a line at a time, as you once did with your letters. It's slow, and you look forward to it.
+You've been at it since, a line at a time, about as fast as you once learned your letters. You've got as far as the third page.
 
 → Continue (go to G4c)
 
@@ -161,13 +157,13 @@ You read the line once more, out loud, under your breath.
 
 ## G5. The asking
 
-You've had what answer you're going to get. Now it's your turn to ask.
+That's all the answer there is going to be. Now you can ask for something.
 
-The old man is grey to the elbow. His daughter came all this way to find her father, and she doesn't know yet what she has found.
+The old man is grey to the elbow. His daughter came all this way to find her father. She has found him, and she doesn't know yet how ill he is.
 
-You go through what your hands know how to do. Very little of it is any use here.
+You go through what your hands know how to do. Hardly any of it is any use to him.
 
-You've known what you want since his blood told you. You haven't settled which part to say out loud.
+There is more than one thing you want for him. You pick the one to say out loud.
 
 → "Put it on me instead." (go to G6A, the version for your G3 choice)
 → "Then make me useful." (go to G7-3)
@@ -194,7 +190,7 @@ You say it under your breath. You were saying it before the monastery and before
 
 The surf comes back. The wave runs up the beach and drags down again, at the same pace as before.
 
-The tide doesn't trade. It won't take your water in place of his. Nobody is angry with you for asking.
+You offer it a plain swap, you for him. The next wave comes in on time, and so does the one after. The tide has taken men and it has given men back, and you never once saw it take one man in place of another.
 
 → Ask again, louder. (go to G7-1)
 → Let it go. (go to G7-2)
@@ -205,9 +201,9 @@ The tide doesn't trade. It won't take your water in place of his. Nobody is angr
 
 You say it to nobody, under your breath, with your thumb on the page. You've been saying it as long as you can remember. If there's a load, give it to the big one. You can carry a lot.
 
-You turn the page in case the tale has an answer. The child fills a bucket with its own water and holds it out to the tide, so the tide won't have to go.
+You turn the page in case the tale has an answer. The child fills its bucket and holds it out to the tide. If the tide takes this water, the child says, it won't need to go out any more.
 
-On the next line the tide thanks the child, and carries no one's water but its own.
+On the next line the tide says thank you, and goes out all the same. It carries no one's water but its own.
 
 → Ask again, louder. (go to G7-1)
 → Let it go. (go to G7-2)
@@ -228,11 +224,13 @@ You'd ask a third time if you thought it would give another inch.
 
 ## G7-2. Letting go
 
-You let it go. It's the hardest thing you've done all day, and today had the fight in it.
+You let it go.
 
-You let out a long breath, longer than you thought you had air for. The idea that this is yours to fix goes out with it. It belongs to the old man and his daughter, and to whoever keeps the count. Your job is to sit with them.
+You let out a long breath, longer than you thought you had air for. Your shoulders come down. You hadn't noticed they were up.
 
-For the first time in years you're not carrying the whole length of it on your own. Somebody has picked up the other end. You don't know who, and you don't turn round to look.
+This was never yours to mend. It's the old man's and his daughter's, and it belongs to whoever keeps the count. What's left for you is the sitting up. The fight was easier.
+
+Then somebody takes the other end. You feel the load shift, and you don't turn round to see who it is.
 
 → Continue (go to G8)
 
@@ -254,11 +252,11 @@ Your hands were shaking. You only know because they've stopped.
 
 "Let him have today."
 
-Those are the old man's words. You pass them on to whoever is listening exactly as he said them, and add nothing. You don't ask for him to live. You don't ask to be useful, or to carry it for him. You ask for the one day: his daughter next to him and a song, and nothing taken out of it.
+Those are the old man's words, and you pass them on exactly as he said them. You ask for one day: his daughter next to him, a song, and the whole of the day left to them. You had more ready, about him living and about you being some use, and you leave all of it out.
+
+It's years since you prayed without asking for anything for yourself.
 
 You get no answer you can feel. It's quieter inside your head than it was.
-
-It's years since you prayed and asked for nothing for yourself. This one weighs less than your usual kind.
 
 → Continue (go to G8)
 
@@ -290,7 +288,7 @@ You crouch down beside him.
 
 ## End 1. The Anchor Holds
 
-You crouch with your feet wide, the same as you'd set them on a wet deck. Your hands are still cold. You put one on his shoulder regardless and leave it there. Whatever you tell him next, you'll say it with that hand where it is.
+You crouch with your feet wide and your weight low. Your hands are still cold. You put one on his shoulder regardless, and it stays there while you answer him.
 
 > **Echo: Hold Fast.** Before you roll a Strength (Athletics) check to hold on to something or someone, you can spend this Echo to have advantage on it.
 
@@ -298,7 +296,7 @@ You crouch with your feet wide, the same as you'd set them on a wet deck. Your h
 
 ## End 2. The Tide Goes Out
 
-You sit down on the ground beside him, level with him. You came back carrying less than you left with. Somebody else is holding the rest up. You're just the one sitting nearest.
+You sit down on the ground beside him, so your head is level with his and he doesn't have to look up. Your hands lie open on your knees. You don't need them for anything just now.
 
 > **Echo: Ebb and Flood.** Before you roll a Wisdom (Insight) check, you can spend this Echo to have advantage on it.
 
@@ -314,7 +312,7 @@ The towel is in your hands already, wrung out and folded. You kneel and take his
 
 ## End 4. Today
 
-You sit down beside him and say nothing yet. Across the cave Katy is still talking low. She gets today. You'll hold on to the rest.
+You sit down beside him and say nothing yet. Across the cave Katy is still talking low. You asked for her to have today, so you leave her to it. You'll carry what you know a while longer.
 
 > **Echo: Not Tomorrow.** When an ally you can see within 30 feet of you is about to make an ability check, you can use your reaction and spend this Echo to give them advantage on it. Decide before they roll.
 

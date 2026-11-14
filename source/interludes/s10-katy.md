@@ -179,11 +179,11 @@ She doesn't ask again who taught you. She looks at you for a long time, then lay
 
 ## K7b. Listening
 
-You lie still and let your breathing slow. This time most of it is real. The blanket is warm and so is the hum, and the child is halfway under.
+You lie still and let your breathing slow. This time most of it is real. The blanket is warm and so is the hum, and you're halfway asleep.
 
 Your mother thinks you've gone, and her voice stops being careful. She's singing for herself.
 
-Then the hum has words in it, and they're new to you. You know your father's verses by now and these are different. She tries each line under her breath before she lets it out. You do exactly that with a song you've only just made and don't trust yet. She wrote these herself.
+Then the hum has words in it, and they're new to you. You know your father's verses by now and these aren't his. She tries each line under her breath before she lets it out. You do that yourself, with a song you finished that morning and don't trust yet.
 
 → Continue (go to K8b)
 
@@ -307,9 +307,9 @@ Nobody behind you has noticed that the playing stopped, which suits you. You'll 
 
 You play the four notes again, and this time you keep going after the first verse. You play the second one too, singing it under your breath as you sang it with her.
 
-She knew it. She stopped and stared, and then she came in on the last line without having to think. So those words got to Valethorn long before you heard them. She kept them, and never once sang them to you while you were awake.
+She knew it. She stopped and stared, and then she came in on the last line without having to think. Somebody had brought those words to Valethorn years before you heard them. She never once sang them to you while you were awake.
 
-You lay your hand flat on the strings, as she laid hers on your chest, and the last note stops.
+You lay your hand flat on the strings and the last note stops.
 
 > **Echo: Two Voices.** Before you roll a Charisma (Performance) check, you can spend this Echo to have advantage on it.
 

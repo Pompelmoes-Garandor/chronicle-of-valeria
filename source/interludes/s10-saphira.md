@@ -121,11 +121,9 @@ You wait for her to answer her own riddle. She doesn't. With the ash hanging as 
 
 You don't answer. You've never been able to leave a lock alone, though, and you start on this one.
 
-The eye stayed. Hans walked out of the hotel that owned him and stayed with you. The old man kept playing inside the Heart, in the dark, with nobody to hear. Katy is kneeling by him now. No contract is left that says she has to be anything to you, and you're standing where you can see her.
+The eye stayed. So did Hans, after he walked out of the hotel that owned him. The old man stayed inside the Heart, playing in the dark with nobody to hear. Katy is kneeling by him now. No contract ties you to Katy any more. You are still standing where you can see her, and that is as far as you take it.
 
-You stop there.
-
-"Think about it later," the patron says. She watched you do it. "Now. You get one question. Everyone has one. Ask, and I'll answer it how I answer everything."
+"Think about it later," the patron says. She watched you do it. "Now. You get one question. Everyone has one. Ask it and I'll answer. I don't promise you'll like the answer."
 
 → "What's your name?" (go to S7a)
 → "What did they take from me?" (go to S7b)
@@ -149,15 +147,13 @@ The tattoos on her hands move, then stop.
 
 "What did they take from me?"
 
-She doesn't answer straight away. It's the first time she hasn't had a line ready.
+She takes a while to answer. The tattoos keep moving on her hands.
 
-"Ask the people who took it," she says. "I only deal in what you still have."
+"Ask the people who took it," she says. "I deal in what you still have."
 
-That's no answer, and she knows it.
+She looks down at your hand. It has closed hard on the Ashblade's grip.
 
-She looks down. Your hand has closed hard on the Ashblade's grip. You didn't tell it to.
-
-"There," she says. "You still have that."
+"That, for one," she says. "You still have that."
 
 → Continue (go to S8)
 
@@ -165,11 +161,11 @@ She looks down. Your hand has closed hard on the Ashblade's grip. You didn't tel
 
 "Why me?"
 
-"Because you're interesting when you refuse things," she says.
+"Because you refuse things," she says. "I find that interesting."
 
 "That's it?"
 
-"That's a great deal. Most people are only interesting when they want something, and wanting is dull. Everybody wants. You say no." She leans forward. The lamplight still misses her face. "I like to see what you do after."
+"That's a great deal. Most people I meet want something from me. You say no." She leans forward. The lamplight still misses her face. "I like to see what you do after."
 
 → Continue (go to S8)
 
@@ -202,13 +198,13 @@ She waits. You look down. Your shadow lies across the ash at your feet, exactly 
 
 "I'll wake it myself."
 
-She steps back. She isn't offended. She's curious, and you'd have preferred offended. "Go on, then."
+She steps back to give you room. "Go on, then," she says. She sounds curious, which you like less than if she'd been offended.
 
 You pull the cloak round until the eye sits on your chest, close enough to touch. It looks up at you.
 
-You've talked near it. You've sworn at it a couple of times. You've never said a thing to it and then waited.
+You've talked near it, and sworn at it a couple of times. You have never said a thing to it and then waited for it to answer.
 
-You have four languages. Everybody has Common. The other three are yours.
+You have four languages. Common is everybody's, so you have three of your own to pick from.
 
 → Elvish, softly. (go to S10-3)
 → Draconic. (go to S10-4)
@@ -232,13 +228,11 @@ On your shoulder the eye opens all the way. It takes in the patron, the lamp, th
 
 "No."
 
-She laughs. It's low and it goes on longer than you'd have guessed. It's the first sound out of her that she didn't plan.
+She laughs, low, and for longer than you'd have guessed.
 
-"Good," she says. "Never take the first price. People don't usually take my advice and turn me down in the same breath. You managed both."
+"Good," she says. "Never take the first price. You turned mine down before I could tell you to." It comes out close to fond, and you know better than to trust that.
 
-A fool would hear fondness in that.
-
-The eye is as it was, half lidded. It was watching you when you said no. You checked.
+The eye is as it was, half lidded. You looked, and it was watching you when you said no.
 
 → Continue (go to S11)
 
@@ -256,15 +250,11 @@ The patron has her head on one side.
 
 ## S10-4. Draconic
 
-You speak to it in Draconic. It comes out harder than you meant. Draconic does that. It was made for oaths and orders. You tell it to wake. You tell it what it is.
+You speak to it in Draconic, which is a language for oaths and orders, and it comes out harder than you meant. You tell it to wake up. You tell it that it's the eye in your cloak, and that the curse is gone.
 
-The eye widens.
+The eye widens. Against your arms the lining of the cloak prickles, and thin dark marks come up in the cloth, angled and set in lines. It's script, in a very old hand. Then the marks sink back.
 
-The lining of your cloak prickles against your arms. Thin dark marks come up in the cloth, angled and set in lines. It's script, in a very old hand. Then the marks sink back.
-
-The patron has stopped moving.
-
-"Well," she says. "Somebody remembers being spoken to properly."
+The patron has stopped moving. "Well," she says. "Somebody remembers being spoken to properly."
 
 → Continue (go to S11)
 
@@ -346,7 +336,7 @@ The eye is wide open. It goes from face to face round the cave and reads each on
 
 ## End 2. No Debts
 
-The eye is half lidded, as it always is. It's looking at you, though, and when you look back it doesn't look away. Whatever it does next, you owe nobody for it. You rate that about as high as a coin kept in your boot.
+The eye is half lidded. It's looking at you, and when you look back it doesn't look away. You paid her nothing for that, and you owe her nothing for what the eye does next.
 
 > **Echo: Owe Nothing.** Before you roll a Charisma (Persuasion) check to strike a bargain or set its terms, you can spend this Echo to have advantage on it.
 
