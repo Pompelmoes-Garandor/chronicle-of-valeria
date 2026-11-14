@@ -94,6 +94,58 @@ body{font-family:var(--body);font-size:16px;line-height:1.5;overflow:hidden;
 .pin.note .seal{width:12px;height:12px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--c);box-shadow:0 0 0 2px #000a}
 .pin.note .lbl{font:italic 13px/1.1 var(--body);background:none;box-shadow:none;text-shadow:0 0 4px #000,0 0 8px #000;color:var(--c);max-width:140px;overflow:hidden;text-overflow:ellipsis}
 .pin[hidden]{display:none!important}
+/* seals and lettering (world map 3.0): each place wears a small medallion with the sign of its kind, and names are lettered by kind like an atlas.
+   All of it hangs on #pins.atlas (left off with ?oldpins), and a seal keeps one box size in every state so the label maths can cache it */
+#pins.atlas .pin::before{content:"";position:absolute;left:50%;top:calc(4px + var(--sh,14px)/2);width:42px;height:42px;transform:translate(-50%,-50%);border-radius:50%}
+#pins.atlas .pin.small::before{width:34px;height:34px}
+#pins.atlas .pin.kp{--sh:24px;--k:#c9513a;--k2:#7c1f12;--ki:#f6e9c8;--rim:#2b0e08;gap:3px}
+#pins.atlas .pin.kp.major{--sh:26px}#pins.atlas .pin.kp.minor{--sh:20px}
+#pins.atlas .pin.f-brass{--k:#dcb96c;--k2:#7a5c26;--ki:#1d1509;--rim:#2a1f0c}
+#pins.atlas .pin.f-green{--k:#5f8f58;--k2:#1e3b25;--rim:#0d1a10}
+#pins.atlas .pin.f-stone{--k:#818b98;--k2:#2e343d;--rim:#12151a}
+#pins.atlas .pin.f-water{--k:#5d93b5;--k2:#17364b;--rim:#0b1820}
+#pins.atlas .pin.kp .seal{position:relative;box-sizing:border-box;width:var(--sh);height:var(--sh);display:grid;place-items:center;font:inherit;background:radial-gradient(circle at 35% 30%,var(--k),var(--k2) 78%);box-shadow:inset 0 1px 0 #ffffff38,inset 0 0 0 1px #0003,0 0 0 1.5px var(--rim),0 0 0 2.5px #c9a35c80,0 2px 6px #000b}
+#pins.atlas .pin.kp .seal::after{content:none}
+#pins.atlas .pin.kp .seal svg{width:62%;height:62%;fill:none;stroke:var(--ki);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px 0 #0006)}
+#pins.atlas .pin.kp.minor .seal svg{stroke-width:2.3}
+/* a rumour: an empty housing with a dashed rim, the sign only faint, and a question mark on its shoulder */
+#pins.atlas .pin.kp.rumour{--ki:var(--mist)}
+#pins.atlas .pin.kp.rumour .seal{background:#11141ad8;border:1.5px dashed var(--mist);box-shadow:0 2px 6px #000a}
+#pins.atlas .pin.kp.rumour .seal svg{width:60%;height:60%;opacity:.6;filter:none}
+#pins.atlas .pin.kp .seal b{position:absolute;right:-6px;top:-6px;width:12px;height:12px;border-radius:50%;background:var(--void-2);box-shadow:0 0 0 1px var(--mist);font:700 9px/12px var(--label);text-align:center;color:var(--parch)}
+/* realms and seas have no medallion: a small ring marks the spot and the name does the work */
+#pins.atlas .pin.kp.area{--sh:12px;gap:1px}
+#pins.atlas .pin.kp.area .seal{background:none;border:1.5px solid var(--brass);box-shadow:0 0 0 1px #000a,inset 0 0 0 1px #000a}
+#pins.atlas .pin.kp.area.rumour .seal{border:1.5px dashed var(--mist);background:#11141a99}
+#pins.atlas .pin.kp.area .seal svg,#pins.atlas .pin.kp.area .seal b{display:none}
+/* far out the medallion steps back to a dot in its own colour, so the whole globe stays calm */
+#pins.atlas .pin.kp.small .seal{background:radial-gradient(circle,var(--k) 0 3.2px,var(--rim) 3.7px 5.2px,transparent 5.7px);border:0;box-shadow:none}
+#pins.atlas .pin.kp.small.rumour .seal,#pins.atlas .pin.kp.small.area .seal,#pins.atlas .pin.kp.small.area.rumour .seal{border:0;box-shadow:none;background:radial-gradient(circle,#11141a 0 2.4px,var(--mist) 2.9px 4.4px,transparent 4.9px)}
+#pins.atlas .pin.kp.small .seal svg,#pins.atlas .pin.kp.small .seal b{display:none}
+/* this session's places carry an ember ring */
+#pins.atlas .pin.kp.new:not(.small) .seal{box-shadow:inset 0 1px 0 #ffffff38,inset 0 0 0 1px #0003,0 0 0 1.5px var(--rim),0 0 0 3px var(--ember),0 0 10px 2px #e8743b77,0 2px 6px #000b}
+/* the place whose card is open sits in four brass brackets */
+#pins.atlas .pin.sel .seal::after{content:"";position:absolute;inset:-7px;border-radius:0;transform:none;background:
+  linear-gradient(var(--brass-hi),var(--brass-hi)) 0 0/8px 2px,linear-gradient(var(--brass-hi),var(--brass-hi)) 0 0/2px 8px,
+  linear-gradient(var(--brass-hi),var(--brass-hi)) 100% 0/8px 2px,linear-gradient(var(--brass-hi),var(--brass-hi)) 100% 0/2px 8px,
+  linear-gradient(var(--brass-hi),var(--brass-hi)) 0 100%/8px 2px,linear-gradient(var(--brass-hi),var(--brass-hi)) 0 100%/2px 8px,
+  linear-gradient(var(--brass-hi),var(--brass-hi)) 100% 100%/8px 2px,linear-gradient(var(--brass-hi),var(--brass-hi)) 100% 100%/2px 8px;
+  background-repeat:no-repeat;filter:drop-shadow(0 0 1.5px #000);animation:pinsel .18s ease-out}
+#pins.atlas .pin.sel.small .seal::after{inset:1px}
+#pins.atlas .pin.sel.vault .seal,#pins.atlas .pin.sel.tower .seal{position:relative}
+#pins.atlas .pin.sel.vault .seal::after{transform:rotate(-45deg);animation:none}
+@keyframes pinsel{from{opacity:0;transform:scale(1.5)}}
+@media (prefers-reduced-motion:reduce){#pins.atlas .pin.sel .seal::after{animation:none}}
+/* lettering: towns and other big places on a plate, ordinary places a size down, small ones bare with a dark halo, realms and seas in wide italic capitals */
+#pins.atlas .pin.kp .lbl{font-size:14px;padding:2px 6px 2px;background:#11141ac4;box-shadow:0 0 0 1px #c9a35c1c}
+#pins.atlas .pin.kp.major .lbl{font-size:15.5px;letter-spacing:.04em;padding:3px 8px 2px;background:#11141ae0;box-shadow:0 0 0 1px #c9a35c55,0 1px 4px #0008}
+#pins.atlas .pin.kp.minor .lbl{font-size:13px;padding:1px 4px 0;background:#11141a66;box-shadow:none;text-shadow:0 0 2px #0a0c10,0 0 3px #0a0c10,0 0 5px #0a0c10,0 1px 6px #0a0c10}
+#pins.atlas .pin.kp.rumour .lbl{color:#c3cad4}
+#pins.atlas .pin.kp.area .lbl{font:italic 13px/1.15 "IM Fell English",var(--display);text-transform:uppercase;letter-spacing:.24em;padding:1px 0 1px .24em;color:#f1e3c0;background:none;box-shadow:none;text-shadow:0 0 2px #0a0c10,0 0 3px #0a0c10,0 0 6px #0a0c10,0 1px 8px #0a0c10,0 0 12px #0a0c10cc}
+#pins.atlas .pin.kp.area.major .lbl{font-size:16px;letter-spacing:.3em;padding-left:.3em}
+#pins.atlas .pin.kp.area.minor .lbl{font-size:12px;letter-spacing:.18em;padding-left:.18em}
+#pins.atlas .pin.kp.area.rumour .lbl{color:#c9d0da}
+@media (hover:hover){#pins.atlas .pin.kp.minor:hover .lbl{background:#11141a99;box-shadow:none;color:var(--brass-hi)}#pins.atlas .pin.kp.area:hover .lbl{background:none;box-shadow:none;color:var(--brass-hi)}}
 
 header.top{position:fixed;z-index:5;top:calc(var(--top) + 10px);left:max(12px, env(safe-area-inset-left, 0px));right:max(12px, env(safe-area-inset-right, 0px));
   display:flex;justify-content:space-between;align-items:center;gap:10px;pointer-events:none}
@@ -339,6 +391,53 @@ table.ans td,table.ans th{border-bottom:1px solid #c9a35c22;padding:6px 4px;text
 .pl-story.ic-m-memory .art::after{opacity:1;background:radial-gradient(ellipse at 50% 50%,transparent 55%,#3a240f66 100%)}
 .pl-story.ic-m-fire .art::after{opacity:1;background:radial-gradient(ellipse at 50% 92%,#ff9a4a40,transparent 62%);mix-blend-mode:screen}
 .pl-story.ic-m-thin .art::after{opacity:1;background:radial-gradient(ellipse at 50% 50%,transparent 50%,#000a 100%)}
+/* ---- interludes 3.0: the stage ---- */
+/* iStage adds .i3 to an interlude's reading screen (not with ?nostage). A phone gets the picture across the top, edge to edge, fading into
+   the page; a wide screen gets the picture on the left and the words beside it. The picture is cropped round its light (iStageFit sets
+   --i3-x/-y/-cw/-ch), a slow camera moves over it (iStageCam, a transition on the canvas), the paragraphs come in one after another
+   (--i3-d, set by iStageText; a tap or a scroll shows them all), and .i3-more says there is more below. */
+@media (max-width:699px){.pl-stage:has(>.pl-story.ic.i3){margin-left:-10px;margin-right:-10px;border-radius:0}}
+.pl-story.ic.i3{--i3-h:clamp(150px,40vh,440px);padding-top:0;gap:12px;background:linear-gradient(180deg,var(--ic-a) 0,var(--ic-a) var(--i3-h),#0b0d12 calc(var(--i3-h) + 46%))}
+.pl-story.ic.i3>:not(.art){z-index:1}
+.pl-story.ic.i3 .art{align-self:stretch;width:auto;height:var(--i3-h);aspect-ratio:auto;margin:0 -14px;border-radius:0;box-shadow:none;background:#07080b}
+.pl-story.ic.i3:not(.hv) .art{margin-bottom:-18px}
+#play.vfx-on .pl-story.ic.i3 .art{margin-bottom:0;background:transparent}
+.pl-story.ic.i3 .art canvas{position:absolute;left:var(--i3-x,0px);top:var(--i3-y,0px);width:var(--i3-cw,100%);height:var(--i3-ch,100%);max-width:none}
+.pl-story.ic.i3 .art .i3-fade{position:absolute;left:0;right:0;bottom:-1px;height:52%;pointer-events:none;background:var(--ic-a);transition:opacity .35s ease;
+  -webkit-mask-image:linear-gradient(180deg,#0000 0,#0003 28%,#0009 52%,#000d 70%,#000 86%);mask-image:linear-gradient(180deg,#0000 0,#0003 28%,#0009 52%,#000d 70%,#000 86%)}
+.pl-story.ic.i3.hv .art .i3-fade{height:30%}
+.pl-story.ic.i3.hv-pin .art .i3-fade,#play.vfx-on .pl-story.ic.i3 .art .i3-fade{opacity:0}
+.pl-story.ic.i3 .pl-inter.i3-lead>p:first-child::first-letter{font:400 2.05em/.8 var(--display);color:var(--brass-hi)}
+.pl-story.ic.i3 .pl-choices{gap:10px;margin-top:6px}
+.pl-story.ic.i3 .pl-choices.i3-picked .pl-btn{pointer-events:none}
+.pl-story.ic.i3 .pl-choices.i3-picked .pl-btn.i3-pick{border-color:var(--brass-hi);background:#c9a35c24}
+.pl-story.ic.i3 .pl-choices.i3-picked .pl-btn:not(.i3-pick){opacity:.3;transition:opacity .15s}
+.pl-story.ic.i3 .i3-more{position:sticky;bottom:-24px;z-index:2;align-self:stretch;flex:none;height:0;margin:0 -14px;pointer-events:none;opacity:0;transition:opacity .3s ease}
+.pl-story.ic.i3 .i3-more.on{opacity:1}
+.pl-story.ic.i3 .i3-more::before{content:"";position:absolute;left:0;right:0;bottom:0;height:76px;background:linear-gradient(180deg,#0b0d1200,#0b0d12cc 55%,#0b0d12)}
+.pl-story.ic.i3 .i3-more::after{content:"";position:absolute;left:50%;bottom:15px;width:9px;height:9px;margin-left:-5px;border-right:1.5px solid var(--brass);border-bottom:1.5px solid var(--brass);transform:rotate(45deg);opacity:.85}
+@media (min-width:900px) and (min-aspect-ratio:5/4){
+  .pl-story.ic.i3{display:grid;grid-template-columns:minmax(0,58fr) minmax(0,42fr);grid-template-rows:repeat(8,auto) 1fr;column-gap:44px;row-gap:0;align-items:start;justify-items:start;padding:28px 40px 28px 28px;
+    background:radial-gradient(ellipse 80% 90% at 30% 40%,var(--ic-a) 0%,#0b0d12 75%)}
+  .pl-story.ic.i3>:not(.art){grid-column:2;width:min(600px,100%);margin-bottom:16px}
+  .pl-story.ic.i3>.pl-spk:first-of-type,.pl-story.ic.i3>.art+.pl-read{margin-top:10px}
+  .pl-story.ic.i3 .art,.pl-story.ic.i3:not(.hv) .art{grid-column:1;grid-row:1/-1;position:sticky;top:0;align-self:start;justify-self:stretch;height:auto;aspect-ratio:4/3;max-height:calc(100vh - 150px);margin:0;border-radius:12px;
+    box-shadow:0 0 0 1px var(--hairline),0 26px 60px -24px #000}
+  #play.vfx-on .pl-story.ic.i3 .art{box-shadow:none}
+  .pl-story.ic.i3 .art .i3-fade{display:none}
+  .pl-story.ic.i3 .pl-read{font-size:19px}
+  .pl-story.ic.i3 .i3-more{margin:0 0 0 -8px;bottom:-28px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .pl-story.ic.i3:not(.sw) .art canvas{animation:none;transition:filter var(--ic-ms,1.2s) ease,transform var(--i3-cam,26s) cubic-bezier(.22,.5,.25,1)}
+  .pl-story.ic.i3:not(.hv-again):not(.hv-d5) .pl-inter:not(.i3-all)>:not(:first-child):not(.pl-echo):not(.pl-lore):not(.ic-say):not(.ic-intr):not(.hv-say){animation:i3In .55s cubic-bezier(.2,.7,.2,1) var(--i3-d,0s) both}
+  .pl-story.ic.i3:not(.hv) .pl-choices:not(.i3-all){animation:i3In .5s cubic-bezier(.2,.7,.2,1) var(--i3-d,.3s) both}
+  .pl-story.ic.i3 .pl-inter.i3-out{animation:i3Out .17s ease-in both}
+  .pl-story.ic.i3 .i3-more.on::after{animation:i3Bob 2.4s ease-in-out infinite}
+}
+@keyframes i3In{from{opacity:0;transform:translateY(8px)}}
+@keyframes i3Out{to{opacity:0;transform:translateY(-6px)}}
+@keyframes i3Bob{50%{transform:translateY(3px) rotate(45deg)}}
 /* the vision layer (VISION FX): over the play screen, under its words and buttons */
 #play>canvas.vfx{position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:2}
 #play.vfx-on>.pl-top,#play.vfx-on .pl-side,#play.vfx-on .pl-story>:not(.art){z-index:3}
@@ -669,6 +768,10 @@ img.postcard{display:block;width:100%;max-width:420px;margin:4px auto 12px;borde
 body.rewound #restore span{color:var(--ember)}
 body.rewound #asof{color:var(--ember)}
 .pin.party.walking .lbl{opacity:.75}
+.pin.party.walking .seal{box-shadow:0 0 0 2px #000,0 0 12px #e8743baa}
+@media (prefers-reduced-motion:no-preference){.pin.party.walking .seal{animation:partyStep .9s ease-in-out infinite}}
+@keyframes partyStep{50%{transform:translateY(-2px)}}
+body.cinema.flying #pins{opacity:1}   /* the party is seen walking the road while the flight plays (the cinema rule further down hid every pin) */
 .progress i{flex:1;height:2px;border-radius:1px;background:#ffffff14}
 .progress i.on{background:var(--brass)}
 .progress i.cur{background:var(--steward);box-shadow:0 0 6px var(--steward)}
@@ -2828,27 +2931,124 @@ function tickCrash(now){
 }
 
 // route trail
+// ?oldroad in the address brings back the old one-pixel dashed lines and the old fly camera, exactly as they were
+const ROAD_OLD=MAP_OFF("oldroad"); let roadDirty=true;
 const trailMat = new THREE.LineDashedMaterial({color:0xc9a35c,dashSize:0.012,gapSize:0.01,transparent:true,opacity:.95});
 const trailNewMat = new THREE.LineDashedMaterial({color:0xe8743b,dashSize:0.012,gapSize:0.01,transparent:true,opacity:.95});
 const trailOld=new THREE.Line(new THREE.BufferGeometry(),trailMat), trailNew=new THREE.Line(new THREE.BufferGeometry(),trailNewMat);
 trailOld.frustumCulled=trailNew.frustumCulled=false; scene.add(trailOld,trailNew);
-function routePts(a,b){const out=[];for(let i=a;i<b;i++){const A=byId[ROUTE[i]],B=byId[ROUTE[i+1]];const tp=ROUTE[i]+">"+ROUTE[i+1]===TELEPORT,n=tp?60:Math.max(12,Math.ceil(Math.hypot(B.lon-A.lon,B.lat-A.lat)*3));for(let k=0;k<=n;k++){const t=k/n;out.push([A.lon+(B.lon-A.lon)*t,A.lat+(B.lat-A.lat)*t,tp?0.004+0.18*Math.sin(Math.PI*t):0.004])}}return out;}
+function routePts(a,b){if(!ROAD_OLD)return roadPts(a,b);const out=[];for(let i=a;i<b;i++){const A=byId[ROUTE[i]],B=byId[ROUTE[i+1]];const tp=ROUTE[i]+">"+ROUTE[i+1]===TELEPORT,n=tp?60:Math.max(12,Math.ceil(Math.hypot(B.lon-A.lon,B.lat-A.lat)*3));for(let k=0;k<=n;k++){const t=k/n;out.push([A.lon+(B.lon-A.lon)*t,A.lat+(B.lat-A.lat)*t,tp?0.004+0.18*Math.sin(Math.PI*t):0.004])}}return out;}
 // legs of the shown session are "new": they draw themselves as the fog lifts, and the party walks the tip
 function legRange(T){let a=0;while(a<ROUTE.length-1&&legS(a)<T)a++;let b=a;while(b<ROUTE.length-1&&legS(b)<=T)b++;return [a,b];}
 let RP_OLD, RP_NEW, partyHome=byId[PARTY_AT], walkTip=null;
-function setTrail(T){const [a,b]=legRange(T);RP_OLD=routePts(0,a);RP_NEW=routePts(a,b);partyHome=T>=AS_OF?byId[PARTY_AT]:byId[ROUTE[b]];}
+function setTrail(T){const [a,b]=legRange(T);RP_OLD=routePts(0,a);RP_NEW=routePts(a,b);partyHome=T>=AS_OF?byId[PARTY_AT]:byId[ROUTE[b]];roadDirty=true;}
 setTrail(AS_OF);
 function updateTrail(){
+  if(!ROAD_OLD) return roadTick();
   for(const [line,pts] of [[trailOld,RP_OLD],[trailNew,RP_NEW]]){line.geometry.setFromPoints(pts.map(([a,b,l])=>worldPos(a,b,l)));line.computeLineDistances();}
   const k=fly?fly.k:Math.max(0,Math.min(1,(uniforms.uReveal.value-0.12)/0.78)), n=Math.round(RP_NEW.length*k);
   trailNew.geometry.setDrawRange(0,n); trailNew.visible=n>1;
   walkTip = n>1&&n<RP_NEW.length ? RP_NEW[n-1] : null;
 }
 
+// THE ROAD (world map 3.0). The journey is a ribbon of ink with real width instead of a one-pixel line: brass for the legs already
+// walked, ember for the legs of the session on show, with small chevrons that point the way the crew went. The waystone jump is a
+// thin arc of teal light with a pulse running along it, so it reads as a jump and not as a walk.
+// Each leg bends a little to the left of the way it was walked: a road walked out and back shows as two lines, and the bend is the
+// same every time. A point is [lon, lat, lift, 1 on the jump, how far along its leg 0..1]; the first three are what the pins read
+function roadPts(a,b){const out=[];for(let i=a;i<b;i++){const A=byId[ROUTE[i]],B=byId[ROUTE[i+1]],tp=ROUTE[i]+">"+ROUTE[i+1]===TELEPORT;
+  const cl=Math.max(.3,Math.cos((A.lat+B.lat)*.5*D2R)),dx=(B.lon-A.lon)*cl,dy=B.lat-A.lat,len=Math.hypot(dx,dy)||1,n=tp?96:Math.max(16,Math.ceil(len*5));
+  const bend=tp?0:Math.min(.55,len*.07),wob=bend*.3*(i%2?1:-1),nx=-dy/len/cl,ny=dx/len;   // stays well inside the 2.2 degree corridor the fog opens along a leg
+  for(let k=0;k<=n;k++){const t=k/n,o=bend*Math.sin(Math.PI*t)+wob*Math.sin(2*Math.PI*t);out.push([A.lon+(B.lon-A.lon)*t+nx*o,A.lat+dy*t+ny*o,tp?0.004+0.18*Math.sin(Math.PI*t):0.0035,tp?1:0,t]);}}
+  return out;}
+// The ribbon: every point of the road is two corners, pushed apart on the screen by a fixed number of pixels (WebGL lines are always
+// one pixel wide), so the road keeps its width at every zoom. It is tested against the globe's depth, pulled a hair towards the eye
+// so a slope beside it can't swallow half its width. Dashes are measured along the ground and their length steps in doubles with the zoom
+const ROAD=ROAD_OLD?null:(()=>{
+  const VS=`attribute vec3 aTan; attribute vec4 aInfo; uniform vec2 uRes; uniform float uHalf;
+varying float vV; varying float vD; varying float vK; varying float vT; varying float vH;
+void main(){
+  vec4 mv=modelViewMatrix*vec4(position,1.0); vec4 c=projectionMatrix*mv;
+  vec4 c2=projectionMatrix*(mv+vec4(mat3(modelViewMatrix)*aTan*0.004,0.0));
+  vec2 d=(c2.xy/c2.w-c.xy/c.w)*uRes; float l=length(d); d=l>1e-6?d/l:vec2(1.0,0.0);
+  vH=uHalf*(aInfo.z>0.5?1.7:1.0);
+  c.xy+=vec2(-d.y,d.x)*aInfo.x*vH*2.0/uRes*c.w;
+  vec4 cz=projectionMatrix*vec4(mv.xyz*0.994,1.0); c.z=cz.z/cz.w*c.w;
+  vV=aInfo.x; vD=aInfo.y; vK=aInfo.z; vT=aInfo.w; gl_Position=c;
+}`;
+  const FS=`precision highp float;
+uniform vec3 uInk; uniform float uLine; uniform float uPer; uniform float uMix; uniform float uHead; uniform float uDir; uniform float uOld; uniform float uTime; uniform float uPulse;
+varying float vV; varying float vD; varying float vK; varying float vT; varying float vH;
+// one dash as a rounded stroke, in pixels; on the newest legs every fourth dash is a chevron and the others swell towards the front
+float dash(float per,float y,float wpp){
+  float L=per*0.58/wpp, x=fract(vD/per)*per/wpp, h=uLine;
+  if(uDir>0.5&&mod(floor(vD/per),4.0)>2.5){
+    vec2 q=vec2(x-L*0.5,abs(y)), A=vec2(h*1.7,0.0), ba=vec2(-h*2.8,h*2.4), pa=q-A;
+    return length(pa-ba*clamp(dot(pa,ba)/dot(ba,ba),0.0,1.0))-h*0.62; }
+  h*=mix(1.0,mix(0.6,1.0,clamp(x/L,0.0,1.0)),uDir);
+  return length(vec2(max(abs(x-L*0.5)-max(L*0.5-h,0.0),0.0),y))-h;
+}
+vec2 ink(float sd){return vec2(1.0-smoothstep(-0.7,0.7,sd),1.0-smoothstep(-0.7,0.7,sd-1.2));}
+void main(){
+  float wpp=length(vec2(dFdx(vD),dFdy(vD)))+1e-7, y=vV*vH;
+  if(vD>uHead) discard;
+  if(vK>0.5){                                  // the waystone jump: a thin line of light, a soft glow, a pulse that travels
+    float ph=fract(uTime*0.16)*1.3-0.15, p=exp(-pow((vT-ph)/0.045,2.0))*uPulse;
+    float core=1.0-smoothstep(-0.6,0.6,abs(y)-uLine*(0.6+0.55*p));
+    float g=exp(-y*y/(vH*vH*0.14))*(1.0-smoothstep(0.55,1.0,abs(vV)));
+    float a=(core*0.92+g*(0.32+0.6*p))*mix(1.0,0.78,uOld);
+    gl_FragColor=vec4(mix(vec3(0.561,0.827,0.784),vec3(0.92,1.0,0.97),clamp(core*0.45+p,0.0,1.0)),a); return; }
+  vec2 k=mix(ink(dash(uPer,y,wpp)),ink(dash(uPer*2.0,y,wpp)),uMix);
+  float a=k.x+(1.0-k.x)*k.y*0.6; if(a<0.01) discard;
+  gl_FragColor=vec4(mix(vec3(0.169,0.122,0.071),uInk,k.x/a),a*0.96);
+}`;
+  const mk=(r,g,b,dir)=>{
+    const u={uRes:{value:new THREE.Vector2(1,1)},uHalf:{value:5},uLine:{value:1.5},uPer:{value:.01},uMix:{value:0},uHead:{value:1e9},uDir:{value:dir},uOld:{value:1-dir},uTime:uniforms.uTime,uPulse:{value:reduced?0:1},uInk:{value:new THREE.Vector3(r,g,b)}};
+    const mesh=new THREE.Mesh(new THREE.BufferGeometry(),new THREE.ShaderMaterial({uniforms:u,vertexShader:VS,fragmentShader:FS,transparent:true,depthWrite:false,side:THREE.DoubleSide,extensions:{derivatives:true}}));
+    mesh.frustumCulled=false; mesh.visible=false; scene.add(mesh);
+    const o={mesh,u,pts:[],dist:new Float32Array(0),P:null,
+      // a new set of legs: the parts that don't depend on the shape of the land (which side, how far along, walk or jump)
+      set(pts){const n=pts.length,info=new Float32Array(n*8),idx=[],g=new THREE.BufferGeometry(); let d=0; o.pts=pts; o.dist=new Float32Array(n); o.P=new Float32Array(n*3);
+        for(let j=0;j<n;j++){const p=pts[j],q=pts[j-1];
+          if(j&&!(p[4]===0&&q[4]===1)){d+=Math.hypot((p[0]-q[0])*Math.cos(p[1]*D2R),p[1]-q[1])*D2R; idx.push(2*j-2,2*j-1,2*j,2*j,2*j-1,2*j+1);}
+          o.dist[j]=d; for(let s=0;s<2;s++){const w=(2*j+s)*4; info[w]=s?1:-1; info[w+1]=d; info[w+2]=p[3]; info[w+3]=p[4];}}
+        g.setAttribute("position",new THREE.BufferAttribute(new Float32Array(n*6),3)); g.setAttribute("aTan",new THREE.BufferAttribute(new Float32Array(n*6),3));
+        g.setAttribute("aInfo",new THREE.BufferAttribute(info,4)); g.setIndex(idx); mesh.geometry.dispose(); mesh.geometry=g;},
+      // where the points stand now: on the raised land, on the globe or on the table
+      fill(){const pts=o.pts,n=pts.length,P=o.P,pos=mesh.geometry.attributes.position,tan=mesh.geometry.attributes.aTan;
+        for(let j=0;j<n;j++){const p=pts[j],v=worldPos(p[0],p[1],p[2]); P[3*j]=v.x; P[3*j+1]=v.y; P[3*j+2]=v.z;}
+        for(let j=0;j<n;j++){const a=(j>0&&pts[j][4]!==0?j-1:j)*3,b=(j<n-1&&pts[j][4]!==1?j+1:j)*3; let x=P[b]-P[a],y=P[b+1]-P[a+1],z=P[b+2]-P[a+2]; const l=Math.hypot(x,y,z)||1; x/=l; y/=l; z/=l;
+          for(let s=0;s<2;s++){const w=(2*j+s)*3; pos.array[w]=P[3*j]; pos.array[w+1]=P[3*j+1]; pos.array[w+2]=P[3*j+2]; tan.array[w]=x; tan.array[w+1]=y; tan.array[w+2]=z;}}
+        pos.needsUpdate=tan.needsUpdate=true;}};
+    return o;};
+  trailOld.visible=trailNew.visible=false;        // trailNew stays as the carrier of the draw range the party pin reads
+  return {old:mk(.788,.639,.361,0),new:mk(.910,.455,.231,1)};})();
+// The points are only moved when the land under them moves: new legs, the globe unrolling to the table, the fog lifting (the hills
+// rise with it) or the high-res heights arriving. A few heights along the road are summed every frame to notice the last two
+let roadProbe=NaN; const walkAt=[0,0,0];
+function roadSum(RP){let s=0;for(let j=0;j<RP.length;j+=13)s+=TERR.elev(RP[j][0],RP[j][1]);return s;}
+function roadLook(u,line,per,mix){u.uRes.value.set(innerWidth,innerHeight);u.uLine.value=line;u.uHalf.value=line*3.3+2;u.uPer.value=per;u.uMix.value=mix;}
+function roadTick(){
+  if(roadDirty){ROAD.old.set(RP_OLD);ROAD.new.set(RP_NEW);}
+  const pr=morph*9+(TERR?roadSum(RP_OLD)+roadSum(RP_NEW):0);
+  if(roadDirty||pr!==roadProbe){roadDirty=false;roadProbe=pr;ROAD.old.fill();ROAD.new.fill();}
+  // the ink of the shown session draws itself as the fog lifts (or as the flight goes), and the party walks its tip
+  const L=RP_NEW.length, k=fly?fly.k:Math.max(0,Math.min(1,(uniforms.uReveal.value-0.12)/0.78)), n=Math.round(L*k);
+  trailNew.geometry.setDrawRange(0,n);
+  const h=Math.max(0,Math.min(L-1,L*k-1)), i0=Math.floor(h), i1=Math.min(L-1,i0+1), f=h-i0, D=ROAD.new.dist;
+  ROAD.new.u.uHead.value=n>=L?1e9:L?D[i0]+(D[i1]-D[i0])*f:0; ROAD.new.mesh.visible=n>1; ROAD.old.mesh.visible=RP_OLD.length>1;
+  if(n>1&&n<L){const A=RP_NEW[i0],B=RP_NEW[i1]; for(let c=0;c<3;c++)walkAt[c]=A[c]+(B[c]-A[c])*f; walkTip=walkAt;} else walkTip=null;
+  // thin from far away so the globe stays calm, a clear stroke close up; a dash is about six strokes long on the screen
+  const z=cam.zoom, mm=ease(morph), line=.85+.85*Math.min(1,Math.max(0,(.62-z)/.45));
+  const wpp=2*R*((.25+z*3.4)*(1-mm)+(.18+z*1.9)*mm)*Math.tan(20*D2R)/innerHeight, lg=Math.log2(12*line*wpp), fr=lg-Math.floor(lg), t=Math.min(1,Math.max(0,(fr-.4)/.2));
+  roadLook(ROAD.old.u,line,2**Math.floor(lg),t*t*(3-2*t)); roadLook(ROAD.new.u,line,2**Math.floor(lg),t*t*(3-2*t));
+}
+
 /* =================== FLY THE ROUTE: the camera follows a session's road while the ink draws it =================== */
 let fly=null;
 function flyRoute(T=viewS){
   const [a,b]=legRange(T); if(b<=a){toast("Session "+T+": no road travelled. They stayed put.");return;}
+  if(!ROAD_OLD) return flyRoad(a,b);
   const pts=routePts(a,b), seg=[0];
   for(let i=1;i<pts.length;i++){const [x0,y0]=pts[i-1],[x1,y1]=pts[i];seg.push(seg[i-1]+Math.hypot((x1-x0)*Math.cos(y0*D2R),y1-y0)+0.01);}
   const total=seg[seg.length-1]; if(journeyOn){journeyAuto=false;clearTimeout(journeyTimer);}
@@ -2859,12 +3059,48 @@ function flyRoute(T=viewS){
   const s0=pts[0]; flyTo(s0[0],s0[1],.3,700);
 }
 function tickFly(now){
+  if(fly&&fly.road) return tickRoad(now);
   if(!fly) return; const t=Math.max(0,Math.min(1,(now-fly.t0)/fly.ms)); if(now<fly.t0) return; tween=null;
   const e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2, d=e*fly.total, S=fly.seg; let i=1; while(i<S.length-1&&S[i]<d)i++;
   const f=(d-S[i-1])/Math.max(1e-6,S[i]-S[i-1]), A=fly.pts[i-1], B=fly.pts[i];
   const lon=A[0]+(B[0]-A[0])*f, lat=A[1]+(B[1]-A[1])*f, lift=A[2]+(B[2]-A[2])*f;
   cam.lon=lon; cam.lat=lat; cam.zoom=.3+lift*1.6; fly.k=Math.max(fly.k,(i-1+f)/(fly.pts.length-1)); idleT=now;
   if(t>=1) endFly();
+}
+// The flight 3.0: the camera eases in from wherever the viewer was, follows the road low and looks a little ahead of the party,
+// climbs high over the Fire Sea for the waystone jump so the whole arc is in view, and comes to rest on the place the road ends.
+// Walked legs take time by their length; the jump takes the time of a short leg, however far it is
+function flyRoad(a,b){
+  const pts=routePts(a,b), cost=[0], lo=innerWidth<=700?.3:.25; let mid=null;
+  for(let i=1;i<pts.length;i++){const p=pts[i],q=pts[i-1],tp=p[3]&&q[3]; if(tp&&q[4]<.5&&p[4]>=.5)mid=p;
+    cost.push(cost[i-1]+(tp?16/96:Math.hypot((p[0]-q[0])*Math.cos(q[1]*D2R),p[1]-q[1]))+1e-4);}
+  const total=cost[cost.length-1], s0=pts[0], end=pts[pts.length-1], now=performance.now(), inMs=reduced?1:1200;
+  if(journeyOn){journeyAuto=false;clearTimeout(journeyTimer);}
+  if(recapOn){clearTimeout(recapTimer);}
+  closeSheet(); reveal.v=reveal.goal=1; tween=null;
+  fly={road:true,pts,cost,total,mid,lo,k:0,i:1,last:now,inMs,t0:now+inMs,ms:reduced?1:Math.min(18500,Math.max(6500,total*230)),outMs:reduced?1:1500,
+    from:{lon:cam.lon,lat:cam.lat,zoom:cam.zoom},p0:{lon:cam.lon+(((s0[0]-cam.lon+540)%360)-180),lat:s0[1],zoom:lo},end:{lon:end[0],lat:end[1],zoom:.32},s0:null,capWas:!cap.hidden};
+  cap.hidden=true; document.body.classList.add("cinema","flying"); const sk=document.getElementById("cine-skip"); sk.hidden=false; sk.onclick=endFly;
+}
+function tickRoad(now){
+  const F=fly, dt=Math.min(.1,Math.max(0,(now-F.last)/1000)); F.last=now; idleT=now; tween=null;
+  if(now<F.t0){const e=ease(Math.max(0,1-(F.t0-now)/F.inMs)); for(const c of ["lon","lat","zoom"])cam[c]=F.from[c]+(F.p0[c]-F.from[c])*e; return;}
+  const t=Math.min(1,(now-F.t0)/F.ms), C=F.cost, P=F.pts;
+  if(t<1){
+    // steady pace with a soft start and stop
+    const q=.12, e=t<q?t*t/(2*q*(1-q)):t>1-q?1-(1-t)*(1-t)/(2*q*(1-q)):(t-q/2)/(1-q), d=e*F.total;
+    let i=F.i; while(i<C.length-1&&C[i]<d)i++; F.i=i;
+    const f=Math.min(1,Math.max(0,(d-C[i-1])/Math.max(1e-6,C[i]-C[i-1]))), A=P[i-1], B=P[i], tp=A[3]&&B[3];
+    const lon=A[0]+(B[0]-A[0])*f, lat=A[1]+(B[1]-A[1])*f; F.k=Math.max(F.k,(i-1+f)/(P.length-1));
+    let tl=lon, ta=lat, tz=F.lo;
+    if(tp){const u=A[4]+(B[4]-A[4])*f, s=Math.sin(Math.PI*u); tz=F.lo+(1-F.lo)*Math.pow(s,.6); if(F.mid){tl+=(F.mid[0]-lon)*.55*s; ta+=(F.mid[1]-lat)*.55*s;}}
+    else{let j=i; while(j<C.length-1&&C[j]<d+1.6)j++; if(!P[j][3]){tl+=(P[j][0]-lon)*.55; ta+=(P[j][1]-lat)*.55;}}   // look ahead along the road, but not out over the sea before the jump
+    const k=1-Math.exp(-dt*3.2), kz=1-Math.exp(-dt*2.2); cam.lon+=(tl-cam.lon)*k; cam.lat+=(ta-cam.lat)*k; cam.zoom+=(tz-cam.zoom)*kz;
+    return;}
+  // the road is drawn: settle on the place it ends
+  F.k=1; if(!F.s0){F.s0={lon:cam.lon,lat:cam.lat,zoom:cam.zoom}; F.ts=now;}
+  const s=Math.min(1,(now-F.ts)/F.outMs), e=1-Math.pow(1-s,3); for(const c of ["lon","lat","zoom"])cam[c]=F.s0[c]+(F.end[c]-F.s0[c])*e;
+  if(s>=1) endFly();
 }
 function endFly(){ if(!fly) return; const was=fly.capWas; fly=null; document.body.classList.remove("cinema","flying");
   const sk=document.getElementById("cine-skip"); sk.hidden=true; sk.onclick=finishCrash; if(was) cap.hidden=false; }
@@ -3245,6 +3481,15 @@ function scramble(el,text){
 
 /* =================== PINS (HTML overlay) =================== */
 const pinsEl=document.getElementById("pins"); const pinEls=[];
+// seals and lettering: a place's seal shows its kind (the sign from KINDS), in one of five colour families; ?oldpins brings back the plain red dots
+const ATLAS=!MAP_OFF("oldpins"); pinsEl.classList.toggle("atlas",ATLAS);
+const PIN_FAM={ancient:"brass",poi:"brass",forest:"green",nature:"green",mountain:"stone",cave:"stone",ruin:"stone",water:"water",region:"stone"};   // the rest (towns, inns, castles, temples) stay wax red
+function sealKind(r,p){
+  const kind=(PLACE_DB[p.id]||{}).kind, K=KINDS[kind]; if(!K) return;
+  r.el.classList.add("kp"); if(PIN_FAM[kind]) r.el.classList.add("f-"+PIN_FAM[kind]);
+  if(p.major) r.el.classList.add("major"); if(p.label||kind==="region"||kind==="water") r.el.classList.add("area"); if(p.isNew) r.el.classList.add("new");
+  r.el.querySelector(".seal").innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${K.icon}"/></svg>`+(p.state==="rumour"?'<b aria-hidden="true">?</b>':"");
+}
 function mkPin(o){
   const b=document.createElement("button"); b.type="button"; b.className="pin";
   const s=document.createElement("span"); s.className="seal"; const l=document.createElement("span"); l.className="lbl"; l.textContent=o.label;
@@ -3261,6 +3506,7 @@ for(const p of PLACES){
   if(p.minor) r.el.classList.add("minor");
   if(p.id==="crash"){r.el.classList.add("tower");r.el.querySelector(".seal").innerHTML='<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 17V7H6V4h2v1.5h1V4h2v1.5h1V4h2v3h-1v10z"/><path d="M4 17h12" fill="none" stroke-width="1.4"/><path d="M15.5 3l-2 3.5M17 6.5l-3 1" fill="none" stroke-width="1.2"/></svg>';}
   if(p.isNew) r.newPin=true;
+  if(ATLAS&&!p.vault&&p.id!=="crash") sealKind(r,p);
 }
 const partyPin=mkPin({lon:byId[PARTY_AT].lon+1.4,lat:byId[PARTY_AT].lat-1.2,label:"The party",onClick:()=>openPlace(PARTY_AT)}); partyPin.el.classList.add("party");
 let notePins=[];
@@ -3338,12 +3584,13 @@ function updatePins(){
     if(!r.sc){const sl=r.el.querySelector(".seal");r.sc=sl.offsetTop+sl.offsetHeight/2;r.sh=sl.offsetHeight;}
     r.el.style.transform=`translate(${x}px,${y}px) translate(-50%,${-(r.sc||11)}px)`;
     const far=cam.zoom>0.55&&m<0.5;
-    const small=!!(r.glint||(r.place&&(r.place.minor&&cam.zoom>0.4||(!r.place.major&&far)))||(r.el.classList.contains("note")&&cam.zoom>0.5));
+    const small=!!(r.glint||(r.place&&(r.place.minor&&cam.zoom>0.4||(!r.place.major&&far&&!(ATLAS&&r.place.label))))||(r.el.classList.contains("note")&&cam.zoom>0.5));   // a sea keeps its name on the far globe
     r.el.classList.toggle("small",small);
+    if(ATLAS&&r.place) r.el.classList.toggle("sel",!sheet.hidden&&sTitle.dataset.place===r.place.id);
     shown.push({r,x,y,small,rank:PIN_RANK(r)});
   }
   // every visible seal is an obstacle for the names around it
-  const seals=shown.map(o=>({o,l:o.x-8,r:o.x+8,t:o.y-8,b:o.y+8}));
+  const seals=shown.map(o=>{const s=ATLAS?(o.small?5:(o.r.sh||14)/2+2):8; return {o,l:o.x-s,r:o.x+s,t:o.y-s,b:o.y+s};});   // the old dots were 14 px (8 with their rim); a medallion takes its real size
   shown.sort((a,b)=>b.rank-a.rank);
   const taken=[];
   for(const o of shown){
@@ -3583,7 +3830,7 @@ if(BENCH) window.__chron={
     if(q.lock!=null) res.lock=!!q.lock;
     return this.info();},
   crash(){playCrash(); return !!crash;},          // the last flight (with map Sound on, it is heard)
-  measure:ms=>new Promise(done=>{const f=[]; meter.rec=f; setTimeout(()=>{meter.rec=null; done(frameStats(f));},ms);}),
+  measure:ms=>new Promise(done=>{const f=[]; meter.rec=f; setTimeout(()=>{meter.rec=null; done(frameStats(f));},ms);}),  fly:T=>flyRoute(T),                            // the road: start Fly the route for a session
 };
 function frame(now){
   if(PLAY.on){last=now;requestAnimationFrame(frame);return;}  // the battle map has the screen
@@ -5624,12 +5871,13 @@ function liftSeal(){
    Scenes run in order; the crew moves on a grid, the monsters play themselves with the script's tactics.
    Public repo: no secret slips, nothing from later sessions. Rules: 2024 PHB, with the script's own rulings. */
 const PLAY={on:false,auto:/[?&]playtest=auto/.test(location.search)};  // playtest=auto: the crew plays itself (for testing)
+PLAY.rnd0=rnd; // the real dice; inside the play block rnd() is the wrapper under "seeded dice", which can run from a seed for tests
 {
 const PKEY="chron-play-s10", POPT="chron-play-opt";
 const opt=Object.assign({dice:!PLAY.auto,fast:PLAY.auto,sound:!PLAY.auto,music:true},(()=>{try{return JSON.parse(store.get(POPT)||"{}")}catch(e){return{}}})());
 const saveOpt=()=>store.set(POPT,JSON.stringify(opt));
 const ABORT={abort:true};PLAY.gen=0;
-const sleep=ms=>new Promise((r,j)=>{const g=PLAY.gen;setTimeout(()=>PLAY.gen!==g?j(ABORT):r(),opt.fast?ms*.35:ms);});
+const sleep=ms=>PLAY.sim?simTick():new Promise((r,j)=>{const g=PLAY.gen;setTimeout(()=>PLAY.gen!==g?j(ABORT):r(),opt.fast?ms*.35:ms);});
 addEventListener("unhandledrejection",e=>{if(e.reason===ABORT)e.preventDefault();});
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const pick=a=>a[rnd(a.length)-1];
@@ -5957,7 +6205,7 @@ function tray(title,text,btns){return new Promise(res=>{const who=CREW_IDS.find(
     h("div",{class:"tt"},who?h("div",{class:"ey"},CREW[who].short):null,h("h3",{},cap(head)),text?h("p",{},text):null),
     h("div",{class:"row"},...btns.map(([l,v,pri])=>h("button",{type:"button",class:"pl-btn"+(pri?" pri":""),onclick:()=>{m.remove();res(v);}},l)))));
   stage.append(m);});}
-function ask(title,text,yes="Yes",no="No"){if(PLAY.auto)return Promise.resolve(Math.random()<.6);return tray(title,text,[[no,false],[yes,true,1]]);}
+function ask(title,text,yes="Yes",no="No"){if(PLAY.auto)return Promise.resolve(rand()<.6);return tray(title,text,[[no,false],[yes,true,1]]);}
 function askMany(title,text,opts){return tray(title,text,opts.map((o,i)=>[o,i,i===0]));}
 
 /* ---- the menu ---- */
@@ -6001,6 +6249,14 @@ async function crewRoll(id,label,mod,dc,{adv=false,dis=false,u=null,quiet=false}
   hide3d();const ok=dc==null?true:tot>=dc;chip(`${CREW[id].short} · ${label}: ${tot}`+(dc!=null?` vs DC ${dc} · ${ok?"success":"fail"}`:""),dc!=null&&!ok);
   return {tot,v:r.v,ok};
 }
+
+/* ---- seeded dice (testing only). Players always get the real dice: without a seed rnd() and rand() are exactly what they were.
+   With ?playtest&seed=123, or while the fight simulator runs, every roll and every coin the game flips comes from one small
+   generator (mulberry32), so the same seed plays the same fight. Looks and sounds keep Math.random. ---- */
+function simRng(a){return ()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function rnd(n){const r=PLAY.rng;return r?1+Math.floor(r()*n):PLAY.rnd0(n);}
+function rand(){const r=PLAY.rng;return r?r():Math.random();}
+{const m=/[?&]playtest(=|&|$)/.test(location.search)&&/[?&]seed=(\d+)/.exec(location.search);if(m)PLAY.rng=simRng(+m[1]);}
 
 
 /* =================== THE BATTLE MAP: painting, tokens, movement =================== */
@@ -8669,7 +8925,7 @@ function los(a,b){const ax=a.x+(a.size-1)/2,ay=a.y+(a.size-1)/2,bx=b.x+(b.size-1
   for(let i=1;i<n;i++){const x=Math.round(ax+(bx-ax)*i/n),y=Math.round(ay+(by-ay)*i/n);if(blocksLos(B.mp,x,y))return false;}return true;}
 const alive=u=>!u.gone&&u.hp>0;
 const live=side=>B.units.filter(u=>alive(u)&&(side==="foe"?u.side==="foe":u.side!=="foe"));
-const enemiesOf=u=>B.units.filter(o=>alive(o)&&!o.untarget&&(u.side==="foe"?o.side!=="foe":o.side==="foe"));
+const enemiesOf=u=>B.units.filter(o=>alive(o)&&!o.untarget&&!o.ghost&&(u.side==="foe"?o.side!=="foe":o.side==="foe"));
 const occupant=(x,y,except)=>B.units.find(o=>o!==except&&!o.gone&&!o.ghost&&x>=o.x&&x<o.x+o.size&&y>=o.y&&y<o.y+o.size);
 const incap=u=>u.hp<=0||u.cond.engulfed||u.cond.ko||u.cond.turned||u.cond.stunned;
 
@@ -9302,8 +9558,8 @@ async function autoTurn(u){
       const pref=l.find(a=>near>=2&&/Turn Undead|Thunderwave|Thunderclap|Shatter/.test(a.n))||l.find(a=>/Mockery|Sacred Flame|Toll the Dead|Eldritch|Fire Bolt|Guiding Bolt|Shortbow/.test(a.n))||l[0];
       await pref.run();await checkEnd();if(B.over||u.hp<=0)return;}
     return;}finally{PLAY.aim=null;}}
-  const f=enemiesOf(u).filter(o=>o.hp>0);if(f.length&&speedOf(u)>0&&Math.random()<.7)await approach(u,nearest(u,f),u.key==="stig"||u.key==="katy"?4:1);if(u.hp<=0)return;
-  for(const kind of ["action","bonus"]){const l=crewActions(u).filter(a=>a.kind===kind&&a.ok&&!/^(Dash|Dodge|Disengage)$/.test(a.n));if(l.length){await (Math.random()<.5?l[0]:pick(l)).run();await checkEnd();if(B.over||u.hp<=0)return;}}}
+  const f=enemiesOf(u).filter(o=>o.hp>0);if(f.length&&speedOf(u)>0&&rand()<.7)await approach(u,nearest(u,f),u.key==="stig"||u.key==="katy"?4:1);if(u.hp<=0)return;
+  for(const kind of ["action","bonus"]){const l=crewActions(u).filter(a=>a.kind===kind&&a.ok&&!/^(Dash|Dodge|Disengage)$/.test(a.n));if(l.length){await (rand()<.5?l[0]:pick(l)).run();await checkEnd();if(B.over||u.hp<=0)return;}}}
 /* everything one of the crew can do this turn */
 function crewActions(u){
   const p=P(u.key),k=u.key,out=[],A=(n,sub,ok,run,kind="action",o={})=>out.push(Object.assign({n,sub,ok:ok&&(kind==="action"?u.act>0:kind==="bonus"?u.bonus>0:true),run,kind},o));
@@ -9407,7 +9663,7 @@ function teleport(u,r,cost){return async()=>{const cs=[];for(let y=0;y<B.mp.H;y+
   const c=await pickCell(cs,"Misty Step: tap where to appear");if(!c)return;u.bonus--;cost();delete u.cond.grappled;u.x=c[0];u.y=c[1];renderTokens();log(`${nameOf(u)} steps through silver mist.`,"b");};}
 const cost_=(x,y)=>cost(B.mp,x,y)>0;
 async function turnUndead(u){log("Stig raises his holy symbol: Turn Undead!","b");await paceArea(u,u.x,u.y,6,"Turn Undead","radiant");
-  for(const o of B.units.filter(o=>alive(o)&&o.side==="foe"&&MON[o.key].undead&&dist(o,u)<=6)){
+  for(const o of B.units.filter(o=>alive(o)&&!o.ghost&&o.side==="foe"&&MON[o.key].undead&&dist(o,u)<=6)){
     if(o.key==="husk"){o.hp=0;o.gone=true;log(`  ${o.name} crumbles to ash.`,"g");floatTxt(o,"crumbles","heal");continue;}
     const ok=await save(o,"wis",17,"Turn Undead");if(ok){floatTxt(o,"resists","miss");continue;}
     await hurt(o,dice("4d8").t,"radiant",u,{magic:true,aoe:true});
@@ -10037,6 +10293,21 @@ function iaHaunt(kind){const K={"h-floor":["#120c07","#3a2614","#ffc070",.5,.25,
     const v=g.createRadialGradient(W/2,H/2,H*.3,W/2,H/2,H*.95);v.addColorStop(0,"rgba(0,0,0,0)");v.addColorStop(1,"rgba(0,0,0,.7)");g.fillStyle=v;g.fillRect(0,0,W,H);
     return (gg,t)=>{gg.drawImage(a,0,0);};};}
 for(const k of [...Object.keys(IPICT),"h-toast","h-watcher"])if(/^([hks]|hn)-/.test(k))IART[k]=iaHaunt(k); // h-toast, h-watcher: drawn in code until their paintings are in
+/* session 10: a painting for every scene (source/art/k10-*, s10-*, g10-*, t10-*.webp). Until a file has loaded, or without it, its key shows the interlude's
+   one older picture (the second column). ?oneart in the address turns the whole set off: one picture per interlude, as before. */
+const I10_ONE=/[?&]oneart\b/.test(location.search);
+const I10PIC=[["k10-cave","cave",.41,.31,"#ffc070",.3,1,.5],["k10-eaves","memory",.1,.55,"#ffc070",.4,0,.5],["k10-stair","memory",.7,.28,"#ffc070",.35,0,.4],["k10-song","memory",.19,.53,"#ffc070",.45,0,.4],
+  ["k10-candle","memory",.375,.44,"#ffc070",.4,0,.3],
+  ["s10-ash","cave",.1,.78,"#ffc070",.25,1,.5],["s10-patron","patron",.155,.26,"#ffb060",.3,1,.2],["s10-eye","patron",.94,.15,"#ffc070",.3,1,.2],
+  ["s10-blade","patron",.685,.47,"#ffc070",.3,1,.2],
+  ["g10-scales","prayer",.51,.04,"#f0ead8",.5,1,.3],["g10-surf","prayer",.725,.24,"#ffd090",.25,0,.4],
+  ["g10-towel","prayer",.865,.61,"#ffc070",.4,1,.6],
+  ["t10-after","cave",.61,.81,"#ffd890",.3,1,.8],["t10-circle","fire",.49,.6,"#ff9a40",.5,-1,1.4],["t10-lute","fire",.815,.57,"#ff9a40",.45,-1,1]];
+for(const [k,base,lx,ly,col,r,ash,sp] of I10PIC){IPICT[k]={src:`art/${k}.webp`,lx,ly,col,r,ash,sp};
+  IART[k]=(W,H,S)=>{if(base==="cave"){const a=ia_cv(W,H);paintArt(a,"cave");return g=>{g.drawImage(a,0,0);};} // the cave drawn in code, as it shows today
+    const im=iPic(base);if(im)return iaPainted(W,H,S,im,IPICT[base]);
+    IPIC[base].addEventListener("load",()=>document.querySelectorAll("canvas").forEach(c=>{if(c.__iak===k&&c.isConnected&&!iPic(k))try{paintInterludeArt(c,k);}catch(e){}}),{once:true});
+    return IART[base](W,H,S);};}
 const IPIC={};
 function iPic(kind){const P=IPICT[kind];if(!P)return null;let im=IPIC[kind];
   if(!im){im=IPIC[kind]=new Image();im.decoding="async";
@@ -10170,7 +10441,7 @@ const TUNNELS={key:"tunnels",map:"tunnel",dim:true,undead:true,
     for(const u of U)if(u.crew&&P(u.key).vein>=2)addC(u,"poisoned");},
   async onRound(r){for(const u of B.units)if(u.ghost&&u.back<=r&&u.hp>0){u.ghost=false;const c=freeNear(4,13);u.x=c[0];u.y=c[1];u.hidden=true;log(`${u.name} slides out of the wall behind the back line.`,"r");if(!B.order.some(e=>e.u===u))B.order.push({u});}renderTokens();},
   async onRoundEnd(r){if(r>=4&&live("foe").length){log("The four notes start again, deeper in. The rest of them melt into the walls.","h");fourNotes(false);for(const u of live("foe")){u.gone=true;}renderTokens();B.over="win";}},
-  async check(){if(!B.units.some(u=>u.side==="foe"&&(alive(u)||u.ghost)))return "win";if(B.units.filter(u=>u.crew).every(u=>u.hp<=0))return "lose";return null;}};
+  async check(){if(!B.units.some(u=>u.side==="foe"&&alive(u)))return "win";if(B.units.filter(u=>u.crew).every(u=>u.hp<=0))return "lose";return null;}};
 
 /* ---- 4. The Blight Heart ---- */
 async function sHeart(){
@@ -10193,7 +10464,7 @@ const HEART={key:"heart",map:"cavern",dim:true,lair:true,
     if(r===1){const t=B.units.find(u=>u.key==="thorn");log("Lair action: roots burst from the wall and pin Thorn (escape DC 16, or an ally cuts him loose).","r");addC(t,"restrained",{dc:16});renderTokens();return;}
     const needles=B.units.filter(u=>u.key==="needle"&&alive(u)).length;
     if(needles<6&&rnd(2)===1){log("Lair action: two more Needle Blights drop from the ceiling.","r");spawnNeedles(2);return;}
-    const crew=B.units.filter(u=>u.crew&&u.hp>0&&!u.cond.engulfed&&!u.cond.restrained);const two=crew.sort(()=>Math.random()-.5).slice(0,2);
+    const crew=B.units.filter(u=>u.crew&&u.hp>0&&!u.cond.engulfed&&!u.cond.restrained);const two=[];while(two.length<2&&crew.length)two.push(crew.splice(rnd(crew.length)-1,1)[0]);
     log("Lair action: roots heave up under "+two.map(nameOf).join(" and ")+".","r");for(const t of two){if(!(await save(t,"dex",14,"Roots")))addC(t,"restrained",{dc:14});}renderTokens();},
   async onRound(r){const S=B.sc;if(r===2){log("Four Needle Blights drop from the cavern roof.","r");spawnNeedles(4);}
     if(r===6&&!S.playWithMe&&alive(B.units.find(u=>u.key==="heart"))){S.playWithMe=true;S.pwRound=r;log("Matthew shouts through the roots: “Play it with me!” The next song attempt can't fail.","h");fourNotes(false);}},
@@ -10399,6 +10670,237 @@ const SCENES=[
   {t:"The night ambush",eye:"15:00 · deadly",run:sAmbush},
   {t:"Katy's choice",eye:"15:40 · ending",run:sChoice}
 ];
+
+/* =================== THE FIGHT SIMULATOR: fight balance measured, not guessed (testing only, ?playtest) ===================
+   window.__sim plays any fight many times in a second or two each and counts what happened. It runs the real battle(),
+   takeTurn(), attack() and hurt(): nothing of the rules is copied here. While a run is on (PLAY.sim): pauses end at once,
+   nothing is drawn or heard (the drawing functions are swapped for empty ones and put back after), the dice are seeded,
+   and a test player takes the crew's turns:
+     random   today's ?playtest=auto player, unchanged (autoTurn)
+     steady   a middling player: walks up, hits what is nearest, heals who is down, uses a fight's own moves half the time
+     careful  a smart human: picks the blow worth most (the weakest or most dangerous foe, the one by the thing to guard),
+              stands out of reach and out of rough ground, area spells only on 2+ foes and no friends, picks up the fallen,
+              spends slots where they pay, uses the fight's own moves (B.def.sceneActs) and stays by B.def.guard
+   __sim.policy(fight, fn) gives one fight its own careful player: fn(u, ctx) plays that hero's turn (ctx: see simCtx).
+   Start state per fight (SIM_FIGHTS): an interlude fight gets what iFight gives it, a fresh level 5 party, and IST.dread /
+   IST.flicker (0 and 2 for session 10's four, 3 and 2 for undertow, hush, seal and frost; run(..., {dread, flicker})
+   changes them). The session 10 scene fights start from a rested party at the level the table had there (5 before lunch,
+   6 after), no flags set, and the scene's own ash save where it has one; {state:{party,flags}} sets anything else, and
+   {after:["tunnels"]} plays earlier fights first and carries the party over. Protocol Zero's fights: the Steward at 250.
+   {patch:{husk:{hp:30}, sc:{flame:4}, def:{...}}} changes monsters (MON), the fight's start values (def.sc) or the fight
+   itself for one call, and puts them back. Runner: tests/visual/fights.js. */
+const SIM={n:0,max:40000,cap:60,log:[],pol:"careful",own:{},want:null,cell:null,downs:{},half:{},zero:{}};
+function simTick(){if(++SIM.n>SIM.max)throw new Error("stuck: "+SIM.max+" pauses in one fight");return Promise.resolve();}
+/* what the careful player knows about an action beyond its own sub-line: damage type, area, and what not to bother with */
+const SIM_H={"Shortbow":{t:"piercing",nm:1},"Dagger":{t:"piercing",nm:1},"Shovel":{t:"bludgeoning",nm:1},"Slam ×2":{t:"bludgeoning",nm:1},
+  "Vicious Mockery":{t:"psychic",def:2},"Dissonant Whispers":{t:"psychic",half:1},"Sacred Flame":{t:"radiant"},"Toll the Dead":{t:"necrotic",toll:1},"Guiding Bolt":{t:"radiant"},"Vampiric Touch":{t:"necrotic"},
+  "Magical dagger":{t:"piercing",sneak:1},"Shadow Blade":{t:"psychic",sneak:1},"Ash blade +1":{t:"slashing",sneak:1,plus:2.5},"Throw the dagger":{t:"piercing",sneak:1,dmg:"1d4+5",rng:12},
+  "Eldritch Blast":{t:"force"},"Fire Bolt":{t:"fire"},"Arm cannon ×2":{t:"force"},
+  "Thunderwave":{t:"thunder",area:1,self:1,ff:1,push:1},"Thunderclap":{t:"thunder",area:1,self:1,ff:1},"The Drop":{t:"thunder",area:2,self:1},"Shatter":{t:"thunder",area:2,rng:12,ff:1},
+  "Turn Undead":{turn:1},"Rocket volley":{rocket:1},"Cure Wounds":{heal:1},"Revivify":{rev:1},
+  "Slow":{skip:1},"Bane":{skip:1},"Ray of Enfeeblement":{skip:1},"Path to the Grave":{skip:1},"Dash":{skip:1},"Dodge":{skip:1},"Disengage":{skip:1}};
+/* a fight's own moves: what each is worth to the careful player this turn (0: leave it). One not listed here is worth 20 */
+const SIM_SCENE={
+  "Feed the fire":()=>B.sc.flame<=1?90:B.sc.flame===2?22:0,
+  "Sing the lullaby":u=>{const S=B.sc;if(S.playWithMe&&!S.pwTried)return 100;const k=B.units.find(o=>o.key==="katy");return u.key==="katy"?80:k&&k.hp>0&&!k.cond.engulfed?0:45;},
+  "Press the Sigil of Earth":()=>0,"Escape the roots":()=>70,"Cut Thorn loose":()=>6,"Cut the net":()=>60,
+  "Talk them down":u=>(u.key==="katy"||u.key==="saphira")&&!enemiesOf(u).some(o=>dist(o,u)<=1)?24:0,
+  "Roll the ship":()=>B.round>=2?55:0,"Open the fire eyes":()=>90,
+  "Tear a seal off":()=>B.units.filter(o=>o.key==="glove"&&alive(o)&&!o.ghost).length<=1?40:14};
+const SIM_OWN={"Find your weapon":50,"Break free":35,"Escape the grapple":4};
+function simInfo(a){const s=a.sub||"",m=ACT_META[a.n]||[],h=SIM_H[a.n]||{},hit=TOHIT.exec(s),sv=SAVEDC.exec(s),d=/\d+d\d+(?:\+\d+(?!d))?/.exec(s),ft=/(\d+) ft/.exec(m[1]||"")||/· (\d+) ft/.exec(s),lv=/^(?:bonus · )?(1st|2nd|3rd) · /.exec(s);
+  return {h,hit:hit?+hit[1]:null,ab:sv?sv[1].toLowerCase():null,dc:sv?+sv[2]:0,dmg:h.dmg||(d?d[0]:null),count:/×2/.test(a.n)||/two beams/.test(s)?2:1,
+    rng:h.rng||(m[2]?m[2][1]:ft?Math.round(+ft[1]/5):1),far:!!(hit&&(m[2]||h.rng)),lvl:lv?+lv[1][0]:/pact slot/.test(s)?2:/^Channel/.test(s)?2:0};}
+function simMult(t,type,nm){if(t.crew||!MON[t.key])return 1;const d=MON[t.key],res=d.res||[];if((d.imm||[]).includes(type))return 0;let k=1;
+  if(!(B.sc.weak&&t.key==="heart")&&(res.includes(type)||(PHYS.includes(type)&&nm&&res.includes("nonmagical"))))k=.5;if((d.vul||[]).includes(type))k*=2;return k;}
+function simThreat(t){const m=MON[t.key];if(!m||!m.atk||!m.atk.length)return 0;return Math.max(...m.atk.map(a=>avgDice(a.dmg)+(a.plus?avgDice(a.plus):0)))*(m.boss?2:1);}
+const simReach=e=>e.crew?1:Math.max(1,...((MON[e.key]||{}).atk||[]).map(a=>a.reach||0));
+const simFoes=u=>enemiesOf(u).filter(o=>o.hp>0&&!o.ghost&&(!o.hidden||dist(u,o)<=1)&&(!u.cond.called||o.key==="grey"));
+const simFail=(t,ab,dc)=>clamp((dc-saveOf(t,ab)-1)/20,.05,.95);
+/* what E damage on t is worth: the damage itself (more on a boss), the blows it saves if t drops, and a little for a foe by the thing we guard */
+function simVal(u,t,E,G){if(E<=0)return 0;const d=Math.min(E,t.hp),boss=MON[t.key]&&MON[t.key].boss;let v=d*(boss?1.5:1)+(E>=t.hp?1:E/t.hp*.35)*(simThreat(t)*1.6+4);
+  if(G)v+=Math.max(0,4-dist(t,G))*3;if(u.cond.grappled&&u.cond.grappled.by===t.id)v+=6;if(t.cond.turned)v*=.4;return v;}
+/* the damage one action is expected to do to t from where u stands now */
+function simE(u,a,I,t){const h=I.h;let o=null;actCtx={u,a};try{o=tgtOdds(t);}finally{actCtx=null;}const p=o&&o.p!=null?o.p:.6,mult=simMult(t,h.t||"force",h.nm);
+  let avg=avgDice(h.toll&&t.hp<t.max?"2d12":I.dmg||"0")+(h.plus||0),E1=I.dc?p*avg+(h.half?(1-p)*avg/2:0):p*avg*1.05,E=E1*mult*I.count;
+  if(h.sneak&&!u.sneakUsed&&((o&&o.mode>0)||B.units.some(x=>x!==u&&x.side!=="foe"&&alive(x)&&!incap(x)&&dist(x,t)<=1)))E+=p*7*mult;
+  if(t.cond.hexed&&t.cond.hexed.by===u.id)E+=3.5*p*I.count;if(t.cond.cursed&&t.cond.cursed.by===u.id)E+=3*p*I.count;if(t.cond.grave)E+=E1*mult;return E;}
+/* how good a square is to stand on: out of the foes' reach, off rough ground, by the thing to guard, no opportunity attack on the way */
+function simCell(u,c,foes,G,ranged,near){const me={x:c[0],y:c[1],size:u.size};let s=-c[2]*.15;
+  for(const e of foes){const r=simReach(e),d=dist(me,e);if(d<=r)s-=ranged?9:4;else if(d<=r+1)s-=1;
+    if(!u.disengage&&!u.teleport&&e.react&&!incap(e)&&e.key!=="heart"&&dist(u,e)<=r&&d>r)s-=simThreat(e)*.9;}
+  if(cost(B.mp,c[0],c[1])===2)s-=3;if(G){const d=dist(me,G);s+=d<=1?12:-3*d;}if(near)s-=Math.max(0,dist(me,near.t)-near.r)*2;return s;}
+/* the careful player's plan for the action: {n: the action's name, c: where to stand, t: whom to aim at, ac: where an area lands} */
+function simPlan(u,tried){const G=B.def.guard&&B.def.guard()||null,foes=simFoes(u),sp=speedOf(u),rc=reachable(u,sp>0?Math.max(0,u.cond.prone?u.mv-Math.ceil(sp/2):u.mv):0),cs=[[u.x,u.y,0]],x0=u.x,y0=u.y;
+  for(const [k,v] of rc.d){if(v.occ||k===rc.start)continue;const [x,y]=k.split(",").map(Number);cs.push([x,y,v.c]);}
+  const at=(c,f)=>{u.x=c[0];u.y=c[1];try{return f();}finally{u.x=x0;u.y=y0;}},acts=crewActions(u).filter(a=>a.kind==="action"&&!tried.has(a.n)),sc=sceneNames(u),opts=[];
+  const hrt=B.units.find(o=>o.key==="heart"&&alive(o)),near=hrt&&B.def.sceneActs&&SIM_SCENE["Sing the lullaby"](u)>0?{t:hrt,r:6}:null; // the song needs her within 30 ft of the Heart
+  const base=[cs.map(c=>simCell(u,c,foes,G,false,near)),cs.map(c=>simCell(u,c,foes,G,true,near))],best=k=>{let bi=0;for(let i=1;i<cs.length;i++)if(base[k][i]>base[k][bi])bi=i;return bi;},home=best(0);
+  const add=(s,n,c,t,ac)=>{if(s>0)opts.push({s,n,c,t,ac});};
+  // someone is down: reach them with a healing hand
+  const down=B.units.filter(o=>o.crew&&o!==u&&o.hp<=0&&!o.dead&&!o.gone&&o.key!=="hans");
+  for(const a of acts){const I=simInfo(a),h=I.h;if(h.skip||sc.has(a.n))continue;
+    if(h.heal||h.rev){for(const d of h.rev?B.units.filter(o=>o.dead):down){let bi=-1;cs.forEach((c,i)=>{if(distXY(d,c[0],c[1])<=1&&(bi<0||base[0][i]>base[0][bi]))bi=i;});if(bi>=0)add(100+base[0][bi]*.1,a.n,cs[bi],d);}
+      if(h.heal&&u.hp<u.max*.35)add(16,a.n,cs[home],u);continue;}
+    if(h.turn){for(const i of new Set([0,home])){let v=0,n=0;for(const t of foes){if(!MON[t.key].undead||distXY(t,cs[i][0],cs[i][1])>6)continue;n++;
+        v+=t.key==="husk"?t.hp+simThreat(t)*1.6:simFail(t,"wis",17)*(simVal(u,t,18*simMult(t,"radiant"),G)+simThreat(t)*2);}if(n)add(v-4+base[0][i]*.3,a.n,cs[i]);}continue;}
+    if(h.rocket){let v=0;for(const t of foes.filter(t=>dist(u,t)<=24).slice(0,6))v+=simVal(u,t,10.5,G);add(v,a.n,cs[0]);continue;}
+    if(h.area){const avg=avgDice(I.dmg||"0"),hitV=(c,r)=>{let v=0,n=0;for(const o of B.units){if(!alive(o)||o===u||o.untarget||o.ghost)continue;const d=Math.max(gap(o.x,o.x+o.size-1,c[0],c[0]),gap(o.y,o.y+o.size-1,c[1],c[1]));if(d>r)continue;
+          if(o.side!=="foe"){if(h.ff)return 0;continue;}if(!foes.includes(o))continue;n++;const pf=I.dc?simFail(o,I.ab,I.dc):.5;v+=simVal(u,o,(pf*avg+(1-pf)*avg/2)*simMult(o,h.t),G)+(h.push&&G?5:0);}
+        return n>=2||(n===1&&h.push&&G)?v:0;};
+      if(h.self)cs.forEach((c,i)=>add(hitV(c,h.area)-I.lvl*2.5+base[0][i]*.5,a.n,c));
+      else for(const i of new Set([0,home])){let bv=0,bc=null;for(let y=0;y<B.mp.H;y++)for(let x=0;x<B.mp.W;x++){if(Math.max(Math.abs(x-cs[i][0]),Math.abs(y-cs[i][1]))>h.rng)continue;const v=hitV([x,y],h.area);if(v>bv){bv=v;bc=[x,y];}}
+        if(bc)add(bv-I.lvl*2.5+base[0][i]*.5,a.n,cs[i],null,bc);}
+      continue;}
+    if(I.hit==null&&!I.dc){if(SIM_OWN[a.n])add(SIM_OWN[a.n],a.n,cs[0]);continue;}
+    if(!I.dmg)continue;
+    for(const t of foes){let bi=-1,bs=-1e9;const k=I.far?1:0;
+      cs.forEach((c,i)=>{const me={x:c[0],y:c[1],size:u.size},d=dist(me,t);if(d>I.rng||(I.rng>1&&!at(c,()=>los(u,t))))return;const s=base[k][i]+(I.rng<=1&&d<=simReach(t)?4:0);if(s>bs){bs=s;bi=i;}});
+      if(bi<0)continue;const E=at(cs[bi],()=>simE(u,a,I,t));add(simVal(u,t,E,G)+(h.def||0)-I.lvl*2.5+bs*.5+2,a.n,cs[bi],t);}}
+  // the fight's own moves, wherever on the board they can be done this turn
+  if(B.def.sceneActs&&u.act>0)cs.forEach((c,i)=>{for(const a of at(c,()=>{try{return B.def.sceneActs(u);}catch(e){return [];}})){if(!a.ok||(a.kind&&a.kind!=="action")||tried.has(a.n))continue;
+      const f=SIM_SCENE[a.n],v=f?f(u):20;if(v>0)add(v+base[0][i]*.3,a.n,c);}});
+  for(const d of down)if(dist(u,d)<=1){const a=acts.find(a=>a.n==="Stabilise "+d.short);if(a&&!d.cond.stable)add(30,a.n,cs[0]);}
+  if(opts.length)return opts.sort((a,b)=>b.s-a.s)[0];
+  // nothing to do from here: close in (Dash if that is still not enough), or take the best square and Dodge
+  const T=G&&!foes.length?G:foes.length?nearest(u,foes):null;if(!T)return {n:"Dodge",c:cs[home]};
+  let bi=0,bd=1e9;cs.forEach((c,i)=>{const d=dist({x:c[0],y:c[1],size:u.size},T)*10-base[0][i]*.1;if(d<bd){bd=d;bi=i;}});
+  return {n:tried.has("Dash")?"Dodge":"Dash",c:cs[bi],t:T};}
+/* walk to a square the way a tap on the board does (B.onMove in playerTurn) */
+async function simMove(u,x,y){if(x===u.x&&y===u.y)return true;const sp=speedOf(u);if(sp<=0)return false;
+  const rc=reachable(u,Math.max(0,u.cond.prone?u.mv-Math.ceil(sp/2):u.mv)),n=rc.d.get(x+","+y),path=n&&!n.occ&&pathTo(rc,x,y);if(!path||!path.length)return false;
+  if(u.cond.prone){delete u.cond.prone;u.mv=Math.max(0,u.mv-Math.ceil(sp/2));log(`${u.short} gets up.`);}
+  u.mv-=n.c;u.moved+=n.c;if(B.def.onMoveStart)B.def.onMoveStart(u);return moveAlong(u,path);}
+/* run one of the hero's actions by name; true when it was spent */
+async function simAct(u,name,t,cell){const a=crewActions(u).find(a=>a.n===name&&a.ok);if(!a)return false;const k=a.kind==="bonus"?"bonus":"act",v0=u[k],m0=u.mv;
+  SIM.want=t||null;SIM.cell=cell||null;actCtx={u,a};try{await a.run();}finally{actCtx=null;SIM.want=SIM.cell=null;}await checkEnd();return u[k]<v0||u.mv!==m0;}
+const simObjective=(u,list)=>list.slice().sort((a,b)=>((MON[b.key]&&MON[b.key].boss?1e3:0)+simThreat(b)*10+b.hp/100)-((MON[a.key]&&MON[a.key].boss?1e3:0)+simThreat(a)*10+a.hp/100))[0];
+/* the bonus action: first (pre) what makes the action better, afterwards what is left */
+async function simBonus(u,pre){if(u.bonus<=0||u.hp<=0||B.over||u.cond.ko)return;const acts=crewActions(u).filter(a=>a.kind==="bonus"&&a.ok),sc=sceneNames(u),has=n=>acts.find(a=>a.n===n),foes=simFoes(u);
+  const down=B.units.some(o=>o.crew&&o!==u&&o.hp<=0&&!o.dead&&o.key!=="hans"),hurtN=B.units.filter(o=>o.crew&&!o.dead&&o.hp<o.max*.5).length;let a=null,t=null;
+  if((down||hurtN>=2||u.hp<u.max*.35)&&(a=has("Mass Healing Word"))){}
+  else if(u.hp<u.max*.5&&(a=has("Healing potion"))){}
+  else if((a=acts.find(x=>sc.has(x.n)&&(x.n!=="Pick a berry"||u.hp<u.max*.7)))){}
+  else if(pre&&foes.length){const obj=simObjective(u,foes),tot=foes.reduce((s,o)=>s+o.hp,0);
+    if((a=has("Shadow Blade"))){}
+    else if(dist(u,obj)<=6&&(a=has("Hexblade's Curse")))t=obj;
+    else if(tot>=30&&dist(u,obj)<=18&&(a=has("Hex")))t=obj;
+    else if((a=has("Bardic Inspiration"))){}
+    else if((a=has("Sentinel stance"))){}
+    else a=has("Hide");}
+  if(!a&&!pre)a=has("Spare the Dying")||(foes.some(o=>dist(u,o)<=1)?has("Shield bash"):null)||has("Hide");
+  if(a)await simAct(u,a.n,t);}
+async function simCareful(u){const tried=new Set();
+  await simBonus(u,true);
+  for(let i=0;i<8&&!B.over&&u.hp>0&&!u.cond.ko;i++){const pl=simPlan(u,tried);if(!pl)break;
+    if(pl.c&&(pl.c[0]!==u.x||pl.c[1]!==u.y)){
+      if(speedOf(u)<=0&&u.cond.grappled&&u.bonus>0&&crewActions(u).some(a=>a.n==="Misty Step"&&a.ok)&&distXY(u,pl.c[0],pl.c[1])<=6&&await simAct(u,"Misty Step",null,pl.c)){if(B.over||u.hp<=0)return;continue;} // out of a grip the way the cloak allows
+      await simMove(u,pl.c[0],pl.c[1]);await checkEnd();if(B.over||u.hp<=0||u.cond.ko)return;}
+    if(!pl.n||u.act<=0)break;
+    if(!(await simAct(u,pl.n,pl.t,pl.ac))){tried.add(pl.n);continue;}
+    if(B.over||u.hp<=0)return;
+    if(pl.n==="Dash"){tried.add("Dash");continue;}
+    if(u.act<=0)break;}
+  await simBonus(u,false);}
+/* a middling player */
+async function simSteady(u){const G=B.def.guard&&B.def.guard()||null,sc=sceneNames(u),gen=/^(Dash|Dodge|Disengage|Hide|Misty Step)$/,hits=a=>TOHIT.test(a.sub||"")||SAVEDC.test(a.sub||""),slot=a=>simInfo(a).lvl>0;
+  const down=B.units.find(o=>o.crew&&o!==u&&o.hp<=0&&!o.dead&&!o.gone&&o.key!=="hans"),foes=simFoes(u);
+  if(down&&crewActions(u).some(a=>a.n==="Cure Wounds"&&(a.ok||dist(u,down)>1))){await approach(u,down,1);if(u.hp<=0||B.over)return;if(await simAct(u,"Cure Wounds",down))return;}
+  if(down&&await simAct(u,"Mass Healing Word",down)){}
+  if(G){if(dist(u,G)>1)await approach(u,G,1);}else if(foes.length)await approach(u,nearest(u,foes),u.key==="hans"||u.key==="steward"||(u.key==="saphira"&&B.sc.blade)?1:4);
+  if(u.hp<=0||B.over)return;
+  for(const a of crewActions(u).filter(a=>a.ok&&sc.has(a.n)))if(a.kind==="bonus"||rand()<.5){await simAct(u,a.n);if(B.over||u.hp<=0)return;}
+  if(u.act>0){const l=crewActions(u).filter(a=>a.kind==="action"&&a.ok&&!sc.has(a.n)&&!gen.test(a.n)&&!/^Stabilise|^Revivify/.test(a.n)&&(a.n!=="Cure Wounds"||u.hp<u.max*.5));
+    if(l.length){const d=l.filter(hits),plain=d.filter(a=>!slot(a)),a=rand()<.3?pick(l):plain[0]||d[0]||l[0];await simAct(u,a.n,a.n==="Cure Wounds"?u:null);if(B.over||u.hp<=0)return;}}
+  if(u.bonus>0){const l=crewActions(u).filter(a=>a.kind==="bonus"&&a.ok&&!sc.has(a.n)&&!gen.test(a.n)&&(a.n!=="Healing potion"||u.hp<u.max*.5)&&(a.n!=="Mass Healing Word"||u.hp<u.max*.4));if(l.length)await simAct(u,l[0].n);}}
+/* what a per-fight player (__sim.policy) gets to work with */
+function simCtx(u){return {u,get B(){return B;},get sc(){return B.sc;},guard:()=>B.def.guard&&B.def.guard()||null,acts:()=>crewActions(u),scene:()=>sceneNames(u),
+  foes:()=>simFoes(u),friends:()=>B.units.filter(o=>o.side!=="foe"&&!o.gone&&!o.dead),dist,los,alive,nearest:l=>nearest(u,l),rand,rnd,
+  can:n=>crewActions(u).some(a=>a.n===n&&a.ok),run:(n,t,cell)=>simAct(u,n,t,cell),moveTo:(x,y)=>simMove(u,x,y),approach:(t,r=1)=>approach(u,t,r),
+  plan:()=>simPlan(u,new Set()),value:(n,t)=>{const a=crewActions(u).find(a=>a.n===n);return a?simE(u,a,simInfo(a),t):0;},bonus:pre=>simBonus(u,pre),fallback:()=>simCareful(u),steady:()=>simSteady(u)};}
+/* the test player's answers while the simulator runs: whom to aim at, where to put an area, the yes/no questions */
+function simPickT(list,hint){if(!list.length)return null;if(SIM.want&&list.includes(SIM.want))return SIM.want;const u=B.cur;
+  if(list[0].side!=="foe"){if(/gets the die/.test(hint||""))return list.find(o=>o.key==="hans")||list.find(o=>o.key==="saphira")||list[0];return list.slice().sort((a,b)=>Math.max(0,a.hp)/a.max-Math.max(0,b.hp)/b.max)[0];}
+  if(SIM.pol==="steady"||!u){const G=B.def.guard&&B.def.guard()||u;return list.slice().sort((a,b)=>dist(a,G)-dist(b,G)||a.hp-b.hp)[0];}
+  return simObjective(u,list);}
+function simPickC(cs,hint,areaFn){if(!cs.length)return null;if(SIM.cell){const c=cs.find(c=>c[0]===SIM.cell[0]&&c[1]===SIM.cell[1]);if(c)return c;}
+  if(areaFn){const score=c=>{const a=new Set(areaFn(c[0],c[1]).map(q=>q.join(",")));let n=0;for(const o of B.units)if(alive(o)&&!o.ghost&&a.has(o.x+","+o.y))n+=o.side==="foe"?1:-3;return n;},best=cs.slice().sort((a,b)=>score(b)-score(a))[0];return score(best)>0?best:null;}
+  if(SIM.pol==="steady")return pick(cs);const f=live("foe");return cs.slice().sort((a,b)=>Math.min(...f.map(o=>distXY(o,b[0],b[1])),99)-Math.min(...f.map(o=>distXY(o,a[0],a[1])),99))[0];}
+function simAsk(title,text){const hans=B&&B.units.find(o=>o.key==="hans");
+  if(/Bodyguard/.test(title)){if(!hans)return false;if(SIM.pol==="steady")return hans.hp>hans.max/2;const t=B.units.find(o=>o.crew&&o!==hans&&String(text).includes(" hits "+o.short+"."));
+    return hans.hp>hans.max*.35&&(!t||t.hp<=15||t.hp/t.max<hans.hp/hans.max);}
+  if(/Saphira: cast Shield/.test(title)&&SIM.pol==="careful"){const s=B.units.find(o=>o.key==="saphira");return P("saphira").pact>1||!s||s.hp<=s.max*.6;}
+  if(/Shield|Inspiration|reroll/i.test(title))return true;return rand()<.6;}
+/* ---- the fights it knows, and the state each one starts from ---- */
+function simLevel6(){for(const id of CREW_IDS){const p=P(id),c=CREW[id];if(p.lv>=6)continue;p.lv=6;if(c.lv6hp){p.max+=c.lv6hp;p.hp+=c.lv6hp;}if(c.slots6)p.slots=p.slots.map((n,i)=>n+(c.slots6[i]-c.slots[i]));if(id==="saphira")p.pactLv=2;}} // as at lunch in sMatthew
+const SIM_FIGHTS=()=>{const L={},I=(k,id,dread)=>{if(IFIGHTS[k])L[k]={def:IFIGHTS[k],kind:"interlude",id,dread,flicker:2,note:`fresh level 5 party as in iFight; IST.dread ${dread}, IST.flicker 2`};};
+  I("katy","s10-katy",0);I("saphira","s10-saphira",0);I("stig","s10-stig",0);I("together","s10-together",0);I("undertow","s11-stig",3);I("hush","s11-katy",3);I("seal","s11-saphira",3);I("frost","s11-hans",3);
+  L.tunnels={def:TUNNELS,kind:"scene",ash:"The ash billows up as they come.",note:"rested level 5 party, no flags, the scene's ash save rolled first"};
+  L.heart={def:HEART,kind:"scene",ash:"The air in here is thick with it.",note:"rested level 5 party, no flags (not Overclocked), the ash save rolled first. At the table the crew comes here straight from the tunnels: {after:[\"tunnels\"]} plays that"};
+  L.husks={def:HUSKS,kind:"scene",lv6:true,note:"rested level 6 party, no flags (Hans not drained)"};
+  L.ambush={def:AMBUSH,kind:"scene",lv6:true,note:"rested level 6 party, no flags: no watch kept, so everyone but Katy is surprised; weapons not piled, Hans not drained"};
+  if(typeof SWF!=="undefined")for(const k of Object.keys(SWF))L["sw-"+k]={def:SWF[k],kind:"steward",note:"the Steward at 250 HP; HULL and POWER as the story has them before this fight. These fights have no way to lose"};
+  return L;};
+function simSetup(F,o){ST=freshState();PLAY.inter=true;IST=null;
+  if(F.kind==="interlude")IST={I:IBY[F.id]||null,seen:[],path:[],verse:{},votes:{},dread:o.dread!=null?+o.dread:F.dread,flicker:o.flicker!=null?+o.flicker:F.flicker,mid:{}};
+  if(F.kind==="steward"){ST.party.steward={hp:250,max:250,temp:0,slots:null,pact:0,res:{},ex:0,insp:0,lv:5,str:22};const first=F.def.key==="sw-deck";Object.assign(SW,{on:false,hull:first?100:62,power:first?100:86,left:51,core:null,showLeft:false});}
+  if(F.lv6)simLevel6();}
+function simState(o){const s=o.state||{};for(const id in s.party||{})if(ST.party[id]){const v=s.party[id],p=ST.party[id];Object.assign(p,v,v.res?{res:Object.assign({},p.res,v.res)}:null);}Object.assign(ST.flags,s.flags||{});}
+/* one fight, start to finish. Returns {out, rounds, reason, crew:{id:{hp,max,dead,downs,half}}, sc, async} */
+async function simOne(F,o,seed,L){SIM.n=0;SIM.log=[];SIM.downs={};SIM.half={};PLAY.rng=simRng(seed);const mr=simRng(seed^0x5bd1e995),real=Math.random;let out=null,reason="",busy=true,yielded=false;
+  const ch=new MessageChannel();ch.port1.onmessage=()=>{if(busy)yielded=true;ch.port1.close();};ch.port2.postMessage(0); // did the fight ever wait on the clock? Then other code could run in between, and a re-run may differ
+  Math.random=mr;
+  try{simSetup(F,o);
+    for(const k of o.after||[]){const P0=L[k];if(!P0)throw new Error("no such fight: "+k);if(P0.lv6)simLevel6();if(P0.ash)await ashSave(P0.ash);await battle(P0.def);for(const id of CREW_IDS){const p=P(id);if(p.hp<=0){p.hp=1;p.dead=false;}}} // a lost fight: "carry on anyway", as runScene does
+    if(F.lv6)simLevel6();simState(o);if(F.ash)await ashSave(F.ash);
+    SIM.downs={};SIM.half={};out=await battle(F.def);}
+  catch(e){out=null;reason=e===ABORT?"aborted":String(e&&e.message||e);if(!/^round cap|^stuck/.test(reason)&&e!==ABORT)console.warn("fight simulator:",F.def.key,e);}
+  finally{Math.random=real;busy=false;}
+  const crew={},sc={};if(B){for(const u of B.units)if(u.crew)crew[u.key]={hp:Math.max(0,u.hp),max:u.max,dead:!!u.dead,downs:SIM.downs[u.key]||0,half:!!SIM.half[u.key]};for(const k in B.sc)if(B.sc[k]===true)sc[k]=1;}
+  if(out!=="win"&&out!=="lose"&&!reason)reason="ended as "+out;
+  return {out,rounds:B?B.round:0,reason,crew,sc,async:yielded,log:o.log?SIM.log.slice():undefined};}
+async function simRun(key,o={}){const L=SIM_FIGHTS(),F=L[String(key).replace(/^i-/,"")];if(!F)throw new Error("no such fight: "+key+" (try __sim.fights())");
+  if(SIM.busy)throw new Error("the simulator is already running");if(B&&!B.over&&PLAY.on&&B.cur)throw new Error("a fight is being played: finish or leave it first");
+  const n=o.n||20,pol=o.policy||"careful",seed=o.seed==null?1:+o.seed,k=F.def.key.replace(/^i-/,"");if(!["random","steady","careful"].includes(pol))throw new Error("no such policy: "+pol);
+  // everything the run touches, to put back after
+  const keep={ST,IST,IFK,B,inter:PLAY.inter,auto:PLAY.auto,aim:PLAY.aim,rng:PLAY.rng,opt:Object.assign({},opt),storyEl,sw:typeof SW!=="undefined"?Object.assign({},SW):null,
+    fn:{buildBattleView,fitMap,sideMode,clearLog,renderTokens,renderInit,floatTxt,shake,drawHi,log,panelMsg,setPanel,paceBanner,foeSeen,hide3d,chip,iRepaint,takeTurn,zero,autoTurn,pickTarget,pickCell,ask},mon:[],sc:null,def:null};
+  const patch=o.patch||{};
+  SIM.busy=true;SIM.pol=pol;const t0=performance.now(),runs=[];
+  try{
+    for(const m in patch){if(m==="sc"||m==="def")continue;if(!MON[m])throw new Error("patch: no monster called "+m);keep.mon.push([m,Object.assign({},MON[m]),Object.keys(patch[m]).filter(x=>!(x in MON[m]))]);Object.assign(MON[m],patch[m]);}
+    if(patch.def){keep.def=[Object.assign({},F.def),Object.keys(patch.def).filter(x=>!(x in F.def))];Object.assign(F.def,patch.def);}
+    if(patch.sc){keep.sc=[F.def.sc,"sc" in F.def];F.def.sc=Object.assign({},F.def.sc||{},patch.sc);}
+    PLAY.sim=true;PLAY.auto=true;PLAY.aim=null;Object.assign(opt,{dice:false,sound:false,fast:true,pace:"quick",flat:true});storyEl=h("div");
+    const no=()=>{};buildBattleView=fitMap=sideMode=clearLog=renderTokens=renderInit=shake=drawHi=panelMsg=setPanel=paceBanner=foeSeen=hide3d=chip=iRepaint=no;floatTxt=no;
+    log=t=>{SIM.log.push(t);if(SIM.log.length>400)SIM.log.shift();};
+    const half=()=>{if(B)for(const u of B.units)if(u.crew&&u.hp<u.max/2)SIM.half[u.key]=1;};
+    takeTurn=async u=>{if(B.round>SIM.cap)throw new Error("round cap: still fighting in round "+B.round);await keep.fn.takeTurn(u);half();};
+    zero=async function(t){if(t.crew)SIM.downs[t.key]=(SIM.downs[t.key]||0)+1;return keep.fn.zero.apply(this,arguments);};
+    if(pol!=="random"){pickTarget=(l,hint)=>Promise.resolve(simPickT(l,hint));pickCell=(c,hint,fn)=>Promise.resolve(simPickC(c,hint,fn));ask=(t,x)=>Promise.resolve(simAsk(t,x));
+      autoTurn=async u=>{const own=pol==="careful"&&(SIM.own[k]||SIM.own["i-"+k]||SIM.own[F.def.key]);
+        if(own)await own(u,simCtx(u));else if(pol==="careful")await simCareful(u);else await simSteady(u);};}
+    for(let i=0;i<n;i++){const r=await simOne(F,o,(seed*1000003+i*7919)>>>0,L);half();runs.push(r);B=null;if(i%5===4)await new Promise(r=>setTimeout(r,0));}
+  }finally{({buildBattleView,fitMap,sideMode,clearLog,renderTokens,renderInit,floatTxt,shake,drawHi,log,panelMsg,setPanel,paceBanner,foeSeen,hide3d,chip,iRepaint,takeTurn,zero,autoTurn,pickTarget,pickCell,ask}=keep.fn);
+    for(const [m,was,added] of keep.mon){for(const x of added)delete MON[m][x];Object.assign(MON[m],was);}
+    if(keep.def){for(const x of keep.def[1])delete F.def[x];Object.assign(F.def,keep.def[0]);}if(keep.sc){if(keep.sc[1])F.def.sc=keep.sc[0];else delete F.def.sc;}
+    ST=keep.ST;IST=keep.IST;IFK=keep.IFK;B=keep.B;PLAY.inter=keep.inter;PLAY.auto=keep.auto;PLAY.aim=keep.aim;PLAY.rng=keep.rng;PLAY.sim=false;storyEl=keep.storyEl;
+    for(const x of Object.keys(opt))if(!(x in keep.opt))delete opt[x];Object.assign(opt,keep.opt);if(keep.sw)Object.assign(SW,keep.sw);SIM.busy=false;}
+  // the count
+  const ms=performance.now()-t0,won=runs.filter(r=>r.out==="win"),lost=runs.filter(r=>r.out==="lose"),other=runs.filter(r=>r.out!=="win"&&r.out!=="lose"),done=runs.filter(r=>r.out==="win"||r.out==="lose"),rd=done.map(r=>r.rounds);
+  const r2=v=>Math.round(v*100)/100,avg=a=>a.length?r2(a.reduce((x,y)=>x+y,0)/a.length):0,ids=[...new Set(runs.flatMap(r=>Object.keys(r.crew)))],perCrew={},sc={},reasons={};
+  for(const id of ids){const c=runs.map(r=>r.crew[id]).filter(Boolean);perCrew[id]={downs:avg(c.map(x=>x.downs)),zeroRuns:r2(c.filter(x=>x.downs>0).length/c.length),halfRuns:r2(c.filter(x=>x.half).length/c.length),deaths:c.filter(x=>x.dead).length,hpEnd:avg(c.map(x=>x.hp/x.max))};}
+  for(const r of runs){for(const x in r.sc)sc[x]=(sc[x]||0)+1;if(r.reason)reasons[r.reason]=(reasons[r.reason]||0)+1;}
+  let hsh=2166136261;for(const ch of JSON.stringify(runs.map(r=>[r.out,r.rounds,r.reason,Object.entries(r.crew).map(([k2,c])=>[k2,c.hp,c.downs,c.dead])])))hsh=Math.imul(hsh^ch.charCodeAt(0),16777619)>>>0;
+  const cnt=f=>runs.filter(r=>Object.values(r.crew).some(f)).length;
+  return {key:k,def:F.def.key,policy:pol+(pol==="careful"&&(SIM.own[k]||SIM.own["i-"+k]||SIM.own[F.def.key])?"+own":""),seed,n,wins:won.length,losses:lost.length,other:other.length,winRate:r2(won.length/n),
+    rounds:{avg:avg(rd),min:rd.length?Math.min(...rd):0,max:rd.length?Math.max(...rd):0},
+    downs:avg(runs.map(r=>Object.values(r.crew).reduce((s,c)=>s+c.downs,0))),zeroRuns:r2(cnt(c=>c.downs>0)/n),half:avg(runs.map(r=>Object.values(r.crew).filter(c=>c.half).length)),halfRuns:r2(cnt(c=>c.half)/n),
+    deaths:runs.reduce((s,r)=>s+Object.values(r.crew).filter(c=>c.dead).length,0),perCrew,sc,reasons,async:runs.filter(r=>r.async).length,msPerFight:Math.round(ms/n),hash:hsh.toString(16),
+    start:Object.assign({note:F.note},F.kind==="interlude"?{dread:o.dread!=null?+o.dread:F.dread,flicker:o.flicker!=null?+o.flicker:F.flicker}:null,o.after?{after:o.after}:null,o.state?{state:o.state}:null),
+    runs:o.runs?runs.map(r=>({out:r.out,rounds:r.rounds,reason:r.reason,crew:r.crew,log:r.log})):undefined};}
+if(/[?&]playtest(=|&|$)/.test(location.search))window.__sim={policies:["random","steady","careful"],fights:()=>Object.keys(SIM_FIGHTS()),info:()=>{const L=SIM_FIGHTS(),o={};for(const k in L)o[k]={def:L[k].def.key,kind:L[k].kind,start:L[k].note};return o;},
+  run:simRun,policy(key,fn){const k=String(key).replace(/^i-/,"");if(fn)SIM.own[k]=fn;else delete SIM.own[k];return Object.keys(SIM.own);},seed(s){PLAY.rng=s==null?null:simRng(+s);},get busy(){return !!SIM.busy;},mon:()=>JSON.parse(JSON.stringify(MON))};
 
 /* =================== CINEMATICS ON THE TABLE: t3cine, a shot sequencer for the 3D board ===================
    OWNER: cinematics. t3cine(shots,{id,end}) plays a list of shots on the live board and resolves "done" or "skipped".
@@ -10764,8 +11266,8 @@ function iPassage(p,opts,{spk=""}={}){return new Promise(res=>{clearStory();
   const rd=h("div",{class:"pl-read pl-inter",tabindex:"-1",html:iFill(p.html)});storyEl.append(rd);
   storyEl.append(h("div",{class:"pl-choices"},...opts.map((o,i)=>h("button",{type:"button",class:"pl-btn"+(opts.length===1?" pri":""),disabled:!!o.off,onclick:e=>{if(typeof hush==="function")hush();const b=e.currentTarget,box=b.parentNode;
     if(box.classList.contains("hv-picked"))return;
-    if(storyEl.classList.contains("hv")&&!reduced&&!b.classList.contains("pri")){box.classList.add("hv-picked");b.classList.add("hv-pick");setTimeout(()=>res(i),720);}else res(i);}},o.t,o.sub?h("small",{},o.sub):null))));
-  sayIt(iIf(p.html));storyEl.scrollTop=0;iFocus(rd);if(PLAY.auto){const ok=opts.map((o,i)=>o.off?-1:i).filter(i=>i>=0);setTimeout(()=>res(pick(ok)),IPACE);}});}
+    if(storyEl.classList.contains("hv")&&!reduced&&!b.classList.contains("pri")){box.classList.add("hv-picked");b.classList.add("hv-pick");setTimeout(()=>res(i),720);}else if(!iStageTurn(b,()=>res(i)))res(i);}},o.t,o.sub?h("small",{},o.sub):null))));
+  sayIt(iIf(p.html));storyEl.scrollTop=0;iStageText(rd);iFocus(rd);if(PLAY.auto){const ok=opts.map((o,i)=>o.off?-1:i).filter(i=>i>=0);setTimeout(()=>res(pick(ok)),IPACE);}});}
 const IPACE=+((location.search.match(/[?&]pace=(\d+)/)||[])[1]||0); // playtest=auto&pace=ms: linger on each passage (for screenshots)
 /* a screen reader starts at the new passage, not at the button that was just pressed (which is gone) */
 function iFocus(el){try{el.focus({preventScroll:true});}catch(e){}}
@@ -10955,9 +11457,53 @@ function iSnd(k){if(!opt.sound)return;const N=NOTE;if(typeof iScoreSnd==="functi
 function iArtTo(key,ms){if(!artCv)return;SW_CUR=key;const box=artCv.parentNode;
   if(ms&&!reduced&&box){const old=h("canvas",{width:artCv.width,height:artCv.height,class:"ic-old","aria-hidden":"true"});
     try{old.getContext("2d").drawImage(artCv,0,0);}catch(e){}
-    old.style.transition=`opacity ${ms}ms ease-in-out`;box.append(old);requestAnimationFrame(()=>requestAnimationFrame(()=>{old.style.opacity="0";}));setTimeout(()=>old.remove(),ms+100);}
+    iStageOld(old);old.style.transition=`opacity ${ms}ms ease-in-out`;box.append(old);requestAnimationFrame(()=>requestAnimationFrame(()=>{old.style.opacity="0";}));setTimeout(()=>old.remove(),ms+100);}
   try{paintArt(artCv,key);}catch(e){console.error(e);}}
 function iFlash(k){const box=artCv&&artCv.parentNode;if(!box||reduced)return;const f=h("i",{class:"ic-flash ic-"+k,"aria-hidden":"true"});box.append(f);setTimeout(()=>f.remove(),2400);}
+/* ---- interludes 3.0: the stage. The reading screen as a staged scene: the picture big and cropped round its light, a slow camera
+   on it, the words arriving paragraph by paragraph, a turn between passages. CSS: "interludes 3.0: the stage". ?nostage: the old screen. ---- */
+const I3_ON=!/[?&]nostage(=|&|$)/.test(location.search);
+const I3_FR=[[1.035,-1.2,-.8],[1.09,1.5,-1.6],[1.06,-2.2,.9],[1.1,.6,2],[1.045,1.6,.4],[1.085,-2.4,-1.8],[1.07,2.4,1.2],[1.1,-.8,-2.2]]; // framings: scale, x %, y % (never far enough to show an edge)
+const i3On=()=>I3_ON&&!!storyEl&&storyEl.classList.contains("i3");
+/* the picture is 16:9; the box is whatever the layout gives it. The canvas covers the box, placed so its light (IPICT lx, ly) stays in view */
+function iStageFit(key){const box=artCv&&artCv.parentNode;if(!box||!i3On())return;if(key)box.__i3key=key;
+  const W=box.clientWidth,H=box.clientHeight;if(W<2||H<2)return;
+  const ch=Math.max(H,W*9/16),cw=ch*16/9,P=IPICT[box.__i3key]||IPICT[artCv.__iak]||{},fx=.5+((P.lx??.5)-.5)*.4,fy=.5+((P.ly??.5)-.5)*.4;
+  const x=Math.min(0,Math.max(W-cw,W/2-fx*cw)),y=Math.min(0,Math.max(H-ch,H/2-fy*ch)),st=box.style;
+  st.setProperty("--i3-cw",cw.toFixed(1)+"px");st.setProperty("--i3-ch",ch.toFixed(1)+"px");st.setProperty("--i3-x",x.toFixed(1)+"px");st.setProperty("--i3-y",y.toFixed(1)+"px");}
+/* from iCine, before the look is applied: the layout, the fade under the picture, the listeners (once per story view) */
+function iStage(S){if(!I3_ON||!storyEl||!artCv)return;const se=storyEl,box=artCv.parentNode;se.classList.add("i3");if(!box)return;
+  if(!box.querySelector(".i3-fade")){box.append(h("i",{class:"i3-fade","aria-hidden":"true"}));
+    if(typeof ResizeObserver==="function")try{new ResizeObserver(()=>{iStageFit();if(se.i3More)se.i3More();}).observe(box);}catch(e){}}
+  if(!se.i3L){se.i3L=1;const all=()=>{if(se.i3All)se.i3All();};
+    se.addEventListener("scroll",()=>{if(se.i3More)se.i3More();if(se.scrollTop>24)all();},{passive:true});
+    for(const ev of["pointerdown","wheel","keydown"])se.addEventListener(ev,all,{passive:true});}
+  iStageFit(S.cine&&S.cine.art||S.I.art);}
+/* from iCine, after the look: the camera finds a new framing for this passage, chosen by its id; when it gets there it drifts on to the next */
+function iStageCam(S){if(!i3On())return;const cv=artCv,se=storyEl,key=S.cine.art+"/"+S.at,fresh=!cv.__i3at,scene=fresh||cv.__i3art!==S.cine.art;
+  iStageFit(S.cine.art);if(cv.__i3at===key)return;cv.__i3at=key;cv.__i3art=S.cine.art;se.i3Lead=scene;
+  if(reduced||se.classList.contains("sw"))return; // Protocol Zero has its own camera (iCam)
+  let n=0;for(const c of key)n=(n*31+c.charCodeAt(0))>>>0;const N=I3_FR.length;
+  const to=k=>{const [s,x,y]=I3_FR[k%N];cv.__i3k=k%N;cv.style.transform=`translate(${x}%,${y}%) scale(${s})`;};
+  if(fresh){cv.style.transition="none";to(n+3);void cv.offsetWidth;cv.style.transition="";
+    cv.addEventListener("transitionend",e=>{if(e.propertyName!=="transform"||!cv.isConnected||se.dataset.mood==="thin")return;cv.style.setProperty("--i3-cam","34s");to(cv.__i3k+3);});}
+  if(se.dataset.mood==="thin")return; // the memory gone thin: the picture holds still, as before
+  cv.style.setProperty("--i3-cam",(se.dataset.mood==="grey"?40:24+n%7)+"s");to(n%N===cv.__i3k?n+1:n);}
+/* a cross-fade keeps the old picture where the camera had it */
+function iStageOld(old){if(!i3On())return;try{const cs=getComputedStyle(artCv);Object.assign(old.style,{left:cs.left,top:cs.top,width:cs.width,height:cs.height,transform:cs.transform==="none"?"":cs.transform});}catch(e){}}
+/* from iPassage, with the words on the page: they come in one after another (about 1.3 s at most, the choices last); a tap, a key or a
+   scroll shows everything. A screen reader has the whole passage from the start. */
+function iStageText(rd){if(!i3On())return;const se=storyEl,ch=se.querySelector(".pl-choices"),kids=[...rd.children],n=kids.length;
+  const more=h("i",{class:"i3-more","aria-hidden":"true"});se.append(more);
+  se.i3More=()=>{if(more.isConnected)more.classList.toggle("on",se.scrollHeight-se.clientHeight-se.scrollTop>56);};requestAnimationFrame(se.i3More);setTimeout(se.i3More,700);
+  if(se.i3Lead){se.i3Lead=false;const p=kids[0];if(p&&p.tagName==="P"&&!p.className&&p.textContent.length>70&&/^["“‘']?[A-Za-z]/.test(p.textContent)&&!se.classList.contains("sw"))rd.classList.add("i3-lead");}
+  if(reduced){se.i3All=null;return;}
+  const step=Math.min(.16,1.1/Math.max(1,n-1));kids.forEach((el,i)=>{if(i)el.style.setProperty("--i3-d",(i*step).toFixed(2)+"s");});
+  if(ch)ch.style.setProperty("--i3-d",(Math.min(1.1,(n-1)*step)+.2).toFixed(2)+"s");
+  se.i3All=()=>{se.i3All=null;rd.classList.add("i3-all");if(ch)ch.classList.add("i3-all");};}
+/* a choice is taken: it lights, the others dim, the words leave; then the next passage (false: no turn here, go on at once) */
+function iStageTurn(b,go){if(!i3On()||reduced||PLAY.auto)return false;const box=b.parentNode,rd=storyEl.querySelector(".pl-inter");
+  if(box.classList.contains("i3-picked"))return true;box.classList.add("i3-picked","i3-all");b.classList.add("i3-pick");if(rd)rd.classList.add("i3-out");setTimeout(go,180);return true;}
 function iApply(S,c){const ms=reduced?0:(c.ms||0);storyEl.style.setProperty("--ic-ms",(ms||1)+"ms");
   if("mood" in c){[...storyEl.classList].filter(k=>k.startsWith("ic-m-")).forEach(k=>storyEl.classList.remove(k));if(c.mood)storyEl.classList.add("ic-m-"+c.mood);S.cine.mood=c.mood;storyEl.dataset.mood=c.mood||"";}
   if(c.art&&c.art!==S.cine.art){iArtTo(c.art,ms);S.cine.art=c.art;}
@@ -10982,10 +11528,38 @@ function iAfter(p){if(!storyEl)return;
     if(para){const face=h("span",{html:hansFace({state:"is-speaking",label:"Hans"})}).firstElementChild;setTimeout(()=>face&&face.classList.remove("is-speaking"),2400);
       para.replaceWith(h("div",{class:"ic-say"},face,h("div",{},h("div",{class:"ic-who2"},"Hans"),h("p",{},p.tie))));}
     iSnd("tie");}}
-function iCine(S,p){if(!S||!S.I||!storyEl)return;const I=S.I;
-  storyEl.classList.add("ic");
-  if(!S.cine){S.cine={art:I.art,last:null,mood:""};if(!S.noTitle)iTitle(I);} // a cutscene that ended on the title already showed it
-  if(S.at!==S.cine.last){S.cine.last=S.at;const c=(ICUE[I.id]||{})[S.at];if(c)iApply(S,c);}
+/* session 10, scene by scene: which painting each passage shows ("prayer" and "fire" are the interludes' first paintings: the lamp on the stone, the crew round the fire), and the mood that holds there (the moods and sounds themselves stay in ICUE).
+   Every passage is listed, so a reload in the middle of a scene comes back to that scene's picture and mood. */
+const I10SCENE={},I10END={"s10-katy":{"":"k10-cave"},"s10-saphira":{"":"s10-eye"},"s10-stig":{"3":"g10-towel"}}; // the picture on the Echo page
+for(const [id,L] of Object.entries({
+  "s10-katy":[["k10-cave","","K1"],["k10-eaves","memory","K2 K2b"],["k10-stair","memory","K3 K4a K4b K4c"],["k10-song","memory","K5 K6"],["k10-candle","memory","K7a K7b K7c K8a K8b K8c K9 K10a K10b"],["k10-cave","","K11 K11b"]],
+  "s10-saphira":[["s10-ash","","S1"],["s10-ash","thin","S2 S3a S3b S3c"],["s10-patron","thin","S4 S5 S6b S7a S7b S7c"],["s10-eye","thin","S6 S8 S9a S9b S10-1 S10-2 S10-3 S10-4 S10-5 S10-6"],["s10-blade","thin","S11 S12"],["s10-ash","","S13"]],
+  "s10-stig":[["prayer","grey","G1 G1b G2 G5 G7-4 G3c G3c2 G4c G6A-c"],["g10-scales","grey","G3a G3a2 G4a G6A-a"],["g10-surf","grey","G3b G3b2 G4b G6A-b"],["g10-god","grey","G7-1 G7-2"],["g10-towel","grey","G7-3"],["prayer","lamp","G8 G9"]],
+  "s10-together":[["t10-after","","T1"],["fire","fire","T2 T9"],["t10-circle","fire","T2b"],["t10-lute","fire","T3 T7"]]})){
+  I10SCENE[id]={};for(const [k,m,ps] of L)for(const q of ps.split(" "))I10SCENE[id][q]=[k,m];}
+const i10Key=(S,k)=>k==="g10-god"?((S.seen||[]).includes("G3b")?"g10-surf":(S.seen||[]).includes("G3c")?"prayer":"g10-scales"):k; // asking again: the picture of whatever he turned to
+/* the cue for this passage: ICUE's own, with the scene's painting put in. fresh: the first passage shown in this run (the start, or a bookmark) */
+function i10Cue(S,fresh){const I=S.I,base=(ICUE[I.id]||{})[S.at],sc=!I10_ONE&&I10SCENE[I.id]&&I10SCENE[I.id][S.at];if(!sc)return base;
+  const c=Object.assign({},base,{art:i10Key(S,sc[0]),i10:true});
+  if(fresh){if(!("mood" in c)){c.mood=sc[1];c.ms=0;}}else if(!c.ms&&c.art!==S.cine.art)c.ms=2200;
+  return c;}
+/* a painting's file is fetched only when its scene comes. While it loads the picture before it stays, then the two cross-fade;
+   a file that is missing or slow (4 s) gives the interlude's older picture instead */
+function i10Art(S,k,ms){S.cine.art=k;const now=()=>{S.cine.wait=null;iArtTo(k,ms);},im=iPic(k)||IPIC[k];
+  if(!ms||!im||im.complete)return now(); // loaded, failed before, or nothing to fade from (the first page of a run)
+  S.cine.wait=k;const done=()=>{if(S.cine.wait!==k)return;S.cine.wait=null;if(IST===S&&artCv&&artCv.isConnected&&S.cine.art===k&&artCv.__iak!==k)iArtTo(k,ms);};
+  im.addEventListener("load",done,{once:true});im.addEventListener("error",done,{once:true});setTimeout(done,4000);}
+/* a page that built a new picture box (the Echo, Hans's log) gets the scene's painting back; the Echo page shows the ending's own */
+function i10Keep(S,p){const I=S.I;if(I10_ONE||!I10SCENE[I.id]||!artCv)return;let want=S.cine.art;
+  if(p&&p.html&&p.html.includes("pl-echo")){const E=I10END[I.id]||{},ek=S.endKey||(Object.entries(I.endBy||{}).find(([k])=>(S.seen||[]).includes(k))||[])[1]||"";want=E[ek]||E[""]||want;}
+  if(!IPICT[want]||!/^[ksgt]10-/.test(want)||artCv.__iak===want||S.cine.wait===want)return;
+  S.cine.wait=null;S.cine.art=want;try{paintArt(artCv,want);}catch(e){console.error(e);}}
+function iCine(S,p){if(!S||!S.I||!storyEl)return;const I=S.I;let fresh=false;
+  storyEl.classList.add("ic");iStage(S);
+  if(!S.cine){S.cine={art:I.art,last:null,mood:""};fresh=true;if(!S.noTitle)iTitle(I);} // a cutscene that ended on the title already showed it
+  if(S.at!==S.cine.last){S.cine.last=S.at;const c=i10Cue(S,fresh);
+    if(c&&c.i10&&c.art!==S.cine.art){const k=c.art;iApply(S,Object.assign({},c,{art:""}));i10Art(S,k,reduced?0:(c.ms||0));}else if(c)iApply(S,c);}
+  i10Keep(S,p);iStageCam(S);
   if(I.haunt&&typeof hvCine==="function")try{hvCine(S,p);}catch(e){console.error(e);}
   if(typeof iFoley==="function")try{iFoley(I.id,S.at);}catch(e){console.error(e);}
   if(typeof iScore==="function")try{iScore(I.id,S.at);}catch(e){console.error(e);}
@@ -12430,23 +13004,23 @@ const I_AIM_ON=!/[?&]nointent(=|&|$)/.test(location.search);
 const iR=(u,i)=>u.__ir?u.__ir[i]:Math.random();
 const IAIM={
   shade(u){const S=B.sc,k=B.units.find(o=>o.key==="katy"),C={x:S.at[0],y:S.at[1],size:1},byK=k&&k.hp>0&&dist(u,k)<=1;if(S.flame<=0)return null;
-    if(byK&&(S.cup||dist(u,C)>1)&&iR(u,0)<.7)return ["for Katy","turns its cold hand on Katy."];
-    return ["for the candle",S.cup?"goes for the candle in Katy's hands.":"goes for the candle."];},
-  hand(u){const s=B.units.find(o=>o.key==="saphira");if(!s||s.hp<=0)return null;return ["for Saphira",s.cond.grappled?"tightens on Saphira.":"reaches for Saphira."];},
+    if(byK&&(S.cup||dist(u,C)>1)&&iR(u,0)<.7)return ["for Katy","turns its cold hand on Katy"];
+    return ["for the candle",S.cup?"goes for the candle in Katy's hands":"goes for the candle"];},
+  hand(u){const s=B.units.find(o=>o.key==="saphira");if(!s||s.hp<=0)return null;return ["for Saphira",s.cond.grappled?"tightens on Saphira":"reaches for Saphira"];},
   shadowself(u){const S=B.sc,s=B.units.find(o=>o.key==="saphira");if(!s||s.hp<=0)return null;
-    if(dist(u,s)>1&&!S.stepped&&B.round>=2&&dist(u,s)>u.mv)return ["through the dark","goes down into the floor."];
-    return ["for Saphira","closes on Saphira."];},
+    if(dist(u,s)>1&&!S.stepped&&B.round>=2&&dist(u,s)>u.mv)return ["through the dark","goes down into the floor"];
+    return ["for Saphira","closes on Saphira"];},
   drowned(u){const sl=B.units.find(o=>o.key==="sleeper"),st=B.units.find(o=>o.key==="stig"),up=o=>o&&o.hp>0,adj=o=>up(o)&&dist(u,o)<=1;
-    if(adj(st)&&!adj(sl)&&iR(u,0)<.6)return ["for Stig","grabs at Stig."];
-    if(!adj(sl))return up(sl)?["for the sleeper","wades toward the sleeper."]:["for Stig","wades toward Stig."];
-    if(!adj(st)||iR(u,1)<.75)return ["for the sleeper","reaches for the sleeper."];
-    return ["for Stig","grabs at Stig."];},
+    if(adj(st)&&!adj(sl)&&iR(u,0)<.6)return ["for Stig","grabs at Stig"];
+    if(!adj(sl))return up(sl)?["for the sleeper","wades toward the sleeper"]:["for Stig","wades toward Stig"];
+    if(!adj(st)||iR(u,1)<.75)return ["for the sleeper","reaches for the sleeper"];
+    return ["for Stig","grabs at Stig"];},
   ember(u){const S=B.sc,F={x:S.at[0],y:S.at[1],size:1},m=B.units.find(o=>o.key==="matthew"),rc=MON[u.key].atk[0].reach||1,
       near=enemiesOf(u).filter(o=>o.crew&&o.hp>0&&dist(u,o)<=rc),mOk=m&&m.hp>0&&dist(u,m)<=rc;if(S.flame<=0)return null;
-    if(dist(u,F)>1)return near.length&&iR(u,0)<.5?["for "+nameOf(nearest(u,near)),"swings at "+nameOf(nearest(u,near))+"."]:["for the fire","makes for the fire."];
-    if(mOk&&iR(u,1)<.4)return ["for Matthew","turns on Matthew."];
-    if(near.length&&iR(u,2)<.5)return ["for "+nameOf(nearest(u,near)),"swings at "+nameOf(nearest(u,near))+"."];
-    return ["for the fire","bends over the fire to smother it."];}};
+    if(dist(u,F)>1)return near.length&&iR(u,0)<.5?["for "+nameOf(nearest(u,near)),"swings at "+nameOf(nearest(u,near))]:["for the fire","makes for the fire"];
+    if(mOk&&iR(u,1)<.4)return ["for Matthew","turns on Matthew"];
+    if(near.length&&iR(u,2)<.5)return ["for "+nameOf(nearest(u,near)),"swings at "+nameOf(nearest(u,near))];
+    return ["for the fire","bends over the fire to smother it"];}};
 for(const k of Object.keys(IAIM)){const act=IAI[k];
   IAI[k]=async u=>{if(!I_AIM_ON)return act(u);
     u.__ir=[Math.random(),Math.random(),Math.random()];
@@ -15055,7 +15629,7 @@ void main(){
         vR=se&&se.contains(src.box)?se.getBoundingClientRect():sR;
       // pinned: the picture stuck at the top as a strip with the words scrolling under it. The words sit above this layer,
       // so the page's own picture (and its paces bar) takes over until the picture is free again; the veil goes on round it
-      if(se)for(const el of se.children){if(el===src.box||el.contains(src.box))continue;const q=el.getBoundingClientRect();if(q.height>=1&&q.top<bR.bottom-2&&q.bottom>bR.top+2){show=0;break;}}
+      if(se)for(const el of se.children){if(el===src.box||el.contains(src.box))continue;const q=el.getBoundingClientRect();if(q.height>=1&&q.top<bR.bottom-2&&q.bottom>bR.top+2&&q.left<bR.right-2&&q.right>bR.left+2){show=0;break;}}
       if(r.width>4&&r.bottom>vR.top&&r.top<Math.min(innerHeight,vR.bottom)){has=1;gl.uniform4f(U.uRect,...box2(r));
         const cs=getComputedStyle(src.hide[0]),mm=/^matrix(?:3d)?\(\s*(-?[\d.e-]+)/.exec(cs.transform||""),sc=parseFloat(cs.scale);
         gl.uniform1f(U.uFlip,!!(mm&&+mm[1]<0)!==(sc<0)?1:0); // a mirrored picture (the loop) stays mirrored

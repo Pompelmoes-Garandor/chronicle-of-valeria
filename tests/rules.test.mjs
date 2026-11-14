@@ -123,6 +123,8 @@ test("who counts: alive, incapacitated, enemies, who stands on a square", () => 
   assert.deepEqual(G.enemiesOf(katy).map(u => u.id), ["husk1", "heart"]); assert.deepEqual(G.enemiesOf(husk).map(u => u.id), ["katy", "hans", "thorn"]);
   hans.hp = 0; assert.equal(G.alive(hans), false); assert.equal(G.incap(hans), true); assert.deepEqual(G.enemiesOf(husk).map(u => u.id), ["katy", "thorn"]);
   thorn.untarget = true; assert.deepEqual(G.enemiesOf(husk).map(u => u.id), ["katy"]);
+  // a turned foe that fled off the board can't be picked as a target (it used to be shot there, and the tunnels fight then never ended)
+  husk.ghost = true; assert.deepEqual(G.enemiesOf(katy).map(u => u.id), ["heart"]); husk.ghost = false;
   for (const k of ["ko", "turned", "stunned", "engulfed"]) { katy.cond = { [k]: true }; assert.equal(G.incap(katy), true, k); }
   katy.cond = { restrained: true, prone: true }; assert.equal(!!G.incap(katy), false);
   assert.equal(G.occupant(8, 3), heart); assert.equal(G.occupant(9, 3), undefined); assert.equal(G.occupant(5, 5, husk), undefined);
@@ -416,6 +418,9 @@ test("Turn Undead: husks crumble, a Hollower that fails burns for 4d8 and leaves
   await G.turnUndead(stig);
   assert.equal(husk.gone, true); assert.equal(h1.hp, 26 - 8, "4 radiant, doubled"); assert.equal(h1.ghost, true); assert.equal(h1.back, 4); assert.ok(!h2.ghost); assert.equal(h2.hp, 26);
   assert.equal(needle.hp, 11, "not undead"); assert.ok(!far.ghost, "over 30 ft away"); assert.equal(G.occupant(3, 2), undefined, "its square is free while it's away");
+  // a second Turn Undead leaves the one in the walls alone (it used to burn it there, and the fight then never ended)
+  env.roll(/*h2 save*/ 20, 1); const logs = env.logs.length; await G.turnUndead(stig);
+  assert.equal(h1.hp, 18); assert.equal(h1.ghost, true); assert.ok(!env.logs.slice(logs).some(l => l.includes(h1.name)), "the fled Hollower isn't rolled for");
 });
 
 test("falling: 1d6 for every 10 ft, and prone", async () => {
