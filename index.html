@@ -120,7 +120,7 @@ body{font-family:var(--body);font-size:16px;line-height:1.5;overflow:hidden;
 #pins.atlas .pin.kp.area .seal svg,#pins.atlas .pin.kp.area .seal b{display:none}
 /* far out the medallion steps back to a dot in its own colour, so the whole globe stays calm */
 #pins.atlas .pin.kp.small .seal{background:radial-gradient(circle,var(--k) 0 3.2px,var(--rim) 3.7px 5.2px,transparent 5.7px);border:0;box-shadow:none}
-#pins.atlas .pin.kp.small.rumour .seal,#pins.atlas .pin.kp.small.area .seal{background:radial-gradient(circle,#11141a 0 2.4px,var(--mist) 2.9px 4.4px,transparent 4.9px)}
+#pins.atlas .pin.kp.small.rumour .seal,#pins.atlas .pin.kp.small.area .seal,#pins.atlas .pin.kp.small.area.rumour .seal{border:0;box-shadow:none;background:radial-gradient(circle,#11141a 0 2.4px,var(--mist) 2.9px 4.4px,transparent 4.9px)}
 #pins.atlas .pin.kp.small .seal svg,#pins.atlas .pin.kp.small .seal b{display:none}
 /* this session's places carry an ember ring */
 #pins.atlas .pin.kp.new:not(.small) .seal{box-shadow:inset 0 1px 0 #ffffff38,inset 0 0 0 1px #0003,0 0 0 1.5px var(--rim),0 0 0 3px var(--ember),0 0 10px 2px #e8743b77,0 2px 6px #000b}
@@ -139,13 +139,13 @@ body{font-family:var(--body);font-size:16px;line-height:1.5;overflow:hidden;
 /* lettering: towns and other big places on a plate, ordinary places a size down, small ones bare with a dark halo, realms and seas in wide italic capitals */
 #pins.atlas .pin.kp .lbl{font-size:14px;padding:2px 6px 2px;background:#11141ac4;box-shadow:0 0 0 1px #c9a35c1c}
 #pins.atlas .pin.kp.major .lbl{font-size:15.5px;letter-spacing:.04em;padding:3px 8px 2px;background:#11141ae0;box-shadow:0 0 0 1px #c9a35c55,0 1px 4px #0008}
-#pins.atlas .pin.kp.minor .lbl{font-size:13px;padding:0 2px;background:none;box-shadow:none;text-shadow:0 0 2px #0a0c10,0 0 3px #0a0c10,0 0 5px #0a0c10,0 1px 6px #0a0c10}
+#pins.atlas .pin.kp.minor .lbl{font-size:13px;padding:1px 4px 0;background:#11141a66;box-shadow:none;text-shadow:0 0 2px #0a0c10,0 0 3px #0a0c10,0 0 5px #0a0c10,0 1px 6px #0a0c10}
 #pins.atlas .pin.kp.rumour .lbl{color:#c3cad4}
 #pins.atlas .pin.kp.area .lbl{font:italic 13px/1.15 "IM Fell English",var(--display);text-transform:uppercase;letter-spacing:.24em;padding:1px 0 1px .24em;color:#f1e3c0;background:none;box-shadow:none;text-shadow:0 0 2px #0a0c10,0 0 3px #0a0c10,0 0 6px #0a0c10,0 1px 8px #0a0c10,0 0 12px #0a0c10cc}
 #pins.atlas .pin.kp.area.major .lbl{font-size:16px;letter-spacing:.3em;padding-left:.3em}
 #pins.atlas .pin.kp.area.minor .lbl{font-size:12px;letter-spacing:.18em;padding-left:.18em}
 #pins.atlas .pin.kp.area.rumour .lbl{color:#c9d0da}
-@media (hover:hover){#pins.atlas .pin.kp.minor:hover .lbl,#pins.atlas .pin.kp.area:hover .lbl{background:none;box-shadow:none;color:var(--brass-hi)}}
+@media (hover:hover){#pins.atlas .pin.kp.minor:hover .lbl{background:#11141a99;box-shadow:none;color:var(--brass-hi)}#pins.atlas .pin.kp.area:hover .lbl{background:none;box-shadow:none;color:var(--brass-hi)}}
 
 header.top{position:fixed;z-index:5;top:calc(var(--top) + 10px);left:max(12px, env(safe-area-inset-left, 0px));right:max(12px, env(safe-area-inset-right, 0px));
   display:flex;justify-content:space-between;align-items:center;gap:10px;pointer-events:none}
