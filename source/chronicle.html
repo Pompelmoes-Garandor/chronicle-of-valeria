@@ -6040,7 +6040,7 @@ const t3on=()=>!!(V&&V.live());
 const t3want=()=>T3GL&&!T3fail&&!opt.flat;
 function t3renderer(){if(T3R)return T3R;const r=new THREE.WebGLRenderer({antialias:!t3p_ok,powerPreference:"high-performance"});
   r.setPixelRatio(Math.min(devicePixelRatio||1,!T3Q.hi||t3p_ok?1.5:2));r.outputColorSpace=THREE.SRGBColorSpace;r.toneMapping=THREE.ACESFilmicToneMapping;r.toneMappingExposure=1.4;
-  r.shadowMap.enabled=T3Q.hi;r.shadowMap.type=THREE.PCFShadowMap;r.setClearColor(0x07080b,1);T3R=r;return r;}
+  r.shadowMap.enabled=T3Q.hi;r.shadowMap.type=THREE.PCFShadowMap;r.setClearColor(0x07080b,1);t3L3_chunk(r);T3R=r;return r;}
 
 /* ---- little geometry kit: tint, place, merge into one mesh per material ---- */
 const t3c=new THREE.Color();
@@ -6901,7 +6901,7 @@ function t3lights(Vb){if(t3look(Vb.mp))return t3l_inter(Vb,t3look(Vb.mp));
     if(hi){const k2=new THREE.SpotLight(0xb4c8ff,28,0,.2,.75,1.05);k2.position.copy(top2);k2.target.position.copy(c2);scene.add(k2,k2.target);}
     t3l_shaft(Vb,top2,c2,.18,1.45,0xb4c8ff,hi?.12:.22,false);}
   // the lantern: warm light over whoever is acting
-  Vb.lantern=new THREE.PointLight(0xffbf73,tree?(hi?7:6):(hi?17:15),tree?5.5:8.5,1.5);Vb.lantern.position.set(0,2,0);scene.add(Vb.lantern);
+  Vb.lantern=new THREE.PointLight(0xffbf73,tree?(hi?7:6):(hi?17:15),tree?5.5:8.5,1.5);Vb.lantern.position.set(0,2,0);scene.add(Vb.lantern);t3L3_soft(Vb);
   // the headlight follows the camera so no mini ever goes black; on phones it carries the scene's key colour
   Vb.head=new THREE.DirectionalLight(hi?0xffeedd:(tree?0xc8d2ff:cav?0xd8f0c8:0xe6ecff),hi?(tree?.42:.7):(tree?.95:1.2));scene.add(Vb.head,Vb.head.target);
   // caves: a rim from behind the minis (opposite the camera, see t3lightTick) so they lift off the floor
@@ -6917,7 +6917,7 @@ function t3l_inter(Vb,K){const mp=Vb.mp,scene=Vb.scene,hi=T3Q.hi,j=hi?0:1,L=Vb.l
   if(hi&&K.key){const q=K.key,k=new THREE.SpotLight(q.col,q.i,0,q.ang,.85,1.3);k.position.set(c.x+q.at[0],q.at[1],c.z+q.at[2]);k.target.position.set(c.x,0,c.z);Vb.key(k);if(K.flick)fl.push(k);}
   if(K.sun){const q=K.sun,d=new THREE.DirectionalLight(q.col,q.i*(hi?1:.8));d.position.set(mp.W*q.at[0],q.at[1],mp.H*q.at[2]);d.target.position.set(0,0,0);if(hi)Vb.key(d);else scene.add(d,d.target);}
   let grey=null;if(K.grey){grey=new THREE.DirectionalLight(K.grey.col,K.grey.i[j]);grey.position.set(mp.W*.3,9,-mp.H*.6);scene.add(grey,grey.target);}
-  t3l_pool(Vb,c,K.pool[0],K.src,hi?K.pool[1]:K.pool[2],false);
+  t3l_pool(Vb,c,K.pool[0],K.src,hi?K.pool[1]:K.pool[2],false);t3L3_soft(Vb);
   Vb.lantern=new THREE.PointLight(K.lan,K.lanI[j],8.5,1.5);Vb.lantern.position.set(0,2,0);scene.add(Vb.lantern);
   Vb.head=new THREE.DirectionalLight(hi?0xffeedd:K.head,hi?.6:1.1);scene.add(Vb.head,Vb.head.target);
   Vb.rim=new THREE.DirectionalLight(K.rim,K.rimI[j]);scene.add(Vb.rim,Vb.rim.target);
@@ -6999,25 +6999,72 @@ function t3l_blobTick(){const b=V.l3.blob;if(!b)return;let i=0;const dark=T3Q.hi
     b.ao.array[i]=dark*m.fade/(1+lift*1.5)*(u.hp<=0?.6:1);i++;}
   b.im.count=i;b.im.instanceMatrix.needsUpdate=true;b.ao.needsUpdate=true;}
 
+/* table light 3.0 (?oldlight brings back the old picture). The key's shadow goes soft the way a real one does: crisp where a mini's
+   feet touch the floor, wider the further the shadow falls from what casts it. Three's own shadow lookup stays for every other light. */
+const T3L3=!/[?&]oldlight/.test(location.search);
+// once per renderer, before anything compiles: getShadow gets a second road, taken only by a light whose shadow.radius is 64 or more
+function t3L3_chunk(r){r.t3L3=false;if(!T3L3||!T3Q.hi||!r.capabilities.isWebGL2)return;const C=THREE.ShaderChunk,k="shadowmap_pars_fragment",src=C[k],at=src.lastIndexOf("#endif");
+  if(src.includes("t3L3_gs0")){r.t3L3=true;return;}if(at<0||src.split("float getShadow(").length!==2)return;
+  C[k]=src.slice(0,at).replace("float getShadow(","float t3L3_gs0(")+`
+	/* soft shadows that harden at the contact: search for what blocks the light, widen the filter by how far behind it this point lies.
+	   shadowRadius carries the numbers: 64 + widest filter in texels + (texels of blur per unit of depth)/8192 */
+	float getShadow( sampler2D shadowMap, vec2 shadowMapSize, float shadowBias, float shadowRadius, vec4 shadowCoord ) {
+		if ( shadowRadius < 64.0 ) return t3L3_gs0( shadowMap, shadowMapSize, shadowBias, shadowRadius, shadowCoord );
+		shadowCoord.xyz /= shadowCoord.w;
+		shadowCoord.z += shadowBias;
+		vec3 dx = dFdx( shadowCoord.xyz ), dy = dFdy( shadowCoord.xyz );
+		if ( shadowCoord.x < 0.0 || shadowCoord.x > 1.0 || shadowCoord.y < 0.0 || shadowCoord.y > 1.0 || shadowCoord.z > 1.0 ) return 1.0;
+		float v = shadowRadius - 64.0, wmax = floor( v ), gain = fract( v ) * 8192.0;
+		vec2 tx = 1.0 / shadowMapSize;
+		/* the slope of the lit surface in the shadow map, so a wide filter does not shadow the floor it lies on */
+		float det = dx.x * dy.y - dx.y * dy.x;
+		vec2 g = abs( det ) > 1e-14 ? vec2( dy.y * dx.z - dx.y * dy.z, dx.x * dy.z - dy.x * dx.z ) / det : vec2( 0.0 );
+		float lim = 2.5 * tx.x * wmax + 0.0015;
+		float a0 = 6.2831853 * fract( 52.9829189 * fract( dot( gl_FragCoord.xy, vec2( 0.06711056, 0.00583715 ) ) ) );
+		float zb = 0.0, nb = 0.0, rs = wmax * 0.6;
+		for ( int i = 0; i < 8; i ++ ) {
+			float fi = float( i ), a = fi * 2.3999632 + a0;
+			vec2 o = vec2( cos( a ), sin( a ) ) * sqrt( ( fi + 0.5 ) / 8.0 ) * rs * tx;
+			float d = unpackRGBAToDepth( texture2D( shadowMap, shadowCoord.xy + o ) );
+			if ( d < shadowCoord.z + clamp( dot( o, g ), - lim, lim ) ) { zb += d; nb += 1.0; }
+		}
+		if ( nb < 0.5 ) return 1.0;
+		float pen = clamp( ( shadowCoord.z - zb / nb ) * gain, 1.3, wmax ), lit = 0.0;
+		for ( int i = 0; i < 16; i ++ ) {
+			float fi = float( i ), a = fi * 2.3999632 + a0 + 1.7;
+			vec2 o = vec2( cos( a ), sin( a ) ) * sqrt( ( fi + 0.5 ) / 16.0 ) * pen * tx;
+			lit += step( shadowCoord.z + clamp( dot( o, g ), - lim, lim ), unpackRGBAToDepth( texture2D( shadowMap, shadowCoord.xy + o ) ) );
+		}
+		return lit / 16.0;
+	}
+`+src.slice(at);r.t3L3=true;}
+// the key light of this board (Vb.sun, set by Vb.key): how many shadow texels and how much depth one step of the board is, packed into shadow.radius
+function t3L3_soft(Vb){const l=Vb.sun,r=Vb.r;if(!T3L3||!r.t3L3||!l||!l.castShadow||!l.shadow)return;const s=l.shadow,c=s.camera,N=s.mapSize.x;let tpu,dpu;
+  if(l.isDirectionalLight){tpu=N/Math.max(1,(c.right-c.left+c.top-c.bottom)/2);dpu=1/Math.max(1,c.far-c.near);}
+  else if(l.isSpotLight){const d=Math.max(1,l.position.distanceTo(l.target.position));tpu=N/(2*d*Math.tan(Math.min(1.45,l.angle*(s.focus||1))));dpu=c.far*c.near/((c.far-c.near)*d*d);}
+  else return;
+  // .15 of blur for every step between the caster and the floor, at most .3 of a square wide
+  s.radius=64+clamp(Math.round(.3*tpu),4,60)+Math.min(.999,.15*tpu/dpu/8192);}
+
 /* ---- OWNER: post-processing. t3post runs once per board; it may set Vb.render(dt) (e.g. an EffectComposer) and Vb.onResize(w,h).
    Without it the board renders straight. Three.js add-ons from the same three@0.160.0 build are allowed. ---- */
 function t3post(Vb){if(!t3p_ok)return;const r=Vb.r,cam=Vb.cam,HF=THREE.HalfFloatType,LF=THREE.LinearFilter;
   const rt=(o={})=>new THREE.WebGLRenderTarget(1,1,Object.assign({type:HF,minFilter:LF,magFilter:LF,depthBuffer:false},o));
   // the scene in linear HDR with 4x MSAA and its depth; then ao (half), two blur levels for the lens (half, quarter), a bloom pyramid
   const dtx=new THREE.DepthTexture(1,1,THREE.UnsignedIntType);
-  const rs=rt({samples:4,depthBuffer:true,depthTexture:dtx}),ao=rt(),d1=rt(),d2=rt(),bl=[rt(),rt(),rt(),rt()],all=[rs,ao,d1,d2,...bl];
+  const rs=rt({samples:4,depthBuffer:true,depthTexture:dtx}),ao=rt(),d1=rt(),d2=rt(),bl=[rt(),rt(),rt(),rt()],ao2=T3L3?rt():null,all=[rs,ao,d1,d2,...bl];if(ao2)all.push(ao2);
   const qs=new THREE.Scene(),qc=new THREE.OrthographicCamera(-1,1,1,-1,0,1),quad=new THREE.Mesh(new THREE.PlaneGeometry(2,2));quad.frustumCulled=false;qs.add(quad);
   const nf={value:new THREE.Vector2(cam.near,cam.far)},tan={value:new THREE.Vector2(1,1)},tx=()=>({value:new THREE.Vector2()});
   const mat=(fs,u,add)=>new THREE.ShaderMaterial({uniforms:u,vertexShader:"varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}",
     fragmentShader:"varying vec2 vUv;\nuniform vec2 uNF;float vz(float d){return uNF.x*uNF.y/(uNF.y-d*(uNF.y-uNF.x));}\n"+fs,depthTest:false,depthWrite:false,blending:add?THREE.AdditiveBlending:THREE.NoBlending,toneMapped:false});
   // ambient occlusion from depth alone: sample a small disc around each pixel, count what rises above its surface
-  const mAO=mat(`uniform sampler2D tDep;uniform vec2 uTan;uniform float uRad;
+  const mAO=mat(T3L3?t3L3_ao:`uniform sampler2D tDep;uniform vec2 uTan;uniform float uRad;
 vec3 vp(vec2 uv){float z=vz(texture2D(tDep,uv).r);return vec3((uv*2.-1.)*uTan*z,-z);}
 void main(){float d=texture2D(tDep,vUv).r;if(d>.9999){gl_FragColor=vec4(1.,1e4,0.,1.);return;}
   vec3 P=vp(vUv),N=normalize(cross(dFdx(P),dFdy(P)));float z=-P.z,ru=min(uRad/(2.*z*uTan.y),.08),rot=fract(sin(dot(mod(gl_FragCoord.xy,289.),vec2(12.9898,78.233)))*43758.5453)*6.283,o=0.;
   for(int i=0;i<10;i++){float fi=float(i),t=(fi+.6)/10.,a=fi*2.39996+rot;vec3 v=vp(vUv+vec2(cos(a)*uTan.y/uTan.x,sin(a))*t*ru)-P;float l=length(v);
     o+=max(dot(N,v)/(l+1e-4)-.12,0.)*(1.-smoothstep(uRad*.5,uRad*1.6,l));}
-  gl_FragColor=vec4(clamp(1.-o*.16,0.,1.),z,0.,1.);}`,{tDep:{value:dtx},uNF:nf,uTan:tan,uRad:{value:.45}});
+  gl_FragColor=vec4(clamp(1.-o*.16,0.,1.),z,0.,1.);}`,{tDep:{value:dtx},uNF:nf,uTan:tan,uRad:{value:T3L3?.55:.45},uTx:tx()});
   // a 4-tap box (each tap bilinear, so 4x4 texels): blurs and halves at once; with uTh it keeps only light brighter than the threshold
   const mDn=mat(`uniform sampler2D tMap;uniform vec2 uTx;uniform float uTh;
 void main(){vec3 c=(texture2D(tMap,vUv+vec2(-uTx.x,-uTx.y)).rgb+texture2D(tMap,vUv+vec2(uTx.x,-uTx.y)).rgb+texture2D(tMap,vUv+vec2(-uTx.x,uTx.y)).rgb+texture2D(tMap,vUv+uTx).rgb)*.25;
@@ -7029,11 +7076,12 @@ void main(){vec3 c=texture2D(tMap,vUv).rgb*4.;c+=(texture2D(tMap,vUv+vec2(uTx.x,
   const U={tCol:{value:rs.texture},tDep:{value:dtx},tAO:{value:ao.texture},tD1:{value:d1.texture},tD2:{value:d2.texture},tBl:{value:bl[0].texture},uNF:nf,uAx:tx(),
     uFocus:{value:10},uDof:{value:1.5},uExp:{value:1.4},uBloom:{value:.42},uAO:{value:.85},uTime:{value:0},uRes:tx(),uTree:{value:Vb.tree?1:0},
     uSh:{value:new THREE.Vector3(...(Vb.tree?[.84,.94,1.16]:[.88,.97,1.1]))},uHl:{value:new THREE.Vector3(1.07,1,.89)},uSat:{value:1.08},uVig:{value:Vb.tree?.32:.24},uDream:{value:0}};
+  const mAB=T3L3?mat(t3L3_aoBlur,{tMap:{value:ao.texture},uTx:mAO.uniforms.uTx,uNF:nf}):null;if(mAB){U.tAO.value=ao2.texture;U.uBnc={value:t3L3_bounce(Vb)};U.uShp={value:.45};}
   // an interlude set grades its own way: a remembered room goes soft and pale at the edges, the patron's dark goes violet, the prayer grey
   const PK=(t3look(Vb.mp)||{}).post;if(PK){U.uSh.value.set(...PK.sh);U.uHl.value.set(...PK.hl);U.uSat.value=PK.sat;U.uVig.value=PK.vig;U.uDream.value=PK.dream;U.uBloom.value=PK.bloom;}
   Vb.postU=U; // a cutscene can lean on the grade (the fever dream)
   const xK=PK?PK.exp:1;
-  const mC=mat(`uniform sampler2D tCol,tDep,tAO,tD1,tD2,tBl;uniform vec2 uAx,uRes;uniform float uFocus,uDof,uExp,uBloom,uAO,uTime,uTree,uSat,uVig,uDream;uniform vec3 uSh,uHl;
+  const mC=mat(t3L3_comp(`uniform sampler2D tCol,tDep,tAO,tD1,tD2,tBl;uniform vec2 uAx,uRes;uniform float uFocus,uDof,uExp,uBloom,uAO,uTime,uTree,uSat,uVig,uDream;uniform vec3 uSh,uHl;
 float hs(vec2 p){return fract(sin(dot(mod(p,289.),vec2(12.9898,78.233)))*43758.5453);}
 vec3 rrt(vec3 v){vec3 a=v*(v+.0245786)-.000090537;vec3 b=v*(.983729*v+.4329510)+.238081;return a/b;}
 vec3 aces(vec3 c){const mat3 I=mat3(vec3(.59719,.07600,.02840),vec3(.35458,.90834,.13383),vec3(.04823,.01566,.83777));const mat3 O=mat3(vec3(1.60475,-.10208,-.00327),vec3(-.53108,1.10813,-.07276),vec3(-.07367,-.00605,1.07602));return clamp(O*rrt(I*(c/.6)),0.,1.);}
@@ -7057,22 +7105,46 @@ void main(){vec3 c=texture2D(tCol,vUv).rgb;float z=vz(texture2D(tDep,vUv).r);
   c*=1.-uVig*smoothstep(.4,1.05,length(q));
   c=srgb(c);
   c+=(hs(gl_FragCoord.xy+fract(uTime)*97.)-.5)*.045*(1.-.7*l);
-  gl_FragColor=vec4(c,1.);}`,U);
-  const ms=[mAO,mDn,mUp,mC],still=matchMedia("(prefers-reduced-motion: reduce)").matches,v=new THREE.Vector2();let W=0,H=0,T=0;
+  gl_FragColor=vec4(c,1.);}`),U);
+  const ms=[mAO,mDn,mUp,mC],still=matchMedia("(prefers-reduced-motion: reduce)").matches,v=new THREE.Vector2();let W=0,H=0,T=0;if(mAB)ms.push(mAB);
   const draw=(m,t)=>{quad.material=m;r.setRenderTarget(t);r.render(qs,qc);};
   const down=(src,dst,th)=>{mDn.uniforms.tMap.value=src.texture;mDn.uniforms.uTx.value.set(1/src.width,1/src.height);mDn.uniforms.uTh.value=th||0;draw(mDn,dst);};
   const size=()=>{r.getDrawingBufferSize(v);if(v.x===W&&v.y===H)return;W=v.x;H=v.y;const z=(t,d)=>t.setSize(Math.max(1,W>>d),Math.max(1,H>>d));
-    z(rs,0);z(ao,1);z(d1,1);z(d2,2);bl.forEach((t,i)=>z(t,i+2));U.uAx.value.set(2/W,2/H);U.uRes.value.set(W,H);};
+    z(rs,0);z(ao,1);z(d1,1);z(d2,2);bl.forEach((t,i)=>z(t,i+2));U.uAx.value.set(2/W,2/H);U.uRes.value.set(W,H);if(ao2){z(ao2,1);mAO.uniforms.uTx.value.set(1/ao.width,1/ao.height);}};
   Vb.onResize=size;
   Vb.render=dt=>{size();nf.value.set(cam.near,cam.far);const ty=Math.tan(cam.fov*Math.PI/360);tan.value.set(ty*cam.aspect,ty);
     r.setRenderTarget(rs);r.render(Vb.scene,cam);
     const ac=r.autoClear;r.autoClear=false;
-    draw(mAO,ao);down(rs,d1);down(d1,d2);
+    draw(mAO,ao);if(mAB)draw(mAB,ao2);down(rs,d1);down(d1,d2);
     down(d1,bl[0],1.2);for(let i=1;i<bl.length;i++)down(bl[i-1],bl[i]);
     for(let i=bl.length-1;i>0;i--){mUp.uniforms.tMap.value=bl[i].texture;mUp.uniforms.uTx.value.set(1/bl[i].width,1/bl[i].height);draw(mUp,bl[i-1]);}
     if(!still)T+=dt;U.uTime.value=T;U.uExp.value=r.toneMappingExposure*xK;U.uFocus.value=Math.max(1,Vb.view.dist);
     draw(mC,null);r.autoClear=ac;};
   Vb.disposePost=()=>{all.forEach(t=>t.dispose());dtx.dispose();ms.forEach(m=>m.dispose());quad.geometry.dispose();Vb.render=Vb.onResize=null;};}
+/* table light 3.0, the lens side (off with ?oldlight, see T3L3). The dark in corners and under feet: 12 taps on a 4x4 pattern of turns,
+   normals that do not break at a mini's outline, then a 4x4 depth-aware average that removes the pattern, so nothing crawls when the camera moves */
+const t3L3_ao=`uniform sampler2D tDep;uniform vec2 uTan,uTx;uniform float uRad;
+vec3 vp(vec2 uv){float z=vz(texture2D(tDep,uv).r);return vec3((uv*2.-1.)*uTan*z,-z);}
+void main(){float d=texture2D(tDep,vUv).r;if(d>.9999){gl_FragColor=vec4(1.,1e4,0.,1.);return;}
+  vec3 P=vp(vUv),xa=vp(vUv+vec2(uTx.x,0.))-P,xb=P-vp(vUv-vec2(uTx.x,0.)),ya=vp(vUv+vec2(0.,uTx.y))-P,yb=P-vp(vUv-vec2(0.,uTx.y));
+  vec3 N=normalize(cross(abs(xa.z)<abs(xb.z)?xa:xb,abs(ya.z)<abs(yb.z)?ya:yb));vec2 q=mod(floor(gl_FragCoord.xy),4.);
+  float z=-P.z,ru=min(uRad/(2.*z*uTan.y),.08),rot=(q.x+q.y*4.)*.3927,jit=fract((q.y+q.x*4.)*.4375+.25),o=0.;
+  for(int i=0;i<12;i++){float fi=float(i),t=(fi+jit)/12.,a=fi*2.39996+rot;vec3 v=vp(vUv+vec2(cos(a)*uTan.y/uTan.x,sin(a))*t*ru)-P;float l=length(v);
+    o+=max(dot(N,v)/(l+1e-4)-.12,0.)*(1.-smoothstep(uRad*.5,uRad*1.6,l));}
+  gl_FragColor=vec4(clamp(1.-o*.15,0.,1.),z,0.,1.);}`;
+const t3L3_aoBlur=`uniform sampler2D tMap;uniform vec2 uTx;
+void main(){vec2 m=texture2D(tMap,vUv).rg;float a=0.,w=0.;
+  for(int j=0;j<4;j++)for(int i=0;i<4;i++){vec2 s=texture2D(tMap,vUv+(vec2(float(i),float(j))-1.5)*uTx).rg;float k=exp(-abs(s.g-m.g)*12./m.g)+1e-3;a+=s.r*k;w+=k;}
+  gl_FragColor=vec4(a/w,m.g,0.,1.);}`;
+/* the picture itself: corners keep a little of the floor's colour instead of going grey-black, and what is in focus gets a restrained sharpen */
+function t3L3_comp(fs){if(!T3L3)return fs;
+  return fs.replace("uniform vec3 uSh,uHl;","uniform vec3 uSh,uHl,uBnc;uniform float uShp;")
+    .replace("float A=mix(1.,a/w,uAO);c*=A;","float A=mix(1.,a/w,uAO);vec3 c0=c;c*=A+(1.-A)*uBnc;")
+    .replace("c=mix(c,texture2D(tD1,vUv).rgb*A,smoothstep(0.,.45,f));","vec2 px=uAx*.5;vec3 e4=(texture2D(tCol,vUv+vec2(px.x,0.)).rgb+texture2D(tCol,vUv-vec2(px.x,0.)).rgb+texture2D(tCol,vUv+vec2(0.,px.y)).rgb+texture2D(tCol,vUv-vec2(0.,px.y)).rgb)*.25;"+
+      "vec3 dd=c0-e4;dd/=1.+6.*max(abs(dd.r),max(abs(dd.g),abs(dd.b)));c=max(c+dd*A*uShp*(1.-smoothstep(0.,.3,f)),0.);\n  c=mix(c,texture2D(tD1,vUv).rgb*A,smoothstep(0.,.45,f));");}
+// the colour that bounces into a corner: the ground half of this board's sky/ground light, kept dim
+function t3L3_bounce(Vb){const v=new THREE.Vector3(.2,.2,.2),h=Vb.scene.children.find(o=>o.isHemisphereLight);
+  if(h){const c=h.groundColor,m=Math.max(c.r,c.g,c.b,1e-3);v.set(c.r/m,c.g/m,c.b/m).multiplyScalar(.26);}return v;}
 /* post runs on computers with WebGL2 and float colour buffers; elsewhere the board renders straight */
 const t3p_ok=T3Q.hi&&(()=>{try{const g=document.createElement("canvas").getContext("webgl2");const ok=!!(g&&g.getExtension("EXT_color_buffer_float"));g&&g.getExtension("WEBGL_lose_context")?.loseContext();return ok;}catch(e){return false;}})();
 
