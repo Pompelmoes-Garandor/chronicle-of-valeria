@@ -8094,7 +8094,7 @@ const T3X_RF=`uniform vec3 uC;uniform float uR;uniform float uW;uniform float uI
 float f=smoothstep(uR,0.,d)*.22*uR;gl_FragColor=vec4((uC*(r+f)+vec3(r*r*.35))*uI*smoothstep(1.,.9,d),1.);`+T3X_OUT;
 const T3X_LV=`varying vec3 vN;varying vec3 vV;varying float vY;void main(){vec4 mv=modelViewMatrix*vec4(position,1.);vN=normalize(normalMatrix*normal);vV=normalize(-mv.xyz);vY=uv.y;gl_Position=projectionMatrix*mv;}`;
 const T3X_LF=`uniform vec3 uC;uniform float uI;uniform float uH;uniform float uT;varying vec3 vN;varying vec3 vV;varying float vY;void main(){float f=abs(dot(normalize(vN),normalize(vV)));
-float a=pow(f,1.8)*pow(1.-vY,.5)*smoothstep(0.,.05,vY)*smoothstep(1.-uH-.12,1.-uH,vY)*(.72+.28*sin(vY*26.-uT*16.));gl_FragColor=vec4((uC*a+vec3(pow(f,7.)*a*.8))*uI,1.);`+T3X_OUT;
+float a=pow(f,1.8)*pow(clamp(1.-vY,0.,1.),.5)*smoothstep(0.,.05,vY)*smoothstep(1.-uH-.12,1.-uH,vY)*(.72+.28*sin(vY*26.-uT*16.));gl_FragColor=vec4((uC*a+vec3(pow(f,7.)*a*.8))*uI,1.);`+T3X_OUT;
 let t3x_ts=1; // time stretch for the playtest hook only
 function t3x_init(Vb){const hi=T3Q.hi,X={hi,q:hi?1:.5,sh:{a:0,x:0,z:0},last:null,critU:null,critT:0,still:matchMedia("(prefers-reduced-motion: reduce)").matches};Vb.t3x=X;
   X.glowT=t3x_tex(0);X.starT=t3x_tex(1);
