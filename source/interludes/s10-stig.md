@@ -13,161 +13,157 @@ Writer's rules kept (for Sam): Matthew's time is never a number, a range or a co
 
 ## G1. The lamp
 
-The lamp sits on a flat stone, burning low. Ash comes down through its light as slowly as snow and settles on everything. In the middle of the cavern, the dead Heart ticks as it cools.
+The lamp is on a flat stone, burning low. Ash falls through its light and settles on your boots. In the middle of the cavern the dead Heart ticks as it cools.
 
-Matthew's question is still in your ears. *How long? And don't tell her. Not today. Let her have today.* He asked it quietly, for you alone. He is waiting now, or resting. With him it's hard to tell.
+Matthew has just asked you a question, quietly, so that only you heard. "How long? And don't tell her. Not today. Let her have today."
 
-Katy's voice is low, a little way off. Nobody is looking your way.
+Now he's waiting, or resting. With him you can't tell.
 
-There's no night down here and no sky to tell the hour. You keep a watch all the same. It's what you do when someone in your care is lying in the dark: you sit up, and you stay.
+Katy's voice is low, a few yards off. Nobody is looking at you.
+
+There's no sky down here to tell the hour by. You keep a watch anyway. A man in your care is lying in the dark, so you sit up.
 
 → Continue (go to G1b)
 
 ## G1b. Heads counted
 
-On a ship, the watch counts heads. You never lost the habit.
+On a ship the watch counts heads. You still do it.
 
-Katy, a little way off, the ukulele across her knees. Saphira, back to the wall, where she can see everyone; she always picks that spot. Hans, motionless, a faint warmth coming off his chest plate like a banked stove. Thorn at the edge of the light, bow in hand, watching the tunnel. The old man, grey to the elbow, breathing.
+Katy, with the ukulele across her knees. Saphira, back to the wall as always, where she can see everyone. Hans, not moving, a faint warmth coming off his chest plate. Thorn at the edge of the light with his bow, watching the tunnel. The old man, grey to the elbow, breathing.
 
-All here. All breathing. Nobody bleeding that you haven't seen to.
+All here. Nobody is bleeding that you haven't seen to.
 
-That should be enough to settle you. Most watches it is. You fold your hands and count them again anyway, because the count isn't the thing that's wrong.
+On most watches that settles it. You fold your hands and count them again. It comes out the same.
 
 → Continue (go to G2)
 
 ## G2. The stone in the boot
 
-You know. You've known since you touched his arm.
+You knew how long he has when you put your hand on his arm. His blood told you.
 
-What his blood told you sits in your chest like a stone in a boot. You can walk on it. You'll walk on it as long as you have to. And you'll feel every step.
+What his blood told you is a stone in your boot. You can walk on it for as long as you have to.
 
-You're a big man, and you sit very still with it. Your hands rest on your knees. The booklet the girl's mother gave you, *Control over Water*, is in your pack. Your holy symbol lies cool against your chest.
+You sit very still, hands on your knees. The booklet the girl's mother gave you, *Control over Water*, is in your pack. Your holy symbol is cold against your chest.
 
-Someone is waiting for an answer. Not yet. First you have to set this down somewhere, for a moment, or you'll drop it.
+He's waiting for an answer, and you're not ready to give it. You need to take this to somebody first.
 
-Where do you turn?
-
-→ The tattoo on your arm: Kelemvor's Blessing. (go to G3a)
-→ Thalmir's Anchor, and the tide you believe in. (go to G3b)
-→ Neither. The booklet. (go to G3c)
+→ Put your hand on the tattoo: Kelemvor's Blessing. (go to G3a)
+→ Take hold of Thalmir's Anchor, and the tide you believe in. (go to G3b)
+→ Neither. Get the booklet out. (go to G3c)
 
 ## G3a. The judge
 
 You put your hand over the tattoo. Kelemvor's Blessing. The Lord of the Dead, the honest judge. You've never been sure you like him. You've always been sure he's fair.
 
-You don't kneel. You close your eyes and pray the way the priests at the Monastery of the Great Winds never taught you: in plain words, the way you'd tell a quartermaster that a cargo has gone bad.
-
-You tell him about the old man. You tell him about the daughter who has just found him. You tell him what the blood told you. You don't dress it up.
-
-Then you wait.
+The priests at the Monastery of the Great Winds taught you the proper words and when to kneel, and you use none of it. You close your eyes and tell him straight. There's an old man in this cave, his daughter has only just found him, and you know how long he has. You add nothing to that, and then you wait.
 
 → Continue (go to G3a2)
 
 ## G3a2. The graves
 
-While you wait, you think of the graves.
+While you wait you think about graves. You've dug a lot of them, for a man who wants to build a school.
 
-You have dug more of them than a man who wants to build a school ought to have. The last was in the north, for an old elf woman with her ears cut off. You put her in the ground with your own hands and said the words over her, and you never knew what she'd done to be treated like that.
+The last was up north, for an old elf woman. Somebody had cut her ears off. You dug it yourself and said the words over her. You never found out what she was supposed to have done.
 
-Kelemvor knew. He keeps the count of everybody.
+Kelemvor knows. He keeps the count on everybody.
 
-You don't ask him why. You never do. You only tell him that the old man here deserves the same care you gave her, when it's time, and that you'll be there to give it.
+You've never asked him why. You tell him the old man is to get what she got, a proper depth and the words said, when it's his time. You'll be the one to do it.
 
 → Continue (go to G4a)
 
 ## G4a. Stillness
 
-No voice comes. You didn't expect one.
+Nobody answers in words, and you didn't think anybody would. The skin under the tattoo goes cold, and the cold spreads up your arm and across your chest. You don't mind it. The ticking of the Heart goes very far away.
 
-What comes is stillness. It starts under the tattoo and spreads: cold, but not unkind, like the stone floor of a temple on a hot day. The ticking of the Heart goes very far away. You feel, with your whole body, what a pair of scales does when it stops swinging and comes level.
+What you feel next is a pair of scales coming to rest: two or three swings, each one shorter, and then level.
 
 *Every soul in its time.*
 
-It isn't a promise, and it isn't a threat. It lands in you as a feeling, the way you know the tide has turned before you see the water move. Somewhere a count is being kept, and the count is honest, and nobody is cheating it.
+Nobody says it. You know it as you know the tide has turned before the water moves. It promises you nothing and it threatens nothing. Somebody is keeping the count, and keeping it honestly.
 
-It doesn't make the stone in your boot any lighter. It makes it fair.
+The stone in your boot weighs what it did. But it's fair.
 
 → Continue (go to G5)
 
 ## G3b. The tide
 
-Your hand closes on Thalmir's Anchor. You hold it the way you'd hold a rail in bad weather.
+Your hand closes on Thalmir's Anchor and holds on.
 
-Thalmir, of tides and community. The crew heard a voice once, deep in the monastery vault, that said the vaults delay the end but do not prevent it. You've thought about that voice more than you've told anyone. [SAM?: Thalmir as the god Stig prays to, linked to Talmir's Anchor]
+Thalmir looks after tides and communities. The crew heard a voice once, down in the monastery vault. It said the vaults delay the end but do not prevent it. You haven't told the others how often you think about that. [SAM?: Thalmir as the god Stig prays to, linked to Talmir's Anchor]
 
-You don't know if he's yours. But you've believed in the tide your whole life: after every ebb comes a flood. That much you're sure of, whoever keeps it.
+You can't say he's your god. But the tide has come back in after every ebb you ever watched, whoever is in charge of it.
 
-So you pray to the tide, and hope it's him.
+So you pray to the tide and hope he's the one who gets it.
 
 → Continue (go to G3b2)
 
 ## G3b2. The monastery and the ships
 
-You learned your letters from the priests of the Monastery of the Great Winds. They taught you the names of a great many gods, how to bow to each one, and which hand to use. None of it stuck the way the sea did.
+The priests at the Monastery of the Great Winds taught you your letters. They also taught you a great many gods, with the right bow for each one and the right hand. Most of that has gone.
 
-The sea you learned on the trading ships, a boy doing odd jobs for anyone who'd feed him. Haul this. Stow that. Sleep where you drop. The sea didn't care about bowing. It came in, and it went out, and it took a man or it didn't, and when it gave him back, it gave him back.
+The sea you got on the trading ships, as a boy doing odd jobs for whoever would feed him. Haul this, stow that, sleep where you drop. The sea had no use for bowing. It came in and went out. Some men it took, and some of those it gave back.
 
-You've prayed to the tide on bad days since you were a boy. You never knew if anyone was on the other end.
+You've prayed to the tide on bad days ever since. You've never had a sign that anybody was listening.
 
 → Continue (go to G4b)
 
 ## G4b. Surf
 
-No voice comes. What comes is a sound.
+Nobody speaks to you. You hear surf: a wave running up a beach, then the stones rattling as it drags back. You're a long way from any sea, and you can hear it plainly.
 
-Surf. Far off and close at once, here in a cave a long way from any sea: the long hush of a wave running up a beach, the rattle of stones as it draws back. You'd know it anywhere.
+A night comes back with it. You're sixteen or so, on a trading ship in a squall. A sail has torn loose and its line is running out through one man's hands and burning them. Another man gets hold. Then more, a dozen of you who hardly knew each other, leaning back on the one line in the rain until it stops. [SAM?: invented memory from Stig's teenage years on the ships, no named NPCs]
 
-With it comes a memory you didn't ask for. You're sixteen, maybe, on the deck of a trading ship at night. A sail has torn loose in a squall and its line is running out through somebody's hands, burning them. Then other hands grab it. Then more. A dozen of you, men you barely knew, leaning back on one line in the rain, and the line stops. [SAM?: invented memory from Stig's teenage years on the ships, no named NPCs]
+Nobody said a word about it afterwards.
 
-Nobody said anything. Nobody had to.
-
-The surf draws back. Your palms remember the burn.
+The surf drags back. Your palms sting.
 
 → Continue (go to G5)
 
 ## G3c. The booklet
 
-You don't pray. Not this time. You don't trust what you'd say.
+You don't pray this time. You don't trust what would come out of your mouth.
 
-You take the booklet out of your pack instead, *Control over Water*, and open it near the front, to give your hands something to do. The pages are soft with age. The writing is old and careful and hard to translate, just as the girl's mother warned you, but you have the knack of it now.
+You take the booklet out of your pack, *Control over Water*, and open it near the front so your hands have a job. The pages have gone soft. The writing is old and neat and slow to translate, as the girl's mother warned you, but you've got the knack by now.
 
-It's a children's tale. A small child lives by the sea, and every day the tide goes out and leaves the pools and the weed and the stranded little fish, and every day the child is angry about it.
+It's a tale for children. A small child lives by the sea. Every day the tide goes out and leaves a few little fish stranded in the pools, and every day the child is furious about it.
 
-You read slowly. Your lips move. You don't care who sees.
+You read slowly, with your lips moving. Anyone who wants to watch can watch.
 
 → Continue (go to G3c2)
 
 ## G3c2. The girl's mother
 
-You remember how she gave it to you, at Gerda's inn, with her daughter hanging on her skirt. She held it out in both hands as if it were hot. Her mother's booklet, and her mother's mother's, passed down so long that the family could hardly read it any more. She thought you could. She thought it should be with someone who would.
+The girl's mother gave it to you at Gerda's inn. Her daughter was hanging on to her skirt, and she held the booklet out to you in both hands.
 
-You were embarrassed. You tried to give it back. She wouldn't take it.
+It was her mother's, she said, and her grandmother's before that, and by now nobody in the family could read more than a few words of it. She thought you could. A book nobody reads is no use to anyone, so you had better have it.
 
-You've worked at it since, a line at a time, the way you once worked at your letters. It's slow going. It's good going. It's the first thing in a long while that someone handed you because they trusted you with it.
+You went red and held it back out to her. She wouldn't take it. It's a long time since anybody gave you something of theirs to look after.
+
+You've been at it since, a line at a time, about as fast as you once learned your letters.
 
 → Continue (go to G4c)
 
 ## G4c. The tale
 
-On the third page the child goes down to the water's edge and asks the tide, straight out, why it always leaves.
+On the third page the child walks down to the water and asks the tide straight out why it always leaves.
 
-And the tide says: *"I only go out so I can come back in."* [SAM?: invented line from the front pages of Control over Water, well away from the last page]
+The tide says: "I only go out so I can come back in." [SAM?: invented line from the front pages of Control over Water, well away from the last page]
 
-You read it twice. Then you sit with the booklet open on your knees and smile, a bit foolishly, alone in the half dark. You have believed exactly that your whole life, and you never knew anyone had written it down. After every ebb, a flood. Somebody's great-grandmother knew it, and wrote it for a child, and here it is in your hands, at the bottom of the world.
+You read it twice. Then you sit with the booklet open on your knees, grinning in the half dark where nobody can see.
 
-It doesn't make the stone in your boot any lighter. But it's company.
+After every ebb, a flood. You've gone by that all your life and never knew anyone had written it down. Somebody's great-grandmother wrote it for a child, and here it is in your hands at the bottom of the world.
 
 → Continue (go to G5)
 
 ## G5. The asking
 
-You've turned. Something has answered, in its way. Now it's your turn to ask.
+That's all the answer there is going to be. Now you can ask for something.
 
-You think of the old man, grey to the elbow. You think of his daughter, who came all this way to find a father and found one, and doesn't know yet what she has found. You think of everything you know how to do with your hands, and how little of it touches this.
+The old man is grey to the elbow. His daughter came all this way to find her father. She has found him, and she doesn't know yet what she has found.
 
-You know what you want. You've known since the blood told you. You're just not sure which part of it to say out loud.
+You go through what your hands know how to do. Hardly any of it is any use to him.
 
-What do you ask for?
+There is more than one thing you want for him. You pick the one to say out loud.
 
 → "Put it on me instead." (go to G6A, the version for your G3 choice)
 → "Then make me useful." (go to G7-3)
@@ -177,11 +173,11 @@ What do you ask for?
 
 "Put it on me instead."
 
-You say it very quietly. It's the oldest thing in you, older than the monastery, older than the ships: if somebody has to carry it, let it be you. You're big. You can carry a lot.
+You say it under your breath. You were saying it before the monastery and before the ships. If there's a load, give it to the big one. You can carry a lot.
 
-The stillness doesn't change. The scales stay level. You lean on them with everything you are, and they don't tip, not by a hair.
+The cold doesn't change. The scales stay level. You lean on your side with all your weight and the pan doesn't drop by a hair.
 
-There's no anger in it. Nothing pushes you away. It's only a weight that is not yours, refusing to become yours.
+Nobody is angry with you. The weight isn't yours, and it won't be made yours.
 
 → Ask again, louder. (go to G7-1)
 → Let it go. (go to G7-2)
@@ -190,11 +186,11 @@ There's no anger in it. Nothing pushes you away. It's only a weight that is not 
 
 "Put it on me instead."
 
-You say it very quietly. It's the oldest thing in you, older than the monastery, older than the ships: if somebody has to carry it, let it be you. You're big. You can carry a lot.
+You say it under your breath. You were saying it before the monastery and before the ships. If there's a load, give it to the big one. You can carry a lot.
 
-The surf comes back, and it doesn't change. The wave runs up the beach and draws back, the same as it always has, the same as it always will.
+The surf comes back. The wave runs up the beach and drags down again, at the same pace as before.
 
-It won't trade. You can't swap your water for his. There's no anger in it. The tide just goes on being the tide.
+You offer it a plain swap, you for him. The next wave comes in on time, and so does the one after. The tide won't trade your water for his. It isn't angry about it. It goes on being the tide.
 
 → Ask again, louder. (go to G7-1)
 → Let it go. (go to G7-2)
@@ -203,24 +199,24 @@ It won't trade. You can't swap your water for his. There's no anger in it. The t
 
 "Put it on me instead."
 
-You say it to nobody, very quietly, with your thumb on the page. It's the oldest thing in you: if somebody has to carry it, let it be you. You're big. You can carry a lot.
+You say it to nobody, under your breath, with your thumb on the page. You've been saying it as long as you can remember. If there's a load, give it to the big one. You can carry a lot.
 
-You turn the page, as if the tale might answer. In it, the child fills a bucket with its own water and offers it to the tide, so the tide won't have to go.
+You turn the page in case the tale has an answer. The child fills its bucket and holds it out to the tide. If the tide takes this water, the child says, it won't need to go out any more.
 
-The next line says the tide thanks the child, and carries no one's water but its own.
+On the next line the tide thanks the child, and carries no one's water but its own.
 
 → Ask again, louder. (go to G7-1)
 → Let it go. (go to G7-2)
 
 ## G7-1. Asking again
 
-You ask again. Louder, inside, where nobody can hear it. You set your jaw and plant your feet and push, the way you'd push a cart out of a rut, the way you've pushed at everything in your life that wouldn't move.
+You ask again, louder, inside your own head. You set your jaw, get your feet under you and shove, as you'd shove a cart out of a rut.
 
-It doesn't move. Not the whole of it.
+It doesn't shift. Then it gives, about an inch.
 
-But something gives, a little. For a breath you feel what he feels: the cold in the arms, all the way to the elbow; the tiredness under the tiredness; three days of playing in the dark. It sits in your own arms, heavy and grey, and you hold it, and you don't let go.
+For a few seconds you've got his arms. They're heavy, and cold right up to the elbow. They're tired from three days of playing in the dark, and under that there's another tiredness, further down. You hang on to them.
 
-Then it's gone. Your hands ache with cold, and they'll ache for a while. [SAM?: nothing changes for Matthew; the ache in Stig's hands is flavour only]
+Then you've got your own arms back. Your hands hurt with the cold, and they will for a good while. [SAM?: nothing changes for Matthew; the ache in Stig's hands is flavour only]
 
 You'd do it again.
 
@@ -230,13 +226,11 @@ You'd do it again.
 
 You let it go.
 
-It's the hardest thing you've done all day, harder than the fight. You let out a long breath, longer than you knew you had in you, and with it the idea that this is yours to fix.
+You let out a long breath, longer than you thought you had air for. Your shoulders come down. You hadn't noticed they were up.
 
-It isn't. It never was. It's his, and his daughter's, and whatever keeps the count. Your part is to sit with it.
+This was never yours to mend. It's the old man's and his daughter's, and it belongs to whoever keeps the count. What's left for you is the sitting up. The fight was easier.
 
-For the first time in a long while, you aren't carrying everything on your own. Something else has hold of the other end. You don't know what. You don't need to.
-
-The stone is still in your boot. But you're not the only one walking.
+Then something has hold of the other end. You feel the load shift. You don't know what took it up, and you don't need to.
 
 → Continue (go to G8)
 
@@ -244,13 +238,13 @@ The stone is still in your boot. But you're not the only one walking.
 
 "Then make me useful."
 
-That's the real fear, isn't it. Not the ash. Not even the count. Standing there with your big hands hanging empty while someone you could have helped goes grey.
+You can put up with the ash, and with the count being kept. What you can't put up with is standing by with your big hands empty while a man you could have helped goes grey.
 
-No answer comes this time. Your hands answer instead.
+This time your hands answer. They start going through the work, in order. Wring out the towel. Rinse the cloth. Bind the arm, firm, with room for a finger under it. Check the colour of his fingers. Sit with him. Wring the towel out again tomorrow.
 
-They remember the work, all of it, in order. Wring the towel. Rinse the cloth. Bind the arm, not too tight. Check the colour of the fingers. Sit. Sit some more. Wring it again tomorrow. The steps line up in you like a crew at a capstan. They're small. They're enough. And nobody else in this cave can do them the way you can.
+They're small jobs. Nobody else in this cave does them as well as you.
 
-Your hands stop shaking. You hadn't noticed they were.
+Your hands were shaking. You only know because they've stopped.
 
 → Continue (go to G8)
 
@@ -258,35 +252,33 @@ Your hands stop shaking. You hadn't noticed they were.
 
 "Let him have today."
 
-They're his words, not yours. You hand them back to whatever is listening, exactly as he said them, and ask for nothing else. Not for him to live. Not to be useful. Not to carry it. Just today. His daughter, and a song, and one good day with nothing taken out of it.
+Those are the old man's words, and you pass them on exactly as he said them. You ask for one day: his daughter next to him, a song, and the whole of the day left to them. You had more ready, about him living and about you being some use, and you leave all of it out.
 
-You don't feel an answer. You feel quieter, which may be the same thing.
+It's years since you prayed without asking for anything for yourself.
 
-It's the first prayer you've made in years with nothing in it for yourself. It sits lighter than the others. You hadn't known a prayer could.
+You get no answer you can feel. It's quieter inside your head than it was.
 
 → Continue (go to G8)
 
 ## G8. Back to the lamp
 
-You open your eyes.
+You lift your head. The lamp hasn't burned down any further. Ash is still falling. Katy is still talking low, and nobody has changed places. If one of them did look over, they saw a big man sitting still with his jaw set, and they've all seen that before.
 
-The lamp is where it was. The ash is still coming down. Katy's voice is still low, a little way off, and nothing in the cave has moved. If anyone glanced your way, they saw a big man sitting very still with his eyes shut and his jaw tight, and they've seen that before.
+You get up. Your knees report a long sit. The lamp says otherwise, and you go by the lamp.
 
-You get up. Your knees tell you that you sat there a long time. They're lying. It can't have been long at all.
-
-You go back to him.
+You walk back towards the old man.
 
 → Continue (go to G9)
 
 ## G9. Eleven paces
 
-It's eleven paces from your stone to where he lies. You count them, because counting is what you do on watch.
+From your stone to where he's lying is eleven paces. You count them as you go.
 
-On the way you pass the dead Heart. It ticks. A flake of ash lands on your sleeve, and you leave it there.
+You pass the dead Heart. It ticks. A flake of ash lands on your sleeve and you leave it there.
 
-Somewhere behind you Saphira shifts her weight. The lamp gutters and recovers. Hans's chest plate gives off its small, steady warmth, and Hans gives you a nod you don't return, because your mind is already where you're going.
+Behind you Saphira shifts her weight. The lamp gutters and picks up again. Hans's chest plate is warm as you go by him, and he nods. You're two paces on before you notice you didn't nod back.
 
-The old man looks up as your shadow falls across him. He doesn't ask again. His face says he can wait as long as you need.
+Your shadow falls across the old man and he looks up. He doesn't ask again. He looks ready to wait as long as you need.
 
 You crouch down beside him.
 
@@ -296,7 +288,7 @@ You crouch down beside him.
 
 ## End 1. The Anchor Holds
 
-You crouch the way you'd brace on a deck in weather, feet wide, sure of them. Your hands are still cold. You put one on his shoulder anyway, and you keep it there. Whatever you say to him next, you'll say it holding on.
+You crouch with your feet wide and your weight low. Your hands are still cold. You put one on his shoulder regardless, and it stays there while you answer him.
 
 > **Echo: Hold Fast.** Before you roll a Strength (Athletics) check to hold on to something or someone, you can spend this Echo to have advantage on it.
 
@@ -304,7 +296,7 @@ You crouch the way you'd brace on a deck in weather, feet wide, sure of them. Yo
 
 ## End 2. The Tide Goes Out
 
-You're lighter than when you left him. You sit down beside him, not over him. You're not the one holding everything up. You're just the one sitting closest.
+You sit down on the ground beside him, so your head is level with his and he doesn't have to look up. Your hands lie open on your knees. You don't need them for anything just now.
 
 > **Echo: Ebb and Flood.** Before you roll a Wisdom (Insight) check, you can spend this Echo to have advantage on it.
 
@@ -312,7 +304,7 @@ You're lighter than when you left him. You sit down beside him, not over him. Yo
 
 ## End 3. Steady Hands
 
-The towel is already in your hands, wrung out and folded. You kneel. You check the colour of his fingers, the way you'd check a knot. Whatever you say to him next, your hands will be busy while you say it.
+The towel is in your hands already, wrung out and folded. You kneel and take his hand, and look at the colour of each finger. Whatever you tell him next, your hands will be working while you say it.
 
 > **Echo: Wring and Bind.** When you cast a spell that restores hit points, you can spend this Echo to add your Wisdom modifier to the hit points it restores a second time.
 
@@ -320,7 +312,7 @@ The towel is already in your hands, wrung out and folded. You kneel. You check t
 
 ## End 4. Today
 
-You sit down beside him, and for a moment you don't say anything at all. Across the cave, Katy's voice is still low. Let her have today. You'll hold the rest.
+You sit down beside him and say nothing yet. Across the cave Katy is still talking low. Let her have today. You'll hold the rest.
 
 > **Echo: Not Tomorrow.** When an ally you can see within 30 feet of you is about to make an ability check, you can use your reaction and spend this Echo to give them advantage on it. Decide before they roll.
 

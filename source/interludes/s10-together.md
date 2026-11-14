@@ -10,79 +10,77 @@ Passage map: T1 → T2 → T2b → T3 → T7 → T9. The earlier version with vo
 
 ## T1. After
 
-The green glow drains out of the cavern walls in slow patches, like water out of a cloth. What's left is grey: ash on the floor, ash in the air, and the dead husk of the Heart in the middle of it all, ticking now and then as it cools.
+The green light goes out of the cavern walls a patch at a time, and after that everything is grey. Ash lies on the floor and more is coming down. In the middle sits what is left of the Heart, dead, ticking now and then as it cools.
 
-Matthew lies where he slid out of it, propped against a stone, wrapped in Stig's blanket. His hands rest on the lute in his lap. They are grey to the elbow, and they don't quite stop shaking.
+Matthew lies where he slid out of it, propped against a stone with Stig's blanket round him. His hands are on the lute in his lap. They are grey to the elbow, and they shake a little all the time.
 
-Thorn stands at the edge of the light, bow in hand, watching the tunnel.
+Thorn stands at the edge of the light with his bow, watching the tunnel.
 
-For a while nobody says anything. You are all still ringing from the fight. Somebody's knee hurts. Somebody's fingers won't open properly. You are all, every one of you, alive.
+Nobody talks. Your ears are still ringing from the fight. One of you has a knee that hurts, and one of you can't get a hand to open. All of you are alive.
 
-Hans looks round at the cave, at the cold, at the old man in the blanket. "Fire," he says.
+Hans looks round the cave, and at the old man in the blanket. "Fire," he says.
 
 → Continue (go to T2)
 
 ## T2. Fire
 
-Hans gathers dead root wood from the cave walls, where it came loose when the Heart died: black, dry, light as cork. [SAM?: Hans lights a small fire from dead root wood in the cave] He sets it down in a pile. He looks at the pile. He takes it apart and builds it again as a square. Then a cone. Then, after a pause, a different square.
+Hans collects dead root wood from along the cave walls, where it came loose when the Heart died. It is black and dry and weighs next to nothing. [SAM?: Hans lights a small fire from dead root wood in the cave] He puts it in a heap and looks at the heap. He takes it apart and stacks it as a square. Then as a cone. Then, after some thought, as a different square.
 
 "Fire. I know how," he says. "Theoretically."
 
-He borrows Stig's tinderbox and strikes it six times. On the seventh a spark takes. A thread of smoke goes up, then a small, bad, determined flame. Hans sits back on his heels and watches it with the full attention of something that was built to watch things.
+He borrows Stig's tinderbox and strikes it six times. The seventh time a spark catches. A thread of smoke goes up, and then a flame the size of a thumbnail that looks sure to go out and doesn't. Hans sits back on his heels and does not take his eyes off it.
 
 "It is working," he says. "I am also surprised."
 
-The fire doesn't do much against the cave. But it is orange, not green, and it pops, and everyone moves a little closer to it without deciding to.
+It's too small to warm the cave. But it's orange, after all that green, and it pops, and one by one you all shuffle closer.
 
 → Continue (go to T2b)
 
 ## T2b. Around the fire
 
-The circle sorts itself out the way circles do. Matthew in his blanket, closest to the warmth, because nobody would have it any other way. Hans on his heels by the wood, appointed keeper of the fire by himself. Thorn stays at the edge, watching the tunnel, but he has come one step nearer.
+You end up in a ring. Matthew gets the warmest place, and nobody had to say so. Hans stays on his heels by the wood. He has made himself keeper of the fire without asking anyone. Thorn is still at the edge, watching the tunnel, but one step closer.
 
-Somebody's boots steam. Somebody's hands, held out to the flames, slowly remember how to open. The ash keeps falling, but near the fire it lifts again in the heat and glows for a moment before it goes out.
+Somebody's boots steam. The hand that wouldn't open is held out to the flames, and after a while the fingers uncurl.
 
-It's the first warm thing in this cave. It isn't much. It's yours.
+The ash keeps falling. Over the fire the heat lifts it again, and each flake glows for a moment before it goes out.
 
 → Continue (go to T3)
 
 ## T3. Matthew
 
-Matthew watches the fire for a long time. The light moves over his face and finds every line in it.
+Matthew looks into the fire for a long time. The light shows every line in his face.
 
-"The first time I came back to the Hollow's door," he says, "I came with nothing in my hands."
+"The first time I went back to the Hollow's door," he says, "I had nothing in my hands."
 
-His voice is still cracked from three days of playing. He doesn't raise it. You have to lean in.
+Three days of playing have cracked his voice, and he doesn't raise it. You have to lean in.
 
-"A year late, with nothing in my hands. Just me and a story about how sorry I was. They sent me away." He doesn't look at Thorn. Thorn looks at the floor. "Maybe it would have gone the same way with a gift. I'll never know. But you don't come to that door with nothing. You bring something, so they know you meant to come and weren't just passing." [SAM?: the Hollow expects a guest-gift]
+"I was a year late and I came empty-handed, with a story about how sorry I was. They sent me away." He doesn't look at Thorn. Thorn looks at the floor. "It might have gone the same with a gift. I'll never know. But don't go to that door with nothing. Bring them something. Then they know you set out to come, and didn't just happen to be passing." [SAM?: the Hollow expects a guest-gift]
 
-He shifts the lute in his lap, carefully, as if it might break, or he might.
+He shifts the lute in his lap, slowly, with both hands.
 
 → Continue (go to T7)
 
 ## T7. The door
 
-"One more thing," Matthew says. His voice is going. "When you get to that door, somebody speaks first. Decide it now. Don't stand there looking at each other."
+"One more thing," Matthew says. His voice has nearly gone. "At that door, somebody has to speak first. Settle who, now. Don't stand about looking at each other."
 
 The fire pops. A flake of ash drifts down into it, flares, and is gone.
 
-Nobody answers him yet. It's a question for the road, and the road is not tonight.
+Nobody answers him. You have the whole walk there to settle it, and nobody is walking anywhere tonight.
 
 → Continue (go to T9)
 
 ## T9. Last word
 
-The fire is low now. Hans gives it the last piece of wood and watches it catch.
+The fire has burned low. Hans gives it the last piece of wood and waits until it has caught.
 
-Matthew has started telling you something about the summer he met her, and somewhere in the middle of a sentence his voice runs out. His head tips back against the stone. His hands go loose on the lute. For one bad moment every one of you looks at his chest. It rises, and it falls.
+Matthew has started on the summer he met her, and halfway through a sentence his voice gives out. His head goes back against the stone. His hands go loose on the lute.
 
-He's asleep. Just asleep.
+Every one of you looks at his chest. It rises, and it falls. He is asleep, and nobody moves him.
 
-Hans looks at him, then at all of you, then at the fire.
+Hans looks at Matthew, then at each of you in turn, then at the fire.
 
-"Good fire," Hans says. "Good crew. Bad cave." He turns his headphones down, a small click you all hear. "I will log this."
-
-Nobody moves Matthew. Not yet.
+"Good fire," he says. "Good crew. Bad cave." He turns his headphones down, a small click you all hear. "I will log this."
 
 → Continue to your ending
 
