@@ -2888,9 +2888,9 @@ void main(){
   if(vD>uHead) discard;
   if(vK>0.5){                                  // the waystone jump: a thin line of light, a soft glow, a pulse that travels
     float ph=fract(uTime*0.16)*1.3-0.15, p=exp(-pow((vT-ph)/0.045,2.0))*uPulse;
-    float core=1.0-smoothstep(-0.6,0.6,abs(y)-uLine*(0.42+0.55*p));
+    float core=1.0-smoothstep(-0.6,0.6,abs(y)-uLine*(0.6+0.55*p));
     float g=exp(-y*y/(vH*vH*0.14))*(1.0-smoothstep(0.55,1.0,abs(vV)));
-    float a=(core*0.9+g*(0.2+0.7*p))*mix(1.0,0.72,uOld);
+    float a=(core*0.92+g*(0.32+0.6*p))*mix(1.0,0.78,uOld);
     gl_FragColor=vec4(mix(vec3(0.561,0.827,0.784),vec3(0.92,1.0,0.97),clamp(core*0.45+p,0.0,1.0)),a); return; }
   vec2 k=mix(ink(dash(uPer,y,wpp)),ink(dash(uPer*2.0,y,wpp)),uMix);
   float a=k.x+(1.0-k.x)*k.y*0.6; if(a<0.01) discard;
