@@ -1820,6 +1820,9 @@ const legS=i=>i>=ROUTE_NEW_FROM?AS_OF:Math.min(LEG_S[i],AS_OF-1);
 const blobS=(e,fresh)=>fresh?AS_OF:Math.min(AS_OF-1,typeof e[0]==="string"?firstS(byId[e[0]]):nearS(e[0],e[1]));
 const MIN_S=Math.max(1,Math.min(...LEG_S.filter(n=>n>0),...PLACES.map(firstS).filter(n=>n>0)));
 let viewS=AS_OF;   // the session the chart is showing; below AS_OF = rewound
+// world map 3.0: each new map system (place seals, landmarks, the journey, the recap camera) adds one function here; the loop calls them every frame.
+// MAP_OFF("nolandmarks") is true when the address carries that switch, so one system can be turned off without a new build
+const MAP_TICKS=[], MAP_OFF=k=>new RegExp("[?&]"+k+"(=|&|$)").test(location.search);
 
 /* fog mask: R = known before this session, G = revealed this session */
 const maskCv = document.createElement("canvas"); maskCv.width=1024; maskCv.height=512;
@@ -2848,19 +2851,49 @@ function flyTo(lon,lat,zoom,ms=1600){
 }
 function flyToPlace(id,zoom){const p=byId[id];if(p)flyTo(p.lon,p.lat-(morph>.5?0:0),zoom??.4);}
 
+// world map 3.0, how the map moves under a hand (?oldcam turns all of it off):
+// - a swipe keeps gliding after the finger lifts and slows down by itself, like a real globe that was given a push;
+// - a pinch or the scroll wheel zooms about the fingers or the pointer, so the place you aim at stays where it is;
+// - two fingers also drag the map while they pinch; a double tap (or double click) zooms in on that spot.
+const CAM3=!MAP_OFF("oldcam");
+const glide={on:false,vl:0,va:0,t:0};   // degrees per millisecond, east and north
+const camDist=z=>0.25+z*3.4;           // how far the camera stands off the ground at a zoom (see camPose)
+function panBy(dx,dy){const k=(morph>.5?0.09:0.16)*(0.25+cam.zoom)*(900/Math.max(500,innerHeight));
+  cam.lon-=dx*k*(morph>.5?1:1/Math.max(.3,Math.cos(cam.lat*D2R))); cam.lat=Math.max(-70,Math.min(70,cam.lat+dy*k));}
+function zoomAt(z,x,y){z=Math.min(1,Math.max(0,z)); const z0=cam.zoom; if(z===z0) return;
+  const ll=screenToLonLat(x,y); cam.zoom=z; if(!ll) return;
+  const s=camDist(z)/camDist(z0), dl=((ll.lon-cam.lon+540)%360)-180;   // the spot's offset from the middle of the view shrinks or grows with the camera's distance
+  if(Math.abs(dl)>60||Math.abs(ll.lat-cam.lat)>60) return;
+  cam.lon=cam.lon+dl*(1-s); cam.lat=Math.max(-70,Math.min(70,cam.lat+(ll.lat-cam.lat)*(1-s)));}
+let lastTap=null;
+function tapZoom(x,y){if(!CAM3||placing||fly||recapOn||document.body.classList.contains("cinema")) {lastTap=null;return;}
+  const t=performance.now(); if(lastTap&&t-lastTap.t<320&&Math.hypot(x-lastTap.x,y-lastTap.y)<28){lastTap=null;
+    const ll=screenToLonLat(x,y); if(!ll||cam.zoom<=0.03) return; const z=Math.max(0.02,cam.zoom*.5), s=camDist(z)/camDist(cam.zoom), dl=((ll.lon-cam.lon+540)%360)-180;
+    flyTo(cam.lon+dl*(1-s*.4),Math.max(-70,Math.min(70,cam.lat+(ll.lat-cam.lat)*(1-s*.4))),z,520); return;}
+  lastTap={t,x,y};}
+if(CAM3) MAP_TICKS.push((now,dt)=>{if(!glide.on) return; if(tween||fly||ptrs.size){glide.on=false;return;}
+  const ms=dt*1000; cam.lon+=glide.vl*ms; cam.lat=Math.max(-70,Math.min(70,cam.lat+glide.va*ms)); idleT=now;
+  const f=Math.exp(-dt*4.2); glide.vl*=f; glide.va*=f; if(Math.hypot(glide.vl,glide.va)<.0006||Math.abs(cam.lat)>=70&&Math.abs(glide.vl)<.0006) glide.on=false;});
 // pointer controls
 const ptrs=new Map(); let drag=null, pinch0=null, moved=0, idleT=performance.now();
 const cvs=renderer.domElement;
 // labels sit on top of the canvas, so gestures that start on one are handled here too (they bubble up to #pins)
 const pinsLayer=document.getElementById("pins");
-const onDown=e=>{if(fly)endFly();const pin=e.target.closest?.(".pin");try{(pin||cvs).setPointerCapture(e.pointerId);}catch(err){}ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY,pin:!!pin});moved=0;tween=null;idleT=performance.now();
-  if(ptrs.size===2){const [a,b]=[...ptrs.values()];pinch0={d:Math.hypot(a.x-b.x,a.y-b.y),z:cam.zoom};}};
+const onDown=e=>{if(fly)endFly();const pin=e.target.closest?.(".pin");try{(pin||cvs).setPointerCapture(e.pointerId);}catch(err){}ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY,pin:!!pin});moved=0;tween=null;idleT=performance.now();glide.on=false;glide.vl=glide.va=0;
+  if(ptrs.size===2){const [a,b]=[...ptrs.values()];pinch0={d:Math.hypot(a.x-b.x,a.y-b.y),z:cam.zoom,mx:(a.x+b.x)/2,my:(a.y+b.y)/2};}};
 const onMove=e=>{if(!ptrs.has(e.pointerId))return;const p=ptrs.get(e.pointerId);const dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;moved+=Math.abs(dx)+Math.abs(dy);idleT=performance.now();
-  if(ptrs.size===2&&pinch0){const [a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);cam.zoom=Math.min(1,Math.max(0,pinch0.z*pinch0.d/d));return;}
+  if(ptrs.size===2&&pinch0){const [a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);
+    if(CAM3){const mx=(a.x+b.x)/2,my=(a.y+b.y)/2;panBy(mx-pinch0.mx,my-pinch0.my);pinch0.mx=mx;pinch0.my=my;zoomAt(pinch0.z*pinch0.d/d,mx,my);return;}   // the land under the fingers stays under them
+    cam.zoom=Math.min(1,Math.max(0,pinch0.z*pinch0.d/d));return;}
   const k=(morph>.5?0.09:0.16)*(0.25+cam.zoom)*(900/Math.max(500,innerHeight));
-  cam.lon-=dx*k*(morph>.5?1:1/Math.max(.3,Math.cos(cam.lat*D2R))); cam.lat=Math.max(-70,Math.min(70,cam.lat+dy*k));};
-const endPtr=e=>{const was=ptrs.get(e.pointerId);ptrs.delete(e.pointerId);if(ptrs.size<2)pinch0=null;if(was&&!was.pin&&moved<6&&e.type==="pointerup")onTap(e.clientX,e.clientY);};
-const onWheel=e=>{e.preventDefault();tween=null;idleT=performance.now();cam.zoom=Math.min(1,Math.max(0,cam.zoom+e.deltaY*0.0012));};
+  const l0=cam.lon,a0=cam.lat;
+  cam.lon-=dx*k*(morph>.5?1:1/Math.max(.3,Math.cos(cam.lat*D2R))); cam.lat=Math.max(-70,Math.min(70,cam.lat+dy*k));
+  if(CAM3&&ptrs.size===1){const t=performance.now(),ms=Math.max(4,Math.min(60,t-glide.t));glide.t=t;   // remember how fast the map is moving, for the glide after the finger lifts
+    glide.vl+=((cam.lon-l0)/ms-glide.vl)*.5; glide.va+=((cam.lat-a0)/ms-glide.va)*.5;
+    const v=Math.hypot(glide.vl,glide.va), top=.02+.1*cam.zoom; if(v>top){glide.vl*=top/v;glide.va*=top/v;}}};   // a hard flick never spins the globe further than about a third of the view
+const endPtr=e=>{const was=ptrs.get(e.pointerId);ptrs.delete(e.pointerId);if(ptrs.size<2)pinch0=null;if(was&&!was.pin&&moved<6&&e.type==="pointerup"){onTap(e.clientX,e.clientY);tapZoom(e.clientX,e.clientY);}
+  if(CAM3&&was&&!ptrs.size&&e.type==="pointerup"&&moved>=6&&!reduced&&performance.now()-glide.t<90&&Math.hypot(glide.vl,glide.va)>.004) glide.on=true; else if(!ptrs.size) glide.on=false;};
+const onWheel=e=>{e.preventDefault();tween=null;idleT=performance.now();glide.on=false;if(CAM3){zoomAt(cam.zoom+e.deltaY*0.0012,e.clientX,e.clientY);return;}cam.zoom=Math.min(1,Math.max(0,cam.zoom+e.deltaY*0.0012));};
 for(const el of [cvs,pinsLayer]){for(const [t,f] of [["pointerdown",onDown],["pointermove",onMove],["pointerup",endPtr],["pointercancel",endPtr]])el.addEventListener(t,f);
   el.addEventListener("wheel",onWheel,{passive:false});}
 
@@ -3543,7 +3576,9 @@ function frame(now){
   city.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),up); city.rotateY(now/6000);
   city.scale.setScalar(0.5*(1-0.3*mm)); cityTick(now,dt,up);
   cityShadow(sphDir(w.lon,w.lat),0.06+bob,0.026*(1-0.3*mm));
-  camPose(); updateTrail(); tickCrash(now); renderWorld(); updatePins(); soundMix();
+  camPose(); updateTrail(); tickCrash(now);
+  for(const f of MAP_TICKS) f(now,dt,mm);
+  renderWorld(); updatePins(); soundMix();
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(t=>{document.getElementById("loading").remove();last=t;frame(t)});
