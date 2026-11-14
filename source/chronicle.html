@@ -10236,7 +10236,7 @@ addEventListener("keydown",e=>{if(!PLAY.on||root.hidden||e.defaultPrevented||e.r
   if((e.ctrlKey||e.metaKey||e.altKey||e.shiftKey)&&!z)return;
   const t=e.target instanceof Element?e.target:null;if(t&&t.closest("input,textarea,select,[contenteditable]"))return;
   if(T3C||menuEl)return;
-  const onBtn=k==="Enter"&&t&&t.closest("button,a,summary"),now=performance.now(); // Enter on a button that has the focus already presses it
+  const onBtn=k==="Enter"&&t&&t.closest("button:not(.tk),a,summary"),now=performance.now(); // Enter on a button that has the focus already presses it
   const m=stage.querySelector(".pl-modal");
   if(m){if(now-keyAt<500||onBtn)return;const bs=[...m.querySelectorAll(".row .pl-btn")]; // not within half a second of the key before: a second Enter for "end?" must not answer the question that follows
     const b=k==="Enter"?bs.find(x=>x.classList.contains("pri")):k==="Escape"&&bs.length===2&&!drawerEl&&!(B&&(B.tgt||B.cellPick))?bs.find(x=>!x.classList.contains("pri")):null;
