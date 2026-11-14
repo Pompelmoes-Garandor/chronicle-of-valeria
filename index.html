@@ -2694,8 +2694,8 @@ function cityTick(now,dt,up){
    points on top is the smoke and the glow (a second draw call). Hidden from far away, so the globe stays calm.
    ?nolandmarks turns all of it off. ---- */
 if(!MAP_OFF("nolandmarks")){
- // models are drawn in thousandths of the globe's radius: x east, y up, z south (towards you, since the camera looks north)
- const U=0.001, F=3.5, TAU=Math.PI*2, LM=[], PT=[], parts=[]; let cur=0, seed=11, G=null;
+ // models are drawn in units of about a thousandth of the globe's radius: x east, y up, z south (towards you, since the camera looks north)
+ const U=0.0012, F=3.5, TAU=Math.PI*2, LM=[], PT=[], parts=[]; let cur=0, seed=11, G=null;
  const rnd=()=>{seed=(seed+0x6D2B79F5)|0;let t=Math.imul(seed^(seed>>>15),1|seed);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296;};
  const few=n=>SMALL?Math.ceil(n*.45):n;   // phones get fewer houses, trees and stakes
  const M4=new THREE.Matrix4(), Q=new THREE.Quaternion(), E=new THREE.Euler(), V=new THREE.Vector3(), Sc=new THREE.Vector3(1,1,1);
@@ -2733,7 +2733,7 @@ if(!MAP_OFF("nolandmarks")){
  // one place: its id, how far north of the pin it stands (degrees, so the seal sits at its foot and hides nothing), and its model
  const lm=(id,north,fn)=>{const p=byId[id]; if(!p||p.state==="rumour") return; cur=LM.length;
    const lon=p.lon, lat=p.lat+north, n=sphDir(lon,lat), e=new THREE.Vector3(Math.cos(lon*D2R),0,-Math.sin(lon*D2R));
-   LM.push({p,f:firstS(p),lon,lat,n,e,s:new THREE.Vector3().crossVectors(e,n),a:0,pos:new THREE.Vector3(),X:new THREE.Vector3(),Y:new THREE.Vector3(),Z:new THREE.Vector3(),day:1,k:0}); fn(p);};
+   LM.push({p,f:firstS(p),lon,lat,n,e,s:new THREE.Vector3().crossVectors(e,n),a:0,pos:new THREE.Vector3(),X:new THREE.Vector3(),Y:new THREE.Vector3(),Z:new THREE.Vector3(),day:1,k:0,on:false}); fn(p);};
  const SNOW=0xeef3f6, ICE=0xbfe0ee, WOOD=0x7a5a3a, WOODD=0x4f3a26, LIT=0xffc66a, TEAL=0x8fd3c8, EMBER=0xe8743b;
  // a dead grey tree: a leaning trunk and a few bare branches
  const tree=(x,z,h)=>{const c=rnd()<.5?0x7b7a7c:0x5f5d63, lx=(rnd()-.5)*.3, lz=(rnd()-.5)*.3;
@@ -2743,7 +2743,7 @@ if(!MAP_OFF("nolandmarks")){
 
  // Valarius: an old ruin of a city, frozen for ages, thawed for a week and lived in again. Broken pale walls and towers, a dome,
  // snow still on some roofs, a few lit windows, and meltwater running out through a gap in the wall
- lm("valeria",0.62,()=>{const st=0xd8ccb0, stD=0xa99a7c, rf=0x7c6652, wa=0x86cfe0, WR=10.5, NW=10;
+ lm("valeria",1.1,()=>{const st=0xd8ccb0, stD=0xa99a7c, rf=0x7c6652, wa=0x86cfe0, WR=10.5, NW=10;
    mound(13.5,0.5,(x,y,z)=>y<0.2?0x9a946c:(Math.sin(x*1.7)+Math.sin(z*2.3+x)>1.25?SNOW:0xa8a078));
    const stream=[[0.6,2.5],[-0.9,6.5],[-2.2,10.4],[-3.4,14.6]];
    for(let i=0;i<3;i++){const [x1,z1]=stream[i],[x2,z2]=stream[i+1]; box(Math.hypot(x2-x1,z2-z1)+0.8,0.5+F,1.5-i*0.2,wa,(x1+x2)/2,-F+0.25-i*0.25,(z1+z2)/2,-Math.atan2(z2-z1,x2-x1));}
@@ -2773,7 +2773,7 @@ if(!MAP_OFF("nolandmarks")){
    smoke(-4.5,2.6,3.5,3,2.2,5,0xcfc8bc,.38); smoke(2.5,2.6,5.2,3,2,4.5,0xcfc8bc,.34);});
 
  // Gerda's inn, inside Valarius: one building a little apart, a lit sign by the door and smoke from the chimney
- lm("inn",0.3,()=>{const pl=0xe0d0ac, rf=0x9a4a34;
+ lm("inn",0.55,()=>{const pl=0xe0d0ac, rf=0x9a4a34;
    mound(4.6,0.35,0xa8a078);
    gbox(5,2.5,3.4,pl,0,0); gable(5.6,4,2.2,rf,0,2.5,0); box(0.9,2.6,0.9,0x6e6258,1.5,2.9,-0.7);
    box(0.9,1.5,0.12,WOODD,-0.3,0,1.7); box(0.7,0.8,0.12,LIT,1.4,0.9,1.7,0,1); box(0.7,0.8,0.12,LIT,-1.8,0.9,1.7,0,1); box(0.12,0.8,0.7,LIT,2.5,0.9,0.3,0,1);
@@ -2781,7 +2781,7 @@ if(!MAP_OFF("nolandmarks")){
    smoke(1.5,5.6,-0.7,3,1.7,4.5,0xd6cfc4,.42); halo(-3.6,2.1,2.4,3.2,0xffc66a,.3,1);});
 
  // Orda: a city of white marble with sky-piercing towers. The square keep in front is the Crow's Nest
- lm("orda",0.68,()=>{const mb=0xf4f1e8, mbD=0xd5d0c2, rf=0x8ea4bd, red=0xc8412b, sand=0xb59c74, sp=SMALL?5:7;
+ lm("orda",1.1,()=>{const mb=0xf4f1e8, mbD=0xd5d0c2, rf=0x8ea4bd, red=0xc8412b, sand=0xb59c74, sp=SMALL?5:7;
    mound(14.5,0.4,0xb8b49f);
    gbox(23,1.3,14.5,mbD,0,0); box(21.8,0.5,13.3,mb,0,1.3,0);
    const y0=1.8, spire=(x,z,r,h,hr)=>{cyl(r*0.82,r,h,sp,mb,x,y0,z); cyl(r*1.15,r*1.15,0.35,sp,mbD,x,y0+h,z); cone(r*1.12,hr,sp,rf,x,y0+h+0.35,z);};
@@ -2797,7 +2797,7 @@ if(!MAP_OFF("nolandmarks")){
    cyl(0.08,0.08,1.6,4,WOODD,-6.1,y0+19.6,1.5); box(1.2,0.7,0.08,red,-5.5,y0+20.4,1.5);});
 
  // the Hills: the rebels' camp on a mountain whose ice has melted. They left for Valarius: one tent is down, the fire is out
- lm("hills",0.55,()=>{const tent=0xe9dfc4, red=0xb8412e, green=0x4f8a55;
+ lm("hills",1.0,()=>{const tent=0xe9dfc4, red=0xb8412e, green=0x4f8a55;
    mound(11,0.8,(x,y,z)=>y<0.25?0x8f8672:(Math.sin(x*1.3+1)+Math.sin(z*1.9-x*0.7)>0.5?SNOW:0x9a917c));
    for(let i=0,n=few(22);i<n;i++){const a=(-0.72+1.44*i/(n-1))*Math.PI-Math.PI/2; if(i%7===3) continue;
      cone(0.42,2.2+rnd()*0.8,4,i%5?WOOD:WOODD,Math.cos(a)*9.2,-0.3,Math.sin(a)*9.2,(rnd()-.5)*.3,(rnd()-.5)*.3);}
@@ -2808,7 +2808,7 @@ if(!MAP_OFF("nolandmarks")){
    rock(1.2,0x7d7f85,-7.6,0.2,-5,0.8); rock(0.9,0x7d7f85,7.8,0.2,2.6,0.8,1); rock(0.7,0x8a8c90,-5.4,0.3,4.6,0.7,2);});
 
  // the icy pass: an icy mountain and a long wooden bridge
- lm("icy",0.55,()=>{const rk=0x74808c, top=(lim)=>(x,y,z)=>y>lim+Math.sin(x*2.1+z*1.7)*0.9?SNOW:(y>lim-1.6?ICE:rk);
+ lm("icy",1.0,()=>{const rk=0x74808c, top=(lim)=>(x,y,z)=>y>lim+Math.sin(x*2.1+z*1.7)*0.9?SNOW:(y>lim-1.6?ICE:rk);
    const crag=(x,z,r,h,n,ry)=>{const g=new THREE.ConeGeometry(r,h+F,n,SMALL?2:3).translate(0,(h+F)/2,0), p=g.attributes.position;
      for(let i=0;i<p.count;i++){const a=p.getX(i),b=p.getY(i),c=p.getZ(i); if(b>h+F-0.01||b<0.01) continue; const s=Math.sin(Math.round(a*7)*12.9+Math.round(b*7)*78.2+Math.round(c*7)*37.7)*43758.5; const k=0.82+0.36*(s-Math.floor(s)); p.setXYZ(i,a*k,b,c*k);}
      put(g,top(h*0.42),x,-F,z,ry);};
@@ -2821,35 +2821,35 @@ if(!MAP_OFF("nolandmarks")){
    B.forEach(([x,y],i)=>{box(0.16,0.95,0.16,WOODD,x,y,1.95); box(0.16,0.95,0.16,WOODD,x,y,0.45); if(i>0&&i<4){cyl(0.14,0.2,y+0.6,4,WOODD,x,-0.6,1.85,0.07); cyl(0.14,0.2,y+0.6,4,WOODD,x,-0.6,0.55,-0.07); box(0.12,0.12,1.5,WOODD,x,y*0.5,1.2);}});});
 
  // where the ship was found: it looked like rubble. The ship is gone; its six-sided bed and some rubble are left
- lm("ship",0.4,()=>{const stn=0xcbb98f;
+ lm("ship",0.8,()=>{const stn=0xcbb98f;
    mound(8.5,0.45,0x97896c); cyl(5.4,5.8,0.5,6,0x4a3f33,0,0.2,0.4); cyl(4.3,4.6,0.56,6,0x352d25,0,0.2,0.4);
    for(let i=0,n=few(11);i<n;i++){const a=i/n*TAU+rnd()*0.4, r=6.2+rnd()*1.4, s=0.7+rnd()*0.9; box(s*1.2,s*0.8,s,i%3?stn:0xa8976f,Math.cos(a)*r,0,Math.sin(a)*r+0.4,rnd()*3,0,(rnd()-.5)*.5,(rnd()-.5)*.5);}});
 
  // the crash site: the wreck of the flying castle ship, the same pieces as the ship in its last flight, down and broken.
  // (while the last flight plays, the wreck is hidden: the real ship is still on its way down)
- lm("crash",0.55,()=>{const stn=0xcbb98f, dk=0x5a4a34, rk=0x4a3f33;
+ lm("crash",1.0,()=>{const stn=0xcbb98f, dk=0x5a4a34, rk=0x4a3f33;
    mound(10.5,0.5,(x,y,z)=>Math.hypot(x,z)<7.5+Math.sin(x*2+z)*1.2?0x3a322b:0x6f6353);
    box(3,0.35+F,10,0x332b25,-7.5,-F,-7.5,Math.PI/4);
-   tilt(0.16,0.5,-0.42,0.5,2.2,0,0.62,()=>{
+   tilt(0.12,0.5,-0.3,0.5,1.8,0,0.62,()=>{
      put(new THREE.ConeGeometry(15,22,6).rotateX(Math.PI).translate(0,-11,0),rk);
-     cyl(16,14.5,3.6,6,stn,0,0,0); cyl(5.2,6.2,10,6,stn,0,3.6,2); cone(4.4,3,5,stn,1,13.6,2.6,0.3,0.4);
+     cyl(16,14.5,3.6,6,stn,0,0,0); cyl(5.2,6.2,13,6,stn,0,3.6,2); cone(4.4,3.4,5,stn,1,16.6,2.6,0.3,0.4);
      cyl(3.3,3.3,14,6,stn,9.4,3.6,-5.6); cone(4.7,6.6,6,dk,9.4,17.6,-5.6);
      cyl(2.8,2.8,4.4,6,stn,-8.9,3.6,5.6);
      put(new THREE.TorusGeometry(14.6,0.75,4,SMALL?10:16,Math.PI*1.25).rotateX(Math.PI/2).rotateY(0.4),0xc9a35c,0,-1.8,0);});
    // the top of the tower and its roof lie where they fell
-   cyl(3,3.4,6.5,6,stn,8.8,1.3,5.4,0,-1.35,0.3); cone(4.4,6.5,6,dk,15.4,0.9,7.6,0,-1.2,0.3);
+   cyl(3,3.4,6.5,6,stn,8.2,1.3,6,0,-1.35,0.3); cone(4.2,6,6,dk,14.2,0.9,8,0,-1.2,0.3);
    for(let i=0,n=few(9);i<n;i++){const a=rnd()*TAU, r=6+rnd()*4.5, s=0.6+rnd()*0.8; box(s*1.3,s*0.8,s,i%3?stn:rk,Math.cos(a)*r,0,Math.sin(a)*r,rnd()*3,0,(rnd()-.5)*.6,(rnd()-.5)*.6);}
    smoke(0.4,7,1.2,3,2.4,7,0x8d8780,.32);});
 
  // the ravine: two lips of rock and the dark between them
- lm("ravine",0.4,()=>{const rk=0x8b7c69, rkD=0x6b5e50, R0=[[-10,-2.8],[-4.6,-0.4],[0.6,0.9],[5.6,-0.5],[10,-3.2]];
+ lm("ravine",0.6,()=>{const rk=0x8b7c69, rkD=0x6b5e50, R0=[[-10,-2.8],[-4.6,-0.4],[0.6,0.9],[5.6,-0.5],[10,-3.2]];
    for(let i=0;i<4;i++){const [x1,z1]=R0[i],[x2,z2]=R0[i+1], len=Math.hypot(x2-x1,z2-z1), ry=-Math.atan2(z2-z1,x2-x1), mx=(x1+x2)/2, mz=(z1+z2)/2, w=i===0||i===3?2.2:3.2;
      box(len+1.2,0.25+F,w,0x120e0c,mx,-F,mz,ry);
      const [nx,nz]=turn(0,w/2+1.2,ry); gable(len+1.6,3.2,1.6+rnd()*0.7,rk,mx-nx,-0.15,mz-nz,ry); gable(len+1.6,3,1.1+rnd()*0.5,rkD,mx+nx,-0.15,mz+nz,ry);}
    rock(1.3,rk,-6.6,0.3,-4.8,0.8); rock(1,rkD,3.4,0.2,3.6,0.8,1); rock(0.9,rk,8,0.3,-5,0.8,2); rock(0.7,rkD,-2,0.2,3.2,0.7,3);});
 
  // the waystone: old Valerian tech, a carved standing stone. The disc near the top glows teal
- lm("waystone",0.34,()=>{const sl=0x4d4943, gold=0xc9a35c;
+ lm("waystone",0.6,()=>{const sl=0x4d4943, gold=0xc9a35c;
    mound(5.4,0.6,0x7f8a5c); rock(0.9,0x6d6a64,-2.8,0.5,1.4,0.7); rock(0.7,0x6d6a64,2.9,0.4,0.6,0.7,1);
    tilt(-0.1,-0.12,0.07,0,0,0,1,()=>{
      box(4.6,11,1.8,sl,0,-1,0); box(3.8,0.9,1.5,sl,-0.1,9.9,0,0,0,0,0.12);
@@ -2860,11 +2860,11 @@ if(!MAP_OFF("nolandmarks")){
  // the blighted forest: a forest gone grey
  const stand=(n,R0,skip)=>{const ts=[]; let tries=0; while(ts.length<n&&tries++<300){const a=rnd()*TAU, r=Math.sqrt(rnd())*R0, x=Math.cos(a)*r, z=Math.sin(a)*r;
    if(ts.some(([tx,tz])=>Math.hypot(x-tx,z-tz)<2.6)||(skip&&skip(x,z))) continue; ts.push([x,z]); tree(x,z,5+rnd()*3.5);}};
- lm("forest",0.5,()=>{mound(12.5,0.5,(x,y,z)=>Math.sin(x*1.1)+Math.sin(z*1.6+x*0.5)>0.6?0x6c6a66:0x85827c); stand(few(17),11);
+ lm("forest",1.1,()=>{mound(12.5,0.5,(x,y,z)=>Math.sin(x*1.1)+Math.sin(z*1.6+x*0.5)>0.6?0x6c6a66:0x85827c); stand(few(17),11);
    rock(1,0x5c5a58,-5,0.2,6,0.7); rock(0.8,0x5c5a58,6.5,0.2,4,0.7,1);});
 
  // the Heart's cave: a dark mouth in a mound held together by black roots, under the grey trees. The floor is ash
- lm("cave",0.5,()=>{const root=0x2b2420, earth=0x5e574e;
+ lm("cave",1.0,()=>{const root=0x2b2420, earth=0x5e574e;
    mound(11,0.4,0x8b8882); mound(6.6,5,(x,y,z)=>y>3.4?0x6b655c:earth,0,-1.5,SMALL?9:11,1.3);
    box(3.4,3,2.2,0x0c0a09,0,-0.2,3.1); cyl(0.5,0.75,3.9,5,root,-2,-0.3,4.5,0,-0.22); cyl(0.5,0.75,3.9,5,root,2,-0.3,4.5,0,0.22); cyl(0.5,0.55,4.6,5,root,-2.3,3.3,4.4,0,-Math.PI/2+0.06);
    for(let i=0,n=few(7);i<n;i++){const a=(i/n-0.5)*4.4+Math.PI/2+(rnd()-.5)*.3; if(Math.abs(a-Math.PI/2)<0.4) continue;
@@ -2872,7 +2872,7 @@ if(!MAP_OFF("nolandmarks")){
    stand(few(6),10.5,(x,z)=>Math.hypot(x,z+1.5)<8||(Math.abs(x)<3.5&&z>0));});
 
  // the vaults: a round stone door in a rock, in the vault's colour. The Fire Vault broke open: its door lies in pieces and it glows
- const vault=(id,col,open)=>lm(id,0.4,()=>{const stn=0x8f8a80, rk=open?0x6a6460:0x7b7f78;
+ const vault=(id,col,open)=>lm(id,0.7,()=>{const stn=0x8f8a80, rk=open?0x6a6460:0x7b7f78;
    rock(6,rk,0,0.6,-2.4,0.95,id.length); rock(3.4,rk,-5.4,0,-0.6,0.8,1); rock(3,rk,5.2,0,-1,0.8,2);
    tilt(-0.16,0,0,0,0,2.2,1,()=>{const n=SMALL?10:14;
      cyl(4,4,1.1,n,stn,0,3.4,0,Math.PI/2);
@@ -2917,7 +2917,7 @@ void main(){ int i=int(aK.x+0.5); vec3 L=uL[i]; float day=smoothstep(-0.42,0.02,
    // far away nothing shows; from zoom 0.5 inwards the miniatures grow out of the land, and they are all there by 0.3
    const z=cam.zoom, kz=sm(0.5,0.3,z), rv=uniforms.uReveal.value;
    if(kz<=0){ if(wasOn){mesh.visible=pts.visible=false; wasOn=false;} return; }
-   const sun=uniforms.uSun.value, cp=camera.position, grow=1+0.45*sm(0.1,0.34,z), reseat=mm!==lastM||!wasOn; lastM=mm; tickN++;
+   const sun=uniforms.uSun.value, cp=camera.position, grow=1.15+0.35*sm(0.1,0.34,z), reseat=mm!==lastM||!wasOn; lastM=mm; tickN++;
    let any=false;
    for(let i=0;i<NL;i++){const L=LM[i], p=L.p;
      // the fog and the rewind: only what the chart has decoded in the session on show, and a place new in that session only
@@ -2928,8 +2928,8 @@ void main(){ int i=int(aK.x+0.5); vec3 L=uL[i]; float day=smoothstep(-0.42,0.02,
      if(!wasOn||reduced) L.a=want?1:0; else L.a+=((want?1:0)-L.a)*Math.min(1,dt*3.5);
      if(L.a<0.004&&!want) L.a=0;
      const s=U*grow*kz*ki*L.a*(2-L.a); L.k=s; const m=lu.uM.value[i].elements;
-     if(s<=0){m[0]=m[5]=m[10]=0; m[1]=m[2]=m[4]=m[6]=m[8]=m[9]=0; continue;}
-     if(reseat||(tickN+i*5)%60===0) seat(L,mm);   // the relief under a place only changes when the fog moves: look again about once a second
+     if(s<=0){m[0]=m[5]=m[10]=0; m[1]=m[2]=m[4]=m[6]=m[8]=m[9]=0; L.on=false; continue;}
+     if(reseat||!L.on||(tickN+i*5)%60===0) seat(L,mm); L.on=true;   // the relief under a place only changes when the fog moves: look again about once a second
      any=true; const X=L.X,Y=L.Y,Z=L.Z,P=L.pos;
      m[0]=X.x*s;m[1]=X.y*s;m[2]=X.z*s; m[4]=Y.x*s;m[5]=Y.y*s;m[6]=Y.z*s; m[8]=Z.x*s;m[9]=Z.y*s;m[10]=Z.z*s; m[12]=P.x;m[13]=P.y;m[14]=P.z;
      lu.uL.value[i].set(sun.dot(L.e),sun.dot(L.n),sun.dot(L.s)); L.day=sm(-0.42,0.02,sun.dot(L.n));
