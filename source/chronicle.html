@@ -407,6 +407,17 @@ table.ans td,table.ans th{border-bottom:1px solid #c9a35c22;padding:6px 4px;text
 @keyframes i3In{from{opacity:0;transform:translateY(8px)}}
 @keyframes i3Out{to{opacity:0;transform:translateY(-6px)}}
 @keyframes i3Bob{50%{transform:translateY(3px) rotate(45deg)}}
+/* ---- interludes 3.0: the hub. The list of interludes as painted cards (iHubPaint adds .i3-hub to the list and .i3-hc to a card). ?nohub: the plain list. ---- */
+.pl-choices.i3-hub{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-self:center;width:100%;max-width:1040px}
+.pl-choices.i3-hub>.pl-btn:not(.i3-hc){grid-column:1/-1}
+.pl-choices.i3-hub .pl-btn.i3-hc{position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;gap:5px;text-align:left;min-height:128px;padding:14px 16px;overflow:hidden;border-radius:12px;background:#0b0d12;font:400 21px/1.15 var(--display);letter-spacing:0;color:var(--parch)}
+.pl-choices.i3-hub .i3-hc>.i3-hp{position:absolute;inset:0;background-size:cover;background-repeat:no-repeat;transition:transform .7s cubic-bezier(.2,.7,.2,1)}
+.pl-choices.i3-hub .i3-hc::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#0b0d1200 0,#0b0d1233 42%,#0b0d12e0 84%)}
+.pl-choices.i3-hub .i3-hc>span,.pl-choices.i3-hub .i3-hc>small{position:relative;z-index:1;text-shadow:0 1px 6px #000}
+.pl-choices.i3-hub .i3-hc>small{font:500 11px/1.2 var(--label);letter-spacing:.09em;text-transform:uppercase;color:var(--brass-hi)}
+@media (hover:hover){.pl-choices.i3-hub .i3-hc:hover>.i3-hp{transform:scale(1.04)}}
+@media (prefers-reduced-motion:reduce){.pl-choices.i3-hub .i3-hc>.i3-hp{transition:none}}
+@media (min-width:760px){.pl-choices.i3-hub{grid-template-columns:repeat(2,minmax(0,1fr))}.pl-choices.i3-hub .pl-btn.i3-hc{min-height:168px}}
 /* the vision layer (VISION FX): over the play screen, under its words and buttons */
 #play>canvas.vfx{position:fixed;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:2}
 #play.vfx-on>.pl-top,#play.vfx-on .pl-side,#play.vfx-on .pl-story>:not(.art){z-index:3}
@@ -2024,10 +2035,13 @@ void main(){
   vWorld=(modelMatrix*vec4(p,1.0)).xyz;
   gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);
 }`;
+// SEA3 speed: the cheaper way to draw the same map on computers (see the notes at each use). ?oldspeed puts everything back as it was
+const FAST3=!/[?&]oldspeed/.test(location.search);
 // the cloud layer: the same, plus the weather cells and the same cells a step towards the sun (for the lit side), per vertex
-const CVERT = VERT.replace("varying vec3 vWorld;","varying vec3 vWorld; varying float vWx; varying float vWs; uniform vec3 uSun; uniform float uTime;\n"+NOISE+
+const CVERT = VERT.replace("varying vec3 vWorld;","varying vec3 vWorld; varying float vWx; varying float vWs; uniform vec3 uSun; uniform float uTime; uniform sampler2D uMask; uniform vec4 uFlash;\n"+NOISE+
   "float fbm3(vec3 p){float a=0.0,w=0.5;for(int i=0;i<3;i++){a+=w*gn(p);p=p*2.03+vec3(1.7,9.2,3.1);w*=0.5;}return a;}\n"+WEATHER)
-  .replace("vSph=s;","vSph=s; vWx=weather(s,uTime); vWs=weather(normalize(s+(uSun-s*dot(s,uSun))*0.03),uTime);");
+  .replace("vSph=s;",!FAST3?"vSph=s; vWx=weather(s,uTime); vWs=weather(normalize(s+(uSun-s*dot(s,uSun))*0.03),uTime);":"vSph=s; vWx=0.0; vWs=0.0; vec4 mkv=texture2D(uMask,uv);\n"+
+  "  if(max(mkv.r,mkv.g)>0.003||(uFlash.w>0.0&&dot(s,uFlash.xyz)>0.97)){vWx=weather(s,uTime); vWs=weather(normalize(s+(uSun-s*dot(s,uSun))*0.03),uTime);}   // SEA3 speed: the cells only show over seen ground (and in a lightning flash), so the rest of the world skips the noise");
 // relief: how far the ground stands up from the sea, in globe radii per unit of uRelief. Lowlands stay low, mountains rise steeply
 const RELIEF = `
 float rH(vec4 b){return (b.r*255.0+b.g)/255.0*2.0;}
@@ -2048,8 +2062,8 @@ ${WEATHER}
 void main(){
   vUv=uv; float lon=(uv.x-0.5)*6.2831853; float lat=(uv.y-0.5)*3.1415927;
   vec3 s=vec3(cos(lat)*sin(lon),sin(lat),cos(lat)*cos(lon)); vSph=s;
-  vWx=weather(normalize(s+(uSun-s*dot(s,uSun))*0.035),uTime);   // where the clouds above throw their shadow, a little away from the sun
   vec4 mk=texture2D(uMask,uv);
+  vWx=0.0; if(${FAST3?"max(mk.r,mk.g)>0.003":"true"}) vWx=weather(normalize(s+(uSun-s*dot(s,uSun))*0.035),uTime);   // where the clouds above throw their shadow, a little away from the sun (SEA3 speed: only worked out over seen ground, the only place the shadow is drawn)
   float e=uRelief*rH(RELLOD(uRel,uv,uRelLod))*smoothstep(0.05,0.6,max(mk.r,mk.g*uReveal));
   vec3 f=vec3(lon-uCenter.x,lat-uCenter.y,uLift+e);
   float m=uMorph<0.5?2.0*uMorph*uMorph:1.0-pow(-2.0*uMorph+2.0,2.0)/2.0;
@@ -2330,7 +2344,7 @@ void main(){
   float onLand=smoothstep(0.02,0.1,h)*(1.0-smoothstep(0.32,0.4,h))*(1.0-scar);
   vec2 wf=wash(fr,fth,0.1);
   float forest=wf.x*onLand*dv;
-  float stip=0.5; if(vis>0.01&&h>-fw) stip=mix(0.5,smoothstep(0.3,0.9,gn(p*900.0)),smoothstep(1.0,3.0,0.04/pl));
+  float stip=0.5, stz=smoothstep(1.0,3.0,0.04/pl); if(stz>0.0&&vis>0.01&&h>-fw) stip=mix(0.5,smoothstep(0.3,0.9,gn(p*900.0)),stz);   // (the stipple only exists up close: from further out its noise is not worked out at all)
   float g30=0.0; if(summer>0.0&&vis>0.01) g30=gn(p*30.0);
   vec3 green=mix(vec3(0.40,0.49,0.26),vec3(0.27,0.40,0.34),cold);
   green=mix(green,mix(vec3(0.33,0.50,0.22),vec3(0.84,0.55,0.18),smoothstep(-0.1,0.2,nT+0.35*g30)),summer);
@@ -2522,6 +2536,15 @@ const SMALL = innerWidth<=700||matchMedia("(pointer:coarse)").matches;
 const wgeo = SMALL?new THREE.PlaneGeometry(1,1,512,256):new THREE.PlaneGeometry(1,1,1024,512);   // dense enough for the hills to stand up
 const world = new THREE.Mesh(wgeo,new THREE.ShaderMaterial({uniforms,vertexShader:WVERT,fragmentShader:WORLD_FRAG,defines:{SHADOW_STEPS:SMALL?7:10},side:THREE.DoubleSide,extensions:{derivatives:true}}));
 world.frustumCulled=false; scene.add(world);
+// SEA3 speed: (1) the far side of the globe is not drawn at all (both sides only while the globe unrolls into the table map);
+// (2) from far away the land uses the phones' mesh, a quarter of the triangles: at that distance the fine one has several
+// triangles per pixel, which costs a lot and shows nothing. For measuring, ?nocull3 and ?nolod3 put one of the two back as it was
+const CULL3=FAST3&&!/[?&]nocull3/.test(location.search), LOD3=FAST3&&!SMALL&&!/[?&]nolod3/.test(location.search), wgeoFar=LOD3?new THREE.PlaneGeometry(1,1,512,256):null;
+world.onBeforeRender=()=>{
+  if(CULL3) world.material.side=morph===0||morph===1?THREE.FrontSide:THREE.DoubleSide;
+  if(LOD3){const far=world.geometry===wgeoFar, want=far?cam.zoom>0.27:cam.zoom>0.32; if(want!==far) world.geometry=want?wgeoFar:wgeo;
+    const rel=uniforms.uRel.value; if(uniforms.uWorld.value>0.5&&rel&&rel.image) uniforms.uRelLod.value=Math.max(0,Math.log2(rel.image.width/(far?512:1024)));}
+};
 // bake the land once: the world shader reads its height, forest and moisture from this texture instead of working them out every frame
 const BAKE=(()=>{const big=renderer.capabilities.maxTextureSize>=4096, w=big?2048:1024, h=w/2;
   const rt=new THREE.WebGLRenderTarget(w,h,{depthBuffer:false,generateMipmaps:true,minFilter:THREE.LinearMipmapLinearFilter,magFilter:THREE.LinearFilter,wrapS:THREE.RepeatWrapping,wrapT:THREE.ClampToEdgeWrapping});
@@ -2579,6 +2602,7 @@ void main(){vec4 b=texture2D(tMap,vUv); float v=min(b.r*255.0+b.g,254.99), hi=fl
 const cloudU = {...uniforms,uLift:{value:0.024},uOpacity:{value:1}};
 const clouds = new THREE.Mesh(new THREE.PlaneGeometry(1,1,512,256),new THREE.ShaderMaterial({uniforms:cloudU,vertexShader:CVERT,fragmentShader:CLOUD_FRAG,transparent:true,depthWrite:false,side:THREE.DoubleSide,extensions:{derivatives:true}}));
 clouds.frustumCulled=false; scene.add(clouds);
+clouds.onBeforeRender=()=>{if(CULL3) clouds.material.side=morph===0||morph===1?THREE.FrontSide:THREE.DoubleSide;};   // SEA3 speed: one draw of the near side instead of two of the whole shell
 // the air: a thin shell of scattered sunlight round the world. Blue on the day side, amber along the terminator, a bright ring
 // when the sun stands behind the globe, and a faint haze over the ground. Worked out per pixel along the view ray (single scattering)
 const ATMO_FRAG = `
@@ -3386,7 +3410,7 @@ float dash(float per,float y,float wpp){
   h*=mix(1.0,mix(0.6,1.0,clamp(x/L,0.0,1.0)),uDir);
   return length(vec2(max(abs(x-L*0.5)-max(L*0.5-h,0.0),0.0),y))-h;
 }
-vec2 ink(float sd){return vec2(1.0-smoothstep(-0.7,0.7,sd),1.0-smoothstep(-0.7,0.7,sd-1.2));}
+vec2 ink(float sd){return vec2(1.0-smoothstep(-0.7,0.7,sd),1.0-smoothstep(-0.7,0.7,sd-1.2-0.5*smoothstep(1.7,2.4,uLine)));}
 void main(){
   float wpp=length(vec2(dFdx(vD),dFdy(vD)))+1e-7, y=vV*vH;
   if(vD>uHead) discard;
@@ -3397,7 +3421,7 @@ void main(){
     float a=(core*0.92+g*(0.32+0.6*p))*mix(1.0,0.78,uOld);
     gl_FragColor=vec4(mix(vec3(0.561,0.827,0.784),vec3(0.92,1.0,0.97),clamp(core*0.45+p,0.0,1.0)),a); return; }
   vec2 k=mix(ink(dash(uPer,y,wpp)),ink(dash(uPer*2.0,y,wpp)),uMix);
-  float a=k.x+(1.0-k.x)*k.y*0.6; if(a<0.01) discard;
+  float a=k.x+(1.0-k.x)*k.y*mix(0.6,0.9,smoothstep(0.9,1.7,uLine)); if(a<0.01) discard;   // the dark edge is firmer close up, where the land is bright
   gl_FragColor=vec4(mix(vec3(0.169,0.122,0.071),uInk,k.x/a),a*0.96);
 }`;
   const mk=(r,g,b,dir)=>{
@@ -3437,7 +3461,7 @@ function roadTick(){
   ROAD.new.u.uHead.value=n>=L?1e9:L?D[i0]+(D[i1]-D[i0])*f:0; ROAD.new.mesh.visible=n>1; ROAD.old.mesh.visible=RP_OLD.length>1;
   if(n>1&&n<L){const A=RP_NEW[i0],B=RP_NEW[i1]; for(let c=0;c<3;c++)walkAt[c]=A[c]+(B[c]-A[c])*f; walkTip=walkAt;} else walkTip=null;
   // thin from far away so the globe stays calm, a clear stroke close up; a dash is about six strokes long on the screen
-  const z=cam.zoom, mm=ease(morph), line=.85+.85*Math.min(1,Math.max(0,(.62-z)/.45));
+  const z=cam.zoom, mm=ease(morph), line=.85+.85*Math.min(1,Math.max(0,(.62-z)/.45))+.7*Math.min(1,Math.max(0,(.2-z)/.12)); // right down at the land the stroke grows once more, so it holds against bright ground
   const wpp=2*R*((.25+z*3.4)*(1-mm)+(.18+z*1.9)*mm)*Math.tan(20*D2R)/innerHeight, lg=Math.log2(12*line*wpp), fr=lg-Math.floor(lg), t=Math.min(1,Math.max(0,(fr-.4)/.2));
   roadLook(ROAD.old.u,line,2**Math.floor(lg),t*t*(3-2*t)); roadLook(ROAD.new.u,line,2**Math.floor(lg),t*t*(3-2*t));
 }
@@ -4174,6 +4198,9 @@ let last=performance.now();
 // Phones keep their full sharpness down to 30 frames a second, as before
 const res={n:0,sum:0,skip:15,pr:renderer.getPixelRatio(),max:renderer.getPixelRatio(),wait:4000,next:0};
 res.soft=Math.min(res.max,Math.max(1.25,res.max*0.7));
+// what auto took away on a computer comes back, one layer at a time, once the map has run well under a 60 fps frame at its normal
+// sharpness for a while. If the layer proves too heavy again, the next try waits three times longer, and after ten minutes it stops trying
+res.cut=[]; res.back=0; res.backT=-1e9; res.backWait=20000;
 function setPR(v){res.pr=v; renderer.setPixelRatio(v); resize(); res.skip=10; uniforms.uLod.value=Math.max(0.7,Math.min(1,v/res.max));}
 function adaptRes(raw){
   if(document.hidden||raw>2000||res.lock) return;  // a real pause (tab switch), not a slow frame; a test can hold the quality still
@@ -4183,9 +4210,13 @@ function adaptRes(raw){
   if(!SMALL&&avg>19.5&&res.pr>res.soft){setPR(Math.max(res.soft,res.pr*Math.max(0.8,Math.sqrt(16/avg)))); res.wait=Math.min(res.wait*2,32000); res.next=now+res.wait; return;}
   if(!SMALL&&avg<17.5&&res.pr<res.max&&now>res.next){setPR(Math.min(res.max,res.pr*1.1)); res.next=now+res.wait; return;}
   // 36 ms leaves phones capped at 30 fps alone
-  if(avg>36&&PAINT.on){setPaint(false,false);res.skip=10;return;}
-  if(avg>36&&POST.on&&!POST.lite){POST.lite=true;res.skip=10;return;}
-  if(avg>36&&POST.on&&res.pr<=0.75){POST.on=false;res.skip=10;return;}
+  const cut=k=>{res.cut.push(k); if(now-res.backT<15000) res.backWait*=3; res.back=now+res.backWait; res.skip=10;};
+  if(avg>36&&PAINT.on){setPaint(false,false);cut("paint");return;}
+  if(avg>36&&POST.on&&!POST.lite){POST.lite=true;cut("lite");return;}
+  if(avg>36&&POST.on&&res.pr<=0.75){POST.on=false;cut("lens");return;}
+  if(FAST3&&!SMALL&&res.cut.length&&avg<17.5&&res.pr>=res.soft&&now>res.back&&res.backWait<=600000){const k=res.cut.pop();
+    if(k==="lens"){POST.on=POST.ok;setPaint(PAINT.on,false);} else if(k==="lite")POST.lite=false; else if(store.get("chron-paint")!=="0")setPaint(true,false);
+    res.backT=now; res.back=now+res.backWait; res.skip=10; return;}
   if(avg>36&&res.pr>0.75){setPR(Math.max(0.75,res.pr*Math.max(0.5,Math.sqrt(28/avg))));}
 }
 /* =================== MEASURING: ?fps shows how fast the map draws; ?bench also lets tests/visual/check.js steer it =================== */
@@ -13380,6 +13411,12 @@ async function interludeHub(){
     if(own&&!myResults()[own.id]&&!isSent(own.id)){await runInterlude(own);if(!PLAY.on)return;}
     return interludeHub2(list,local,dm);}
   return interludeHub2(list,local,dm);}
+/* interludes 3.0: the hub's list as painted cards: each interlude's own painting behind its name. Without the file the card stays dark and reads the same. ?nohub: the plain list. */
+const I3_HUB=!/[?&]nohub(=|&|$)/.test(location.search);
+function iHubPaint(list){if(!I3_HUB||!storyEl)return;const box=storyEl.querySelector(".pl-choices");if(!box)return;box.classList.add("i3-hub");
+  [...box.children].forEach((b,i)=>{const I=list[i],P=I&&IPICT[I.art];if(!P||!P.src)return;b.classList.add("i3-hc");
+    const t=b.firstChild;if(t&&t.nodeType===3)b.replaceChild(h("span",{},t.textContent),t);
+    b.prepend(h("i",{class:"i3-hp","aria-hidden":"true",style:`background-image:url(${P.src});background-position:${Math.round((P.lx??.5)*100)}% center`}));});}
 async function interludeHub2(list,local,dm){
   storyView("memory");setTitle("Between sessions","Interludes");
   const mine=myResults();
@@ -13396,7 +13433,7 @@ async function interludeHub2(list,local,dm){
     :online()?"Before the table finishes session 10. Play yours on your own."
     :local?"Hans keeps your log on this phone. Read the fire again, play yours again, or send the log to the DM."
     :"A test copy: played here, it stays on this device.";
-  const i=await choose(intro,opts);
+  const asked=choose(intro,opts);iHubPaint(list);const i=await asked;
   if(i<list.length){await runInterlude(list[i]);if(PLAY.on)return interludeHub2(list,local,dm);return;}
   if(unsent.length&&i===list.length){await (local?iShareSend:iSend)(unsent.map(I=>I.id));return interludeHub2(list,local,dm);}
   if(i===bonus){await runSteward();if(PLAY.on)return interludeHub2(list,local,dm);return;}
