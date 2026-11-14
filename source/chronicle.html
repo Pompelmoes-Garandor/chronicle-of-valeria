@@ -8060,7 +8060,7 @@ const T3X_RF=`uniform vec3 uC;uniform float uR;uniform float uW;uniform float uI
 float f=smoothstep(uR,0.,d)*.22*uR;gl_FragColor=vec4((uC*(r+f)+vec3(r*r*.35))*uI*smoothstep(1.,.9,d),1.);`+T3X_OUT;
 const T3X_LV=`varying vec3 vN;varying vec3 vV;varying float vY;void main(){vec4 mv=modelViewMatrix*vec4(position,1.);vN=normalize(normalMatrix*normal);vV=normalize(-mv.xyz);vY=uv.y;gl_Position=projectionMatrix*mv;}`;
 const T3X_LF=`uniform vec3 uC;uniform float uI;uniform float uH;uniform float uT;varying vec3 vN;varying vec3 vV;varying float vY;void main(){float f=abs(dot(normalize(vN),normalize(vV)));
-float a=pow(f,1.8)*pow(1.-vY,.5)*smoothstep(0.,.05,vY)*smoothstep(1.-uH-.12,1.-uH,vY)*(.72+.28*sin(vY*26.-uT*16.));gl_FragColor=vec4((uC*a+vec3(pow(f,7.)*a*.8))*uI,1.);`+T3X_OUT;
+float a=pow(f,1.8)*pow(clamp(1.-vY,0.,1.),.5)*smoothstep(0.,.05,vY)*smoothstep(1.-uH-.12,1.-uH,vY)*(.72+.28*sin(vY*26.-uT*16.));gl_FragColor=vec4((uC*a+vec3(pow(f,7.)*a*.8))*uI,1.);`+T3X_OUT;
 let t3x_ts=1; // time stretch for the playtest hook only
 function t3x_init(Vb){const hi=T3Q.hi,X={hi,q:hi?1:.5,sh:{a:0,x:0,z:0},last:null,critU:null,critT:0,still:matchMedia("(prefers-reduced-motion: reduce)").matches};Vb.t3x=X;
   X.glowT=t3x_tex(0);X.starT=t3x_tex(1);
@@ -8087,6 +8087,7 @@ function t3x_init(Vb){const hi=T3Q.hi,X={hi,q:hi?1:.5,sh:{a:0,x:0,z:0},last:null
     for(const s of X.streaks)if(s.visible)s.material.uniforms.uT.value=tt;for(const s of X.pillars)if(s.visible)s.material.uniforms.uT.value=tt;
     if(X.light&&X.light.intensity>.01)X.light.intensity*=Math.exp(-dt*11);
     const S=X.sh;if(S.a>.002){const c=Vb.cam.position,k=S.a;c.x+=(Math.random()-.5)*k+S.x*k;c.y+=(Math.random()-.5)*k*.7;c.z+=(Math.random()-.5)*k+S.z*k;S.a*=Math.exp(-dt*15);S.x*=-.6;S.z*=-.6;}});
+  if(T3X3_FX||T3X3_MINI)t3X3_init(Vb,X);
   return X;}
 function t3x_tex(star){const n=star?128:64,cv=document.createElement("canvas");cv.width=cv.height=n;const g=cv.getContext("2d"),c=n/2,gr=g.createRadialGradient(c,c,0,c,c,c);
   gr.addColorStop(0,"#fff");gr.addColorStop(star?.06:.12,"#ffffffe0");gr.addColorStop(star?.2:.4,"#ffffff40");gr.addColorStop(1,"#fff0");g.fillStyle=gr;g.fillRect(0,0,n,n);
@@ -8100,7 +8101,7 @@ function t3x_pool(Vb,N,add,Q){const P=new Float32Array(N*3).fill(-999),C=new Flo
     vel=new Float32Array(N*3),life=new Float32Array(N),l0=new Float32Array(N),gv=new Float32Array(N),dg=new Float32Array(N),s0=new Float32Array(N),s1=new Float32Array(N),a0=new Float32Array(N),fl=new Float32Array(N);
   const g=new THREE.BufferGeometry(),at=(n,arr,k)=>{const b=new THREE.BufferAttribute(arr,k);b.setUsage(THREE.DynamicDrawUsage);g.setAttribute(n,b);return b;};
   const bP=at("position",P,3),bC=at("aCol",C,3),bA=at("aA",A,1),bS=at("aS",S,1);at("aR",R,1);
-  const mat=new THREE.ShaderMaterial({uniforms:{uPx:{value:600}},vertexShader:T3X_PV,fragmentShader:add?T3X_PFA:T3X_PFS,transparent:true,depthWrite:false,blending:add?THREE.AdditiveBlending:THREE.NormalBlending});
+  const mat=new THREE.ShaderMaterial({uniforms:{uPx:{value:600}},vertexShader:T3X_PV,fragmentShader:add?T3X_PFA:T3X3_FX?T3X3_PFS:T3X_PFS,transparent:true,depthWrite:false,blending:add?THREE.AdditiveBlending:THREE.NormalBlending});
   const pts=new THREE.Points(g,mat);pts.frustumCulled=false;pts.renderOrder=add?7:6;Vb.root.add(pts);let k=0,live=0,was=0;const rn=Math.random;
   return {mat,pts,spawn(p,c,n,{sp=2.2,up=1.6,lf=.7,gr=-4,sz=.2,sz1=null,dr=0,a=1,dir=null,cone=.6,jit=0,ring=0,i:I=1,fl:F=0}={}){t3c.set(c);const cr=t3c.r*I,cg=t3c.g*I,cb=t3c.b*I;n=Math.max(1,Math.round(n*Q));
       for(let j=0;j<n;j++){const i=k++%N,i3=i*3;let x=p.x,y=p.y,z=p.z,vx,vy,vz;if(jit){x+=(rn()-.5)*jit*2;y+=(rn()-.5)*jit*2;z+=(rn()-.5)*jit*2;}
@@ -8715,7 +8716,7 @@ function t3g_fig(f,u){const G=t3g_have.get(u.key),up=new THREE.Group(),m=new THR
   m.matrixAutoUpdate=false;m.matrix.copy(G.fit);up.add(m);f.add(up);
   const b={up,top:G.top,hand:new THREE.Vector3(.2,G.top*.55,.12),sculpt:true},ph=Math.random()*6.28;let dn=0;
   let last=-1;
-  b.anim=(dt,tt,now,st)=>{dn+=((st.down?1:0)-dn)*Math.min(1,dt*3);const br=Math.sin(tt*1.5+ph)*.006*(1-dn);up.scale.set(1+br*.4,1+br,1+br*.6);
+  b.anim=(dt,tt,now,st)=>{dn+=((st.down?1:0)-dn)*Math.min(1,dt*3);const br=Math.sin(tt*1.5+ph)*.006*(1-dn);up.scale.set(1+br*.4,1+br,1+br*.6);if(T3X3_MINI&&!G.sway&&!reduced){up.rotation.z=Math.sin(tt*.9+ph)*.012*(1-dn);up.rotation.x=Math.sin(tt*.7+ph*1.7)*.008*(1-dn);}
     // sway: a hand rising out of the ground rocks slowly, like the drawn one; ash: it sheds a grain now and then
     if(G.sway&&!st.gone&&!st.down){up.rotation.x=G.sway*(.5+Math.sin(tt*1.2+ph)*.45);up.rotation.z=G.sway*Math.sin(tt*.8+ph)*.4;}
     if(G.ash&&!st.gone&&!st.down){const q=Math.floor((tt+ph)/.7);if(q!==last&&V&&V.sparks){last=q;up.updateWorldMatrix(true,false);const p=up.localToWorld(t3m_tmp.set((Math.random()-.5)*.1,G.top*.75,.1));V.root.worldToLocal(p);V.sparks.spawn(p,G.ash,1,{sp:.04,up:-.2,lf:.9,sz:.035});}}};
@@ -8733,9 +8734,10 @@ function t3mini(Vb,u){const g=new THREE.Group(),fig=new THREE.Group(),s=u.size||
   const top=(b.top||1)*(b.big?1:s>1?s*.8:1),hr=(SMALL?.62:.52)*s; // a generous hit volume, wider on touch screens
   const hit=new THREE.Mesh(new THREE.CylinderGeometry(hr,hr,top+.3,8),new THREE.MeshBasicMaterial({visible:false}));hit.position.y=hit.geometry.parameters.height/2;hit.userData.u=u;g.add(hit);
   const mats=[];g.traverse(o=>{if(o.isMesh&&o.material&&o.material.isMeshStandardMaterial&&o!==rim)mats.push({m:o.material,e:o.material.emissive.clone(),ei:o.material.emissiveIntensity,t:o.material.transparent});}); // t: blended by its builder; the rest only while fading (t3animMini)
+  const x3=T3X3_MINI?t3X3_dress(mats,sideCol,!!b.sculpt):null; // t3X3: the shared paint (edge light, hit flash, dissolve)
   const p=Vb.unitPos(u);g.position.copy(p);fig.rotation.y=u.side==="foe"?(Vb.tree?0:Math.PI):0;
   Vb.root.add(g);
-  return {u,g,fig,up:b.up,ring,rim,base,hit,top,hand:b.hand,core:b.core,blade:b.blade,anim:b.anim,sculpt:!!b.sculpt,mats,pos:p.clone(),face:fig.rotation.y,tilt:0,fade:1,hitT:0,lunge:null,gone:false,t0:Math.random()*10};}
+  return {u,g,fig,up:b.up,ring,rim,base,hit,top,hand:b.hand,core:b.core,blade:b.blade,anim:b.anim,sculpt:!!b.sculpt,mats,t3X3:x3,pos:p.clone(),face:fig.rotation.y,tilt:0,fade:1,hitT:0,lunge:null,gone:false,t0:Math.random()*10};}
 /* t3u: the plinth profile (bottom to top): bevel, brass band, a dark lip, then the painted top. One draw call */
 function t3uBaseGeo(s){const P=[[0,0],[.44,0],[.458,.008],[.466,.024],[.466,.044],[.456,.058],[.43,.064],[.41,.068],[.3,.071],[0,.072]],
     C=["#140f0a","#3a2814","#8a6630","#d8b673","#c49a52","#7a5a2a","#2a2016","#3b3426","#2f2b22","#2b281f"];
@@ -9006,7 +9008,8 @@ function t3hurt(u,type){if(!t3on())return;const m=V.minis.get(u);if(!m)return;co
   else if(type==="force"){t3x_ring(X,p.clone().setY(f.y+.1),"#e0d0ff",1.2*sz,300,.04,1.6);}
   else if(type==="bludgeoning"){Sm.spawn(f,"#6a6055",9*sz,{ring:.25*sz,sp:1.3,up:.35,lf:.8,gr:-.4,sz:.3,sz1:.8,dr:2.6,a:.6});}
   else{G.spawn(p,"#fff4e0",10*sz,{sp:3,up:1,lf:.3,gr:-9,sz:.06,dir:d,cone:.5,i:2});}
-  if(crit){t3x_ring(X,f,"#fff0d0",1.6*sz,520,.06,1.6);G.spawn(p,"#fff0d0",22,{sp:3.4,up:2,lf:.55,gr:-8,sz:.09,dr:1,i:2});t3x_shake(X,.16,d);}}
+  if(crit){t3x_ring(X,f,"#fff0d0",1.6*sz,520,.06,1.6);G.spawn(p,"#fff0d0",22,{sp:3.4,up:2,lf:.55,gr:-8,sz:.09,dr:1,i:2});t3x_shake(X,.16,d);}
+  if(T3X3_FX||T3X3_MINI)t3X3_hit(X,m,u,type,crit,p,f,d,sz);}
 function t3float(u,t,cls){if(!t3on())return false;const m=V.minis.get(u);if(!m)return true;const X=V.t3x,now=performance.now(),p=m.g.position.clone();p.y+=m.top+.35;p.project(V.cam);const rc=V.host;
   const crit=!cls&&X.critU===u&&now-X.critT<2500;if(crit)X.critU=null;const ph=rc.clientWidth<560,dmg=!cls,ty=X.hurtU===u&&now-X.hurtT<700?X.hurtTy:null,num=+(String(t).match(/\d+/)||[0])[0];
   // big outlined numbers in the damage colour that pop on impact, spread a little sideways so two hits don't stack
@@ -9047,14 +9050,14 @@ function t3x_pillar(X,p,col,r,hgt,dur){const o=t3x_take(X.pillars),tok=o.userDat
 function t3x_proj(X,from,to,dur,{arc=0,delay=0,head=null,hs=.3,trail=null,tw=.05,tl=.8,ti=1.2,mesh=null,spin=0,emit=null,arrive=null}){
   hs*=t3y_far(to);const P=new THREE.Vector3(),Q=new THREE.Vector3(),L=from.distanceTo(to)||1,pos=(k,v)=>{v.lerpVectors(from,to,k);v.y+=Math.sin(Math.PI*k)*arc;return v;};
   const hd=head?t3x_take(X.glows):null,tr=trail?t3x_take(X.streaks):null,ms=mesh?t3x_take(mesh):null,tk=[hd,tr,ms].map(o=>o&&o.userData.tok);
-  for(const o of[hd,tr,ms])if(o)o.visible=false;
+  for(const o of[hd,tr,ms])if(o)o.visible=false;const rb=trail&&T3X3_FX?t3X3_ribbon(X,trail,tw*2.4,ti,from):null,rk=rb&&rb.userData.tok;
   if(hd){hd.material.color.set(head).multiplyScalar(2);hd.material.opacity=1;hd.material.rotation=0;hd.scale.setScalar(hs);}
   if(tr){const U=tr.material.uniforms;U.uC.value.set(trail);U.uW.value=tw*t3y_far(from);U.uCr.value=0;U.uWv.value=0;U.uS0.value=0;U.uS1.value=1.06;U.uI.value=ti;}
   t3x_fx(dur,k=>{pos(k,P);if(hd&&hd.userData.tok===tk[0]){hd.visible=true;hd.position.copy(P);hd.scale.setScalar(hs*(.85+.3*Math.random()));}
     if(tr&&tr.userData.tok===tk[1]){tr.visible=k>.02;pos(Math.max(0,k-tl/L),Q);tr.material.uniforms.uA.value.copy(Q);tr.material.uniforms.uB.value.copy(P);}
     if(ms&&ms.userData.tok===tk[2]){ms.visible=true;ms.position.copy(P);pos(Math.min(1,k+.04),Q);if(Q.distanceToSquared(P)>1e-6)ms.lookAt(Q);if(spin)ms.rotateX(-k*spin);}
-    emit&&emit(P,k);},
-    ()=>{if(hd)t3x_done(hd,tk[0]);if(tr)t3x_done(tr,tk[1]);if(ms)t3x_done(ms,tk[2]);if(arrive&&t3on())arrive(to);},delay);}
+    emit&&emit(P,k);if(rb&&rb.userData.tok===rk)rb.userData.p.copy(P);},
+    ()=>{if(rb&&rb.userData.tok===rk)rb.userData.on=0;if(hd)t3x_done(hd,tk[0]);if(tr)t3x_done(tr,tk[1]);if(ms)t3x_done(ms,tk[2]);if(arrive&&t3on())arrive(to);},delay);}
 // gathering light at the caster's hand before a spell
 function t3x_charge(X,p,col,ms,s=.4,star=false){const o=t3x_take(star?X.stars:X.glows),tok=o.userData.tok;o.position.copy(p);o.material.color.set(col).multiplyScalar(2);o.material.opacity=1;o.scale.setScalar(.02);
   X.glow.spawn(p,col,8,{sp:.5,up:.5,lf:ms/1000+.15,gr:0,sz:.07,jit:.3,i:1.5});
@@ -9108,7 +9111,7 @@ function t3x_melee(X,n,at,ma,mt,from,to,len,dir,col){const G=X.glow,Sm=X.smoke,s
 // heal: green motes spiral up around the mini, a soft ring at its feet
 function t3x_heal(X,m,f,sz){const c="#a8f090",r=.32*sz,top=m.top*1.3,P=new THREE.Vector3();let e=0;t3x_ring(X,f,c,.9*sz,600,.07,1.2);t3x_flare(X,P.copy(f).setY(f.y+m.top*.5),c,.9*sz,450);
   t3x_fx(820,k=>{if(!X.hi&&(e++&1))return;for(let s=0;s<3;s++){const a=k*Math.PI*4+s*2.094,rr=r*(1-k*.35);P.set(f.x+Math.cos(a)*rr,f.y+.05+k*top,f.z+Math.sin(a)*rr);
-    X.glow.spawn(P,s?c:"#f0ffe0",1,{sp:.05,up:.15,lf:.55,gr:.3,sz:.1,i:1.6});}},null);}
+    X.glow.spawn(P,s?c:"#f0ffe0",1,{sp:.05,up:.15,lf:.55,gr:.3,sz:.1,i:1.6});}},null);if(T3X3_FX)t3X3_heal(X,m,f,sz);}
 // combat feel: damage-number colour, the miss whiff, the impact pop
 const T3Y_PHYS=["slashing","piercing","bludgeoning"];
 function t3y_lift(c){const n=parseInt(c.slice(1),16),l=v=>Math.round(v+(255-v)*.3);return `rgb(${l(n>>16)},${l(n>>8&255)},${l(n&255)})`;}
@@ -9121,6 +9124,135 @@ function t3y_far(p){return clamp(V.cam.position.distanceTo(p)/8,1,1.5);}
 // the hit moment: a hard white pop gone in a blink, before the coloured flare blooms
 function t3y_pop(X,p,col,s){const o=t3x_take(X.stars),tok=o.userData.tok;s*=t3y_far(p);o.position.copy(p);o.material.color.set("#fff").lerp(t3c.set(col),.3).multiplyScalar(1.3);o.material.rotation=Math.random()*.8;o.material.opacity=1;o.scale.setScalar(s);
   t3x_fx(110,k=>{if(o.userData.tok!==tok)return;o.scale.setScalar(s*(1+.5*k));o.material.opacity=Math.pow(1-k,2);},()=>t3x_done(o,tok));}
+
+/* ---- t3X3: the table's effects and the minis' paint, the 3.0 pass. ?oldvfx puts the effects back as they were, ?oldminis the minis' shading.
+   Effects: marks left on the floor (scorch, rime, a ring of light, a stain, a puddle, cracks, ripples, a bloom, ash), a dome of pressure, ribbon trails
+   behind what flies, a second pooled light that lingers. All pooled once per board in t3X3_init, freed with the board (t3free), nothing made per frame.
+   Minis: one shader patch shared by every mini (t3X3_skin): a soft edge light in the side's colour, a little fill so faces read in the dark,
+   the hit flash in the colour of the damage, and the dissolve with a glowing edge when one is gone. Phones: fewer marks, one dome, no second light ---- */
+const T3X3_FX=!/[?&]oldvfx/.test(location.search),T3X3_MINI=!/[?&]oldminis/.test(location.search);
+const T3X3_N=`float t3X3h3(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}
+float t3X3n3(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
+return mix(mix(mix(t3X3h3(i),t3X3h3(i+vec3(1.,0.,0.)),f.x),mix(t3X3h3(i+vec3(0.,1.,0.)),t3X3h3(i+vec3(1.,1.,0.)),f.x),f.y),mix(mix(t3X3h3(i+vec3(0.,0.,1.)),t3X3h3(i+vec3(1.,0.,1.)),f.x),mix(t3X3h3(i+vec3(0.,1.,1.)),t3X3h3(i+vec3(1.,1.,1.)),f.x),f.y),f.z);}
+`;
+// smoke and ash: each puff turned its own way, lumpy at the rim, lighter on top
+const T3X3_PFS=`varying vec3 vC;varying float vA;varying float vR;void main(){vec2 q=gl_PointCoord*2.-1.;float d=dot(q,q);if(d>1.)discard;float an=vR*6.283,c=cos(an),s=sin(an);vec2 r=vec2(c*q.x-s*q.y,s*q.x+c*q.y);
+float n=sin(r.x*3.1+vR*40.)*sin(r.y*2.7-vR*23.)*.5+sin(r.x*6.3-r.y*5.1+vR*11.)*.26+sin(r.y*9.7+r.x*8.3+vR*71.)*.12;
+float e=smoothstep(1.,.12,d+n*.42),lit=.82-q.y*.26+n*.22;gl_FragColor=vec4(vC*lit,e*vA*.8);`+T3X_OUT;
+// a mark on the floor. uK picks the shape, uD is what it darkens with, uC what glows in it, uA and uG fade them
+const T3X3_DF=`uniform vec3 uC;uniform vec3 uD;uniform float uK;uniform float uA;uniform float uG;uniform float uS;varying vec2 vU;
+float h2(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7))+uS)*43758.5453);}
+float n2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h2(i),h2(i+vec2(1.,0.)),f.x),mix(h2(i+vec2(0.,1.)),h2(i+vec2(1.,1.)),f.x),f.y);}
+float fb(vec2 p){return n2(p)*.55+n2(p*2.3+7.)*.3+n2(p*5.1+3.)*.15;}
+float rg(float r,float c,float w){float d=(r-c)/w;return exp(-d*d);}
+void main(){vec2 p=vU*2.-1.;float r=length(p),an=atan(p.y,p.x),n=fb(p*3.+uS),g=0.,a=0.;
+if(uK<.5){float e=r+(n-.5)*.55;a=smoothstep(.9,.3,e)*.8;float cr=smoothstep(.07,0.,abs(fb(p*7.+uS*3.)-.5));g=cr*smoothstep(.75,.15,e)*1.6+smoothstep(.5,0.,e)*.25;}
+else if(uK<1.5){float e=r+(n-.5)*.35;float sp=pow(abs(cos(an*3.+(n-.5)*1.4)),10.)*smoothstep(1.,.1,e);float gr=pow(n2(p*16.),4.);a=smoothstep(.9,.4,e)*.1;g=sp*.9+smoothstep(.85,.3,e)*(.14+gr*.9)+rg(e,.78,.05)*.35;}
+else if(uK<2.5){float tk=step(.5,fract(an*3.8197+uS));g=rg(r,.84,.018)+rg(r,.66,.012)*.8+rg(r,.75,.04)*tk*.55+rg(r,.36,.01)*.5+smoothstep(.9,0.,r)*.16+pow(abs(cos(an*4.+uS)),40.)*smoothstep(.66,.3,r)*step(.1,r)*.5;}
+else if(uK<3.5){float e=r+(n-.5)*.7-.14*abs(sin(an*5.+uS*2.+n*3.));a=smoothstep(.85,.35,e)*.82;g=rg(e,.62,.07)*.8*(.4+n);}
+else if(uK<4.5){float e=r+(n2(p*1.7+uS)-.5)*.4;a=smoothstep(.74,.68,e)*.55;float b=smoothstep(.75,.95,n2(p*11.+uS));g=rg(e,.7,.03)*.7+a*b*.8+a*.12;}
+else if(uK<5.5){float w=abs(fract(an*.955+uS+(n-.5)*.5/max(r,.15))-.5);float c=smoothstep(.05,0.,w*r)*smoothstep(1.,.35,r+(n-.5)*.4)*smoothstep(.02,.1,r);a=c*.85+smoothstep(.5,.1,r)*.3;g=c*1.4+rg(r,.2,.12)*.4;}
+else if(uK<6.5){float w=sin(r*26.-n*7.-uG*8.);g=smoothstep(.55,1.,w)*smoothstep(.95,.2,r)*.8+smoothstep(.6,0.,r)*.15;}
+else if(uK<7.5){float pt=.62+.2*cos(an*6.+uS);g=smoothstep(pt+.08,pt-.25,r)*.3+rg(r,pt,.03)*.7+rg(r,.9,.012)*.5;}
+else{float e=r+(n-.5)*.6;a=smoothstep(.9,.25,e)*.62*(.75+.5*n2(p*18.));g=smoothstep(.06,0.,abs(fb(p*8.+uS)-.5))*smoothstep(.6,.1,e)*.7;}
+float ed=smoothstep(1.,.92,r);a*=uA*ed;gl_FragColor=vec4(uD*a+uC*g*uG*ed,a);`+T3X_OUT;
+const T3X3_SHF=`uniform vec3 uC;uniform float uI;uniform float uT;varying vec3 vN;varying vec3 vV;varying float vY;void main(){float f=clamp(1.-abs(dot(normalize(vN),normalize(vV))),0.,1.);
+float a=pow(f,2.6)*(.75+.25*sin(vY*40.+uT*20.))*smoothstep(0.,.06,vY);gl_FragColor=vec4((uC*a+vec3(pow(f,9.)*.2))*uI,1.);`+T3X_OUT;
+const T3X3_RV=`attribute float aU;attribute float aV;varying vec2 vU;void main(){vU=vec2(aU,aV);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
+const T3X3_RF=`uniform vec3 uC;uniform float uI;uniform float uT;varying vec2 vU;void main(){float y=min(abs(vU.y),1.),u=clamp(vU.x,0.,1.);float fl=.72+.28*sin(u*31.-uT*26.)*sin(u*13.+uT*9.+vU.y*3.);
+float g=exp(-y*y*3.5)*(1.-y),c=exp(-y*y*40.)*(1.-u);float a=pow(1.-u,1.7)*smoothstep(0.,.04,u)*fl;gl_FragColor=vec4((uC*g*1.5+vec3(c)*.9)*a*uI,1.);`+T3X_OUT;
+const t3X3_v=new THREE.Vector3(),t3X3_a=new THREE.Vector3(),t3X3_b=new THREE.Vector3(),t3X3_wind=new THREE.Vector3(.85,.15,.4);
+/* the mini's paint. One patch, compiled once per kind of material; each mini has its own five uniforms (U) */
+function t3X3_skin(m,U){if(m.userData.t3X3)return;m.userData.t3X3=1;const prev=m.onBeforeCompile,key=m.customProgramCacheKey()+"|t3X3";
+  m.onBeforeCompile=function(sh,r){if(prev)prev.call(this,sh,r);Object.assign(sh.uniforms,U);
+    sh.vertexShader="varying vec3 t3X3w;\n"+sh.vertexShader.replace("#include <project_vertex>","#include <project_vertex>\nt3X3w=(modelMatrix*vec4(transformed,1.)).xyz;");
+    sh.fragmentShader="uniform vec4 t3X3h;uniform vec4 t3X3d;uniform vec3 t3X3e;uniform vec3 t3X3o;uniform vec4 t3X3l;varying vec3 t3X3w;\n"+T3X3_N+sh.fragmentShader
+      .replace("#include <clipping_planes_fragment>",`#include <clipping_planes_fragment>
+float t3X3n=1.;if(t3X3d.x>0.){vec3 t3X3q=t3X3w-t3X3o;t3X3n=t3X3n3(t3X3q*t3X3d.z)*.6+t3X3n3(t3X3q*t3X3d.z*2.7+5.)*.22+.18*(1.-clamp(length(t3X3q)*.9,0.,1.));if(t3X3n<t3X3d.x)discard;}`)
+      .replace("#include <roughnessmap_fragment>",`#include <roughnessmap_fragment>
+{float t3X3y=dot(diffuseColor.rgb,vec3(.3,.59,.11));diffuseColor.rgb=max(vec3(0.),mix(vec3(t3X3y),diffuseColor.rgb,1.+.16*t3X3d.w));roughnessFactor*=1.-.3*t3X3d.w*smoothstep(.05,.6,t3X3y);}`)
+      .replace("#include <emissivemap_fragment>",`#include <emissivemap_fragment>
+{float t3X3f=1.-clamp(dot(normal,normalize(vViewPosition)),0.,1.),t3X3g=t3X3f*t3X3f;
+totalEmissiveRadiance+=t3X3l.rgb*(t3X3g*(.3+.7*t3X3f))*(.55+.45*clamp(normal.y+.35,0.,1.))+diffuseColor.rgb*t3X3l.a;
+totalEmissiveRadiance+=t3X3h.rgb*t3X3h.a*(.22+1.6*t3X3g)+vec3(.5*t3X3h.a*t3X3h.a*t3X3f);
+if(t3X3d.x>0.){float t3X3k=1.-smoothstep(0.,t3X3d.y,t3X3n-t3X3d.x);totalEmissiveRadiance+=t3X3e*(t3X3k*t3X3k*5.)+vec3(1.,.85,.55)*pow(t3X3k,8.)*2.5;diffuseColor.rgb*=1.-.8*(1.-smoothstep(0.,t3X3d.y*3.5,t3X3n-t3X3d.x));}}`);};
+  m.customProgramCacheKey=()=>key;}
+function t3X3_dress(mats,col,sculpt){const U={t3X3h:{value:new THREE.Vector4(1,1,1,0)},t3X3d:{value:new THREE.Vector4(0,.075,7.5,sculpt?1:0)},t3X3e:{value:new THREE.Color("#ff7a30")},t3X3o:{value:new THREE.Vector3()},t3X3l:{value:new THREE.Vector4(0,0,0,0)}};
+  for(const o of mats)if(!o.t)t3X3_skin(o.m,U);return {U,c:new THREE.Color(col),li:0,dz:0,hT:0,hb:false,hc:new THREE.Color()};}
+// every frame, per mini: who acts is lit up, the hit flash fades, the dissolve follows the fade t3animMini already runs
+function t3X3_mini(X,m,u){const S=m.t3X3;if(!S)return;const U=S.U,dt=X.x3dt,now=X.x3now,gone=!!(u.gone||u.ghost),down=u.hp<=0&&!gone;
+  S.li+=((B&&B.cur===u&&!down&&!gone?1:0)-S.li)*Math.min(1,dt*4);const rk=(.2+.5*S.li)*(down?.35:1);U.t3X3l.value.set(S.c.r*rk,S.c.g*rk,S.c.b*rk,.03+.06*S.li);U.t3X3o.value.copy(m.g.position);
+  let h=0;if(S.hT&&m.hitT){const t=now-m.hitT,k=t/(S.hb?400:290);if(k<1){h=(1-k)*(1-k)*(S.hb?.8:.55)*(X.still?.3:1);if(t<260)for(const o of m.mats)o.m.emissive.copy(S.hc);}else S.hT=0;}U.t3X3h.value.w=h;
+  if(m.gone&&S.dz){U.t3X3d.value.x=Math.min(1.1,(1-m.fade)*1.14);for(const o of m.mats)if(o.m.userData.t3X3)o.m.opacity=1;}else if(U.t3X3d.value.x)U.t3X3d.value.x=0;}
+function t3X3_init(Vb,X){const hi=X.hi;X.x3dt=0;X.x3now=0;X.x3mf=(m,u)=>t3X3_mini(X,m,u);
+  if(T3X3_FX){const mk=(n,f)=>{const a=[];for(let i=0;i<n;i++){const o=f(i);o.visible=false;o.frustumCulled=false;o.userData.tok=0;o.userData.ix=i;Vb.root.add(o);a.push(o);}return a;};
+    const dg=new THREE.PlaneGeometry(2,2);dg.rotateX(-Math.PI/2);
+    X.x3d=mk(hi?6:3,()=>{const m=new THREE.Mesh(dg,new THREE.ShaderMaterial({uniforms:{uC:{value:new THREE.Color()},uD:{value:new THREE.Color()},uK:{value:0},uA:{value:0},uG:{value:0},uS:{value:0}},vertexShader:T3X_UV,fragmentShader:T3X3_DF,
+      transparent:true,depthWrite:false,blending:THREE.CustomBlending,blendSrc:THREE.OneFactor,blendDst:THREE.OneMinusSrcAlphaFactor,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2}));m.renderOrder=5;return m;});
+    const sg=new THREE.SphereGeometry(1,hi?28:16,hi?10:6,0,Math.PI*2,0,Math.PI/2);
+    X.x3s=mk(hi?3:1,()=>{const m=new THREE.Mesh(sg,new THREE.ShaderMaterial({uniforms:{uC:{value:new THREE.Color()},uI:{value:0},uT:{value:0}},vertexShader:T3X_LV,fragmentShader:T3X3_SHF,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide}));m.renderOrder=7;return m;});
+    const N=hi?22:12;X.x3r=mk(hi?4:2,()=>{const g=new THREE.BufferGeometry(),P=new THREE.BufferAttribute(new Float32Array(N*6),3),aU=new Float32Array(N*2),aV=new Float32Array(N*2),I=[];P.setUsage(THREE.DynamicDrawUsage);
+      for(let i=0;i<N;i++){aU[i*2]=aU[i*2+1]=i/(N-1);aV[i*2]=-1;aV[i*2+1]=1;if(i<N-1){const a=i*2;I.push(a,a+1,a+2,a+1,a+3,a+2);}}
+      g.setAttribute("position",P);g.setAttribute("aU",new THREE.BufferAttribute(aU,1));g.setAttribute("aV",new THREE.BufferAttribute(aV,1));g.setIndex(I);
+      const m=new THREE.Mesh(g,new THREE.ShaderMaterial({uniforms:{uC:{value:new THREE.Color()},uI:{value:1},uT:{value:0}},vertexShader:T3X3_RV,fragmentShader:T3X3_RF,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide}));
+      m.renderOrder=7;Object.assign(m.userData,{N,h:new Float32Array(N*3),n:0,acc:0,on:0,left:0,w:.1,p:new THREE.Vector3()});return m;});
+    if(hi){X.x3l=new THREE.PointLight(0xffffff,0,4,2);X.x3lr=3;Vb.scene.add(X.x3l);}}
+  Vb.ticks.push((dt,tt,now)=>{X.x3dt=dt;X.x3now=now;if(T3X3_MINI&&Vb.minis)Vb.minis.forEach(X.x3mf);if(!T3X3_FX)return;
+    if(X.x3l&&X.x3l.intensity>.01)X.x3l.intensity*=Math.exp(-dt*X.x3lr);for(const o of X.x3r)if(o.userData.busy)t3X3_rtick(Vb,o,dt,tt);});}
+// a mark on the floor at f that lingers and fades. kind: 0 scorch 1 rime 2 ring of light 3 stain 4 puddle 5 cracks 6 ripples 7 bloom 8 ash
+function t3X3_decal(X,f,kind,col,dark,R,dur,gl=1){if(!X.x3d||V.tree)return;const o=t3x_take(X.x3d),tok=o.userData.tok,U=o.material.uniforms;o.position.copy(f);o.position.y=f.y-.014+.004*o.userData.ix;o.rotation.y=Math.random()*6.283;o.scale.setScalar(R);
+  U.uC.value.set(col);U.uD.value.set(dark);U.uK.value=kind;U.uS.value=Math.random()*40;U.uA.value=0;U.uG.value=0;
+  t3x_fx(dur,k=>{if(o.userData.tok!==tok)return;U.uA.value=Math.min(1,k*22)*(k<.6?1:1-(k-.6)/.4);U.uG.value=gl*Math.min(1,k*30)*Math.pow(1-k,2.2);o.scale.setScalar(R*(.82+.18*Math.min(1,k*14)));},()=>t3x_done(o,tok));}
+// a dome of pressure or light that swells from p and thins out
+function t3X3_shell(X,p,col,R,dur,i=1,delay=0){if(!X.x3s||X.still)return;const o=t3x_take(X.x3s),tok=o.userData.tok,U=o.material.uniforms;o.visible=false;o.position.copy(p);U.uC.value.set(col);U.uI.value=0;
+  t3x_fx(dur,k=>{if(o.userData.tok!==tok)return;o.visible=true;const e=1-Math.pow(1-k,3);o.scale.setScalar(R*(.15+.85*e));U.uI.value=.4*i*Math.pow(1-k,1.6);U.uT.value=k;},()=>t3x_done(o,tok),delay);}
+// the second light: it lingers (fire on the floor, a blessing) where the first one only flashes
+function t3X3_glow(X,col,p,i,rate){if(!X.x3l||X.still)return;X.x3l.color.set(col);X.x3l.position.copy(p);X.x3l.position.y+=.25;X.x3l.intensity=Math.max(X.x3l.intensity,i*.16);X.x3lr=rate;}
+// a ribbon that trails behind a moving point: the caller moves o.userData.p every frame and sets .on=0 when it lands; the tail then runs out
+function t3X3_ribbon(X,col,w,i,at){if(!X.x3r)return null;const o=t3x_take(X.x3r),D=o.userData;o.visible=false;D.n=0;D.acc=1;D.on=1;D.w=w;D.left=D.N;D.p.copy(at);o.material.uniforms.uC.value.set(col);o.material.uniforms.uI.value=i;return o;}
+function t3X3_rtick(Vb,o,dt,tt){const D=o.userData,N=D.N,H=D.h,p=D.p;D.acc+=dt*60;
+  if(D.acc>=1){D.acc=Math.min(D.acc-1,1);if(!D.on&&--D.left<=0){o.visible=false;D.busy=false;return;}H.copyWithin(3,0,(N-1)*3);if(D.n<N)D.n++;}
+  H[0]=p.x;H[1]=p.y;H[2]=p.z;if(D.n<3){o.visible=false;return;}o.visible=true;o.material.uniforms.uT.value=tt;
+  const A=o.geometry.attributes.position,P=A.array,c=Vb.cam.position,n1=D.n-1;
+  for(let i=0;i<N;i++){const j=Math.min(i,n1)*3,a=Math.max(0,Math.min(i,n1)-1)*3,b=Math.min(n1,i+1)*3,x=H[j],y=H[j+1],z=H[j+2];
+    t3X3_a.set(H[a]-H[b],H[a+1]-H[b+1],H[a+2]-H[b+2]);t3X3_b.set(c.x-x,c.y-y,c.z-z);t3X3_a.cross(t3X3_b);const L=t3X3_a.length(),w=L>1e-6?D.w*(1-.8*i/(N-1))/L:0,k=i*6;
+    P[k]=x+t3X3_a.x*w;P[k+1]=y+t3X3_a.y*w;P[k+2]=z+t3X3_a.z*w;P[k+3]=x-t3X3_a.x*w;P[k+4]=y-t3X3_a.y*w;P[k+5]=z-t3X3_a.z*w;}
+  A.needsUpdate=true;}
+/* what each kind of damage adds on top of t3hurt's own burst: its mark on the floor, its own motion, its light. p: the chest, f: the feet, d: the blow's direction or null */
+function t3X3_hit(X,m,u,type,crit,p,f,d,sz){const G=X.glow,Sm=X.smoke,b=crit?1.4:1,R=.72*sz*b,col=DMG_COL[type]||"#ffd0b0",P=t3X3_v,rn=Math.random,top=m.top;let e=0;
+  if(m.t3X3){const S=m.t3X3;S.hT=1;S.hb=crit;S.hc.set(col);S.U.t3X3h.value.set(S.hc.r,S.hc.g,S.hc.b,0);}
+  if(!T3X3_FX)return;if(crit)t3X3_shell(X,f,"#fff0d0",1.75*sz,380,1.1,40);
+  if(type==="fire"){t3X3_decal(X,f,0,"#ff7a2a","#080504",R*1.15,5600);t3X3_shell(X,f,"#ff9a4a",1.05*sz*b,300,.8);t3X3_glow(X,"#ff7a2a",p,crit?9:6,2.6);
+    t3x_fx(620,k=>{if(!X.hi&&(e++&1))return;P.set(f.x+(rn()-.5)*.34*sz,f.y+rn()*top*.8,f.z+(rn()-.5)*.34*sz);G.spawn(P,k<.45?"#ffc468":"#ff6a20",1,{sp:.12,up:1.3,lf:.42,gr:1.6,sz:.2*(1-k*.5),dr:1.5,fl:1,i:1.5});});
+    G.spawn(p,"#ffb060",8*b*sz,{sp:1.8,up:2.6,lf:1.1,gr:-6,sz:.05,dr:.6,i:2});}
+  else if(type==="cold"){t3X3_decal(X,f,1,"#bfe6ff","#dff2ff",R*1.25,5600,.9);G.spawn(p,"#eaf7ff",14*b*sz,{sp:2.6,up:.9,lf:.5,gr:-9,sz:.05,i:2,dir:d,cone:.9});
+    t3x_flare(X,P.copy(p).setY(p.y+.12),"#dff4ff",.5*sz*b,260,true,40);Sm.spawn(f,"#cfe6f5",6*sz,{ring:.28*sz,sp:.45,up:.08,lf:1.7,gr:0,sz:.32,sz1:.9,dr:1.4,a:.3});}
+  else if(type==="lightning"){const A=p.clone();A.x+=(rn()-.5)*1.1;A.z+=(rn()-.5)*1.1;A.y+=3.4;t3x_streak(X,A,p,{col:"#eaf4ff",w:.07,i:2.4,cr:1.5,dur:170});t3x_streak(X,A,p,{col,w:.22,i:.6,cr:1.5,dur:210});
+    t3x_streak(X,A,f,{col:"#eaf4ff",w:.04,i:2,cr:2.2,dur:150,delay:70});t3X3_decal(X,f,5,"#cfe7ff","#05070a",R,3200);t3X3_shell(X,f,col,.9*sz*b,220,.9);}
+  else if(type==="thunder"){t3X3_shell(X,f,col,1.5*sz*b,340,1);t3X3_shell(X,f,"#ffffff",1.1*sz*b,300,.6,90);t3X3_decal(X,f,5,col,"#06070a",R*1.1,3600,.6);
+    Sm.spawn(f,"#6a6a72",8*sz,{ring:.3*sz,sp:1.5,up:.3,lf:.8,gr:-.3,sz:.28,sz1:.8,dr:2.6,a:.5});}
+  else if(type==="radiant"){t3X3_decal(X,f,2,"#ffe08a","#000000",R*1.3,4200,1.3);t3X3_shell(X,f,"#ffe6a0",.95*sz*b,360,.55);t3X3_glow(X,"#ffe6a0",p,crit?8:5,4);}
+  else if(type==="necrotic"){t3X3_decal(X,f,3,col,"#07040c",R*1.2,5600);
+    t3x_fx(700,k=>{if(e++&1)return;P.set(f.x+(rn()-.5)*.4*sz,f.y+.03,f.z+(rn()-.5)*.4*sz);Sm.spawn(P,"#1c1226",1,{sp:.06,up:.9,lf:1,gr:.3,sz:.14,sz1:.42,dr:1,a:.7});if(X.hi)G.spawn(P,col,1,{sp:.05,up:1.3,lf:.6,gr:.2,sz:.05,i:1.3});});}
+  else if(type==="psychic"){t3X3_decal(X,f,6,col,"#000000",R*1.2,1600);P.copy(p).setY(f.y+top+.12);t3x_ring(X,P,col,.5*sz,420,.04,1.3,90);t3x_ring(X,P,"#f4d8ff",.8*sz,460,.03,1,190);}
+  else if(type==="poison"||type==="acid"){t3X3_decal(X,f,4,col,type==="acid"?"#1c2a08":"#12200a",R,6000);
+    t3x_fx(1100,k=>{if((e++%3)||k<.15)return;const an=rn()*6.283,rr=Math.sqrt(rn())*R*.55;P.set(f.x+Math.cos(an)*rr,f.y+.02,f.z+Math.sin(an)*rr);G.spawn(P,col,1,{sp:.03,up:.5,lf:.5,gr:.2,sz:.06,i:1.2});});}
+  else if(type==="force"){t3X3_decal(X,f,6,col,"#000000",R*1.2,1400);t3X3_shell(X,f,col,1.1*sz*b,300,.9);}
+  else if(type==="bludgeoning"){t3X3_decal(X,f,5,"#e0c8a8","#060504",R*1.05,4200,.35);}
+  else if(type==="piercing"&&d){const A=p.clone().addScaledVector(d,-.25),Bq=p.clone().addScaledVector(d,.8*sz);t3x_streak(X,A,Bq,{col:"#fff4e0",w:.03,i:1.8,grow:.4,dur:170});Sm.spawn(p,"#8a7f72",3,{sp:.5,up:.3,lf:.6,gr:-.4,sz:.12,sz1:.3,dir:d,cone:.3,a:.45});}
+  else{const pp=t3X3_a.crossVectors(d||t3X3_b.set(1,0,0),t3y_Y).normalize().multiplyScalar(.42*sz*b),A=p.clone().sub(pp),Bq=p.clone().add(pp);A.y+=.16;Bq.y-=.16;
+    t3x_streak(X,A,Bq,{col:"#fff4e0",w:.035,i:2,grow:.35,dur:180});Sm.spawn(p,"#8a7f72",3,{sp:.5,up:.3,lf:.6,gr:-.4,sz:.12,sz1:.3,a:.45});}}
+// healing reads as its own thing: a bloom opens on the floor, two ribbons wind up around the mini, a soft dome, a light that stays a moment
+function t3X3_heal(X,m,f,sz){const c="#a8f090",r=.34*sz,top=m.top*1.25;t3X3_decal(X,f,7,c,"#000000",.95*sz,2600,1.1);t3X3_shell(X,f,c,.95*sz,560,.45);t3X3_glow(X,c,f,3.5,3);
+  const A=t3X3_ribbon(X,c,.07,1.1,f),Bq=t3X3_ribbon(X,"#f0ffe0",.05,.9,f),ka=A&&A.userData.tok,kb=Bq&&Bq.userData.tok;
+  t3x_fx(820,k=>{const a=k*Math.PI*4,rr=r*(1-k*.4),y=f.y+.05+k*top;if(A&&A.userData.tok===ka)A.userData.p.set(f.x+Math.cos(a)*rr,y,f.z+Math.sin(a)*rr);if(Bq&&Bq.userData.tok===kb)Bq.userData.p.set(f.x-Math.cos(a)*rr,y,f.z-Math.sin(a)*rr);},
+    ()=>{if(A&&A.userData.tok===ka)A.userData.on=0;if(Bq&&Bq.userData.tok===kb)Bq.userData.on=0;});}
+// a death: a foe burns away from the edges in (the shader eats it, t3X3_mini drives it), its ash drifts off and a mark stays; anyone else goes pale and quiet
+function t3X3_death(X,m,u,foe,f,sz){const G=X.glow,Sm=X.smoke,P=t3X3_v,rn=Math.random,top=m.top;let e=0;
+  if(m.t3X3){m.t3X3.dz=foe?1:2;m.t3X3.U.t3X3e.value.set(foe?"#ff7a30":"#cfd8e8");}
+  if(!T3X3_FX||!foe)return;t3X3_decal(X,f,8,"#ff7a2a","#15110e",.8*sz,7000);t3X3_glow(X,"#ff7a2a",f,5,1.6);
+  t3x_fx(1400,k=>{if(!X.hi&&(e++&1))return;const h=top*(1-k*.7);P.set(f.x+(rn()-.5)*.36*sz,f.y+rn()*h,f.z+(rn()-.5)*.36*sz);
+    Sm.spawn(P,rn()<.5?"#4a443e":"#2a2622",1,{dir:t3X3_wind,sp:.7,cone:.22,up:.3,lf:1.7,gr:.12,sz:.1*sz,sz1:.4*sz,dr:.5,a:.6});if(rn()<.5)G.spawn(P,"#ff9a50",1,{dir:t3X3_wind,sp:.9,cone:.3,up:.6,lf:1.2,gr:.4,sz:.07,dr:.4,fl:1,i:1.8});},null,120);}
 
 /* every frame: ease the camera, walk the minis, pin their name tags */
 let t3last=0,t3raf=0;
@@ -9400,7 +9532,7 @@ function t3death(m,u){const X=V.t3x;if(!X)return;const foe=u.side==="foe",sz=Mat
   t3x_fx(950,k=>{const g=Math.sin(Math.min(1,k*1.6)*Math.PI*.5)*(1-k);for(const o of m.mats)if(o.m.emissive){o.m.emissive.set(ec);o.m.emissiveIntensity=g*2.2;}
     if(!X.hi&&(e++&1))return;const n=Math.ceil(3*sz);for(let j=0;j<n;j++){const a=Math.random()*6.283,r=Math.random()*.22*sz;P.set(f.x+Math.cos(a)*r,f.y+Math.random()*top*(1-k*.6),f.z+Math.sin(a)*r);
       G.spawn(P,ec,1,{sp:.3,up:1,lf:1,gr:.9,sz:.13,dr:1.5,fl:1,i:2});if(Math.random()<.35)Sm.spawn(P,ac,1,{sp:.15,up:.5,lf:1.3,gr:.25,sz:.16*sz,sz1:.5*sz,dr:1.4,a:.6});}},
-    ()=>{for(const o of m.mats)if(o.m.emissive){o.m.emissive.copy(o.e);o.m.emissiveIntensity=o.ei;}});}
+    ()=>{for(const o of m.mats)if(o.m.emissive){o.m.emissive.copy(o.e);o.m.emissiveIntensity=o.ei;}});if(T3X3_FX||T3X3_MINI)t3X3_death(X,m,u,foe,f,sz);}
 // playtest hook: fire any effect by hand, and stretch time to catch it in a screenshot
 if(/[?&]playtest/.test(location.search))window.__t3x={ts(v){t3x_ts=v;},units(){return B?B.units.map((u,i)=>i+":"+u.key+":"+u.side):[];},
   strike(ai,ti,at){if(!B)return;const a=B.units[ai],t=B.units[ti];V.t3x.last=null;t3strike(a,t,at).catch(e=>console.error(e));},dbg(){const X=V&&V.t3x;return X?{fx:V.fx.length,on:t3on(),vis:['streaks','arcs','rings','glows','stars'].map(k=>X[k].filter(o=>o.visible).length).join()}:null;},
