@@ -96,7 +96,7 @@ The ash in the air has stopped falling and hangs where it was.
 
 Down at the far end of the cave, past the Heart, a woman is walking away from you with a long case on her back. You can't see her face and she doesn't look round. However long you watch, she gets no further off.
 
-~Put it down.~
+~Hands off it.~
 
 → Continue (go to H3)
 
@@ -122,7 +122,7 @@ She looks at you again, as if to say: come on, then.
 
 The cave goes dark and you're in his memories, a great many of them at once.
 
-Every one smells a bit of him, of lamp oil and wet wool and the tin he keeps his spare strings in. You have wanted these for twenty-six years.
+Every one smells a bit of him, of lamp oil and wet wool and the tin he keeps his spare strings in. You've gone twenty-six years without any of this.
 
 Three of them come up clear enough to step into. Bluefoot walks up your arm to your shoulder, weighing nothing at all, and waits for you to pick.
 
@@ -186,8 +186,6 @@ You want to stop him and ask how he did that. You'd get about four lines into as
 Ash starts coming down with the rain and turns it grey. The song goes thin.
 
 You hang on to the tune. By the time he finishes you have the turn in the middle, or you think you have.
-
-^^You'll play it for him later, and he'll know it.^^
 
 → Back (go to E0)
 
@@ -303,9 +301,9 @@ Bluefoot looks at him with one eye and then the other.
 
 She goes up off his hand, fast, into the wind and back over the trees. He watches until he can't see her.
 
-He has no idea about you. He's sending a bird to look at a woman, and it hasn't crossed his mind that there's a baby.
+~He always did go round things.~
 
-~Nobody comes back for a song.~
+He has no idea about you. He's sending a bird to look at a woman, and it hasn't crossed his mind that there's a baby.
 
 → Back (go to E0)
 
@@ -391,9 +389,9 @@ The notes are running backwards, and his fingers are coming up off the strings w
 
 The lamp is on the wrong side of the cave. Stig sits back down on his stone, stands up, and sits down again. Hans is humming his beat back to front, and it sounds like one very long breath in.
 
-You look at your hands. You haven't reached across him to play the E yet. You're about to, and in this loop you're always about to. Then you have, and the E is ringing.
+You look at your hands. You haven't reached across him to play the E yet. You're about to, and you go on being about to. Then you have, and the E is ringing.
 
-~Put it down.~
+~There you go again.~
 
 There are fingermarks in the ash on the ukulele, and they're smaller than his. Somebody has played this E before you, many times.
 
@@ -456,15 +454,13 @@ You're left in the empty street with the smell of onions. Up in one of the windo
 
 ## Q1d. Not your street {future}
 
-You stay put. You've stood at the edge of plenty of crowds with your hood up, counting the ways out, and you're good at it.
+You stay put. You've stood at the edge of plenty of crowds with your hood up, counting the ways out. This street has two.
 
 The man says a few words to the boy and the boy answers. Then the boy runs, and the man lets him. So that turned out all right.
 
-You stand there a while longer. Your hands are cold. You put them in your pockets. There's ash in both, and you can't think where you picked it up.
+You stand there a while longer. Your hands are cold, so you put them in your pockets. There's ash in both.
 
 Up in a window somebody starts humming the song. They get halfway through and stop, as if they'd remembered they weren't supposed to.
-
-^^It's not your song any more.^^
 
 → Back (go to F0)
 
@@ -484,9 +480,9 @@ She plays the four notes. A, D, F, E.
 
 The whole room goes quiet at once. Even the ones at the back stop drinking.
 
-She looks out over them. Her eyes go to the front table, in the middle, where one chair is empty. It's a good chair, and somebody has set a cup down in front of it.
+She looks out over them. At the front table, in the middle, one chair is empty. It's a good chair, and somebody has set a cup down in front of it.
 
-She looks at the chair for some time. Then she starts the song.
+She looks at the chair. Then she starts the song.
 
 → Look at who's at the back of the room. (go to Q2b)
 
@@ -503,19 +499,19 @@ The you on the stage hasn't seen her. She's looking at the empty chair.
 
 ## Q2c. Look up {future}
 
-Nothing in here can feel you. You put your hand on the shoulder of the you on the stage anyway, and shove.
+You go up between the tables and shove the you on the stage in the shoulder. Your hand meets nothing at all.
 
-She looks up, all the way to the back of the room, and sees the girl with the ukulele. She stops in the middle of a line. The room waits.
+She looks up even so, right to the back of the room, and sees the girl with the ukulele. She stops in the middle of a line. The room waits.
 
-"You," she says. "At the back, with the instrument. Come here."
+"You," she says. "By the door, with the ukulele on a string. Up here."
 
 The girl goes red to the ears. Every head in the place turns. She comes up between the tables one slow step at a time.
 
-"Do you know the E?" you hear yourself say.
+"Do you know the E?" says the you on the stage.
 
 The girl nods.
 
-"Play it, then. I'm tired of being the only one."
+"Then play it. Come in when I look at you, and not before."
 
 → Back (go to F0)
 
@@ -525,7 +521,7 @@ You leave her to it, and she sings the whole song to the empty chair.
 
 It's beautiful, and you know it is. You can hear every place she gets right, and the turn in the middle.
 
-When she's done the room stamps and bangs on the tables. She doesn't look at any of them. She picks up the cup that was set in front of the empty chair, drinks it, and climbs down off the crates.
+When she's done the room stamps and bangs on the tables. She doesn't look at any of them. She picks up the cup from in front of the empty chair, drinks it, and climbs down off the crates.
 
 The girl with the ukulele has gone from the back of the room.
 
@@ -543,13 +539,13 @@ In the back, under a blanket, something small is asleep. A bit of hair sticks ou
 
 [SAM?: a maybe; whose child is never said]
 
-The cart stops at a gate. Beyond it is a farmhouse with its lamps lit, so someone is already up. You get down and stand at the back of the cart, and you look at the blanket for a long time.
+The cart stops at a gate. Beyond it is a farmhouse with its lamps lit, so someone is already up. You get down and stand at the back of the cart, looking at the blanket.
 
-Your lute case is on the seat, packed.
+Your lute case is on the seat, packed. Nothing of hers is packed.
 
-~Somebody has to hold it.~
+~Go now, before she wakes.~
 
-→ Wake her up and tell her why. (go to Q3c) +flicker
+→ Wake her up and tell her you're going, and why. (go to Q3c) +flicker
 → Leave the ukulele under the blanket with her, and go. (go to Q3d) +dread -flicker
 
 ## Q3c. Tell her {future}
@@ -576,15 +572,15 @@ You don't have an answer to that one that would fit in a cart.
 
 You take the bronze ukulele out of the case and tuck it in under the blanket beside her, where she'll find it when she wakes.
 
-Then you climb back onto the seat, take the reins in your grey hands and go, before anyone comes out of the farmhouse.
+~It's in tune. I checked.~
 
-The older you doesn't look back. You stand at the gate and watch the cart until the mist has it.
+Then you take the lute case off the seat in your grey hands, sling it on your back and go, on foot, before anyone comes out of the farmhouse.
+
+The older you doesn't look back. You stand at the gate by the cart and watch her until the mist has her.
 
 From under the blanket, very faintly, somebody half asleep plucks one string.
 
 E.
-
-~That's how it's done. That's how he did it.~
 
 → Back (go to F0)
 
@@ -596,15 +592,15 @@ The E is nearly gone. You feel it in your teeth more than you hear it.
 
 The cave comes back wrong. Everything is pale. The floor is ash, trodden flat like snow on a path. The lamp is on its stone and its light doesn't land on anything.
 
-Your father is sitting where he was, by his stone, with the ukulele across his knees. His hand is still on the neck and he's still looking at the strings. He doesn't move.
+Your father is sitting where he was, by his stone, with the ukulele across his knees. His hand is still on the neck and he's still looking at the strings.
 
-The ash around you is full of mouths. You can't see them. You can hear them under the ring, singing the lullaby, your song. They get every word wrong, and they drag behind you.
+The ash all round you is full of mouths, under the ring, singing the lullaby. You can't see them, only hear them. They have the words wrong and they drag, like a room that's had a few.
 
 Between you and him stands the woman with the case on her back. She's close enough to touch now. She still has her back to you, and her arms are grey to the elbows.
 
-She stands with one hip out. You know that stance.
+She's standing with one hip out. You stand like that.
 
-~Put it down.~
+~Give it here.~
 
 → Turn her round. (go to W2 if dread<4 / W2x)
 
@@ -616,39 +612,41 @@ You put your hand on her shoulder and she turns round.
 
 She's you, some years on. The grey streak is there at the front of her hair. Her skin has gone the same grey as your father's hand, from the fingertips to above the elbow, and there's ash in the creases round her eyes. She has your mother's mouth. You've never caught that in a mirror, and on her it's plain.
 
-She looks past you first, at him. Her face does a thing you'd never let yours do in front of people.
+She looks past you first, at him. She has to look away again before she can talk.
 
 @future: "Put it down."
 
 "Put what down?"
 
-@future: "That." She nods at your hand. You're holding the ukulele, and you have no memory of lifting it off his knees. "You'll play it until it eats you. Same as him."
+@future: "That." She nods at your hand. You're holding the ukulele, and you have no memory of lifting it off his knees. "It's his, and it's had him up to the elbows. You don't want a go."
 
 "He's alive because he played it."
 
 @future: "He's alive. Look at him."
 
-You'd rather not, and you do. He's grey to the elbow. He hasn't moved, and his eyes are on the strings.
+You'd rather not, and you do. He's grey to the elbow, and his eyes are on the strings.
 
-@future: "I've played it every night for twenty years. Look at my hands."
+@future: "Twenty years I've played it. Every night, because every night somebody at the back shouts for it. Look at my hands."
 
 "Then why are you here?"
 
-She opens her mouth and two voices come out, and they give different answers.
+She answers twice in the one breath, like two singers who've come in on different verses. You've had the practice to follow both.
 
 @future: "To stop you."
 
 @future: "To hear it once more."
 
+She hears the second one herself, and pulls a face at it.
+
 She holds up her hands. The fingertips are grey and smooth, with no calluses and no lines.
 
-@future: "I can't tell you if it works. Playing. Holding it back. I never got to see the end of it."
+@future: "And before you ask, I don't know if it works. Playing it, holding the ash back. I never got to see how it ends."
 
 The mouths in the ash sing the next line, wrong.
 
-@future: "Give it to me. I'll put it down for you. Then you can just go and sit with him."
+@future: "Listen to that. Not one of them can hold the tune." She puts a hand out, palm up. "Give it here. I'll mind it. You go and sit with him."
 
-She reaches for the ukulele, gently. She means you no harm. She only wants it out of your hands.
+She reaches for the ukulele, gently.
 
 → Keep hold of it. (go to @hush)
 
@@ -662,21 +660,21 @@ She's you, some years on. She has a grey streak in her hair and arms grey to the
 
 @future: "Put it down."
 
-Now you can make out the mouths in the ash, and every one of them is singing in your voice.
+Now you can make out the mouths in the ash. There are a great many, and every one is singing in your voice.
 
-?seen Q1d: The children in the street are in there, singing it wrong because nobody stood next to them.
+?seen Q1d: A few of them are singing the goat version.
 
-?seen Q2d: The empty chair is in there, and the girl at the back who left.
+?seen Q2d: A chair stands in the ash with nobody on it.
 
-?seen Q3d: The ukulele under the blanket is in there, and the cart going off into the mist.
+?seen Q3d: Under the singing somebody is plucking one string, slowly, half asleep.
 
-?seen P1c: A young man on a bridge is in there, and you only ever listened to him.
+?seen P1c: Further back there's rain on stone, and a lute.
 
-?seen P2c: Your mother is in there, turning her head and not seeing you.
+?seen P2c: A woman's voice says, very quietly, "There's somebody there."
 
-?dread>=4: All of them are yours.
+?dread>=4: The nearest ones are close enough to touch.
 
-@future: "See? It's all the same song. Put it down."
+@future: "That's how it sounds from my side. Come on, hand it over, before they get to the chorus."
 
 She reaches for it. The mouths come up out of the ash.
 
@@ -688,9 +686,9 @@ She reaches for it. The mouths come up out of the ash.
 
 She goes down on her knees in the ash, and more ash sifts off her hands.
 
-?flicker>=3: There's hardly any of her left. You can see the lamp through her.
+?flicker>=3: You can see the lamp through her. The lute case is the most solid thing about her.
 
-?flicker<=1: She's solid and heavy. The ash is pressed flat under her knees.
+?flicker<=1: She goes down heavily, and the strings jangle inside her lute case.
 
 The mouths have shut up. The E is still ringing, though only just.
 
@@ -698,7 +696,7 @@ She looks up at you.
 
 @future: "Well. Go on, then. You've still got it."
 
-Your father hasn't moved. His hand is on the neck of the ukulele, which you've put back on his knees. He's looking at the strings.
+Your father's hand is on the neck of the ukulele, which you've put back on his knees. He's looking at the strings.
 
 You have the E for about one more breath. Whatever you spend it on, you won't get it back.
 
@@ -712,19 +710,19 @@ The E stops.
 
 It's cut off, and every other sound goes with it, the voices and the hiss of the lamp included. You have never in your life heard nothing.
 
-You're on your knees in the ash and you don't remember going down.
+You're on your knees in the ash with both hands over your ears, which makes no difference.
 
 She's kneeling in front of you with her grey hand over your mouth. She isn't pressing. She takes it away.
 
-@future: "That's the end of the song. That's all it is."
+@future: "There. Stopped. I've wanted somebody to do that to me for twenty years."
 
 She sits back on her heels.
 
-@future: "I'm sorry. I didn't want you to find out like that. Nobody told me either."
+@future: "Sorry about the hand. You wouldn't have stopped for being asked. I never did."
 
 Then the E starts again. It's so faint that you might be making it up. It's coming from the ukulele on your father's knees, and his finger is on the string. He hasn't moved his hand. He has pressed down, and that's all.
 
-@future: "Huh," she says.
+@future: "Huh," she says. "You old sod."
 
 You have the E for about one more breath.
 
@@ -736,7 +734,7 @@ You have the E for about one more breath.
 
 ## End 1. The Whole Song
 
-You play it, all of it. The four notes and the line after them, and then the turn in the middle, the one that goes down. You didn't know you had that part.
+You play it, all of it. The four notes and the line after them, and then the turn in the middle, the one that goes down. Your fingers have that part ready, which is news to you.
 
 ?seen P1c: You learned it on a bridge in the rain.
 
@@ -744,29 +742,27 @@ The mouths in the ash try to join in with their wrong words, and you play over t
 
 She listens on her knees, and her lips move with the words.
 
-You get to the place where you always stop, and you keep going. There's more of it. There always was, and you never had anybody to play it to. You make it up as you go.
+You get to the place where you always stop, and you keep going. There's more of it, and you make it up as you go.
 
-She smiles. You didn't know your face could do that.
+Her lips stop moving, because she doesn't know this part. She folds her arms, which is how you listen to other people's songs. Near the end she's smiling at it and trying not to.
 
-@future: "That's how it goes."
+@future: "That's how it goes," she says. "Twenty years of encores, and there's a second half."
 
-Then she gets up, swings the lute case onto her back and walks off into the ash without looking round. You don't think she's headed anywhere bad. She walks like someone with somewhere to be.
+Then she gets up, swings the lute case onto her back and walks off into the ash. She doesn't dawdle. She has the walk of someone who's due on somewhere else tonight.
 
-A long way off, where she's going, there's a doorway with fire in it. The fire doesn't move.
+A long way off, where she's going, there's a doorway with fire in it. The flames hold still, as a note does when you sit on it.
 
 ?seen P1b: On her way she passes a young man on a bridge, and drops a coin in his hat.
 
 {sound: notes-four}
 
-The cave's back. The E is an ordinary E again, and in a few breaths it dies away.
+The cave's back. The E is an ordinary E again, and in a few breaths it dies away. Your fingertips are cold. They'll warm up.
 
 Your father looks up from the strings, at you.
 
 "Where'd you get that turn in the middle?" he says.
 
 "Somewhere," you say.
-
-Your fingertips are cold. They'll warm up.
 
 > **Echo: The Whole Song.** Before you roll a Charisma (Performance) check, or a saving throw to keep your concentration on a spell, you can spend this Echo to have advantage on it.
 
@@ -790,7 +786,7 @@ She looks down at her own hands. The grey is going out of them, slowly, from the
 
 She doesn't say thank you. You wouldn't have either. She gets up and walks off into the ash, and she leaves the lute case lying where it is.
 
-A long way behind her there's a doorway with fire in it, and the fire doesn't move. She doesn't look at it once.
+A long way behind her there's a doorway with fire in it, and the flames hold still. She doesn't look at it once.
 
 You don't play anything. You set the ukulele down on the floor, out of the way, and sit down in the ash next to him with your shoulder against his.
 
@@ -812,21 +808,21 @@ He doesn't say anything, and you don't either.
 
 You hum the next note, the one that comes after the E. You hum it low and leave the strings alone.
 
-Then you wait. You've spent your life filling every gap in every room before anybody else could.
+Then you wait. You don't leave gaps in a room as a rule. You fill them before anybody else can.
 
-Nobody answers. She watches you from her knees.
+For a while there's no answer. She watches you from her knees with her eyebrows up.
 
-Then, behind you, somebody hums it back. It's badly done and far too low, so it's Stig, who can't sing to save his life.
+Then, behind you, somebody hums it back. It's low and nowhere near the note, and whoever it is hangs on to it like a rope in a gale. That's Stig. He can't sing, he knows he can't, and he gets louder.
 
-Hans comes in second, with a beep in the middle of his. Saphira is last and so quiet that you nearly miss her, and she's dead on the note. You had no idea she'd been listening.
+Hans comes in second, with a beep in the middle of his. He holds it for four counts exactly and stops. Saphira is last, and so quiet that you nearly miss her. She's dead on the note. She'll deny it.
 
-The older you is crying, and making a mess of it.
+The older you wipes her nose on her grey wrist. She's crying, and annoyed with herself for it.
 
-@future: "Twenty years," she says. "Nobody ever picked it up before."
+@future: "Twenty years I've left that gap," she says. "First time anybody's come in. And it's Stig."
 
 Then she's laughing, with your mother's laugh. She gets up and walks off into the ash, humming the next line.
 
-Far ahead of her there's a doorway full of fire that doesn't move. Somebody big is sitting next to it with a towel across one knee, and he hums along too, badly.
+Far ahead of her there's a doorway with fire in it, the flames holding still. Somebody big is sitting next to it with a towel across one knee, and he hums along too, badly.
 
 {sound: notes-four}
 
@@ -863,18 +859,18 @@ Your father's head has come up, though. He looks round the cave at each of them,
 
 ## Whispers (the older Katy's voice, scattered by the game as the dread grows)
 
-- Put it down.
-- Nobody comes back for a song.
-- Somebody has to hold it.
-- One more time.
+- Hands off it.
+- Give it here.
+- There you go again.
 - That's not how it goes.
-- A song and a bird.
-- Don't stop. Don't stop.
-- He can't hear you.
+- Your thumb's gone flat again.
 - Keep your thumb off the neck.
-- Twenty years.
 - Who taught you that?
-- Put it down.
+- You're rushing.
+- He can't hear you.
+- They only ever ask for the one song.
+- Once more, then.
+- Leave it on his knees.
 
 ## Cutscene: string
 
@@ -886,7 +882,7 @@ Your father's head has come up, though. He looks round the cave at each of them,
 - The string shakes, and keeps shaking. Ash jumps off it.
 - Blue legs, landing on the neck of the ukulele.
 - Down. The lamp shrinks to a point.
-- @future: Put it down.
+- @future: Hands off it.
 - Four Notes
 
 ## Cutscene: face
@@ -905,7 +901,7 @@ Your father's head has come up, though. He looks round the cave at each of them,
 - Your fingers on the strings. You don't stop where you always stop.
 - The mouths in the ash fall quiet, one at a time.
 - She mouths the words with you, on her knees.
-- @future: That's how it goes.
+- @future: There's a second half.
 - She stands, shoulders the case, and walks off into the ash, toward a doorway of fire.
 - Katy: E.
 
@@ -923,6 +919,6 @@ Your father's head has come up, though. He looks round the cave at each of them,
 - Nothing.
 - A low hum from behind you, badly. Then another, with a beep in it. Then a third, quiet and exact.
 - She laughs, and it's your mother's laugh.
-- @future: Nobody ever picked it up before.
+- @future: First time anybody's come in.
 - She walks off humming. Far ahead, by a doorway of fire, somebody picks it up.
 - Katy: E.
