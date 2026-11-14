@@ -5824,12 +5824,13 @@ function liftSeal(){
    Scenes run in order; the crew moves on a grid, the monsters play themselves with the script's tactics.
    Public repo: no secret slips, nothing from later sessions. Rules: 2024 PHB, with the script's own rulings. */
 const PLAY={on:false,auto:/[?&]playtest=auto/.test(location.search)};  // playtest=auto: the crew plays itself (for testing)
+PLAY.rnd0=rnd; // the real dice; inside the play block rnd() is the wrapper under "seeded dice", which can run from a seed for tests
 {
 const PKEY="chron-play-s10", POPT="chron-play-opt";
 const opt=Object.assign({dice:!PLAY.auto,fast:PLAY.auto,sound:!PLAY.auto,music:true},(()=>{try{return JSON.parse(store.get(POPT)||"{}")}catch(e){return{}}})());
 const saveOpt=()=>store.set(POPT,JSON.stringify(opt));
 const ABORT={abort:true};PLAY.gen=0;
-const sleep=ms=>new Promise((r,j)=>{const g=PLAY.gen;setTimeout(()=>PLAY.gen!==g?j(ABORT):r(),opt.fast?ms*.35:ms);});
+const sleep=ms=>PLAY.sim?simTick():new Promise((r,j)=>{const g=PLAY.gen;setTimeout(()=>PLAY.gen!==g?j(ABORT):r(),opt.fast?ms*.35:ms);});
 addEventListener("unhandledrejection",e=>{if(e.reason===ABORT)e.preventDefault();});
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const pick=a=>a[rnd(a.length)-1];
@@ -6157,7 +6158,7 @@ function tray(title,text,btns){return new Promise(res=>{const who=CREW_IDS.find(
     h("div",{class:"tt"},who?h("div",{class:"ey"},CREW[who].short):null,h("h3",{},cap(head)),text?h("p",{},text):null),
     h("div",{class:"row"},...btns.map(([l,v,pri])=>h("button",{type:"button",class:"pl-btn"+(pri?" pri":""),onclick:()=>{m.remove();res(v);}},l)))));
   stage.append(m);});}
-function ask(title,text,yes="Yes",no="No"){if(PLAY.auto)return Promise.resolve(Math.random()<.6);return tray(title,text,[[no,false],[yes,true,1]]);}
+function ask(title,text,yes="Yes",no="No"){if(PLAY.auto)return Promise.resolve(rand()<.6);return tray(title,text,[[no,false],[yes,true,1]]);}
 function askMany(title,text,opts){return tray(title,text,opts.map((o,i)=>[o,i,i===0]));}
 
 /* ---- the menu ---- */
@@ -6201,6 +6202,14 @@ async function crewRoll(id,label,mod,dc,{adv=false,dis=false,u=null,quiet=false}
   hide3d();const ok=dc==null?true:tot>=dc;chip(`${CREW[id].short} · ${label}: ${tot}`+(dc!=null?` vs DC ${dc} · ${ok?"success":"fail"}`:""),dc!=null&&!ok);
   return {tot,v:r.v,ok};
 }
+
+/* ---- seeded dice (testing only). Players always get the real dice: without a seed rnd() and rand() are exactly what they were.
+   With ?playtest&seed=123, or while the fight simulator runs, every roll and every coin the game flips comes from one small
+   generator (mulberry32), so the same seed plays the same fight. Looks and sounds keep Math.random. ---- */
+function simRng(a){return ()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function rnd(n){const r=PLAY.rng;return r?1+Math.floor(r()*n):PLAY.rnd0(n);}
+function rand(){const r=PLAY.rng;return r?r():Math.random();}
+{const m=/[?&]playtest(=|&|$)/.test(location.search)&&/[?&]seed=(\d+)/.exec(location.search);if(m)PLAY.rng=simRng(+m[1]);}
 
 
 /* =================== THE BATTLE MAP: painting, tokens, movement =================== */
@@ -8869,7 +8878,7 @@ function los(a,b){const ax=a.x+(a.size-1)/2,ay=a.y+(a.size-1)/2,bx=b.x+(b.size-1
   for(let i=1;i<n;i++){const x=Math.round(ax+(bx-ax)*i/n),y=Math.round(ay+(by-ay)*i/n);if(blocksLos(B.mp,x,y))return false;}return true;}
 const alive=u=>!u.gone&&u.hp>0;
 const live=side=>B.units.filter(u=>alive(u)&&(side==="foe"?u.side==="foe":u.side!=="foe"));
-const enemiesOf=u=>B.units.filter(o=>alive(o)&&!o.untarget&&(u.side==="foe"?o.side!=="foe":o.side==="foe"));
+const enemiesOf=u=>B.units.filter(o=>alive(o)&&!o.untarget&&!o.ghost&&(u.side==="foe"?o.side!=="foe":o.side==="foe"));
 const occupant=(x,y,except)=>B.units.find(o=>o!==except&&!o.gone&&!o.ghost&&x>=o.x&&x<o.x+o.size&&y>=o.y&&y<o.y+o.size);
 const incap=u=>u.hp<=0||u.cond.engulfed||u.cond.ko||u.cond.turned||u.cond.stunned;
 
@@ -9502,8 +9511,8 @@ async function autoTurn(u){
       const pref=l.find(a=>near>=2&&/Turn Undead|Thunderwave|Thunderclap|Shatter/.test(a.n))||l.find(a=>/Mockery|Sacred Flame|Toll the Dead|Eldritch|Fire Bolt|Guiding Bolt|Shortbow/.test(a.n))||l[0];
       await pref.run();await checkEnd();if(B.over||u.hp<=0)return;}
     return;}finally{PLAY.aim=null;}}
-  const f=enemiesOf(u).filter(o=>o.hp>0);if(f.length&&speedOf(u)>0&&Math.random()<.7)await approach(u,nearest(u,f),u.key==="stig"||u.key==="katy"?4:1);if(u.hp<=0)return;
-  for(const kind of ["action","bonus"]){const l=crewActions(u).filter(a=>a.kind===kind&&a.ok&&!/^(Dash|Dodge|Disengage)$/.test(a.n));if(l.length){await (Math.random()<.5?l[0]:pick(l)).run();await checkEnd();if(B.over||u.hp<=0)return;}}}
+  const f=enemiesOf(u).filter(o=>o.hp>0);if(f.length&&speedOf(u)>0&&rand()<.7)await approach(u,nearest(u,f),u.key==="stig"||u.key==="katy"?4:1);if(u.hp<=0)return;
+  for(const kind of ["action","bonus"]){const l=crewActions(u).filter(a=>a.kind===kind&&a.ok&&!/^(Dash|Dodge|Disengage)$/.test(a.n));if(l.length){await (rand()<.5?l[0]:pick(l)).run();await checkEnd();if(B.over||u.hp<=0)return;}}}
 /* everything one of the crew can do this turn */
 function crewActions(u){
   const p=P(u.key),k=u.key,out=[],A=(n,sub,ok,run,kind="action",o={})=>out.push(Object.assign({n,sub,ok:ok&&(kind==="action"?u.act>0:kind==="bonus"?u.bonus>0:true),run,kind},o));
@@ -9607,7 +9616,7 @@ function teleport(u,r,cost){return async()=>{const cs=[];for(let y=0;y<B.mp.H;y+
   const c=await pickCell(cs,"Misty Step: tap where to appear");if(!c)return;u.bonus--;cost();delete u.cond.grappled;u.x=c[0];u.y=c[1];renderTokens();log(`${nameOf(u)} steps through silver mist.`,"b");};}
 const cost_=(x,y)=>cost(B.mp,x,y)>0;
 async function turnUndead(u){log("Stig raises his holy symbol: Turn Undead!","b");await paceArea(u,u.x,u.y,6,"Turn Undead","radiant");
-  for(const o of B.units.filter(o=>alive(o)&&o.side==="foe"&&MON[o.key].undead&&dist(o,u)<=6)){
+  for(const o of B.units.filter(o=>alive(o)&&!o.ghost&&o.side==="foe"&&MON[o.key].undead&&dist(o,u)<=6)){
     if(o.key==="husk"){o.hp=0;o.gone=true;log(`  ${o.name} crumbles to ash.`,"g");floatTxt(o,"crumbles","heal");continue;}
     const ok=await save(o,"wis",17,"Turn Undead");if(ok){floatTxt(o,"resists","miss");continue;}
     await hurt(o,dice("4d8").t,"radiant",u,{magic:true,aoe:true});
@@ -10385,7 +10394,7 @@ const TUNNELS={key:"tunnels",map:"tunnel",dim:true,undead:true,
     for(const u of U)if(u.crew&&P(u.key).vein>=2)addC(u,"poisoned");},
   async onRound(r){for(const u of B.units)if(u.ghost&&u.back<=r&&u.hp>0){u.ghost=false;const c=freeNear(4,13);u.x=c[0];u.y=c[1];u.hidden=true;log(`${u.name} slides out of the wall behind the back line.`,"r");if(!B.order.some(e=>e.u===u))B.order.push({u});}renderTokens();},
   async onRoundEnd(r){if(r>=4&&live("foe").length){log("The four notes start again, deeper in. The rest of them melt into the walls.","h");fourNotes(false);for(const u of live("foe")){u.gone=true;}renderTokens();B.over="win";}},
-  async check(){if(!B.units.some(u=>u.side==="foe"&&(alive(u)||u.ghost)))return "win";if(B.units.filter(u=>u.crew).every(u=>u.hp<=0))return "lose";return null;}};
+  async check(){if(!B.units.some(u=>u.side==="foe"&&alive(u)))return "win";if(B.units.filter(u=>u.crew).every(u=>u.hp<=0))return "lose";return null;}};
 
 /* ---- 4. The Blight Heart ---- */
 async function sHeart(){
@@ -10408,7 +10417,7 @@ const HEART={key:"heart",map:"cavern",dim:true,lair:true,
     if(r===1){const t=B.units.find(u=>u.key==="thorn");log("Lair action: roots burst from the wall and pin Thorn (escape DC 16, or an ally cuts him loose).","r");addC(t,"restrained",{dc:16});renderTokens();return;}
     const needles=B.units.filter(u=>u.key==="needle"&&alive(u)).length;
     if(needles<6&&rnd(2)===1){log("Lair action: two more Needle Blights drop from the ceiling.","r");spawnNeedles(2);return;}
-    const crew=B.units.filter(u=>u.crew&&u.hp>0&&!u.cond.engulfed&&!u.cond.restrained);const two=crew.sort(()=>Math.random()-.5).slice(0,2);
+    const crew=B.units.filter(u=>u.crew&&u.hp>0&&!u.cond.engulfed&&!u.cond.restrained);const two=[];while(two.length<2&&crew.length)two.push(crew.splice(rnd(crew.length)-1,1)[0]);
     log("Lair action: roots heave up under "+two.map(nameOf).join(" and ")+".","r");for(const t of two){if(!(await save(t,"dex",14,"Roots")))addC(t,"restrained",{dc:14});}renderTokens();},
   async onRound(r){const S=B.sc;if(r===2){log("Four Needle Blights drop from the cavern roof.","r");spawnNeedles(4);}
     if(r===6&&!S.playWithMe&&alive(B.units.find(u=>u.key==="heart"))){S.playWithMe=true;S.pwRound=r;log("Matthew shouts through the roots: “Play it with me!” The next song attempt can't fail.","h");fourNotes(false);}},
@@ -10614,6 +10623,237 @@ const SCENES=[
   {t:"The night ambush",eye:"15:00 · deadly",run:sAmbush},
   {t:"Katy's choice",eye:"15:40 · ending",run:sChoice}
 ];
+
+/* =================== THE FIGHT SIMULATOR: fight balance measured, not guessed (testing only, ?playtest) ===================
+   window.__sim plays any fight many times in a second or two each and counts what happened. It runs the real battle(),
+   takeTurn(), attack() and hurt(): nothing of the rules is copied here. While a run is on (PLAY.sim): pauses end at once,
+   nothing is drawn or heard (the drawing functions are swapped for empty ones and put back after), the dice are seeded,
+   and a test player takes the crew's turns:
+     random   today's ?playtest=auto player, unchanged (autoTurn)
+     steady   a middling player: walks up, hits what is nearest, heals who is down, uses a fight's own moves half the time
+     careful  a smart human: picks the blow worth most (the weakest or most dangerous foe, the one by the thing to guard),
+              stands out of reach and out of rough ground, area spells only on 2+ foes and no friends, picks up the fallen,
+              spends slots where they pay, uses the fight's own moves (B.def.sceneActs) and stays by B.def.guard
+   __sim.policy(fight, fn) gives one fight its own careful player: fn(u, ctx) plays that hero's turn (ctx: see simCtx).
+   Start state per fight (SIM_FIGHTS): an interlude fight gets what iFight gives it, a fresh level 5 party, and IST.dread /
+   IST.flicker (0 and 2 for session 10's four, 3 and 2 for undertow, hush, seal and frost; run(..., {dread, flicker})
+   changes them). The session 10 scene fights start from a rested party at the level the table had there (5 before lunch,
+   6 after), no flags set, and the scene's own ash save where it has one; {state:{party,flags}} sets anything else, and
+   {after:["tunnels"]} plays earlier fights first and carries the party over. Protocol Zero's fights: the Steward at 250.
+   {patch:{husk:{hp:30}, sc:{flame:4}, def:{...}}} changes monsters (MON), the fight's start values (def.sc) or the fight
+   itself for one call, and puts them back. Runner: tests/visual/fights.js. */
+const SIM={n:0,max:40000,cap:60,log:[],pol:"careful",own:{},want:null,cell:null,downs:{},half:{},zero:{}};
+function simTick(){if(++SIM.n>SIM.max)throw new Error("stuck: "+SIM.max+" pauses in one fight");return Promise.resolve();}
+/* what the careful player knows about an action beyond its own sub-line: damage type, area, and what not to bother with */
+const SIM_H={"Shortbow":{t:"piercing",nm:1},"Dagger":{t:"piercing",nm:1},"Shovel":{t:"bludgeoning",nm:1},"Slam ×2":{t:"bludgeoning",nm:1},
+  "Vicious Mockery":{t:"psychic",def:2},"Dissonant Whispers":{t:"psychic",half:1},"Sacred Flame":{t:"radiant"},"Toll the Dead":{t:"necrotic",toll:1},"Guiding Bolt":{t:"radiant"},"Vampiric Touch":{t:"necrotic"},
+  "Magical dagger":{t:"piercing",sneak:1},"Shadow Blade":{t:"psychic",sneak:1},"Ash blade +1":{t:"slashing",sneak:1,plus:2.5},"Throw the dagger":{t:"piercing",sneak:1,dmg:"1d4+5",rng:12},
+  "Eldritch Blast":{t:"force"},"Fire Bolt":{t:"fire"},"Arm cannon ×2":{t:"force"},
+  "Thunderwave":{t:"thunder",area:1,self:1,ff:1,push:1},"Thunderclap":{t:"thunder",area:1,self:1,ff:1},"The Drop":{t:"thunder",area:2,self:1},"Shatter":{t:"thunder",area:2,rng:12,ff:1},
+  "Turn Undead":{turn:1},"Rocket volley":{rocket:1},"Cure Wounds":{heal:1},"Revivify":{rev:1},
+  "Slow":{skip:1},"Bane":{skip:1},"Ray of Enfeeblement":{skip:1},"Path to the Grave":{skip:1},"Dash":{skip:1},"Dodge":{skip:1},"Disengage":{skip:1}};
+/* a fight's own moves: what each is worth to the careful player this turn (0: leave it). One not listed here is worth 20 */
+const SIM_SCENE={
+  "Feed the fire":()=>B.sc.flame<=1?90:B.sc.flame===2?22:0,
+  "Sing the lullaby":u=>{const S=B.sc;if(S.playWithMe&&!S.pwTried)return 100;const k=B.units.find(o=>o.key==="katy");return u.key==="katy"?80:k&&k.hp>0&&!k.cond.engulfed?0:45;},
+  "Press the Sigil of Earth":()=>0,"Escape the roots":()=>70,"Cut Thorn loose":()=>6,"Cut the net":()=>60,
+  "Talk them down":u=>(u.key==="katy"||u.key==="saphira")&&!enemiesOf(u).some(o=>dist(o,u)<=1)?24:0,
+  "Roll the ship":()=>B.round>=2?55:0,"Open the fire eyes":()=>90,
+  "Tear a seal off":()=>B.units.filter(o=>o.key==="glove"&&alive(o)&&!o.ghost).length<=1?40:14};
+const SIM_OWN={"Find your weapon":50,"Break free":35,"Escape the grapple":4};
+function simInfo(a){const s=a.sub||"",m=ACT_META[a.n]||[],h=SIM_H[a.n]||{},hit=TOHIT.exec(s),sv=SAVEDC.exec(s),d=/\d+d\d+(?:\+\d+(?!d))?/.exec(s),ft=/(\d+) ft/.exec(m[1]||"")||/· (\d+) ft/.exec(s),lv=/^(?:bonus · )?(1st|2nd|3rd) · /.exec(s);
+  return {h,hit:hit?+hit[1]:null,ab:sv?sv[1].toLowerCase():null,dc:sv?+sv[2]:0,dmg:h.dmg||(d?d[0]:null),count:/×2/.test(a.n)||/two beams/.test(s)?2:1,
+    rng:h.rng||(m[2]?m[2][1]:ft?Math.round(+ft[1]/5):1),far:!!(hit&&(m[2]||h.rng)),lvl:lv?+lv[1][0]:/pact slot/.test(s)?2:/^Channel/.test(s)?2:0};}
+function simMult(t,type,nm){if(t.crew||!MON[t.key])return 1;const d=MON[t.key],res=d.res||[];if((d.imm||[]).includes(type))return 0;let k=1;
+  if(!(B.sc.weak&&t.key==="heart")&&(res.includes(type)||(PHYS.includes(type)&&nm&&res.includes("nonmagical"))))k=.5;if((d.vul||[]).includes(type))k*=2;return k;}
+function simThreat(t){const m=MON[t.key];if(!m||!m.atk||!m.atk.length)return 0;return Math.max(...m.atk.map(a=>avgDice(a.dmg)+(a.plus?avgDice(a.plus):0)))*(m.boss?2:1);}
+const simReach=e=>e.crew?1:Math.max(1,...((MON[e.key]||{}).atk||[]).map(a=>a.reach||0));
+const simFoes=u=>enemiesOf(u).filter(o=>o.hp>0&&!o.ghost&&(!o.hidden||dist(u,o)<=1)&&(!u.cond.called||o.key==="grey"));
+const simFail=(t,ab,dc)=>clamp((dc-saveOf(t,ab)-1)/20,.05,.95);
+/* what E damage on t is worth: the damage itself (more on a boss), the blows it saves if t drops, and a little for a foe by the thing we guard */
+function simVal(u,t,E,G){if(E<=0)return 0;const d=Math.min(E,t.hp),boss=MON[t.key]&&MON[t.key].boss;let v=d*(boss?1.5:1)+(E>=t.hp?1:E/t.hp*.35)*(simThreat(t)*1.6+4);
+  if(G)v+=Math.max(0,4-dist(t,G))*3;if(u.cond.grappled&&u.cond.grappled.by===t.id)v+=6;if(t.cond.turned)v*=.4;return v;}
+/* the damage one action is expected to do to t from where u stands now */
+function simE(u,a,I,t){const h=I.h;let o=null;actCtx={u,a};try{o=tgtOdds(t);}finally{actCtx=null;}const p=o&&o.p!=null?o.p:.6,mult=simMult(t,h.t||"force",h.nm);
+  let avg=avgDice(h.toll&&t.hp<t.max?"2d12":I.dmg||"0")+(h.plus||0),E1=I.dc?p*avg+(h.half?(1-p)*avg/2:0):p*avg*1.05,E=E1*mult*I.count;
+  if(h.sneak&&!u.sneakUsed&&((o&&o.mode>0)||B.units.some(x=>x!==u&&x.side!=="foe"&&alive(x)&&!incap(x)&&dist(x,t)<=1)))E+=p*7*mult;
+  if(t.cond.hexed&&t.cond.hexed.by===u.id)E+=3.5*p*I.count;if(t.cond.cursed&&t.cond.cursed.by===u.id)E+=3*p*I.count;if(t.cond.grave)E+=E1*mult;return E;}
+/* how good a square is to stand on: out of the foes' reach, off rough ground, by the thing to guard, no opportunity attack on the way */
+function simCell(u,c,foes,G,ranged,near){const me={x:c[0],y:c[1],size:u.size};let s=-c[2]*.15;
+  for(const e of foes){const r=simReach(e),d=dist(me,e);if(d<=r)s-=ranged?9:4;else if(d<=r+1)s-=1;
+    if(!u.disengage&&!u.teleport&&e.react&&!incap(e)&&e.key!=="heart"&&dist(u,e)<=r&&d>r)s-=simThreat(e)*.9;}
+  if(cost(B.mp,c[0],c[1])===2)s-=3;if(G){const d=dist(me,G);s+=d<=1?12:-3*d;}if(near)s-=Math.max(0,dist(me,near.t)-near.r)*2;return s;}
+/* the careful player's plan for the action: {n: the action's name, c: where to stand, t: whom to aim at, ac: where an area lands} */
+function simPlan(u,tried){const G=B.def.guard&&B.def.guard()||null,foes=simFoes(u),sp=speedOf(u),rc=reachable(u,sp>0?Math.max(0,u.cond.prone?u.mv-Math.ceil(sp/2):u.mv):0),cs=[[u.x,u.y,0]],x0=u.x,y0=u.y;
+  for(const [k,v] of rc.d){if(v.occ||k===rc.start)continue;const [x,y]=k.split(",").map(Number);cs.push([x,y,v.c]);}
+  const at=(c,f)=>{u.x=c[0];u.y=c[1];try{return f();}finally{u.x=x0;u.y=y0;}},acts=crewActions(u).filter(a=>a.kind==="action"&&!tried.has(a.n)),sc=sceneNames(u),opts=[];
+  const hrt=B.units.find(o=>o.key==="heart"&&alive(o)),near=hrt&&B.def.sceneActs&&SIM_SCENE["Sing the lullaby"](u)>0?{t:hrt,r:6}:null; // the song needs her within 30 ft of the Heart
+  const base=[cs.map(c=>simCell(u,c,foes,G,false,near)),cs.map(c=>simCell(u,c,foes,G,true,near))],best=k=>{let bi=0;for(let i=1;i<cs.length;i++)if(base[k][i]>base[k][bi])bi=i;return bi;},home=best(0);
+  const add=(s,n,c,t,ac)=>{if(s>0)opts.push({s,n,c,t,ac});};
+  // someone is down: reach them with a healing hand
+  const down=B.units.filter(o=>o.crew&&o!==u&&o.hp<=0&&!o.dead&&!o.gone&&o.key!=="hans");
+  for(const a of acts){const I=simInfo(a),h=I.h;if(h.skip||sc.has(a.n))continue;
+    if(h.heal||h.rev){for(const d of h.rev?B.units.filter(o=>o.dead):down){let bi=-1;cs.forEach((c,i)=>{if(distXY(d,c[0],c[1])<=1&&(bi<0||base[0][i]>base[0][bi]))bi=i;});if(bi>=0)add(100+base[0][bi]*.1,a.n,cs[bi],d);}
+      if(h.heal&&u.hp<u.max*.35)add(16,a.n,cs[home],u);continue;}
+    if(h.turn){for(const i of new Set([0,home])){let v=0,n=0;for(const t of foes){if(!MON[t.key].undead||distXY(t,cs[i][0],cs[i][1])>6)continue;n++;
+        v+=t.key==="husk"?t.hp+simThreat(t)*1.6:simFail(t,"wis",17)*(simVal(u,t,18*simMult(t,"radiant"),G)+simThreat(t)*2);}if(n)add(v-4+base[0][i]*.3,a.n,cs[i]);}continue;}
+    if(h.rocket){let v=0;for(const t of foes.filter(t=>dist(u,t)<=24).slice(0,6))v+=simVal(u,t,10.5,G);add(v,a.n,cs[0]);continue;}
+    if(h.area){const avg=avgDice(I.dmg||"0"),hitV=(c,r)=>{let v=0,n=0;for(const o of B.units){if(!alive(o)||o===u||o.untarget||o.ghost)continue;const d=Math.max(gap(o.x,o.x+o.size-1,c[0],c[0]),gap(o.y,o.y+o.size-1,c[1],c[1]));if(d>r)continue;
+          if(o.side!=="foe"){if(h.ff)return 0;continue;}if(!foes.includes(o))continue;n++;const pf=I.dc?simFail(o,I.ab,I.dc):.5;v+=simVal(u,o,(pf*avg+(1-pf)*avg/2)*simMult(o,h.t),G)+(h.push&&G?5:0);}
+        return n>=2||(n===1&&h.push&&G)?v:0;};
+      if(h.self)cs.forEach((c,i)=>add(hitV(c,h.area)-I.lvl*2.5+base[0][i]*.5,a.n,c));
+      else for(const i of new Set([0,home])){let bv=0,bc=null;for(let y=0;y<B.mp.H;y++)for(let x=0;x<B.mp.W;x++){if(Math.max(Math.abs(x-cs[i][0]),Math.abs(y-cs[i][1]))>h.rng)continue;const v=hitV([x,y],h.area);if(v>bv){bv=v;bc=[x,y];}}
+        if(bc)add(bv-I.lvl*2.5+base[0][i]*.5,a.n,cs[i],null,bc);}
+      continue;}
+    if(I.hit==null&&!I.dc){if(SIM_OWN[a.n])add(SIM_OWN[a.n],a.n,cs[0]);continue;}
+    if(!I.dmg)continue;
+    for(const t of foes){let bi=-1,bs=-1e9;const k=I.far?1:0;
+      cs.forEach((c,i)=>{const me={x:c[0],y:c[1],size:u.size},d=dist(me,t);if(d>I.rng||(I.rng>1&&!at(c,()=>los(u,t))))return;const s=base[k][i]+(I.rng<=1&&d<=simReach(t)?4:0);if(s>bs){bs=s;bi=i;}});
+      if(bi<0)continue;const E=at(cs[bi],()=>simE(u,a,I,t));add(simVal(u,t,E,G)+(h.def||0)-I.lvl*2.5+bs*.5+2,a.n,cs[bi],t);}}
+  // the fight's own moves, wherever on the board they can be done this turn
+  if(B.def.sceneActs&&u.act>0)cs.forEach((c,i)=>{for(const a of at(c,()=>{try{return B.def.sceneActs(u);}catch(e){return [];}})){if(!a.ok||(a.kind&&a.kind!=="action")||tried.has(a.n))continue;
+      const f=SIM_SCENE[a.n],v=f?f(u):20;if(v>0)add(v+base[0][i]*.3,a.n,c);}});
+  for(const d of down)if(dist(u,d)<=1){const a=acts.find(a=>a.n==="Stabilise "+d.short);if(a&&!d.cond.stable)add(30,a.n,cs[0]);}
+  if(opts.length)return opts.sort((a,b)=>b.s-a.s)[0];
+  // nothing to do from here: close in (Dash if that is still not enough), or take the best square and Dodge
+  const T=G&&!foes.length?G:foes.length?nearest(u,foes):null;if(!T)return {n:"Dodge",c:cs[home]};
+  let bi=0,bd=1e9;cs.forEach((c,i)=>{const d=dist({x:c[0],y:c[1],size:u.size},T)*10-base[0][i]*.1;if(d<bd){bd=d;bi=i;}});
+  return {n:tried.has("Dash")?"Dodge":"Dash",c:cs[bi],t:T};}
+/* walk to a square the way a tap on the board does (B.onMove in playerTurn) */
+async function simMove(u,x,y){if(x===u.x&&y===u.y)return true;const sp=speedOf(u);if(sp<=0)return false;
+  const rc=reachable(u,Math.max(0,u.cond.prone?u.mv-Math.ceil(sp/2):u.mv)),n=rc.d.get(x+","+y),path=n&&!n.occ&&pathTo(rc,x,y);if(!path||!path.length)return false;
+  if(u.cond.prone){delete u.cond.prone;u.mv=Math.max(0,u.mv-Math.ceil(sp/2));log(`${u.short} gets up.`);}
+  u.mv-=n.c;u.moved+=n.c;if(B.def.onMoveStart)B.def.onMoveStart(u);return moveAlong(u,path);}
+/* run one of the hero's actions by name; true when it was spent */
+async function simAct(u,name,t,cell){const a=crewActions(u).find(a=>a.n===name&&a.ok);if(!a)return false;const k=a.kind==="bonus"?"bonus":"act",v0=u[k],m0=u.mv;
+  SIM.want=t||null;SIM.cell=cell||null;actCtx={u,a};try{await a.run();}finally{actCtx=null;SIM.want=SIM.cell=null;}await checkEnd();return u[k]<v0||u.mv!==m0;}
+const simObjective=(u,list)=>list.slice().sort((a,b)=>((MON[b.key]&&MON[b.key].boss?1e3:0)+simThreat(b)*10+b.hp/100)-((MON[a.key]&&MON[a.key].boss?1e3:0)+simThreat(a)*10+a.hp/100))[0];
+/* the bonus action: first (pre) what makes the action better, afterwards what is left */
+async function simBonus(u,pre){if(u.bonus<=0||u.hp<=0||B.over||u.cond.ko)return;const acts=crewActions(u).filter(a=>a.kind==="bonus"&&a.ok),sc=sceneNames(u),has=n=>acts.find(a=>a.n===n),foes=simFoes(u);
+  const down=B.units.some(o=>o.crew&&o!==u&&o.hp<=0&&!o.dead&&o.key!=="hans"),hurtN=B.units.filter(o=>o.crew&&!o.dead&&o.hp<o.max*.5).length;let a=null,t=null;
+  if((down||hurtN>=2||u.hp<u.max*.35)&&(a=has("Mass Healing Word"))){}
+  else if(u.hp<u.max*.5&&(a=has("Healing potion"))){}
+  else if((a=acts.find(x=>sc.has(x.n)&&(x.n!=="Pick a berry"||u.hp<u.max*.7)))){}
+  else if(pre&&foes.length){const obj=simObjective(u,foes),tot=foes.reduce((s,o)=>s+o.hp,0);
+    if((a=has("Shadow Blade"))){}
+    else if(dist(u,obj)<=6&&(a=has("Hexblade's Curse")))t=obj;
+    else if(tot>=30&&dist(u,obj)<=18&&(a=has("Hex")))t=obj;
+    else if((a=has("Bardic Inspiration"))){}
+    else if((a=has("Sentinel stance"))){}
+    else a=has("Hide");}
+  if(!a&&!pre)a=has("Spare the Dying")||(foes.some(o=>dist(u,o)<=1)?has("Shield bash"):null)||has("Hide");
+  if(a)await simAct(u,a.n,t);}
+async function simCareful(u){const tried=new Set();
+  await simBonus(u,true);
+  for(let i=0;i<8&&!B.over&&u.hp>0&&!u.cond.ko;i++){const pl=simPlan(u,tried);if(!pl)break;
+    if(pl.c&&(pl.c[0]!==u.x||pl.c[1]!==u.y)){
+      if(speedOf(u)<=0&&u.cond.grappled&&u.bonus>0&&crewActions(u).some(a=>a.n==="Misty Step"&&a.ok)&&distXY(u,pl.c[0],pl.c[1])<=6&&await simAct(u,"Misty Step",null,pl.c)){if(B.over||u.hp<=0)return;continue;} // out of a grip the way the cloak allows
+      await simMove(u,pl.c[0],pl.c[1]);await checkEnd();if(B.over||u.hp<=0||u.cond.ko)return;}
+    if(!pl.n||u.act<=0)break;
+    if(!(await simAct(u,pl.n,pl.t,pl.ac))){tried.add(pl.n);continue;}
+    if(B.over||u.hp<=0)return;
+    if(pl.n==="Dash"){tried.add("Dash");continue;}
+    if(u.act<=0)break;}
+  await simBonus(u,false);}
+/* a middling player */
+async function simSteady(u){const G=B.def.guard&&B.def.guard()||null,sc=sceneNames(u),gen=/^(Dash|Dodge|Disengage|Hide|Misty Step)$/,hits=a=>TOHIT.test(a.sub||"")||SAVEDC.test(a.sub||""),slot=a=>simInfo(a).lvl>0;
+  const down=B.units.find(o=>o.crew&&o!==u&&o.hp<=0&&!o.dead&&!o.gone&&o.key!=="hans"),foes=simFoes(u);
+  if(down&&crewActions(u).some(a=>a.n==="Cure Wounds"&&(a.ok||dist(u,down)>1))){await approach(u,down,1);if(u.hp<=0||B.over)return;if(await simAct(u,"Cure Wounds",down))return;}
+  if(down&&await simAct(u,"Mass Healing Word",down)){}
+  if(G){if(dist(u,G)>1)await approach(u,G,1);}else if(foes.length)await approach(u,nearest(u,foes),u.key==="hans"||u.key==="steward"||(u.key==="saphira"&&B.sc.blade)?1:4);
+  if(u.hp<=0||B.over)return;
+  for(const a of crewActions(u).filter(a=>a.ok&&sc.has(a.n)))if(a.kind==="bonus"||rand()<.5){await simAct(u,a.n);if(B.over||u.hp<=0)return;}
+  if(u.act>0){const l=crewActions(u).filter(a=>a.kind==="action"&&a.ok&&!sc.has(a.n)&&!gen.test(a.n)&&!/^Stabilise|^Revivify/.test(a.n)&&(a.n!=="Cure Wounds"||u.hp<u.max*.5));
+    if(l.length){const d=l.filter(hits),plain=d.filter(a=>!slot(a)),a=rand()<.3?pick(l):plain[0]||d[0]||l[0];await simAct(u,a.n,a.n==="Cure Wounds"?u:null);if(B.over||u.hp<=0)return;}}
+  if(u.bonus>0){const l=crewActions(u).filter(a=>a.kind==="bonus"&&a.ok&&!sc.has(a.n)&&!gen.test(a.n)&&(a.n!=="Healing potion"||u.hp<u.max*.5)&&(a.n!=="Mass Healing Word"||u.hp<u.max*.4));if(l.length)await simAct(u,l[0].n);}}
+/* what a per-fight player (__sim.policy) gets to work with */
+function simCtx(u){return {u,get B(){return B;},get sc(){return B.sc;},guard:()=>B.def.guard&&B.def.guard()||null,acts:()=>crewActions(u),scene:()=>sceneNames(u),
+  foes:()=>simFoes(u),friends:()=>B.units.filter(o=>o.side!=="foe"&&!o.gone&&!o.dead),dist,los,alive,nearest:l=>nearest(u,l),rand,rnd,
+  can:n=>crewActions(u).some(a=>a.n===n&&a.ok),run:(n,t,cell)=>simAct(u,n,t,cell),moveTo:(x,y)=>simMove(u,x,y),approach:(t,r=1)=>approach(u,t,r),
+  plan:()=>simPlan(u,new Set()),value:(n,t)=>{const a=crewActions(u).find(a=>a.n===n);return a?simE(u,a,simInfo(a),t):0;},bonus:pre=>simBonus(u,pre),fallback:()=>simCareful(u),steady:()=>simSteady(u)};}
+/* the test player's answers while the simulator runs: whom to aim at, where to put an area, the yes/no questions */
+function simPickT(list,hint){if(!list.length)return null;if(SIM.want&&list.includes(SIM.want))return SIM.want;const u=B.cur;
+  if(list[0].side!=="foe"){if(/gets the die/.test(hint||""))return list.find(o=>o.key==="hans")||list.find(o=>o.key==="saphira")||list[0];return list.slice().sort((a,b)=>Math.max(0,a.hp)/a.max-Math.max(0,b.hp)/b.max)[0];}
+  if(SIM.pol==="steady"||!u){const G=B.def.guard&&B.def.guard()||u;return list.slice().sort((a,b)=>dist(a,G)-dist(b,G)||a.hp-b.hp)[0];}
+  return simObjective(u,list);}
+function simPickC(cs,hint,areaFn){if(!cs.length)return null;if(SIM.cell){const c=cs.find(c=>c[0]===SIM.cell[0]&&c[1]===SIM.cell[1]);if(c)return c;}
+  if(areaFn){const score=c=>{const a=new Set(areaFn(c[0],c[1]).map(q=>q.join(",")));let n=0;for(const o of B.units)if(alive(o)&&!o.ghost&&a.has(o.x+","+o.y))n+=o.side==="foe"?1:-3;return n;},best=cs.slice().sort((a,b)=>score(b)-score(a))[0];return score(best)>0?best:null;}
+  if(SIM.pol==="steady")return pick(cs);const f=live("foe");return cs.slice().sort((a,b)=>Math.min(...f.map(o=>distXY(o,b[0],b[1])),99)-Math.min(...f.map(o=>distXY(o,a[0],a[1])),99))[0];}
+function simAsk(title,text){const hans=B&&B.units.find(o=>o.key==="hans");
+  if(/Bodyguard/.test(title)){if(!hans)return false;if(SIM.pol==="steady")return hans.hp>hans.max/2;const t=B.units.find(o=>o.crew&&o!==hans&&String(text).includes(" hits "+o.short+"."));
+    return hans.hp>hans.max*.35&&(!t||t.hp<=15||t.hp/t.max<hans.hp/hans.max);}
+  if(/Saphira: cast Shield/.test(title)&&SIM.pol==="careful"){const s=B.units.find(o=>o.key==="saphira");return P("saphira").pact>1||!s||s.hp<=s.max*.6;}
+  if(/Shield|Inspiration|reroll/i.test(title))return true;return rand()<.6;}
+/* ---- the fights it knows, and the state each one starts from ---- */
+function simLevel6(){for(const id of CREW_IDS){const p=P(id),c=CREW[id];if(p.lv>=6)continue;p.lv=6;if(c.lv6hp){p.max+=c.lv6hp;p.hp+=c.lv6hp;}if(c.slots6)p.slots=p.slots.map((n,i)=>n+(c.slots6[i]-c.slots[i]));if(id==="saphira")p.pactLv=2;}} // as at lunch in sMatthew
+const SIM_FIGHTS=()=>{const L={},I=(k,id,dread)=>{if(IFIGHTS[k])L[k]={def:IFIGHTS[k],kind:"interlude",id,dread,flicker:2,note:`fresh level 5 party as in iFight; IST.dread ${dread}, IST.flicker 2`};};
+  I("katy","s10-katy",0);I("saphira","s10-saphira",0);I("stig","s10-stig",0);I("together","s10-together",0);I("undertow","s11-stig",3);I("hush","s11-katy",3);I("seal","s11-saphira",3);I("frost","s11-hans",3);
+  L.tunnels={def:TUNNELS,kind:"scene",ash:"The ash billows up as they come.",note:"rested level 5 party, no flags, the scene's ash save rolled first"};
+  L.heart={def:HEART,kind:"scene",ash:"The air in here is thick with it.",note:"rested level 5 party, no flags (not Overclocked), the ash save rolled first. At the table the crew comes here straight from the tunnels: {after:[\"tunnels\"]} plays that"};
+  L.husks={def:HUSKS,kind:"scene",lv6:true,note:"rested level 6 party, no flags (Hans not drained)"};
+  L.ambush={def:AMBUSH,kind:"scene",lv6:true,note:"rested level 6 party, no flags: no watch kept, so everyone but Katy is surprised; weapons not piled, Hans not drained"};
+  if(typeof SWF!=="undefined")for(const k of Object.keys(SWF))L["sw-"+k]={def:SWF[k],kind:"steward",note:"the Steward at 250 HP; HULL and POWER as the story has them before this fight. These fights have no way to lose"};
+  return L;};
+function simSetup(F,o){ST=freshState();PLAY.inter=true;IST=null;
+  if(F.kind==="interlude")IST={I:IBY[F.id]||null,seen:[],path:[],verse:{},votes:{},dread:o.dread!=null?+o.dread:F.dread,flicker:o.flicker!=null?+o.flicker:F.flicker,mid:{}};
+  if(F.kind==="steward"){ST.party.steward={hp:250,max:250,temp:0,slots:null,pact:0,res:{},ex:0,insp:0,lv:5,str:22};const first=F.def.key==="sw-deck";Object.assign(SW,{on:false,hull:first?100:62,power:first?100:86,left:51,core:null,showLeft:false});}
+  if(F.lv6)simLevel6();}
+function simState(o){const s=o.state||{};for(const id in s.party||{})if(ST.party[id]){const v=s.party[id],p=ST.party[id];Object.assign(p,v,v.res?{res:Object.assign({},p.res,v.res)}:null);}Object.assign(ST.flags,s.flags||{});}
+/* one fight, start to finish. Returns {out, rounds, reason, crew:{id:{hp,max,dead,downs,half}}, sc, async} */
+async function simOne(F,o,seed,L){SIM.n=0;SIM.log=[];SIM.downs={};SIM.half={};PLAY.rng=simRng(seed);const mr=simRng(seed^0x5bd1e995),real=Math.random;let out=null,reason="",busy=true,yielded=false;
+  const ch=new MessageChannel();ch.port1.onmessage=()=>{if(busy)yielded=true;ch.port1.close();};ch.port2.postMessage(0); // did the fight ever wait on the clock? Then other code could run in between, and a re-run may differ
+  Math.random=mr;
+  try{simSetup(F,o);
+    for(const k of o.after||[]){const P0=L[k];if(!P0)throw new Error("no such fight: "+k);if(P0.lv6)simLevel6();if(P0.ash)await ashSave(P0.ash);await battle(P0.def);for(const id of CREW_IDS){const p=P(id);if(p.hp<=0){p.hp=1;p.dead=false;}}} // a lost fight: "carry on anyway", as runScene does
+    if(F.lv6)simLevel6();simState(o);if(F.ash)await ashSave(F.ash);
+    SIM.downs={};SIM.half={};out=await battle(F.def);}
+  catch(e){out=null;reason=e===ABORT?"aborted":String(e&&e.message||e);if(!/^round cap|^stuck/.test(reason)&&e!==ABORT)console.warn("fight simulator:",F.def.key,e);}
+  finally{Math.random=real;busy=false;}
+  const crew={},sc={};if(B){for(const u of B.units)if(u.crew)crew[u.key]={hp:Math.max(0,u.hp),max:u.max,dead:!!u.dead,downs:SIM.downs[u.key]||0,half:!!SIM.half[u.key]};for(const k in B.sc)if(B.sc[k]===true)sc[k]=1;}
+  if(out!=="win"&&out!=="lose"&&!reason)reason="ended as "+out;
+  return {out,rounds:B?B.round:0,reason,crew,sc,async:yielded,log:o.log?SIM.log.slice():undefined};}
+async function simRun(key,o={}){const L=SIM_FIGHTS(),F=L[String(key).replace(/^i-/,"")];if(!F)throw new Error("no such fight: "+key+" (try __sim.fights())");
+  if(SIM.busy)throw new Error("the simulator is already running");if(B&&!B.over&&PLAY.on&&B.cur)throw new Error("a fight is being played: finish or leave it first");
+  const n=o.n||20,pol=o.policy||"careful",seed=o.seed==null?1:+o.seed,k=F.def.key.replace(/^i-/,"");if(!["random","steady","careful"].includes(pol))throw new Error("no such policy: "+pol);
+  // everything the run touches, to put back after
+  const keep={ST,IST,IFK,B,inter:PLAY.inter,auto:PLAY.auto,aim:PLAY.aim,rng:PLAY.rng,opt:Object.assign({},opt),storyEl,sw:typeof SW!=="undefined"?Object.assign({},SW):null,
+    fn:{buildBattleView,fitMap,sideMode,clearLog,renderTokens,renderInit,floatTxt,shake,drawHi,log,panelMsg,setPanel,paceBanner,foeSeen,hide3d,chip,iRepaint,takeTurn,zero,autoTurn,pickTarget,pickCell,ask},mon:[],sc:null,def:null};
+  const patch=o.patch||{};
+  SIM.busy=true;SIM.pol=pol;const t0=performance.now(),runs=[];
+  try{
+    for(const m in patch){if(m==="sc"||m==="def")continue;if(!MON[m])throw new Error("patch: no monster called "+m);keep.mon.push([m,Object.assign({},MON[m]),Object.keys(patch[m]).filter(x=>!(x in MON[m]))]);Object.assign(MON[m],patch[m]);}
+    if(patch.def){keep.def=[Object.assign({},F.def),Object.keys(patch.def).filter(x=>!(x in F.def))];Object.assign(F.def,patch.def);}
+    if(patch.sc){keep.sc=[F.def.sc,"sc" in F.def];F.def.sc=Object.assign({},F.def.sc||{},patch.sc);}
+    PLAY.sim=true;PLAY.auto=true;PLAY.aim=null;Object.assign(opt,{dice:false,sound:false,fast:true,pace:"quick",flat:true});storyEl=h("div");
+    const no=()=>{};buildBattleView=fitMap=sideMode=clearLog=renderTokens=renderInit=shake=drawHi=panelMsg=setPanel=paceBanner=foeSeen=hide3d=chip=iRepaint=no;floatTxt=no;
+    log=t=>{SIM.log.push(t);if(SIM.log.length>400)SIM.log.shift();};
+    const half=()=>{if(B)for(const u of B.units)if(u.crew&&u.hp<u.max/2)SIM.half[u.key]=1;};
+    takeTurn=async u=>{if(B.round>SIM.cap)throw new Error("round cap: still fighting in round "+B.round);await keep.fn.takeTurn(u);half();};
+    zero=async function(t){if(t.crew)SIM.downs[t.key]=(SIM.downs[t.key]||0)+1;return keep.fn.zero.apply(this,arguments);};
+    if(pol!=="random"){pickTarget=(l,hint)=>Promise.resolve(simPickT(l,hint));pickCell=(c,hint,fn)=>Promise.resolve(simPickC(c,hint,fn));ask=(t,x)=>Promise.resolve(simAsk(t,x));
+      autoTurn=async u=>{const own=pol==="careful"&&(SIM.own[k]||SIM.own["i-"+k]||SIM.own[F.def.key]);
+        if(own)await own(u,simCtx(u));else if(pol==="careful")await simCareful(u);else await simSteady(u);};}
+    for(let i=0;i<n;i++){const r=await simOne(F,o,(seed*1000003+i*7919)>>>0,L);half();runs.push(r);B=null;if(i%5===4)await new Promise(r=>setTimeout(r,0));}
+  }finally{({buildBattleView,fitMap,sideMode,clearLog,renderTokens,renderInit,floatTxt,shake,drawHi,log,panelMsg,setPanel,paceBanner,foeSeen,hide3d,chip,iRepaint,takeTurn,zero,autoTurn,pickTarget,pickCell,ask}=keep.fn);
+    for(const [m,was,added] of keep.mon){for(const x of added)delete MON[m][x];Object.assign(MON[m],was);}
+    if(keep.def){for(const x of keep.def[1])delete F.def[x];Object.assign(F.def,keep.def[0]);}if(keep.sc){if(keep.sc[1])F.def.sc=keep.sc[0];else delete F.def.sc;}
+    ST=keep.ST;IST=keep.IST;IFK=keep.IFK;B=keep.B;PLAY.inter=keep.inter;PLAY.auto=keep.auto;PLAY.aim=keep.aim;PLAY.rng=keep.rng;PLAY.sim=false;storyEl=keep.storyEl;
+    for(const x of Object.keys(opt))if(!(x in keep.opt))delete opt[x];Object.assign(opt,keep.opt);if(keep.sw)Object.assign(SW,keep.sw);SIM.busy=false;}
+  // the count
+  const ms=performance.now()-t0,won=runs.filter(r=>r.out==="win"),lost=runs.filter(r=>r.out==="lose"),other=runs.filter(r=>r.out!=="win"&&r.out!=="lose"),done=runs.filter(r=>r.out==="win"||r.out==="lose"),rd=done.map(r=>r.rounds);
+  const r2=v=>Math.round(v*100)/100,avg=a=>a.length?r2(a.reduce((x,y)=>x+y,0)/a.length):0,ids=[...new Set(runs.flatMap(r=>Object.keys(r.crew)))],perCrew={},sc={},reasons={};
+  for(const id of ids){const c=runs.map(r=>r.crew[id]).filter(Boolean);perCrew[id]={downs:avg(c.map(x=>x.downs)),zeroRuns:r2(c.filter(x=>x.downs>0).length/c.length),halfRuns:r2(c.filter(x=>x.half).length/c.length),deaths:c.filter(x=>x.dead).length,hpEnd:avg(c.map(x=>x.hp/x.max))};}
+  for(const r of runs){for(const x in r.sc)sc[x]=(sc[x]||0)+1;if(r.reason)reasons[r.reason]=(reasons[r.reason]||0)+1;}
+  let hsh=2166136261;for(const ch of JSON.stringify(runs.map(r=>[r.out,r.rounds,r.reason,Object.entries(r.crew).map(([k2,c])=>[k2,c.hp,c.downs,c.dead])])))hsh=Math.imul(hsh^ch.charCodeAt(0),16777619)>>>0;
+  const cnt=f=>runs.filter(r=>Object.values(r.crew).some(f)).length;
+  return {key:k,def:F.def.key,policy:pol+(pol==="careful"&&(SIM.own[k]||SIM.own["i-"+k]||SIM.own[F.def.key])?"+own":""),seed,n,wins:won.length,losses:lost.length,other:other.length,winRate:r2(won.length/n),
+    rounds:{avg:avg(rd),min:rd.length?Math.min(...rd):0,max:rd.length?Math.max(...rd):0},
+    downs:avg(runs.map(r=>Object.values(r.crew).reduce((s,c)=>s+c.downs,0))),zeroRuns:r2(cnt(c=>c.downs>0)/n),half:avg(runs.map(r=>Object.values(r.crew).filter(c=>c.half).length)),halfRuns:r2(cnt(c=>c.half)/n),
+    deaths:runs.reduce((s,r)=>s+Object.values(r.crew).filter(c=>c.dead).length,0),perCrew,sc,reasons,async:runs.filter(r=>r.async).length,msPerFight:Math.round(ms/n),hash:hsh.toString(16),
+    start:Object.assign({note:F.note},F.kind==="interlude"?{dread:o.dread!=null?+o.dread:F.dread,flicker:o.flicker!=null?+o.flicker:F.flicker}:null,o.after?{after:o.after}:null,o.state?{state:o.state}:null),
+    runs:o.runs?runs.map(r=>({out:r.out,rounds:r.rounds,reason:r.reason,crew:r.crew,log:r.log})):undefined};}
+if(/[?&]playtest(=|&|$)/.test(location.search))window.__sim={policies:["random","steady","careful"],fights:()=>Object.keys(SIM_FIGHTS()),info:()=>{const L=SIM_FIGHTS(),o={};for(const k in L)o[k]={def:L[k].def.key,kind:L[k].kind,start:L[k].note};return o;},
+  run:simRun,policy(key,fn){const k=String(key).replace(/^i-/,"");if(fn)SIM.own[k]=fn;else delete SIM.own[k];return Object.keys(SIM.own);},seed(s){PLAY.rng=s==null?null:simRng(+s);},get busy(){return !!SIM.busy;},mon:()=>JSON.parse(JSON.stringify(MON))};
 
 /* =================== CINEMATICS ON THE TABLE: t3cine, a shot sequencer for the 3D board ===================
    OWNER: cinematics. t3cine(shots,{id,end}) plays a list of shots on the live board and resolves "done" or "skipped".
