@@ -2907,7 +2907,7 @@ function tapZoom(x,y){if(!CAM3||placing||fly||recapOn||document.body.classList.c
   lastTap={t,x,y};}
 if(CAM3) MAP_TICKS.push((now,dt)=>{if(!glide.on) return; if(tween||fly||ptrs.size){glide.on=false;return;}
   const ms=dt*1000; cam.lon+=glide.vl*ms; cam.lat=Math.max(-70,Math.min(70,cam.lat+glide.va*ms)); idleT=now;
-  const f=Math.exp(-dt*3.2); glide.vl*=f; glide.va*=f; if(Math.hypot(glide.vl,glide.va)<.0006||Math.abs(cam.lat)>=70&&Math.abs(glide.vl)<.0006) glide.on=false;});
+  const f=Math.exp(-dt*4.2); glide.vl*=f; glide.va*=f; if(Math.hypot(glide.vl,glide.va)<.0006||Math.abs(cam.lat)>=70&&Math.abs(glide.vl)<.0006) glide.on=false;});
 // pointer controls
 const ptrs=new Map(); let drag=null, pinch0=null, moved=0, idleT=performance.now();
 const cvs=renderer.domElement;
@@ -2923,7 +2923,8 @@ const onMove=e=>{if(!ptrs.has(e.pointerId))return;const p=ptrs.get(e.pointerId);
   const l0=cam.lon,a0=cam.lat;
   cam.lon-=dx*k*(morph>.5?1:1/Math.max(.3,Math.cos(cam.lat*D2R))); cam.lat=Math.max(-70,Math.min(70,cam.lat+dy*k));
   if(CAM3&&ptrs.size===1){const t=performance.now(),ms=Math.max(4,Math.min(60,t-glide.t));glide.t=t;   // remember how fast the map is moving, for the glide after the finger lifts
-    glide.vl+=((cam.lon-l0)/ms-glide.vl)*.5; glide.va+=((cam.lat-a0)/ms-glide.va)*.5;}};
+    glide.vl+=((cam.lon-l0)/ms-glide.vl)*.5; glide.va+=((cam.lat-a0)/ms-glide.va)*.5;
+    const v=Math.hypot(glide.vl,glide.va), top=.02+.1*cam.zoom; if(v>top){glide.vl*=top/v;glide.va*=top/v;}}};   // a hard flick never spins the globe further than about a third of the view
 const endPtr=e=>{const was=ptrs.get(e.pointerId);ptrs.delete(e.pointerId);if(ptrs.size<2)pinch0=null;if(was&&!was.pin&&moved<6&&e.type==="pointerup"){onTap(e.clientX,e.clientY);tapZoom(e.clientX,e.clientY);}
   if(CAM3&&was&&!ptrs.size&&e.type==="pointerup"&&moved>=6&&!reduced&&performance.now()-glide.t<90&&Math.hypot(glide.vl,glide.va)>.004) glide.on=true; else if(!ptrs.size) glide.on=false;};
 const onWheel=e=>{e.preventDefault();tween=null;idleT=performance.now();glide.on=false;if(CAM3){zoomAt(cam.zoom+e.deltaY*0.0012,e.clientX,e.clientY);return;}cam.zoom=Math.min(1,Math.max(0,cam.zoom+e.deltaY*0.0012));};
