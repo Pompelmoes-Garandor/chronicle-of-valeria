@@ -19,7 +19,7 @@ Your fingers go to the four notes without being asked. A, D, F, E, the start of 
 
 You've played it a hundred times since you left court, always too quick. Tonight you play it at her speed, and it sounds like her.
 
-The cave goes quiet. Then there's no cave.
+The cave goes quiet, and then it's gone.
 
 → Continue (go to K2)
 
@@ -41,7 +41,7 @@ Your game for waiting is to name everything in the room, in order, in your head.
 
 Candle, sill, bow, peg, door, latch. The crack in the plaster that looks like a running dog. Her other dress on its hook, then her hairbrush. Then the bow again, because it's your favourite and you've decided it counts twice.
 
-Sounds count too. The wind in the gutter. Someone's cart down in the yard. The palace, breathing.
+Sounds count too. The wind in the gutter. Someone's cart down in the yard.
 
 You're on your third time round, in Elvish by now, with the words coming slower and further apart, when you hear the stair.
 
@@ -75,7 +75,7 @@ You nod. She nods back and doesn't smile.
 
 "Then I owe you a song. One. After that you shut your eyes properly, and I check."
 
-You know she won't check. You know she'll sing it twice.
+You know she won't check, and that she'll sing it twice.
 
 → Continue (go to K5)
 
@@ -153,7 +153,7 @@ So you sing them, inside the memory, in the child's voice.
 *Foxglove bells over the sleeping roots,*
 *hush now, my heart, and do not weep…*
 
-Your mother stops humming. She takes her hand off your hair. There's enough candle left to see her face, close to yours. It isn't the face she wears in the princess's wing. This one is younger, and frightened, and there's more in it than fright.
+Your mother stops humming. She takes her hand off your hair. There's enough candle left to see her face, close to yours. It's not her face for the princess's wing. She looks younger, and frightened, and something else as well.
 
 "Who taught you that?" she says, barely aloud. "I never…"
 
@@ -165,11 +165,11 @@ No answer you have would make sense from a seven-year-old, so you sing the next 
 
 *and if you can't find me, sing this song,*
 
-She listens to the whole of that line. A smile starts round her eyes and takes its time getting to her mouth, and then she sings the last one with you.
+She listens to the whole of that line. Then she smiles, slowly, and sings the last one with you.
 
 *and I'll come find you in your sleep.*
 
-Two voices in a room under the eaves, and hers is the sure one. Yours is seven years old and a shade flat, and she doesn't correct it.
+Hers is the sure voice. Yours is seven years old and a shade flat, and she doesn't correct it.
 
 She doesn't ask again who taught you. She looks at you for a long time, then lays her cold hand flat on your chest and leaves it there.
 
@@ -198,11 +198,11 @@ Then the hum has words in it, and they're new to you. You know your father's ver
 
 She sings it through twice. The second time she doesn't change a word, so it's finished.
 
-The child is asleep. She won't remember this in the morning, and she didn't for nineteen years.
+The child is all but asleep. She won't remember this in the morning, and she didn't for nineteen years.
 
 You get every word by heart as it goes past. She never wrote this verse down and nobody else has heard it.
 
-Your mother bends and kisses your forehead. "That one's just ours," she says, to nobody.
+Your mother bends and kisses your forehead. "That one's just ours," she says.
 
 → Continue (go to K9)
 
@@ -261,7 +261,7 @@ She could pull free without trying. She stays, half turned to the door, and give
 
 The bell rings again. Down the passage somebody's slippers are already hurrying.
 
-She lifts your hand and kisses the knuckles, all four, one after the other. "I'll be back before the snow," she says. There's no tune in it this time. It's a promise, and she's looking straight at you.
+She lifts your hand and kisses the knuckles, all four, one after the other. "I'll be back before the snow," she says. No tune this time. She says it as a promise, looking straight at you.
 
 Then she takes her hand back, gently, and goes. The ninth step creaks. The door doesn't quite close.
 
@@ -287,7 +287,7 @@ You can't find the join where it ends. The candle on the sill turns out to be th
 
 There's ash on your boots. The dead Heart ticking as it cools. Voices behind you, still low. Thorn stands at the edge of the lamplight, taking great care to look somewhere else.
 
-Nobody saw you go anywhere, because you didn't. You're twenty-six, sitting on a rock in a cave in Summerwood. Your face is wet. You leave it.
+Nobody saw anything, because you never moved. You're twenty-six, sitting on a rock in a cave in Summerwood. Your face is wet, and you don't wipe it.
 
 → Continue (go to K11b)
 
@@ -295,7 +295,7 @@ Nobody saw you go anywhere, because you didn't. You're twenty-six, sitting on a 
 
 You look at your hands. They're a good deal bigger than the pair she held. The fingertips are hard from years of strings, the nails short and none too clean. There's ash in every line of both palms.
 
-They're drumming, a light patter on the body of the ukulele that you didn't ask for. Mostly you stop them when you catch them. This time you don't.
+They're drumming, a light patter on the body of the ukulele that you didn't ask for. Mostly you stop them when you catch them. Tonight you let them drum.
 
 Nobody behind you has noticed that the playing stopped, which suits you. You'll start again in a minute, once the smell of that attic room has gone out of your nose.
 

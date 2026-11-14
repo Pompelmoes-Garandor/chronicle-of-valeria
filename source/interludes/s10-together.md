@@ -38,17 +38,15 @@ It's too small to warm the cave. But it's orange, after all that green, and it p
 
 ## T2b. Around the fire
 
-You end up in a ring. Matthew gets the warmest place, and nobody had to say so. Hans stays on his heels by the wood. He has made himself keeper of the fire without asking anyone. Thorn is still at the edge, watching the tunnel, but one step closer.
+You end up in a ring. Matthew gets the warmest place without anyone saying so. Hans stays on his heels by the wood. He has made himself keeper of the fire without asking anyone. Thorn is still at the edge, watching the tunnel, but one step closer.
 
 Somebody's boots steam. The hand that wouldn't open is held out to the flames, and after a while the fingers uncurl.
-
-The ash keeps falling. Over the fire the heat lifts it again, and each flake glows for a moment before it goes out.
 
 → Continue (go to T3)
 
 ## T3. Matthew
 
-Matthew looks into the fire for a long time. The light shows every line in his face.
+Matthew looks into the fire for a long time.
 
 "The first time I went back to the Hollow's door," he says, "I had nothing in my hands."
 

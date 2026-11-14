@@ -431,7 +431,7 @@ A future you is behind the bar, polishing a glass that is already clean. He is o
 
 The door opens. He looks up so quickly that he nearly drops the glass. It is the wind.
 
-Out by the back door, in the frost, a large figure is standing with one hand raised.
+Out by the back door a large figure is standing in the frost, with one hand raised.
 
 → Open all the windows and let some noise in. (go to Q1c) +flicker
 → Help him polish the glasses. (go to Q1d) +dread -flicker
@@ -478,7 +478,7 @@ A future you is in the corner behind a small table. He has his stones on and two
 
 He has provided the music at every party these people ever held, at their weddings and their children's name-days, and now at this.
 
-Nobody says whose wake it is. At the front there is an empty chair with a cup set in front of it.
+Nobody says whose wake it is. At the front one place has been laid, a chair with a cup set in front of it. Nobody is sitting there.
 
 People come up to him with requests. "Play the one from the bridge." "Play the one she used to hum."
 
@@ -682,9 +682,9 @@ He looks up at you with your own face.
 
 The crew have not moved. Katy, Stig, Saphira and Thorn are where they stopped, with the ash hanging over them.
 
-You have one degree of warmth to spend. You know, as you know things in dreams, that whatever you spend it on cannot be undone.
+You have one degree of warmth to spend. Nothing on your file says so, but you are certain that whatever you spend it on cannot be undone.
 
-→ Keep every memory, every room and every guest, for as long as you last. (go to End 1)
+→ Lock nothing away again. Keep every memory, every room and every guest on file, for as long as you last. (go to End 1)
 → Turn your stones off, and let the waltz stop. (go to End 2)
 → Play the waltz out loud, for everyone, here. (go to End 3)
 
@@ -710,7 +710,7 @@ The older you is kneeling in front of you with his hand still on your chest.
 
 You have one degree of warmth left.
 
-→ Keep every memory, every room and every guest, for as long as you last. (go to End 1)
+→ Lock nothing away again. Keep every memory, every room and every guest on file, for as long as you last. (go to End 1)
 → Turn your stones off, and let the waltz stop. (go to End 2)
 → Play the waltz out loud, for everyone, here. (go to End 3)
 
@@ -734,7 +734,7 @@ The older you watches from where he is kneeling.
 
 He looks at you for a long time. Then he stands, with a creak you know very well, and walks away into the frost. As he goes he opens his closed hand. There was a lamp in it after all, and it is lit.
 
-A long way off in the ash, in the direction he is walking, there is a doorway full of fire that does not move. He reaches it and stands beside it with the lamp held up.
+A long way off in the ash, in the direction he is walking, there is a stone doorway. It is full of fire, and not one flame in it is moving. He reaches it and takes up his post beside it with the lamp held up.
 
 {sound: waltz}
 
@@ -762,13 +762,13 @@ The older you watches from where he is kneeling. His stones go dark as well.
 
 "I just did it."
 
-He laughs. You did not know your face could do that. From the outside it is a terrible laugh.
+He laughs. It is the first laugh you have on file from that face, and from the outside it is a terrible one.
 
 The frost comes off him in flakes, like old paint. Under it his face is clean. The crack is still there, and he touches it.
 
-@future: "Keep that," he says. "The quiet. When it all gets too much, turn it off for a bit. Then turn it back on. That's all. Nobody ever told me."
+@future: "Keep that," he says. "The quiet. When it all gets too much, turn the stones off for a bit. Then turn them back on. That's all. Nobody ever told me."
 
-He stands up and walks off into the cave. He does not look back. A long way behind him there is a doorway full of fire that does not move, and he keeps his back to it.
+He stands up and walks off into the cave. He does not look back. A long way behind him fire is standing still in a stone doorway, and he keeps his back to it.
 
 {sound: silence}
 
@@ -804,7 +804,7 @@ The older you gets up and offers his closed hand to the next guest, who is the b
 
 @future: "I never asked anyone to dance," he says as he passes. "They always asked me."
 
-Then he is gone as well. A long way ahead of him in the ash there is a doorway full of fire that does not move. Someone big is standing beside it with a towel over one knee, tapping his foot.
+Then he is gone as well. A long way ahead of him in the ash, fire is standing still in a stone doorway. Someone big is standing beside it with a towel over one knee, tapping his foot.
 
 {sound: waltz}
 
@@ -835,7 +835,7 @@ Katy's foot is tapping. She is looking down at it as if it belongs to someone el
 - **The loop (L1):** Hans logged: for a moment the waltz went backwards, and I liked it, and that worried me.
 - **Your own house, noise (Q1c):** Hans logged: in a house that does not exist yet, I had my own inn, and a room for each of you, and nobody came. I opened the windows. A child came in because of the beat.
 - **Your own house, glasses (Q1d):** Hans logged: in a house that does not exist yet, I keep a box under the bar. I have not said what is in it. I know what is in it.
-- **A wake, the song (Q2c):** Hans logged: at a wake that has not happened, I played what they asked for, and told a child I was sad, and that it was allowed.
+- **A wake, the song (Q2c):** Hans logged: at a wake that has not happened, I played what they asked for, and told a child I was sad.
 - **A wake, the chair (Q2d):** Hans logged: at a wake that has not happened, I sat in the empty chair. It was the wrong height.
 - **A door, between (Q3c):** Hans logged: I saw a door with fire in it, and myself walking to it. I stood in my own way. Stig put a hand on both of us.
 - **A door, let him talk (Q3d):** Hans logged: I saw a door with fire in it, and myself walking to it, and for one second I thought it would be all right.
@@ -884,7 +884,7 @@ Katy's foot is tapping. She is looking down at it as if it belongs to someone el
 - You put every record back where you can reach it.
 - The older you watches from one knee.
 - @future: That's a lot to carry.
-- He opens his hand. There was a lamp in it after all.
+- He opens his hand. There is a lamp in it, and it is lit.
 - He walks off toward a doorway of fire.
 - Hans: Filed.
 
