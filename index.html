@@ -13682,12 +13682,12 @@ const k11Warmth=(d,why)=>{const S=B.sc,h=B.units.find(o=>o.key==="hans");const w
 IFIGHTS.frost={key:"i-frost",map:"ifrost",dim:true,undead:true,sc:{warm:4,flee:"sinks back into the frost"},noRetry:true,
   intro:"The cave floor has gone white. The lamp burns blue. He stands between you and the tunnel, and he wants you asleep again. Guests come up out of the frost in skins of ice. The box in your chest keeps you warm (4): every guest next to you at the end of a round takes a degree. Turn it up (bonus action) and your beat warms it a degree, once a round. At 0 you freeze.",
   setup(){const S=B.sc,d=IST&&IST.dread||0;S.dread=d;
-    B.units.push(mkCrew("hans",6,10),mkMon("lasth",6,6,0));iSpawn("fguest",d>=3?[[3,5],[9,5],[6,4]]:[[3,5],[9,5]]);
-    if(d>=3)log("The frost has got further in: a third guest comes up.","r");},
+    B.units.push(mkCrew("hans",6,10),mkMon("lasth",6,6,0));iSpawn("fguest",[[3,5],[9,5]]);},
   async onRound(r){
     if(r===1&&!B.t3cScratch&&typeof k11Face==="function"&&t3cWant(K11_CUT.hans.face)){t3cMark(K11_CUT.hans.face);await k11Face("hans");}
     if(r===1){log("He stands between you and the tunnel, one hand closed round a lamp that isn't there. The frost creaks under him.","b");k11Bark("lasth",k11Flick()>=4?"faint":"start",B.units.find(o=>o.key==="lasth"));}
-    iGhosts(r,[[3,5],[9,5],[6,4]],"comes up out of the frost again.");},
+    iGhosts(r,[[3,5],[9,5],[6,4]],"comes up out of the frost again.");
+    if(r===2&&B.sc.dread>=3){log("The frost has got further in: a third guest comes up.","r");iSpawn("fguest",[[6,4]]);}},
   async onRoundEnd(){const S=B.sc;if(B.over)return;const h=B.units.find(o=>o.key==="hans");if(!h||h.hp<=0)return;
     const n=B.units.filter(o=>o.key==="fguest"&&alive(o)&&o.hp>0&&!o.ghost&&dist(o,h)<=1).length;
     if(n)k11Warmth(-n,n>1?`${n} guests stand close round you.`:"A guest stands close.");},
