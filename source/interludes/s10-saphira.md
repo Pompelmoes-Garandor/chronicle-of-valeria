@@ -13,31 +13,25 @@ Writer's rules kept (for Sam): the patron says nothing true about Saphira's past
 
 ## S1. The hum
 
-Ash comes down through the lamplight like slow snow. It settles on your sleeves and doesn't melt.
+Ash comes down through the lamplight and stays on your sleeves.
 
-Katy is kneeling by her father, talking low. Stig has the towel in his hands. Thorn is watching the tunnel. Hans is being still in the way only Hans can be still. Nobody is looking at you, which is how you like it, mostly.
+Katy is kneeling by her father, talking low. Stig has the towel. Thorn has the tunnel, so you don't have to. Hans hasn't moved in a while. Nobody is looking at you.
 
-In the middle of the cavern the dead Heart ticks as it cools, a small dry sound, like a house settling.
+In the middle of the cavern the dead Heart ticks as it cools.
 
-Then the dagger at your hip starts to hum.
-
-Not loudly. You feel it more than hear it: through the sheath, through your belt, into the bone of your hip. You know that hum. It means someone wants a word.
+The dagger at your hip starts to hum, low enough that you feel it in your hip bone before you hear it. You know that hum. It means someone wants a word.
 
 → Continue (go to S2)
 
 ## S2. The other room
 
-The ash slows.
+The ash slows. Each flake takes its time and turns over as it comes. Katy's voice drags, and one word stops halfway out of her mouth.
 
-It doesn't stop. It just takes longer to fall, each flake turning over and over as if it has all day. Katy's voice stretches out, lower and slower, until a word hangs half-said in the air and stays there.
+You draw the dagger an inch. The edge should show you lamplight and ash. It shows you a room with close walls of dark stone and one lamp that isn't standing on anything.
 
-You draw the dagger an inch. Its edge should show you lamplight and ash. It shows you a different room: dark stone, close walls, one lamp burning on nothing you can see.
+The eye in your cloak usually sits half shut and bored. Now it's wide open, and it's looking at the dagger.
 
-Something moves on your shoulders. The eye in your cloak is open. Not half open, the way it usually sits, heavy-lidded and bored. Open. And it isn't looking at the cave. It's looking at the dagger.
-
-The hum climbs. Someone is waiting.
-
-What do you do?
+The hum gets louder. Whoever wants the word is waiting.
 
 → Step into the dark side passage, alone. (go to S3a)
 → Stay where you are, between the dagger and the crew. (go to S3b)
@@ -45,31 +39,29 @@ What do you do?
 
 ## S3a. The side passage
 
-You step away from the lamp. Nobody turns. Nobody can.
+You step away from the lamp. Nobody turns. None of them can.
 
-There's a crack in the cavern wall a few paces off, a side passage the light has never reached. You go in until the lamp is a smudge behind you and the dark is yours.
+A few paces off there's a crack in the cavern wall, a side passage with no light in it. You go in until the lamp is a smudge behind you.
 
-Here the hum is louder. Here the room in the blade looks almost like the place you're standing.
+The hum is louder here, and the room on the blade's edge now looks a lot like the passage you're standing in.
 
-Ahead of you the shadow gathers, the way water gathers in the low part of a floor, and rises.
+Ahead of you the dark thickens from the floor up, to about the height of a person.
 
-"Considerate," says a woman's voice, out of it. "You kept them out of it."
+"Considerate," a woman's voice says out of it. "You kept them out of it."
 
 → Continue (go to S4)
 
 ## S3b. Between
 
-You stay. Whatever this is, you're not leaving them alone with it.
+You stay. You're not leaving these people alone with whoever this is.
 
-You put yourself between the dagger's hum and the people you came here with: Katy mid-word, Stig with the towel, the old man grey to the elbow. Your hand goes to the Ashblade's grip and stays there.
+You turn so the crew is behind you: Katy stopped mid-word, Stig with the towel, the old man grey to the elbow. Your hand goes to the Ashblade's grip and stays there.
 
-Behind a pillar of dead wood, the shadows pool and lift.
-
-She steps out among the frozen crew as if they were furniture. She looks at Stig, at Katy, at the father, without interest, the way you'd look at chairs.
+Behind a pillar of dead wood the shadows collect and stand up. A woman walks out of them, in among the crew. She looks at Stig, at Katy and at the father, and none of them interests her.
 
 "Relax," she says. "I'm not here for them."
 
-You don't relax. She seems to like that.
+You keep your hand on the grip. She nods at it, satisfied.
 
 → Continue (go to S4)
 
@@ -77,61 +69,63 @@ You don't relax. She seems to like that.
 
 You slam the dagger home. The hum stops.
 
-For one breath there is nothing. The ash keeps falling, slowly. Katy's word hangs where it was.
+You count one breath. The ash is still slow and Katy's word is still stuck. So that didn't work.
 
-Then the eye in your cloak turns. Not toward the dagger. Toward you.
+The eye in your cloak had been looking at the dagger. It turns and looks at you.
 
-A voice comes from inside your own hood, close to your ear, warm and amused. "You keep a door in your cloak, girl. Did you think I'd knock?"
+A woman speaks inside your own hood, an inch from your ear. She sounds entertained. "You keep a door in your cloak, girl. Did you think I'd knock?"
 
-The shadow in the hood deepens, spills over your shoulder and pours itself down onto the ash beside you. It stands up into the shape of a woman.
+The dark in the hood gets heavier. It runs over your shoulder and down onto the ash beside you, and stands up in the shape of a woman.
 
 → Continue (go to S4)
 
 ## S4. The patron
 
-You know her. You have never quite seen her.
+You know her. You've never had a proper look at her, and you won't get one now.
 
-She wears the ancient shadow robe, cloth that looks as if it was cut from the inside of a closed room. Her face is never in the light: whichever way you look, the lamp is somewhere else. Her hands you can see. Tattoos cover them, and when she isn't speaking they drift slowly over her skin, like ink settling in water.
+She wears the old shadow robe, too black to show its folds. Her face stays out of the light. You move half a step for a better angle and the lamplight falls somewhere else.
 
-She doesn't greet you. She never does.
+Her hands you can see. Tattoos cover them, and while she isn't talking the tattoos move slowly across the skin.
 
-"Your cloak has been watching me for weeks," she says. "It's rude." She tilts her head at the eye on your shoulder, which stares back without blinking. "I approve."
+She doesn't say hello. She never has.
+
+"Your cloak has been watching me for weeks," she says. "It's rude." She tips her head at the eye on your shoulder, which stares back and doesn't blink. "I approve."
 
 → Continue (go to S5)
 
 ## S5. Terms
 
-She sits down on a fallen piece of the Heart's husk as if it had been carried in for her.
+She sits down on a fallen piece of the Heart's husk without brushing the ash off it.
 
-"Don't look at me like that," she says. "I won't try anything on you. Charm doesn't take, with you. You'd notice, and I'd have wasted my time. I prefer bargains anyway. A bargain is honest. Everybody knows what they're losing."
+"Don't look at me like that," she says. "I won't try anything on you. Charm doesn't take, with you. You'd notice, and I'd have wasted my time. I prefer a bargain. A bargain is honest. Everybody knows what they're losing."
 
-The ash turns over between you, very slowly. Behind her, Katy's half-word still hangs in the air.
+The ash between you has dropped a hand's width since she sat. Behind her, Katy's mouth is still open on the same word.
 
-"I won't keep you," the patron says. "As far as they know, I won't keep you at all. I came to ask you a riddle, and then to make you an offer. You'll like one of them."
+"I won't keep you," the patron says. "By their count I won't keep you at all. I have a riddle for you, and then an offer. You'll like one of them."
 
 → Continue (go to S6)
 
 ## S6. The riddle
 
-"A curse was put on that cloak," she says. "You took it off. Well done. The curse left." She points one tattooed finger at your shoulder. "The eye didn't."
+"Somebody cursed that cloak," she says. "You took the curse off. Well done. It left." She points one tattooed finger at your shoulder. "The eye didn't."
 
-The eye narrows a fraction, as if it knows it's being discussed.
+The eye narrows a little. It knows who is being talked about.
 
 "So. What stays, when the reason for staying is gone?"
 
-You wait for the answer. She doesn't give one. She looks at you as if she has all the time there is, and here, maybe she does.
+You wait for her to answer her own riddle. She doesn't. With the ash hanging as it is, she can afford to sit there.
 
 → Continue (go to S6b)
 
 ## S6b. What stays
 
-You don't answer her. But your mind goes looking anyway, the way a tongue goes to a loose tooth.
+You don't answer. You've never been able to leave a lock alone, though, and you start on this one.
 
-What stays. The eye stayed. Hans walked out of the hotel that owned him, and stayed with you. The old man in the Heart kept playing in the dark with nobody to hear it. Katy is kneeling by him now. There's no contract left that says she has to be anything to you, and here you are, still standing where you can see her.
+The eye stayed. Hans walked out of the hotel that owned him and stayed with you. The old man kept playing inside the Heart, in the dark, with nobody to hear. Katy is kneeling by him now. No contract is left that says she has to be anything to you, and you're standing where you can see her.
 
-You shut that thought like a drawer.
+You stop there.
 
-"Think about it later," the patron says, as if she watched you do it. "Now. You get one question. Everyone always has one. Ask it, and I'll answer the way I answer everything."
+"Think about it later," the patron says. She watched you do it. "Now. You get one question. Everyone has one. Ask, and I'll answer it how I answer everything."
 
 → "What's your name?" (go to S7a)
 → "What did they take from me?" (go to S7b)
@@ -145,9 +139,9 @@ You shut that thought like a drawer.
 
 "How much is enough?"
 
-"That's a second question." She sounds delighted, as if you'd tried to slip her a bad coin and she'd admired the work before handing it back. "One question. You've had it."
+"That's a second question." She sounds as though she had money on your trying. "You get one. You've had it."
 
-The tattoos on her hands drift, and settle.
+The tattoos on her hands move, then stop.
 
 → Continue (go to S8)
 
@@ -155,15 +149,15 @@ The tattoos on her hands drift, and settle.
 
 "What did they take from me?"
 
-For the first time, she is quiet for a moment.
+She doesn't answer straight away. It's the first time she hasn't had a line ready.
 
 "Ask the people who took it," she says. "I only deal in what you still have."
 
-It isn't an answer. It isn't meant to be.
+That's no answer, and she knows it.
 
-She looks down at your hand, which has gone tight on the Ashblade's grip without your asking it to.
+She looks down. Your hand has closed hard on the Ashblade's grip. You didn't tell it to.
 
-"There," she says. "That. That's something you still have."
+"There," she says. "You still have that."
 
 → Continue (go to S8)
 
@@ -175,17 +169,17 @@ She looks down at your hand, which has gone tight on the Ashblade's grip without
 
 "That's it?"
 
-"That's a great deal. Most people are only interesting when they want something. Wanting is dull. Everybody wants." She leans forward, and the lamp still won't find her face. "You say no. I like to see what you do after."
+"That's a great deal. Most people are only interesting when they want something, and wanting is dull. Everybody wants. You say no." She leans forward. The lamplight still misses her face. "I like to see what you do after."
 
 → Continue (go to S8)
 
 ## S8. The offer
 
-She stands. The tattoos stop moving.
+She stands up. The tattoos stop moving.
 
-"The eye is yours," she says. "It's half awake. It has been since you lifted the curse: not cursed any more, and not quite anything else yet." She studies it the way a jeweller studies a stone she isn't allowed to buy. "What do you want done with it?"
+"The eye is yours," she says. "It's half awake. It has been since you lifted the curse. It stopped being cursed and hasn't become anything else yet." She studies it for a while and keeps her hands to herself. "What do you want done with it?"
 
-The eye looks at her. Then it looks at you. It's the first time you have felt it wait for you.
+The eye looks at her. Then it looks at you. It has never waited on you before.
 
 → "Wake it." (go to S9a)
 → "I'll wake it myself." (go to S9b)
@@ -195,11 +189,11 @@ The eye looks at her. Then it looks at you. It's the first time you have felt it
 
 "I can," she says. "For a price."
 
-Of course.
+You'd have worried if there wasn't one.
 
-"A small one. Your shadow will run a little late. In bright light it will lag behind you, a heartbeat slow, or it won't come at all." She shrugs, a ripple of dark cloth. "Nothing more than that."
+"A small one. Your shadow will run a little late. In bright light it will be a heartbeat behind you, or it won't come at all." The robe moves when she shrugs. "Nothing more than that."
 
-She waits. Behind her the ash turns in the air, and your shadow lies across it exactly where it should be, exactly when.
+She waits. You look down. Your shadow lies across the ash at your feet, exactly on time.
 
 → Pay. (go to S10-1)
 → Refuse. (go to S10-2)
@@ -208,15 +202,13 @@ She waits. Behind her the ash turns in the air, and your shadow lies across it e
 
 "I'll wake it myself."
 
-She steps back. Not offended. Curious, which is worse, or better. "Go on, then."
+She steps back. She isn't offended. She's curious, and you'd have preferred offended. "Go on, then."
 
-You pull the cloak round in front of you, so the eye sits on your chest, close enough to touch. It looks up at you.
+You pull the cloak round until the eye sits on your chest, close enough to touch. It looks up at you.
 
-You have never really spoken to it. You have talked near it. You've sworn at it once or twice. You have never said something to it and then waited.
+You've talked near it. You've sworn at it a couple of times. You've never said a thing to it and then waited.
 
-You have four languages. Common belongs to everyone. The other three are yours.
-
-Which do you use?
+You have four languages. Everybody has Common. The other three are yours.
 
 → Elvish, softly. (go to S10-3)
 → Draconic. (go to S10-4)
@@ -226,11 +218,11 @@ Which do you use?
 
 "Do it."
 
-She crouches and lays two fingers on your shadow where it lies across the ash. You feel it, which you shouldn't be able to: a tug at your heels, like stepping off a boat.
+She crouches and puts two fingers on your shadow where it lies across the ash. You shouldn't be able to feel that. You feel a pull at both heels, the pull of a boat moving off under you.
 
-When you lift your hand, your shadow's hand follows a heartbeat later.
+You lift your hand. Your shadow's hand comes up a heartbeat after.
 
-On your shoulder the eye snaps open. All the way. Bright and quick, turning to take in everything at once: the patron, the lamp, the hanging ash, your face. It has never looked at you like that. It looks as if it is reading.
+On your shoulder the eye opens all the way. It takes in the patron, the lamp, the hanging ash and your face, fast, and stays on your face. It has never looked at you like this. It's reading you.
 
 "There," the patron says, straightening. "Awake. Try not to bore it."
 
@@ -240,21 +232,23 @@ On your shoulder the eye snaps open. All the way. Bright and quick, turning to t
 
 "No."
 
-She laughs. It's the first real sound she has made, low and plainly pleased, and it goes on a little longer than you expected.
+She laughs. It's low and it goes on longer than you'd have guessed. It's the first sound out of her that she didn't plan.
 
-"Good," she says. "Never take the first price." She looks at you with something you could almost call fondness, if you were a fool. "People don't usually take my advice and turn me down in the same breath. You managed both."
+"Good," she says. "Never take the first price. People don't usually take my advice and turn me down in the same breath. You managed both."
 
-The eye stays as it was, half lidded, watching. But it watched you say no. You're sure of that.
+A fool would hear fondness in that.
+
+The eye is as it was, half lidded. It was watching you when you said no. You checked.
 
 → Continue (go to S11)
 
 ## S10-3. Elvish
 
-You speak to it in Elvish, the way you'd speak to something small and frightened at the back of a cupboard. You don't say much. You tell it that it's safe. You tell it to take its time.
+You speak to it in Elvish and keep your voice down. You don't say much. You tell it that it's safe, and to take its time.
 
-The eye blinks. Slowly. Once. The long, deliberate blink a cat gives you from across a room when it has decided you may stay.
+The eye blinks once, slowly. Cats have given you that blink when they decided you could stay in the room.
 
-The patron watches with her head on one side.
+The patron has her head on one side.
 
 "Gentle," she says. "I wouldn't have guessed."
 
@@ -262,13 +256,13 @@ The patron watches with her head on one side.
 
 ## S10-4. Draconic
 
-You speak to it in Draconic. It comes out harder than you mean it to. The language is built that way, all edges, made for oaths and orders. You tell it to wake. You tell it what it is.
+You speak to it in Draconic. It comes out harder than you meant. Draconic does that. It was made for oaths and orders. You tell it to wake. You tell it what it is.
 
 The eye widens.
 
-For a heartbeat the lining of your cloak prickles all over, like skin in the cold, and thin dark marks rise in it, angled and in lines, like script written by a hand that learned its letters a very long time ago. Then they sink back into the cloth.
+The lining of your cloak prickles against your arms. Thin dark marks come up in the cloth, angled and set in lines. It's script, in a very old hand. Then the marks sink back.
 
-The patron has gone very still.
+The patron has stopped moving.
 
 "Well," she says. "Somebody remembers being spoken to properly."
 
@@ -276,13 +270,13 @@ The patron has gone very still.
 
 ## S10-5. Thieves' Cant
 
-You speak to it in Thieves' Cant, which is barely a language: a tap, a twist of the mouth, a word that means three things depending on which finger you're touching. You ask it, more or less, whether it's in or out.
+You speak to it in Thieves' Cant, which is mostly a tap and a twist of the mouth, with the odd word that changes meaning by the finger you're touching. You ask it, more or less, whether it's in or out.
 
 The eye winks.
 
-You didn't know it could. One lid, down and up, quick as a pickpocket's hand.
+You didn't know it could. One lid goes down and up, faster than you can lift a purse.
 
-The patron makes a sound that, in anyone else, would be a snort. "Oh, that's a bad influence," she says. "On both of you."
+In anyone else, the noise the patron makes would be a snort. "Oh, that's a bad influence," she says. "On both of you."
 
 → Continue (go to S11)
 
@@ -292,9 +286,9 @@ The patron makes a sound that, in anyone else, would be a snort. "Oh, that's a b
 
 She shrugs. "Then it chooses later," she says. "And you won't know when."
 
-That should worry you more than it does. You look down at the eye. It's half lidded again, heavy, the way it usually sits. But it isn't looking at you. It's still looking at her.
+You ought to mind that more than you do. You look down at the eye. It has gone back to half shut and heavy, but it's still pointed at her.
 
-The patron notices, and smiles with her voice. "Keep it like that," she says. "Watchful suits it."
+She has noticed too, and you can hear that she's smiling. "Keep it like that," she says. "Watchful suits it."
 
 → Continue (go to S11)
 
@@ -302,9 +296,11 @@ The patron notices, and smiles with her voice. "Keep it like that," she says. "W
 
 "Before I go," she says. "A lesson. Free. Don't get used to it."
 
-She crouches over your shadow where it lies on the ash, puts her hand into it as if into black water, and draws something out.
+She crouches over your shadow on the ash and puts her hand into it, up to the wrist. She pulls out a blade.
 
-A blade. Thin, black and clear at once, like glass cooled in a dark room. Lamplight goes into it and doesn't come out. She doesn't hold it still long enough for you to judge its length. The hilt is shaped to a grip you know without looking, because your hand has been on it all day: the Ashblade's grip, wrapped the same way, worn in the same places.
+It's thin, and it's black glass you can see through. Lamplight goes in and doesn't come back out. She keeps it moving, so you can't judge the length.
+
+The hilt you know without looking, because your hand has been on it all day. It's the Ashblade's grip, with the same wrap, worn in the same places.
 
 She turns it slowly so you can see.
 
@@ -314,25 +310,25 @@ She turns it slowly so you can see.
 
 "You'll do this yourself, soon," she says. "Out of your own shadow, whenever you need one." She turns the edge toward you. "Not yet."
 
-She lets go.
+She opens her hand.
 
-It doesn't fall. It melts, the way frost goes off a window, back down into your shadow, until there is only ash and the shape of you on it.
+The blade doesn't drop. It thins and runs back down into your shadow, and then there's only ash at your feet with your outline on it.
 
-"That's the lesson," she says. "It has always been in there. You just haven't asked it for anything."
+"That's the lesson," she says. "It has always been in there. You haven't asked it for anything."
 
-When you look up she is farther away, though she hasn't moved. The lamp is only a lamp again. The room in the dagger is only a reflection.
+You look up. She's farther off than she was, and you didn't see her take a step. The lamp is an ordinary lamp. The dagger's edge shows you the cave.
 
-"Think about my riddle," she says. Then there is only dark where she was.
+"Think about my riddle," she says. Then there's nobody where she stood.
 
 → Continue (go to S13)
 
 ## S13. Time again
 
-The ash falls at its own speed again, all at once, as if it had been holding its breath.
+The ash drops at its proper speed, all of it at once.
 
-Katy finishes her word. Stig wrings the towel. Thorn shifts his weight. The Heart ticks. Nobody turns to look at you. To them no time has passed, and if you went anywhere, it was nowhere they could see.
+Katy finishes her word. Stig wrings the towel. Thorn shifts his weight, and the Heart ticks. Nobody turns to look at you. For them no time went by, and you never left.
 
-Your hand is on the Ashblade. Your heart is going a little fast. The dagger at your hip is quiet, and only a dagger.
+Your hand is on the Ashblade. Your pulse is quicker than you'd admit. The dagger at your hip is quiet, and it's only a dagger.
 
 You look down at the cloak.
 
@@ -342,7 +338,7 @@ You look down at the cloak.
 
 ## End 1. The Price Paid
 
-The eye is wide open, moving from face to face around the cave as if it were reading lines on a page. It has never been this awake. When you brush ash from your sleeve, your shadow's hand follows a heartbeat behind. Nobody notices. In this light it hardly shows.
+The eye is wide open. It goes from face to face round the cave and reads each one. It has never been this awake. You brush ash off your sleeve, and your shadow's hand does it a heartbeat after you. Nobody notices. In this light it hardly shows.
 
 > **Echo: Eye of the Pact.** Before you roll an Intelligence (Arcana or Investigation) check, you can spend this Echo to have advantage on it.
 
@@ -350,7 +346,7 @@ The eye is wide open, moving from face to face around the cave as if it were rea
 
 ## End 2. No Debts
 
-The eye is half lidded, the way it always is. But it's looking at you, not at the dark, and it doesn't look away when you look back. You owe nobody for anything it does next. That feels like a coin kept in your boot.
+The eye is half lidded, as it always is. It's looking at you, though, and when you look back it doesn't look away. Whatever it does next, you owe nobody for it. You rate that about as high as a coin kept in your boot.
 
 > **Echo: Owe Nothing.** Before you roll a Charisma (Persuasion) check to strike a bargain or set its terms, you can spend this Echo to have advantage on it.
 
@@ -358,7 +354,7 @@ The eye is half lidded, the way it always is. But it's looking at you, not at th
 
 ## End 3. Soft Voice
 
-The eye is closed. Not asleep: resting, the way a cat rests with one ear turned your way. Once, when you shift your shoulders, it opens a sliver, checks that it's you, and closes again.
+The eye is closed, but it isn't asleep. When you shift your shoulders it opens a sliver, checks that it's you, and closes again.
 
 > **Echo: Watched Faces.** Before you roll a Wisdom (Insight) check, you can spend this Echo to have advantage on it.
 
@@ -366,7 +362,7 @@ The eye is closed. Not asleep: resting, the way a cat rests with one ear turned 
 
 ## End 4. Old Tongue
 
-The eye is open, steady, and it holds itself differently: chin up, if an eye can have a chin. Now and then the cloak's lining prickles under your fingers, as if something written there wants to be read.
+The eye is open and steady, and it carries itself higher than it did. If an eye had a chin, this one's would be up. Now and then the lining prickles under your fingers, in lines, where the writing came up.
 
 > **Echo: Old Marks.** Before you roll an Intelligence (Arcana, History or Investigation) check to read, decipher or recall old writing, runes or inscriptions, you can spend this Echo to have advantage on it.
 
@@ -374,7 +370,7 @@ The eye is open, steady, and it holds itself differently: chin up, if an eye can
 
 ## End 5. Sly Eye
 
-The eye is half open and looking straight at Hans. As you watch, it winks at him. Hans, very slowly, turns his head and looks at the wall instead.
+The eye is half open and looking straight at Hans. While you watch, it winks at him. Hans turns his head, very slowly, and looks at the wall.
 
 > **Echo: Quick Fingers.** Before you roll a Dexterity (Sleight of Hand) check, you can spend this Echo to have advantage on it.
 
@@ -382,7 +378,7 @@ The eye is half open and looking straight at Hans. As you watch, it winks at him
 
 ## End 6. Left Ajar
 
-The eye is half lidded, heavy, the way it always is. But it isn't watching the cave. It's still watching the patch of dark where she stood, and it keeps watching it long after there's nothing there.
+The eye is half lidded and heavy, as it always is. It has no interest in the cave. It's watching the patch of dark where she stood, and it goes on watching long after there's nobody there.
 
 > **Echo: Half-Open.** Before you roll a Dexterity (Stealth) check, you can spend this Echo to have advantage on it.
 
