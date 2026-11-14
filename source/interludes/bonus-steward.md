@@ -23,7 +23,7 @@ INTEGRITY 61%
 PLAY? ▮
 ```
 
-"It's the Steward," Hans says quietly. "The one who flew you. I have only ever heard its last line. This is more of it. I'll play it. You'll have to be the Steward. I can't. I'd turn the volume up."
+"It's the Steward," Hans says. "The one who flew you. I have only ever heard its last line. This is more of it. I'll play it. You'll have to be the Steward. I can't. I'd turn the volume up."
 
 → Play (go to P2)
 
@@ -31,7 +31,7 @@ PLAY? ▮
 
 The static pulls together into a single round lens. It opens: teal.
 
-You are standing very still. You are good at it. You have been standing still for a very long time, in one way or another.
+You are standing very still. You are good at it. You have had a long time to practise.
 
 ```log
 MEMORY START · VESSEL ECHO · THE HILLS · DAWN
@@ -63,9 +63,9 @@ Stig stops in front of you, a big man with a big pack, and puts a tea towel in y
 
 Saphira passes last, hood up. She doesn't stop. She says it without looking at you: if something comes, don't wait for us.
 
-You watch them go down the plank and into the snow. Your lens adjusts, keeping them in focus for longer than it needs to. She doesn't look back. You keep her in focus anyway, until the hood is a dot.
+You watch them go down the plank and into the snow. Your lens keeps them in focus for longer than it needs to. She doesn't look back. You keep her in focus anyway, until the hood is a dot.
 
-"Acknowledged," you say, to no one.
+"Acknowledged," you say. She is too far away to hear it.
 
 You don't move until they reach the camp.
 
@@ -156,7 +156,7 @@ One tree fills the room. Its roots run across the floor like cables, and its can
 
 There is a brass can by the door. You water the roots. The tree seems to lean toward you a little, and a few of the berries brighten.
 
-You pick one and put it away carefully, behind your chest plate, where it is warm. For later. You don't know what later is for, yet.
+You pick one and put it away carefully, behind your chest plate, where it is warm. For later. You don't know yet what for.
 
 → Back to the stairs (go to W0)
 
@@ -208,7 +208,7 @@ AND ONE MORE.
 
 At the front of the swarm something bigger flies, with a rider on its back. A long coat. A hat.
 
-"Captain," you say, very quietly.
+"Captain," you say.
 
 The swarm is coming for the Hills, not for the ship: for the camp, the paths, the three figures on the slope.
 
@@ -267,7 +267,7 @@ But they don't come for you. They fly around you. They go for the ship: the seam
 
 A shadow sweeps the deck. Captain Teenoog comes in low on the biggest hellbat of all, a scarred matriarch the size of a horse, close enough to touch. He doesn't attack. He tips his ruined hat.
 
-"Still keeping house, tin man?" He is friendly and unhurried, and his voice carries without effort. "Who for? They've left you."
+"Still keeping house, tin man?" he calls. He sounds friendly and in no hurry. "Who for? They've left you."
 
 "They are on shore leave," you say.
 
@@ -288,7 +288,7 @@ HOSTILES INSIDE THE VESSEL.
 
 ## R0. Below decks
 
-The ship is the map now. You can hear them in the walls: claws on stone, teeth on copper.
+They are all through the ship. You can hear them in the walls: claws on stone, teeth on copper.
 
 → The chart room (go to R1)
 → The galley (go to R2)
@@ -318,7 +318,7 @@ The map hums. Red marks wink on all over it, through every wall of the ship: in 
 
 ## R1b. No time
 
-You leave them. It costs you something you have no word for.
+You leave them where they fell.
 
 The map still hums, but it shows the ship in patches: red marks in the galley, in the grove, and something below that flickers and won't hold still.
 
@@ -391,9 +391,9 @@ The red marks on the map all go out at once, and the walls go quiet.
 
 Wind howls through a hole in the wall where a copper painting used to hang. The painting of the fleet lies in pieces on the floor.
 
-Teenoog stands at the helm with his hand on it, as if it's his. The ship hummed for you. For him it growls. Outside the broken wall his matriarch hangs in the air, wings beating, eyes like coals.
+Teenoog stands at the helm with his hand on it, as if it's his. The ship used to hum for you. Under his hand it growls. Outside the broken wall his matriarch hangs in the air, wings beating, eyes like coals.
 
-"I always wondered what these looked like inside," he says. "Forty of them, once. I watched them fall one by one." He smiles at you. "You're the last, you know. The last of your kind that still flies."
+"I always wondered what these looked like inside," he says. "There were forty, once. I watched them come down one by one." He smiles at you. "You're the last one still flying."
 
 ```log
 SCAN: SUBJECT "TEENOOG".
@@ -404,7 +404,7 @@ AGE: ▒▒▒ ERR.
 
 "Step away from the helm," you say.
 
-"Or what? You'll shoot me?" He draws a curved blade. "Go on."
+"Or what?" He draws a curved blade. "Go on."
 
 → Fight (go to @bridge)
 
@@ -412,7 +412,7 @@ AGE: ▒▒▒ ERR.
 
 Teenoog stops fighting. He steps back toward the hole in the wall, bleeding, and smiles.
 
-"You're very good. I'll give you that. You've won." He glances down at the floor, at what is under it. "But I never came for you."
+"You're good," he says. "You've won." He glances down at the floor, at what is under it. "But I never came for you."
 
 He falls backwards out of the hole. The matriarch catches him in mid-air, and they are gone into the dark.
 
@@ -431,7 +431,7 @@ The bats were never fighting you. All this time they were eating the engine.
 
 The copper ring is grinding, half its teeth gone. The blue core flickers. A crust of hellbats covers it, and they are gnawing at it.
 
-You burn them off in seconds with rockets, cannon and shield. They burst and fall. You are magnificent, and it doesn't matter.
+You burn them off in seconds with rockets, cannon and shield. They burst and fall. You are good at this, and it makes no difference.
 
 ```log
 POWER 12%... 7%... 4%.
@@ -451,7 +451,7 @@ CREW: 3 OF 3. BELOW.
 
 Before you step back, you tap the edge of the socket twice with your shield. For luck. The bard would.
 
-You back into the socket. It fits you exactly, and it always did. Clamps close over your arms and your shoulders. The teal of your lens floods out of you and into the core, and the core turns from pale blue to bright teal.
+You back into the socket. It fits you exactly. Clamps close over your arms and your shoulders. The teal of your lens floods out of you and into the core, and the core turns from pale blue to bright teal.
 
 ```log
 REROUTING ALL ENERGY → THRUSTERS.
@@ -460,7 +460,7 @@ SOURCE: UNIT #34.
 
 For the first time all day, your own number starts to fall. The ship's starts to climb.
 
-Behind your chest plate the berry is still there, warm against what is left of you. You let it stay.
+Behind your chest plate the berry is still there, still warm. You leave it where it is.
 
 The Echo stops falling. It holds level. Then, slowly, it turns away from the Hills.
 
@@ -491,7 +491,7 @@ DISCARD: EVERYTHING ELSE. EVERYTHING BEFORE THEM.
 DESIGNATION ADDED: SWEETHEART. UNCONFIRMED.
 ```
 
-Behind you, on the slope of the mountain, three tiny figures have their faces turned up to the sky.
+Behind you, on the slope of the mountain, three figures have their faces turned up to the sky.
 
 ```log
 OPEN CHANNEL: CREW
@@ -524,7 +524,7 @@ INTEGRITY 61%.
 
 Hans doesn't say anything for a long time.
 
-"It kept the painting," he says at last. It is nearly a laugh. Then, very quietly: "It kept the bread. Everything it was before them, it let go. And it kept the bread."
+"It kept the painting," he says at last. It is nearly a laugh. "And the bread. It let go of everything it was before them, and it kept the bread."
 
 "That's all of it," he says. "That's all it'll give me." He waits. "It moved the whole ship. With its own core. I didn't know we could do that."
 
