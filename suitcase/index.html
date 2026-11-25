@@ -154,8 +154,8 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:17px/1
     <canvas id="hans3d" hidden></canvas>
     <div class="kick">The Suitcase</div>
     <dl>
-      <dt>You</dt><dd>you</dd>
-      <dt>Bram</dt><dd>Bram, sadly</dd>
+      <dt>Richard</dt><dd>you</dd>
+      <dt>Samuel</dt><dd>your cousin, sadly</dd>
       <dt>Henk</dt><dd>behind the bar since 1987</dd>
       <dt>The gull</dt><dd>itself</dd>
       <dt>The DJ</dt><dd>Hans, from out of town</dd>
@@ -445,7 +445,7 @@ function bike(x, y, s, col = '#c43', flip = 1){
   ctx.strokeStyle = col; ctx.lineWidth = 2.6*s; ctx.beginPath(); ctx.moveTo(-14*s, -9*s); ctx.lineTo(-3*s, -24*s); ctx.lineTo(10*s, -24*s); ctx.lineTo(14*s, -9*s); ctx.moveTo(-3*s,-24*s); ctx.lineTo(0, -9*s); ctx.lineTo(-14*s,-9*s); ctx.moveTo(10*s,-24*s); ctx.lineTo(9*s,-30*s); ctx.stroke();
   ctx.fillStyle = '#111'; ctx.fillRect(-7*s, -27*s, 8*s, 3*s); ctx.restore();
 }
-// a person: you, Bram and the rest
+// a person: you, Samuel and the rest
 function person(x, feet, h, o = {}, t = 0){
   const bob = Math.sin(t * (o.bobSpeed || 2) + (o.ph || 0)) * h * .012 * (o.bob ?? 1);
   const s = h / 120; ctx.save(); ctx.translate(x, feet + bob);
@@ -904,7 +904,7 @@ function say(who, text, o = {}){
     const full = text; let i = 0; txtEl.textContent = '';
     clearInterval(typing);
     const done = () => { clearInterval(typing); typing = null; txtEl.innerHTML = full; moreEl.hidden = !!o.noTap; };
-    typing = setInterval(() => { i += 2; txtEl.innerHTML = full.slice(0, i); if (i % 8 === 0 && who && A.ac) osc('triangle', who === 'Bram' ? 330 : who === 'Hans' ? 520 : 260, now(), .03, .015, A.sfx); if (i >= full.length) done(); }, 22);
+    typing = setInterval(() => { i += 2; txtEl.innerHTML = full.slice(0, i); if (i % 8 === 0 && who && A.ac) osc('triangle', who === 'Samuel' ? 330 : who === 'Hans' ? 520 : 260, now(), .03, .015, A.sfx); if (i >= full.length) done(); }, 22);
     advance = () => { if (typing){ done(); return; } advance = null; res(); };
     if (o.noTap){ advance = null; const wait = setInterval(() => { if (!typing){ clearInterval(wait); res(); } }, 50); }
   });
@@ -1043,7 +1043,7 @@ async function bells(){
       for (const i of seq){ await flash(i); await sleep(130); }
       tp.textContent = `Your turn: ${len} bells.`; bs.forEach(b => b.disabled = false);
       ok = await new Promise(res => { let pos = 0; bs.forEach((b, i) => b.onclick = () => { flash(i, 250); if (i !== seq[pos]){ bs.forEach(b => b.onclick = null); res(false); return; } pos++; if (pos === seq.length){ bs.forEach(b => b.onclick = null); res(true); } }); });
-      if (!ok){ fails++; SFX.sad(); tp.textContent = fails >= 2 ? 'Bram hums it for you. Badly, but it counts.' : 'Wrong bell. The tower plays it again.'; CAM.shake = .5; await sleep(1100); if (fails >= 2){ ok = true; fails = 0; } }
+      if (!ok){ fails++; SFX.sad(); tp.textContent = fails >= 2 ? 'Samuel hums it for you. Badly, but it counts.' : 'Wrong bell. The tower plays it again.'; CAM.shake = .5; await sleep(1100); if (fails >= 2){ ok = true; fails = 0; } }
     }
     SFX.coin(); await sleep(500);
   }
@@ -1107,12 +1107,12 @@ async function lock(){
     const [up, b, dn] = w.children; up.onclick = () => { vals[i] = (vals[i] + 1) % 10; b.textContent = vals[i]; SFX.click(); }; dn.onclick = () => { vals[i] = (vals[i] + 9) % 10; b.textContent = vals[i]; SFX.click(); }; wh.appendChild(w); return b; });
   G.appendChild(d);
   const hints = [
-    ['Bram', '(asleep) …mm. Since…'],
-    ['Bram', '(still asleep) Henk said. Henk said nineteen-something.'],
-    ['Bram', '(talking in his sleep) Nineteen. Eighty. Seven. Now let me sleep.'],
+    ['Samuel', '(asleep) …mm. Since…'],
+    ['Samuel', '(still asleep) Henk said. Henk said nineteen-something.'],
+    ['Samuel', '(talking in his sleep) Nineteen. Eighty. Seven. Now let me sleep.'],
   ];
   let tries = 0;
-  const sayHint = () => { box.classList.remove('hide'); whoEl.className=''; whoEl.textContent = 'Bram'; txtEl.textContent = hints[Math.min(tries - 1, 2)][1]; moreEl.hidden = true; chEl.innerHTML = ''; };
+  const sayHint = () => { box.classList.remove('hide'); whoEl.className=''; whoEl.textContent = 'Samuel'; txtEl.textContent = hints[Math.min(tries - 1, 2)][1]; moreEl.hidden = true; chEl.innerHTML = ''; };
   n('The lock has four little brass wheels. "It\'s the year," the man said.', { noTap:true });
   await new Promise(res => {
     d.querySelector('.btn').onclick = () => {
@@ -1136,8 +1136,8 @@ async function story(){
   if (AT <= 1) {
   // 1 · the café
   await scene('cafe', { clock:'22:40', place:'Café on the Grote Markt', music:'pub', amb:'crowd' });
-  await n('Friday night in Groningen. You and Bram are two beers into what was meant to be one beer.');
-  await say('Bram', 'One more and then home. Honestly.');
+  await n('Friday night in Groningen. You, Richard, are out with your cousin Samuel. You\'re two beers into what was meant to be one beer.');
+  await say('Samuel', 'One more and then home. Honestly.');
   rounds(3);
   await n('Under the coat rack by the toilets there\'s a suitcase. Brown leather, old, with straps and a little brass lock with four number wheels.');
   S.fx.caseGlow = .2;
@@ -1151,7 +1151,7 @@ async function story(){
   S.fx.henkPoint = false;
   const c1 = await choose(['Take the suitcase', 'Leave it. Obviously.']);
   if (c1 === 0){ await n('You pick it up. It\'s heavier than it looks, and warm, like it\'s been sitting in the sun.'); }
-  else { await n('You leave it. Very sensible.'); await n('Outside, you notice Bram is carrying it.'); await say('Bram', 'What? It looked lonely.'); }
+  else { await n('You leave it. Very sensible.'); await n('Outside, you notice Samuel is carrying it.'); await say('Samuel', 'What? It looked lonely.'); }
   await say('Henk', 'Here, one on the house. For getting that thing out of my café.');
   rounds(4);
 
@@ -1159,12 +1159,12 @@ async function story(){
   if (AT <= 2) {
   // 2 · the snack wall
   await scene('snack', { clock:'23:35', place:'Vismarkt', music:'street', amb:'rain', fx:{ kroket:true } });
-  await n('Bram needs a kroket. The snack wall on the Vismarkt is still lit, a whole wall of little hot windows.');
+  await n('Samuel needs a kroket. The snack wall on the Vismarkt is still lit, a whole wall of little hot windows.');
   await n('He puts in two euros, opens the little door and takes out a kroket like he\'s holding a newborn.');
   S.fx.gull = { mode:'land', t0:T(), dur:1.6 }; SFX.gull(); await sleep(1700); S.fx.gull = { mode:'stand' };
   await n('A seagull lands next to him. It is the size of a small dog, and it\'s looking at the kroket.');
   S.fx.bramO = true;
-  await say('Bram', 'No. No no no. That\'s mine.');
+  await say('Samuel', 'No. No no no. That\'s mine.');
   await n('Roll a d20 to save the kroket. You need a 12.');
   await tapThing('Tap to roll.');
   const roll = await rollD20();
@@ -1178,7 +1178,7 @@ async function story(){
   await n('Then it comes back for the mustard.');
   S.fx.bramO = false;
   SFX.hum();
-  await n('The suitcase hums a bit louder. Bram swears it\'s laughing.');
+  await n('The suitcase hums a bit louder. Samuel swears it\'s laughing.');
 
   }
   if (AT <= 3) {
@@ -1188,14 +1188,14 @@ async function story(){
   S.fx.thief = { t0:T() }; SFX.bell(); SFX.whoosh(); CAM.shake = .6;
   await n('A man on a pink bicycle grabs it and pedals off down the Folkingestraat.');
   S.fx.showUs = true;
-  await say('Bram', 'OI! OI! That\'s OUR stolen suitcase!');
+  await say('Samuel', 'OI! OI! That\'s OUR stolen suitcase!');
   music('chase');
   const hits = await chase();
   await scene('street', { fast:true, clock:'00:22', place:'Corner of the Herestraat', music:'street', fx:{ } });
   await n(hits === 0 ? 'You didn\'t touch a single thing. People will talk about that run for years.' : hits < 4 ? `You bumped into ${hits} ${hits === 1 ? 'thing' : 'things'} on the way. Nobody saw. Probably.` : `You bumped into ${hits} things on the way, including a sofa. Nobody will ever know how there was a sofa.`);
   await n('He gets a flat tyre on the corner of the Herestraat, and you catch up, out of breath.');
   await say('Man on the pink bike', 'Sorry. Sorry! It told me to take it.');
-  await say('You', 'Suitcases don\'t talk.');
+  await say('Richard', 'Suitcases don\'t talk.');
   await say('Man on the pink bike', 'This one does. In German.');
   await n('He gives it back and walks his pink bike off into the night, shaking his head.');
 
@@ -1208,7 +1208,7 @@ async function story(){
   SFX.beeps();
   await n('Then the suitcase beeps back. The same tune. Note for note.');
   await n('The tower stops. It waits.');
-  await say('Bram', 'It wants you to play it back. I\'m not joking. Look at it.');
+  await say('Samuel', 'It wants you to play it back. I\'m not joking. Look at it.');
   await bells();
   S.fx.towerFlash = 1; [60, 64, 67, 72, 76].forEach((m, i) => setTimeout(() => SFX.bellNote(m, 3, .2), i*60)); CAM.shake = .8;
   await sleep(900); S.fx.lightsOff = true; await sleep(500); S.fx.lightsOff = false; await sleep(250); S.fx.lightsOff = true; await sleep(300); S.fx.lightsOff = false; S.fx.towerFlash = 0;
@@ -1244,10 +1244,10 @@ async function story(){
   await scene('canal', { clock:'03:30', place:'Hoge der A', music:'canal', amb:'water', fx:{ caseOnQuay:true } });
   await n('Half past three. You walk along the Hoge der A to clear your heads. The old warehouses lean out over the water.');
   S.fx.dance = true;
-  await say('Bram', 'Wait, wait. Look. This is the move from the club.');
+  await say('Samuel', 'Wait, wait. Look. This is the move from the club.');
   S.fx.caseOnQuay = false; S.fx.float = { t0:T() }; SFX.splash(); CAM.shake = 1; S.fx.dance = false;
   await n('He kicks the suitcase into the canal.');
-  await say('Bram', '…That one\'s on me.');
+  await say('Samuel', '…That one\'s on me.');
   await n('It floats. It floats and it hums, and it drifts out to the middle.');
   S.fx.boat = { t0:T(), from:-.6, to:.35, dur:5, light:true, ease:true };
   await n('A rowing eight comes out of the dark. Eight students and a cox. Training. At half past three in the morning.');
@@ -1270,7 +1270,7 @@ async function story(){
   await n('There\'s a man on the other end of the bench. Long coat, hat, and no reason to be in a park at quarter to five.');
   await say('Man in the coat', 'Nice suitcase.');
   await say('Man in the coat', 'I\'ll give you ten thousand euros for it. Cash. Now.');
-  await say('Bram', '(whispering) Ten thousand. That\'s about four thousand kroketten.');
+  await say('Samuel', '(whispering) Ten thousand. That\'s about four thousand kroketten.');
   const c2 = await choose(['Sell it', 'Don\'t sell it']);
   STATE.sold = c2 === 0;
   if (c2 === 0){ await n('You say yes. He opens his coat to get the money out, looks inside the coat, and frowns.'); await say('Man in the coat', 'Ah. It\'s in my other coat.'); }
@@ -1286,11 +1286,11 @@ async function story(){
   if (AT <= 8) {
   // 8 · dawn and the lock
   await scene('dawn', { clock:'06:12', place:'Noorderplantsoen', music:'dawn', amb:'', birds:true, fx:{ zzz:true } });
-  await n('The sun comes up over the Noorderplantsoen. Bram is asleep on your shoulder, still holding an empty beer you don\'t remember him buying.');
+  await n('The sun comes up over the Noorderplantsoen. Samuel is asleep on your shoulder, still holding an empty beer you don\'t remember him buying.');
   await lock();
   S.fx.zzz = false;
   await n('Click.');
-  await say('Bram', '(waking up) …Did I miss it?');
+  await say('Samuel', '(waking up) …Did I miss it?');
 
   }
   if (AT <= 9) {
@@ -1299,7 +1299,7 @@ async function story(){
   const inside = [
     'Inside there\'s another suitcase.',
     'Inside that one there\'s another suitcase.',
-    'And another one. Bram has started laughing and can\'t stop.',
+    'And another one. Samuel has started laughing and can\'t stop.',
     'This one is the size of a shoebox.',
     'This one is the size of a sandwich. It\'s still humming.',
   ];
@@ -1314,8 +1314,8 @@ async function story(){
   await n('A small brass key on a cardboard tag. In very neat handwriting, the tag says: LOCKER 23. GRONINGEN STATION.');
   music(''); await sleep(400);
   await n('The humming stops.');
-  await say('Bram', '…Right.');
-  await say('Bram', 'The station opens at six.');
+  await say('Samuel', '…Right.');
+  await say('Samuel', 'The station opens at six.');
   await n('And that\'s when things actually got weird.');
   hideBox();
   await scene('locker', { music:'', amb:'' });
