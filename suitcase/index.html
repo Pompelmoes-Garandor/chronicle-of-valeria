@@ -115,6 +115,10 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:17px/1
 .tapzone{position:fixed;inset:0;background:transparent}
 .judge{position:fixed;left:50%;top:44%;transform:translateX(-50%);font:800 30px var(--disp);pointer-events:none;text-shadow:0 2px 10px #000;animation:shout .6s ease-out forwards}
 
+#slate{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 18px);transform:translateX(-50%) rotate(-2deg);z-index:9;background:#111;color:#fff;border:2px solid #fff;
+  border-radius:6px;padding:6px 14px 6px;font:800 16px var(--body);letter-spacing:.04em;box-shadow:0 6px 18px rgba(0,0,0,.6);white-space:nowrap}
+#slate::before{content:"";position:absolute;left:-2px;right:-2px;top:-12px;height:10px;border-radius:3px 3px 0 0;background:repeating-linear-gradient(135deg,#fff 0 10px,#111 10px 20px);border:2px solid #fff}
+#slate.pop{animation:pop .35s ease-out}
 /* Sam's voice message: intro over the title, outro over the credits */
 #vo{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 22px);transform:translateX(-50%);width:min(560px,calc(100% - 24px));z-index:9;
   background:var(--panel);border:1px solid var(--edge);border-radius:16px;padding:12px 14px 14px;box-shadow:0 10px 40px rgba(0,0,0,.6)}
@@ -164,10 +168,12 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:17px/1
     </dl>
     <p id="score"></p>
     <div class="row"><button class="btn main" id="again">Tell it again</button><button class="btn main" id="share">Send it to a mate</button></div>
+    <div class="row"><button class="btn" id="bonus" style="text-align:center;min-width:230px">🥚 Bonus: het Nieuwscafé</button></div>
     <small>No kroketten were saved in the making of this game.</small>
   </div>
 </div>
 <div id="vo" hidden><div class="top"><span class="who">Samuel</span><span class="bars"></span><button type="button">Skip ▸</button></div><div class="cap"></div></div>
+<div id="slate" hidden></div>
 <div id="fade"></div>
 
 <script type="module">
@@ -453,12 +459,17 @@ function person(x, feet, h, o = {}, t = 0){
   // shadow
   ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(0, -bob, 26*s, 6*s, 0, 0, 7); ctx.fill();
   // legs
+  if (o.run){ const sw = Math.sin(t * 18) * .7;
+    [[-8, sw], [8, -sw]].forEach(([hx, a]) => { ctx.save(); ctx.translate(hx*s, -46*s); ctx.rotate(a); ctx.fillStyle = o.legs || '#1d2330'; rrect(-6.5*s, 0, 13*s, 46*s, 4*s); ctx.fill(); ctx.fillStyle = '#111'; rrect(-8*s, 40*s, 16*s, 7*s, 3*s); ctx.fill(); ctx.restore(); });
+  } else {
   ctx.fillStyle = o.legs || '#1d2330'; rrect(-15*s, -46*s, 13*s, 46*s, 4*s); ctx.fill(); rrect(2*s, -46*s, 13*s, 46*s, 4*s); ctx.fill();
   ctx.fillStyle = '#111'; rrect(-17*s, -6*s, 16*s, 7*s, 3*s); ctx.fill(); rrect(1*s, -6*s, 16*s, 7*s, 3*s); ctx.fill();
+  }
   // body
   const bodyW = (o.wide || 1) * 22*s;
   ctx.fillStyle = o.coat || '#2f5d7c'; ctx.beginPath(); ctx.moveTo(-bodyW, -42*s); ctx.quadraticCurveTo(-bodyW - 2*s, -86*s, -10*s, -92*s); ctx.lineTo(10*s, -92*s); ctx.quadraticCurveTo(bodyW + 2*s, -86*s, bodyW, -42*s); ctx.closePath(); ctx.fill();
   if (o.long){ ctx.fillRect(-bodyW, -42*s, bodyW*2, 26*s); }
+  if (o.dress){ ctx.fillStyle = o.coat; ctx.beginPath(); ctx.moveTo(-bodyW + 2*s, -46*s); ctx.lineTo(-bodyW - 8*s, -20*s); ctx.lineTo(bodyW + 8*s, -20*s); ctx.lineTo(bodyW - 2*s, -46*s); ctx.fill(); }
   if (o.apron){ ctx.fillStyle = '#e8dcc4'; ctx.fillRect(-12*s, -70*s, 24*s, 40*s); }
   // arms
   ctx.strokeStyle = o.coat || '#2f5d7c'; ctx.lineCap = 'round'; ctx.lineWidth = 9*s;
@@ -469,6 +480,7 @@ function person(x, feet, h, o = {}, t = 0){
   ctx.beginPath(); ctx.arc(-bodyW - 6*s, (-55 + raise*40)*s + wave*14*s, 4.5*s, 0, 7); ctx.fill();
   if (o.beer){ ctx.fillStyle = '#f2b13a'; ctx.fillRect(bodyW + 1*s, -78*s, 10*s, 15*s); ctx.fillStyle = '#fff6e0'; ctx.fillRect(bodyW + 1*s, -81*s, 10*s, 4*s); ctx.globalAlpha=.4; ctx.fillStyle='#fff'; ctx.fillRect(bodyW + 3*s, -76*s, 2*s, 11*s); ctx.globalAlpha=1; }
   else { ctx.beginPath(); ctx.arc(bodyW + 4*s, -54*s, 4.5*s, 0, 7); ctx.fill(); }
+  if (o.long_hair){ ctx.fillStyle = o.hair || '#6b3a1e'; rrect(-18*s, -124*s, 36*s, 26*s, 12*s); ctx.fill(); rrect(-20*s, -112*s, 8*s, 36*s, 4*s); ctx.fill(); rrect(12*s, -112*s, 8*s, 36*s, 4*s); ctx.fill(); }
   // head
   ctx.fillStyle = o.skin || '#e7b99a'; ctx.beginPath(); ctx.ellipse(0, -106*s, 14*s, 16*s, 0, 0, 7); ctx.fill();
   // hair / hat
@@ -615,6 +627,7 @@ const SCENES = {
       glow(lx + sw, H*.08 + 14*U, 140*U, 'rgba(255,190,110,.22)'); }
     suitcase(W*.13, GY() + 2*U, U*.75, t, S.fx.caseGlow ? { glow:S.fx.caseGlow } : {});
     person(W*.82, GY() - 2*U, CH()*.95, { ...HENK, raise:S.fx.henkPoint }, t);
+    person(W*.68, GY() - 14*U, CH()*.82, { ...WOMEN[1], beer:true }, t); person(W*.94, GY() - 16*U, CH()*.8, { ...WOMEN[4] }, t);
     person(W*.38, GY() + 14*U, CH(), YOU, t);
     person(W*.56, GY() + 16*U, CH()*1.06, BRAM, t);
     // haze
@@ -732,6 +745,7 @@ const SCENES = {
       ctx.fillStyle = ['#151020','#1a1428','#0f0b18'][row]; ctx.beginPath(); ctx.arc(x, y - 40*s - j, 13*s, 0, 7); ctx.fill(); rrect(x - 18*s, y - 28*s - j, 36*s, 70*s, 12*s); ctx.fill();
       if (r() < .25){ ctx.strokeStyle = ctx.fillStyle; ctx.lineWidth = 7*s; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(x + 12*s, y - 22*s - j); ctx.lineTo(x + 18*s, y - 62*s - j*1.5); ctx.stroke(); }
     }
+    [0,2,3,5].forEach((wi, i) => person(W*(.1 + i*.27), GY() - 8*U, CH()*.82, { ...WOMEN[wi], bobSpeed:13, bob:3, raise: i%2===0 }, t + i));
     // you two at the front
     person(W*.3, GY() + 30*U, CH()*.95, { ...YOU, bobSpeed:13, bob:3 }, t);
     person(W*.72, GY() + 32*U, CH(), { ...BRAM, bobSpeed:13, bob:3, raise:true }, t);
@@ -1404,6 +1418,139 @@ async function voice(name, o = {}){
   done = true; el.hidden = true;
   A.mus.gain.setTargetAtTime(musWas, now(), .4); A.amb.gain.setTargetAtTime(.5, now(), .4);
 }
+
+// ---------------------------------------------------------------------------
+// Bonus: Samuel tells the Nieuwscafé story, director's notes and all. Everything follows his recording's clock.
+// ---------------------------------------------------------------------------
+const BONUS = {
+  src:'vo-bonus.mp3',
+  caps:[[0,'Hebben jullie ooit het verhaal gehoord over Richard, die bij het Nieuwscafé stoer deed tegen een grote groep gevaarlijke jongeren?'],[10.2,'Toen hadden ze nog geen fatbikes. Weet je niet meer wat er gebeurd was?'],[17.9,'Cue: plaatje van gevaarlijke jongeren voor het Nieuwscafé in Groningen.'],[22.7,'Cue dit. Hou de tekst erin, maar cue dat plaatje.'],[26,'Maak het plaatje scherper en mooier.'],[28.8,'Oké, doe nog maar een plaatje.'],[31.1,'Oké, doe nu een jongen bij een fiets.'],[34.7,'Oké, en nu Richard, die keihard wegrent van die jongens.'],[38,'En rennen, rennen, rennen.'],[39.7,'Zwellende muziek.'],[41.9,'Oh, oh, en niet op z\'n bek geslagen.'],[44.9,'Yes, goed zo. Succes.'],[47.1,'Man, dit was de easter egg.'],[50.3,'Love you, neef.']],
+  slates:[[18,'🎬 Cue: plaatje'],[26.1,'🎬 Scherper. Mooier.'],[29.3,'🎬 Nog een plaatje'],[31.6,'🎬 Jongen bij fiets'],[34.7,'🎬 Richard rent weg'],[39.7,'🎬 Zwellende muziek'],[46.2,'🎬 Succes'],[48.4,'']],
+  flashes:[18,29.7,32.1,35.4,46.2,48.5],
+};
+const WOMEN = [
+  { coat:'#c2456b', hair:'#e2b04a', long_hair:true, dress:true, legs:'#e7b99a', skin:'#f0c4a8', ph:.4, cheeks:true },
+  { coat:'#2f8f86', hair:'#2a1a10', long_hair:true, dress:true, legs:'#c99a7a', skin:'#c99a7a', ph:1.3, cheeks:true },
+  { coat:'#7a4bc2', hair:'#8a2f1c', long_hair:true, dress:true, legs:'#f0c4a8', skin:'#f0c4a8', ph:2.1, cheeks:true },
+  { coat:'#e9b54a', hair:'#151010', long_hair:true, dress:true, legs:'#8a5a3a', skin:'#8a5a3a', ph:2.8, cheeks:true },
+  { coat:'#d0574a', hair:'#c9a25a', long_hair:true, dress:true, legs:'#e7b99a', skin:'#e7b99a', ph:3.6, cheeks:true },
+  { coat:'#3d6fb0', hair:'#4a2a18', long_hair:true, dress:true, legs:'#f0c4a8', skin:'#f0c4a8', ph:4.4, cheeks:true },
+];
+const YOUTH = [
+  { coat:'#20242b', beanie:'#111', legs:'#14161a', ph:.3 }, { coat:'#3a2030', hat:'#111', legs:'#222', ph:1.1 },
+  { coat:'#1d2f2a', legs:'#111', hair:'#0d0d0d', ph:2.2, wide:1.15 }, { coat:'#2b2b2b', beanie:'#7a1f1f', legs:'#1a1a1a', ph:2.9 },
+  { coat:'#26203a', legs:'#151515', hair:'#2a1a10', ph:3.7 },
+];
+function nieuwscafe(k, t){
+  cached('nieuws', () => {
+    sky('#0a1018', '#18283a', '#273a46', 50, 77);
+    houses(HB() - 10*U, 99, { lit:.35, scale:.95 });
+    // the café: a wide facade with big windows and a sign
+    const x0 = W*.08, x1 = W*.92, top = HB() - 170*U, base = GY() + 8*U;
+    ctx.fillStyle = '#3a2a22'; ctx.fillRect(x0, top, x1 - x0, base - top);
+    ctx.fillStyle = '#2a1d17'; ctx.fillRect(x0 - 6*U, top - 10*U, x1 - x0 + 12*U, 12*U);
+    for (let i = 0; i < 3; i++){ const wx = x0 + 14*U + i*(x1 - x0 - 28*U)/3, ww = (x1 - x0 - 28*U)/3 - 12*U;
+      ctx.fillStyle = '#ffcf7a'; ctx.fillRect(wx, base - 120*U, ww, 92*U); glow(wx + ww/2, base - 74*U, 90*U, 'rgba(255,200,120,.35)');
+      ctx.fillStyle = 'rgba(60,30,10,.55)'; ctx.fillRect(wx + ww/2 - 1, base - 120*U, 2, 92*U); ctx.fillRect(wx, base - 84*U, ww, 2);
+      for (let j = 0; j < 3; j++){ ctx.fillStyle = 'rgba(40,20,10,.5)'; ctx.beginPath(); ctx.arc(wx + 14*U + j*ww/3, base - 50*U, 8*U, 0, 7); ctx.fill(); } }
+    for (let i = 0; i < 4; i++){ ctx.fillStyle = PAL.lit2; ctx.fillRect(x0 + 20*U + i*(x1 - x0 - 40*U)/4, top + 16*U, 20*U, 22*U); }
+    cobbles(base, .7);
+    lamp(W*.04, GY() + 26*U, U); lamp(W*.96, GY() + 26*U, U);
+  });
+  // neon sign
+  const fl = Math.sin(t*23) > -.9 ? 1 : .35, sy = HB() - 108*U;
+  ctx.font = `800 ${Math.min(30*U, W/11)}px Fraunces,serif`; ctx.textAlign = 'center';
+  ctx.shadowColor = '#ff6a3d'; ctx.shadowBlur = 18*U*fl; ctx.fillStyle = `rgba(255,190,150,${fl})`; ctx.fillText('NIEUWSCAFÉ', W/2, sy); ctx.shadowBlur = 0; ctx.textAlign = 'left';
+  // the youths
+  const showY = k >= 18;
+  if (showY){ const close = k >= 29.7 && k < 32.1, n = 5;
+    YOUTH.forEach((y, i) => { const x = W*(.48 + (i - 2)*.11), sc = close ? 1.55 : 1;
+      person(W/2 + (x - W/2)*sc, GY() + (close ? 60*U : 10*U) + (i%2)*6*U, CH()*.9*sc, { ...y, bob:.6, bobSpeed:3 }, t); });
+    if (k >= 32.1){ bike(W*.83, GY() + 30*U, U*2.1, '#9aa', -1); person(W*.88, GY() + 30*U, CH()*.95, { coat:'#2a2a2a', hat:'#111', legs:'#151515', ph:5 }, t); }
+  }
+  if (k < 18) [0,1,2].forEach(i => person(W*(.6 + i*.14), GY() - 30*U, CH()*.72, { ...WOMEN[i], bob:.5 }, t));
+  // Richard, acting tough (chest out, arms up)
+  const tough = k < 18 || (k >= 26 && k < 34.7);
+  person(W*.2, GY() + 26*U, CH()*1.05, { ...YOU, raise: tough && Math.sin(t*2) > 0, wide: 1.25, mouth: k >= 18 && k < 26 ? 'o' : '' }, t);
+  if (k >= 27.7){ for (let i = 0; i < 12; i++){ const a = t*.8 + i; ctx.fillStyle = `rgba(255,235,170,${.4 + .4*Math.sin(t*5 + i)})`; ctx.beginPath(); ctx.arc(W*(.1 + (i*.077)%1) , H*(.2 + ((i*.13 + t*.02)%1)*.4), 2*U, 0, 7); ctx.fill(); } }
+  rain(t, .4); vignette(.55);
+}
+function bonusRun(k, t){
+  const sp = k < 43.1 ? 1 : Math.max(0, 1 - (k - 43.1)*1.2), off = (k - 34.7) * 420*U;
+  ctx.fillStyle = grad(0, H, ['#0a1018', '#1a2a3a', '#263842']); ctx.fillRect(0, 0, W, H);
+  ctx.save(); ctx.translate((off % (W*3)) - W*1.5, 0); houses(HB(), 123, { lit:.45, x0:-W*.5, x1:W*4, scale:1.05 }); ctx.restore();
+  cobbles(HB(), .6);
+  ctx.save(); ctx.translate(((off*1.4) % (W*1.2)), 0); for (let i = -2; i < 4; i++) lamp(i*W*.6, GY() + 24*U, U); ctx.restore();
+  // speed lines
+  if (sp > .1){ ctx.strokeStyle = 'rgba(255,255,255,.25)'; ctx.lineWidth = 2; for (let i = 0; i < 14; i++){ const y = H*(.15 + i*.05), x = ((i*173 + off*2) % (W + 200)) - 100; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + 80*U, y); ctx.stroke(); } }
+  // the youths behind, falling back after 41
+  const gap = k < 41 ? 0 : (k - 41)*W*.35;
+  if (k < 44) YOUTH.slice(0, 3).forEach((y, i) => person(W*(.88 + i*.12) + gap, GY() + 20*U + i*6*U, CH()*.95, { ...y, run:true, flip:true }, t + i));
+  // Richard running left (facing left), stops at 43
+  const rx = k < 43.1 ? W*.38 + Math.sin(t*9)*6*U : W*.38;
+  person(rx, GY() + 26*U, CH()*1.05, { ...YOU, run: sp > .2, flip:true, mouth:'o', raise: k >= 44.9 }, t);
+  if (k >= 41.9 && k < 46.2){ ctx.fillStyle = 'rgba(0,0,0,.6)'; rrect(W/2 - 140*U, H*.18, 280*U, 54*U, 12*U); ctx.fill(); ctx.fillStyle = '#7ff5ea'; ctx.font = `800 ${18*U}px Nunito Sans,sans-serif`; ctx.textAlign = 'center'; ctx.fillText('✔ Niet op z\'n bek geslagen', W/2, H*.18 + 34*U); ctx.textAlign = 'left'; }
+  vignette(.5);
+}
+let CONF = [];
+function confetti(n = 120){ for (let i = 0; i < n; i++) CONF.push({ x: W/2, y: H*.35, vx: (Math.random() - .5)*14*U, vy: -Math.random()*12*U - 4*U, c: ['#e9b54a','#4fd1c5','#e2574c','#9ec7ff','#fff'][i%5], r: Math.random()*6, s: 3 + Math.random()*4 }); }
+function drawConf(){ CONF.forEach(p => { p.vy += .35*U; p.x += p.vx; p.y += p.vy; p.vx *= .99; p.r += .2; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.c; ctx.fillRect(-p.s*U/2, -p.s*U/4, p.s*U, p.s*U/2); ctx.restore(); }); CONF = CONF.filter(p => p.y < H + 20); }
+function egg(x, y, s, t){
+  ctx.save(); ctx.translate(x, y); ctx.rotate(Math.sin(t*2)*.12);
+  const g = ctx.createLinearGradient(0, -60*s, 0, 50*s); g.addColorStop(0, '#ffe08a'); g.addColorStop(1, '#e9a23a');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(0, 0, 40*s, 54*s, 0, 0, 7); ctx.fill();
+  ctx.save(); ctx.beginPath(); ctx.ellipse(0, 0, 40*s, 54*s, 0, 0, 7); ctx.clip();
+  ctx.fillStyle = '#e2574c'; ctx.fillRect(-50*s, -12*s, 100*s, 10*s); ctx.fillStyle = '#4fd1c5'; ctx.fillRect(-50*s, 6*s, 100*s, 7*s);
+  for (let i = -3; i < 4; i++){ ctx.fillStyle = '#2f5d7c'; ctx.beginPath(); ctx.arc(i*12*s, -30*s, 3.5*s, 0, 7); ctx.arc(i*12*s + 6*s, 28*s, 3.5*s, 0, 7); ctx.fill(); }
+  ctx.restore(); ctx.restore();
+}
+function drawBonus(t){
+  const B = drawBonus.st; if (!B) return;
+  const k = B.k();
+  if (k < 34.7) nieuwscafe(k, t);
+  else if (k < 48.5) bonusRun(k, t);
+  else { ctx.fillStyle = grad(0, H, ['#1a0f22', '#2b1636', '#120a18']); ctx.fillRect(0, 0, W, H); glow(W/2, H*.38, 260*U, 'rgba(233,181,74,.35)'); egg(W/2, H*.36, U*1.7, t);
+    ctx.textAlign = 'center'; ctx.fillStyle = '#fff4dc'; ctx.font = `800 ${Math.min(44*U, W/7)}px Fraunces,serif`; ctx.fillText('EASTER EGG', W/2, H*.58);
+    if (k >= 50.3){ ctx.fillStyle = '#e2574c'; ctx.font = `800 ${26*U}px Fraunces,serif`; ctx.fillText('♥ Love you, neef', W/2, H*.64); }
+    ctx.textAlign = 'left'; }
+  if (k >= 43.1 && k < 48.5){ const into = Math.min(1, (k - 43.1)/1.2);
+    for (let i = 0; i < 12; i++){ const w = WOMEN[i % 6], row = i < 6 ? 0 : 1, x = W*(.06 + (i % 6)*.18 + row*.09) + (1 - into)*W*(i%2 ? 1 : -1);
+      person(x, GY() + 70*U + row*40*U, CH()*(row ? 1.0 : .9), { ...w, raise:true, wave:true, mouth:'o', bobSpeed:10, bob:3 }, t + i); }
+    person(W/2, GY() - 10*U, CH()*1.1, { ...YOU, raise:true, wave:true, mouth:'o', bobSpeed:8, bob:3 }, t);
+    for (let i = 0; i < 10; i++){ const a = (t*.7 + i*.37) % 1; ctx.globalAlpha = 1 - a; ctx.fillStyle = '#ff5c8a'; ctx.font = `800 ${22*U}px Fraunces,serif`; ctx.fillText('♥', W*((i*.11 + .05) % 1), GY() - a*200*U); } ctx.globalAlpha = 1; }
+  if (k >= 46.2 && k < 48.5){ ctx.textAlign = 'center'; ctx.fillStyle = '#e9b54a'; ctx.shadowColor = '#000'; ctx.shadowBlur = 20; ctx.font = `800 ${Math.min(70*U, W/5)}px Fraunces,serif`; ctx.fillText('SUCCES!', W/2, H*.32); ctx.shadowBlur = 0; ctx.textAlign = 'left'; }
+  drawConf();
+  // camera flash on each "cue"
+  BONUS.flashes.forEach(f => { const d = k - f; if (d > 0 && d < .35){ ctx.fillStyle = `rgba(255,255,255,${.85*(1 - d/.35)})`; ctx.fillRect(0, 0, W, H); } });
+}
+async function bonus(){
+  audioInit();
+  $('#credits').hidden = true; $('#title').hidden = true; $('#part2').hidden = true; hideBox(); $('#hud').classList.add('off');
+  music(''); ambience('rain'); A.mus.gain.value = .55;
+  let buf; try { const r = await fetch(BONUS.src); buf = await A.ac.decodeAudioData(await r.arrayBuffer()); } catch(e){ credits(); return; }
+  const src = A.ac.createBufferSource(); src.buffer = buf; const g = A.ac.createGain(); g.gain.value = 1.15; src.connect(g); g.connect(A.out);
+  const t0 = now() + .15; src.start(t0);
+  drawBonus.st = { k: () => now() - t0 }; GAME_DRAW = drawBonus; CONF = [];
+  const el = $('#vo'), cap = el.querySelector('.cap'), bars = el.querySelector('.bars'), skip = el.querySelector('button'), slate = $('#slate');
+  bars.innerHTML = ''; el.hidden = false;
+  const fired = new Set(); let stop = false;
+  skip.onclick = e => { e.stopPropagation(); stop = true; try { src.stop(); } catch(_){} };
+  while (!stop){
+    const k = now() - t0; if (k > buf.duration + .8) break;
+    let c = ''; BONUS.caps.forEach(([tt, s]) => { if (k >= tt) c = s; }); if (cap.textContent !== c) cap.textContent = c;
+    let sl = ''; BONUS.slates.forEach(([tt, s]) => { if (k >= tt) sl = s; }); if (slate.textContent !== sl){ slate.textContent = sl; slate.hidden = !sl; slate.classList.remove('pop'); void slate.offsetWidth; slate.classList.add('pop'); if (sl) SFX.click(); }
+    // the "rough draft" picture until he asks for it sharper
+    cv.style.filter = k >= 18 && k < 26.8 ? `blur(${k < 26 ? 3 : 3*(26.8 - k)/.8}px) saturate(.6)` : (k >= 27.7 && k < 34.7 ? 'saturate(1.25) contrast(1.05)' : '');
+    BONUS.flashes.forEach(f => { if (k >= f && !fired.has(f)){ fired.add(f); SFX.click(); if (f === 46.2){ confetti(); SFX.cheer(); SFX.sting(); } if (f === 48.5){ SFX.coin(); confetti(60); } } });
+    if (k >= 34.7 && !fired.has('run')){ fired.add('run'); music('chase'); A.mus.gain.setTargetAtTime(.25, now(), .3); }
+    if (k >= 39.7 && !fired.has('swell')){ fired.add('swell'); A.mus.gain.setTargetAtTime(.75, now(), 1.2); [50,57,62,65,69].forEach((m, i) => osc('sawtooth', N(m), now() + i*.05, 4, .05, A.mus, { a:1.6, lp:1800 })); }
+    if (k >= 43.1 && !fired.has('stop')){ fired.add('stop'); music(''); }
+    if (k >= 48.5 && !fired.has('egg')){ fired.add('egg'); [72,76,79,84].forEach((m, i) => setTimeout(() => SFX.bellNote(m, 2, .2), i*140)); }
+    await sleep(60);
+  }
+  cv.style.filter = ''; slate.hidden = true; el.hidden = true; GAME_DRAW = null; drawBonus.st = null; music('');
+  credits();
+}
 // ---------------------------------------------------------------------------
 // Start
 // ---------------------------------------------------------------------------
@@ -1416,6 +1563,7 @@ $('#start').onclick = async () => {
   await story();
 };
 $('#tocredits').onclick = () => { audioInit(); credits(); };
+$('#bonus').onclick = () => bonus();
 $('#again').onclick = async () => { $('#credits').hidden = true; STATE.hits = 0; STATE.rhythm = 0; await story(); };
 $('#share').onclick = async () => {
   const url = location.href.split('#')[0].split('?')[0], text = 'Found a suitcase in Groningen. It hums. Play it:';
@@ -1426,6 +1574,7 @@ $('#share').onclick = async () => {
 S.name = 'title'; S.t0 = 0;
 // test hooks: ?jump=<n> skips ahead (for checking), ?credits shows the end
 if (Q.has('credits')) { $('#title').hidden = true; credits(); }
+if (Q.has('bonus')) { $('#start').textContent = 'Tap for the bonus'; $('#start').onclick = () => bonus(); }
 window.__suit = { S, STATE, scene, SCENES };
 </script>
 </body></html>
