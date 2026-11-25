@@ -114,6 +114,16 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:17px/1
 .ring{position:fixed;pointer-events:none}
 .tapzone{position:fixed;inset:0;background:transparent}
 .judge{position:fixed;left:50%;top:44%;transform:translateX(-50%);font:800 30px var(--disp);pointer-events:none;text-shadow:0 2px 10px #000;animation:shout .6s ease-out forwards}
+
+/* Sam's voice message: intro over the title, outro over the credits */
+#vo{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 22px);transform:translateX(-50%);width:min(560px,calc(100% - 24px));z-index:9;
+  background:var(--panel);border:1px solid var(--edge);border-radius:16px;padding:12px 14px 14px;box-shadow:0 10px 40px rgba(0,0,0,.6)}
+#vo .top{display:flex;align-items:center;gap:10px}
+#vo .who{font:800 13px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}
+#vo .bars{display:flex;gap:3px;align-items:flex-end;height:18px;flex:1}
+#vo .bars i{display:block;width:4px;background:var(--teal);border-radius:2px;height:4px;transition:height .08s}
+#vo button{appearance:none;border:1px solid #7a6446;background:#2a2016;color:var(--ink);font:800 13px var(--body);padding:6px 12px;border-radius:999px;cursor:pointer}
+#vo .cap{font-size:19px;line-height:1.4;margin-top:10px;min-height:54px;color:#fff4dc}
 @media (min-width:900px){ #txt{font-size:19px} }
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
@@ -157,6 +167,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:17px/1
     <small>No kroketten were saved in the making of this game.</small>
   </div>
 </div>
+<div id="vo" hidden><div class="top"><span class="who">Bericht van Sam</span><span class="bars"></span><button type="button">Skip ▸</button></div><div class="cap"></div></div>
 <div id="fade"></div>
 
 <script type="module">
@@ -1324,6 +1335,7 @@ async function credits(){
   $('#score').textContent = bits.join(', ').replace(', and', ' and');
   $('#credits').hidden = false;
   hans3D();
+  if (!Q.has('novo') && !STATE.heardOutro){ STATE.heardOutro = true; await sleep(1800); voice('outro'); }
 }
 // Hans, sculpted, dancing in the credits (the mini from the Chronicle; skipped quietly if it can't load)
 let hansRun = false;
@@ -1350,11 +1362,42 @@ async function hans3D(){
   } catch(e){ /* no Hans tonight */ }
 }
 
+
+// ---------------------------------------------------------------------------
+// Sam's voice message (Dutch, with subtitles): the intro after the first tap, the rest over the credits
+// ---------------------------------------------------------------------------
+const VO = {
+  intro: { src:'vo-intro.mp3', caps:[[0.2,'Hallo neefje, weet je nog dat verhaal van die koffer in Groningen?'],[7.9,'Je hebt vast wel een beetje het nieuws gehoord over vibecoden.'],[14.8,'Ik heb dit net gemaakt.'],[16.7,'Terwijl ik op de wc zat. Met Claude.'],[21.5,'Ja, in vijf minuten of zo.'],[26.0,'Nou, kijk maar even.']] },
+  outro: { src:'vo-outro.mp3', caps:[[0.2,'Hoe is het met m\'n neef?'],[4.0,'Hoe is het dan?'],[6.1,'Heb je \'m uitgespeeld? Is het wat?'],[9.2,'Vind je het leuk?']] },
+};
+async function voice(name, o = {}){
+  const v = VO[name], el = $('#vo'), cap = el.querySelector('.cap'), bars = el.querySelector('.bars'), skip = el.querySelector('button');
+  if (!A.ac) return;
+  let buf;
+  try { const r = await fetch(v.src); buf = await A.ac.decodeAudioData(await r.arrayBuffer()); } catch(e){ return; }
+  bars.innerHTML = '<i></i>'.repeat(14); const bi = [...bars.children];
+  const src = A.ac.createBufferSource(); src.buffer = buf;
+  const an = A.ac.createAnalyser(); an.fftSize = 64; const g = A.ac.createGain(); g.gain.value = 1.15;
+  src.connect(g); g.connect(an); g.connect(A.out);
+  const musWas = A.mus.gain.value; A.mus.gain.setTargetAtTime(musWas * .25, now(), .2); A.amb.gain.setTargetAtTime(.2, now(), .2);
+  const t0 = now(); src.start(); el.hidden = false; cap.textContent = '';
+  const data = new Uint8Array(an.frequencyBinCount);
+  let done = false;
+  const tick = () => { if (done) return; const k = now() - t0; let c = ''; v.caps.forEach(([t, s]) => { if (k >= t) c = s; }); if (cap.textContent !== c) cap.textContent = c;
+    an.getByteFrequencyData(data); bi.forEach((b, i) => b.style.height = (4 + data[i + 1] / 255 * 14) + 'px'); requestAnimationFrame(tick); };
+  tick();
+  await new Promise(res => { src.onended = res; skip.onclick = e => { e.stopPropagation(); try { src.stop(); } catch(_){} res(); }; });
+  done = true; el.hidden = true;
+  A.mus.gain.setTargetAtTime(musWas, now(), .4); A.amb.gain.setTargetAtTime(.5, now(), .4);
+}
 // ---------------------------------------------------------------------------
 // Start
 // ---------------------------------------------------------------------------
 $('#start').onclick = async () => {
-  audioInit(); SFX.hum();
+  audioInit(); ambience('rain');
+  $('#start').hidden = true; document.querySelector('#title small').hidden = true;
+  if (!Q.has('novo')) await voice('intro');
+  SFX.hum();
   $('#title').hidden = true;
   await story();
 };
