@@ -167,7 +167,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:17px/1
     <small>No kroketten were saved in the making of this game.</small>
   </div>
 </div>
-<div id="vo" hidden><div class="top"><span class="who">Bericht van Sam</span><span class="bars"></span><button type="button">Skip ▸</button></div><div class="cap"></div></div>
+<div id="vo" hidden><div class="top"><span class="who">Samuel</span><span class="bars"></span><button type="button">Skip ▸</button></div><div class="cap"></div></div>
 <div id="fade"></div>
 
 <script type="module">
@@ -1136,6 +1136,7 @@ async function story(){
   if (AT <= 1) {
   // 1 · the café
   await scene('cafe', { clock:'22:40', place:'Café on the Grote Markt', music:'pub', amb:'crowd' });
+  hideBox(); await voice('lines', { i:0 });
   await n('Friday night in Groningen. You, Richard, are out with your cousin Samuel. You\'re two beers into what was meant to be one beer.');
   await say('Samuel', 'One more and then home. Honestly.');
   rounds(3);
@@ -1159,6 +1160,7 @@ async function story(){
   if (AT <= 2) {
   // 2 · the snack wall
   await scene('snack', { clock:'23:35', place:'Vismarkt', music:'street', amb:'rain', fx:{ kroket:true } });
+  hideBox(); await voice('lines', { i:1 });
   await n('Samuel needs a kroket. The snack wall on the Vismarkt is still lit, a whole wall of little hot windows.');
   await n('He puts in two euros, opens the little door and takes out a kroket like he\'s holding a newborn.');
   S.fx.gull = { mode:'land', t0:T(), dur:1.6 }; SFX.gull(); await sleep(1700); S.fx.gull = { mode:'stand' };
@@ -1184,6 +1186,7 @@ async function story(){
   if (AT <= 3) {
   // 3 · the chase
   await scene('street', { clock:'00:15', place:'Folkingestraat', music:'tense', amb:'rain' });
+  hideBox(); await voice('lines', { i:2 });
   await n('You put the suitcase down for one second to tie your shoe.');
   S.fx.thief = { t0:T() }; SFX.bell(); SFX.whoosh(); CAM.shake = .6;
   await n('A man on a pink bicycle grabs it and pedals off down the Folkingestraat.');
@@ -1203,6 +1206,7 @@ async function story(){
   if (AT <= 4) {
   // 4 · the tower
   await scene('tower', { clock:'01:00', place:'Martinitoren', music:'', amb:'wind' });
+  hideBox(); await voice('lines', { i:3 });
   for (const m of [67, 72, 76, 72]){ SFX.bellNote(m, 2.2, .3); S.fx.towerFlash = 1; await sleep(380); S.fx.towerFlash = 0; await sleep(120); }
   await n('One o\'clock. The bells of the Martinitoren play their little tune, like they do every hour.');
   SFX.beeps();
@@ -1221,6 +1225,7 @@ async function story(){
   if (AT <= 5) {
   // 5 · the club
   await scene('club', { clock:'02:10', place:'A basement on the Oosterstraat', music:'club', amb:'club' });
+  hideBox(); await voice('lines', { i:4 });
   await n('You need somewhere warm to think. There\'s a basement club on the Oosterstraat with no sign, just a door and a bass line.');
   rounds(6);
   await n('The DJ wears big blue headphones. His face is made of brass. Nobody down here seems to find that odd.');
@@ -1242,6 +1247,7 @@ async function story(){
   if (AT <= 6) {
   // 6 · the canal
   await scene('canal', { clock:'03:30', place:'Hoge der A', music:'canal', amb:'water', fx:{ caseOnQuay:true } });
+  hideBox(); await voice('lines', { i:5 });
   await n('Half past three. You walk along the Hoge der A to clear your heads. The old warehouses lean out over the water.');
   S.fx.dance = true;
   await say('Samuel', 'Wait, wait. Look. This is the move from the club.');
@@ -1266,6 +1272,7 @@ async function story(){
   if (AT <= 7) {
   // 7 · the park
   await scene('park', { clock:'04:45', place:'Noorderplantsoen', music:'park', amb:'wind', fx:{ man:{ } } });
+  hideBox(); await voice('lines', { i:6 });
   await n('The Noorderplantsoen. Mist on the pond, the ducks asleep. You sit down on a bench and dry the suitcase off with your sleeve.');
   await n('There\'s a man on the other end of the bench. Long coat, hat, and no reason to be in a park at quarter to five.');
   await say('Man in the coat', 'Nice suitcase.');
@@ -1286,6 +1293,7 @@ async function story(){
   if (AT <= 8) {
   // 8 · dawn and the lock
   await scene('dawn', { clock:'06:12', place:'Noorderplantsoen', music:'dawn', amb:'', birds:true, fx:{ zzz:true } });
+  hideBox(); await voice('lines', { i:7 });
   await n('The sun comes up over the Noorderplantsoen. Samuel is asleep on your shoulder, still holding an empty beer you don\'t remember him buying.');
   await lock();
   S.fx.zzz = false;
@@ -1296,6 +1304,7 @@ async function story(){
   if (AT <= 9) {
   // 9 · what's inside
   await scene('nest', { clock:'06:14', place:'Noorderplantsoen', music:'dawn', birds:true, fx:{ nest:0 } });
+  hideBox(); await voice('lines', { i:8 });
   const inside = [
     'Inside there\'s another suitcase.',
     'Inside that one there\'s another suitcase.',
@@ -1316,6 +1325,7 @@ async function story(){
   await n('The humming stops.');
   await say('Samuel', '…Right.');
   await say('Samuel', 'The station opens at six.');
+  hideBox(); await voice('lines', { i:9 });
   await n('And that\'s when things actually got weird.');
   hideBox();
   await scene('locker', { music:'', amb:'' });
@@ -1368,22 +1378,26 @@ async function hans3D(){
 // ---------------------------------------------------------------------------
 const VO = {
   intro: { src:'vo-intro.mp3', caps:[[0.2,'Hallo neefje, weet je nog dat verhaal van die koffer in Groningen?'],[7.9,'Je hebt vast wel een beetje het nieuws gehoord over vibecoden.'],[14.8,'Ik heb dit net gemaakt.'],[16.7,'Terwijl ik op de wc zat. Met Claude.'],[21.5,'Ja, in vijf minuten of zo.'],[26.0,'Nou, kijk maar even.']] },
+  lines: { src:'vo-lines.mp3', clips:[[0, 6.0, "Vrijdagavond. Richard en Samuel zitten in een café op de Grote Markt."], [6.6, 3.94, "Samuel wilde een kroket. Grote fout."], [11.14, 3.18, "En toen pakte iemand op een roze fiets de koffer."], [14.92, 5.92, "Om één uur begonnen de klokken te spelen. En de koffer speelde mee."], [21.44, 5.52, "Ze kwamen in een kelder op de Oosterstraat. De DJ had een koperen hoofd."], [27.56, 3.08, "Samuel trapte de koffer de gracht in."], [31.24, 3.56, "In het Noorderplantsoen zat een man in een lange jas."], [35.4, 4.38, "Het werd licht. Vier cijfers. Het jaar, zei hij."], [40.38, 3.78, "Er zat een koffer in. En daarin nog een."], [44.76, 2.5, "En toen werd het pas echt raar."]] },
   outro: { src:'vo-outro.mp3', caps:[[0.2,'Hoe is het met m\'n neef?'],[4.0,'Hoe is het dan?'],[6.1,'Heb je \'m uitgespeeld? Is het wat?'],[9.2,'Vind je het leuk?']] },
 };
 async function voice(name, o = {}){
   const v = VO[name], el = $('#vo'), cap = el.querySelector('.cap'), bars = el.querySelector('.bars'), skip = el.querySelector('button');
   if (!A.ac) return;
-  let buf;
-  try { const r = await fetch(v.src); buf = await A.ac.decodeAudioData(await r.arrayBuffer()); } catch(e){ return; }
+  if (Q.has('novo')) return;
+  let buf = v.buf;
+  if (!buf) try { const r = await fetch(v.src); buf = v.buf = await A.ac.decodeAudioData(await r.arrayBuffer()); } catch(e){ return; }
+  const clip = v.clips ? v.clips[o.i] : null; if (v.clips && !clip) return;
+  const caps = clip ? [[0, clip[2]]] : v.caps;
   bars.innerHTML = '<i></i>'.repeat(14); const bi = [...bars.children];
   const src = A.ac.createBufferSource(); src.buffer = buf;
   const an = A.ac.createAnalyser(); an.fftSize = 64; const g = A.ac.createGain(); g.gain.value = 1.15;
   src.connect(g); g.connect(an); g.connect(A.out);
   const musWas = A.mus.gain.value; A.mus.gain.setTargetAtTime(musWas * .25, now(), .2); A.amb.gain.setTargetAtTime(.2, now(), .2);
-  const t0 = now(); src.start(); el.hidden = false; cap.textContent = '';
+  const t0 = now(); if (clip) src.start(0, clip[0], clip[1]); else src.start(); el.hidden = false; cap.textContent = '';
   const data = new Uint8Array(an.frequencyBinCount);
   let done = false;
-  const tick = () => { if (done) return; const k = now() - t0; let c = ''; v.caps.forEach(([t, s]) => { if (k >= t) c = s; }); if (cap.textContent !== c) cap.textContent = c;
+  const tick = () => { if (done) return; const k = now() - t0; let c = ''; caps.forEach(([t, s]) => { if (k >= t) c = s; }); if (cap.textContent !== c) cap.textContent = c;
     an.getByteFrequencyData(data); bi.forEach((b, i) => b.style.height = (4 + data[i + 1] / 255 * 14) + 'px'); requestAnimationFrame(tick); };
   tick();
   await new Promise(res => { src.onended = res; skip.onclick = e => { e.stopPropagation(); try { src.stop(); } catch(_){} res(); }; });
@@ -1396,7 +1410,7 @@ async function voice(name, o = {}){
 $('#start').onclick = async () => {
   audioInit(); ambience('rain');
   $('#start').hidden = true; document.querySelector('#title small').hidden = true;
-  if (!Q.has('novo')) await voice('intro');
+  if (!Q.has('novo')) { fetch(VO.lines.src).then(r => r.arrayBuffer()).then(b => A.ac.decodeAudioData(b)).then(b => { VO.lines.buf = VO.lines.buf || b; }).catch(()=>{}); await voice('intro'); }
   SFX.hum();
   $('#title').hidden = true;
   await story();
